@@ -1,0 +1,28 @@
+# AI Skills Inventory
+
+This file records AI-related skills, tools, and project practices used during delivery. Brands distinguish their origin.
+
+## OpenAI
+
+| Skill or capability          | Used in         | Purpose                                                                         |
+| ---------------------------- | --------------- | ------------------------------------------------------------------------------- |
+| OpenAI Docs skill            | Step 1 planning | Selected a cost-conscious coding-model approach using official OpenAI guidance. |
+| Codex file and command tools | Steps 1-2       | Created, inspected, tested, and documented the project in small approved steps. |
+
+## External technology
+
+| Technology                 | Used in       | Purpose                                                                      |
+| -------------------------- | ------------- | ---------------------------------------------------------------------------- |
+| Vite                       | Step 1        | Provides local development and production bundling.                          |
+| React                      | Step 1        | Provides component composition for the web interface.                        |
+| MapLibre GL JS             | Step 1 onward | Provides the eventual 2D/3D map renderer behind a provider-neutral contract. |
+| Vitest and Testing Library | Step 1 onward | Verify behavior without manually testing every change.                       |
+
+## Yote Wayfinder project practices
+
+| Practice                                        | Introduced in | Purpose                                                                           |
+| ----------------------------------------------- | ------------- | --------------------------------------------------------------------------------- |
+| Approval-gated delivery                         | Step 1        | Keeps implementation within the agreed scope.                                     |
+| Maintainable frontend boundaries                | Step 2        | Separates domain, data, UI, map infrastructure, and composition.                  |
+| Technical-term and file-connection explanations | Step 2        | Makes the project easier to understand and maintain.                              |
+| Commit-before-push workflow                     | Step 2        | Preserves a reviewable local history and requires approval before remote changes. |
