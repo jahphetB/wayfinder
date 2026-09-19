@@ -30,7 +30,7 @@ export interface MapLibreMapInstance {
 export type MapLibreMapFactory = (options: MapOptions) => MapLibreMapInstance
 
 export interface MapLibreMapAdapterOptions {
-  readonly styleUrl: string
+  readonly style: NonNullable<MapOptions['style']>
   readonly createMap?: MapLibreMapFactory
 }
 
@@ -63,7 +63,7 @@ export class MapLibreMapAdapter implements MapAdapter {
 
     this.map = this.createMap({
       container,
-      style: this.options.styleUrl,
+      style: this.options.style,
       center: [initialView.center.longitude, initialView.center.latitude],
       zoom: initialView.zoom,
       ...cameraForMode(initialView.mode),

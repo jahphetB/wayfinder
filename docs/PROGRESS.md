@@ -39,3 +39,11 @@ Status: complete
 - Adjusted mobile behavior so previewing a route scrolls the interactive map into view.
 - Configured MapLibre's Vite worker URL so the map renderer loads in development and production.
 - Excluded MapLibre from Vite dependency pre-bundling to prevent stale worker-path errors during local development.
+- Fixed the invisible-map cause found through browser inspection: MapLibre's
+  vendor CSS overrode the absolutely positioned host and collapsed it to zero
+  height. Vendor CSS now loads before application CSS, and the map host has an
+  explicit full width and height.
+- Replaced the low-detail MapLibre demonstration style with the official
+  OpenStreetMap raster-style pattern so the prototype shows recognizable streets
+  at campus zoom levels. A hosted style can still be injected through
+  `VITE_MAP_STYLE_URL`.

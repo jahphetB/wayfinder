@@ -1,9 +1,30 @@
+import type { StyleSpecification } from 'maplibre-gl'
+
 import type { MapAdapterFactory } from '@/features/map/contracts/MapAdapter'
 import { MapLibreMapAdapter } from '@/features/map/infrastructure/MapLibreMapAdapter'
 
-const defaultMapStyleUrl = 'https://demotiles.maplibre.org/style.json'
+const defaultMapStyle = {
+  version: 8,
+  sources: {
+    openStreetMap: {
+      type: 'raster',
+      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      minzoom: 0,
+      maxzoom: 19,
+      attribution: '© OpenStreetMap contributors',
+    },
+  },
+  layers: [
+    {
+      id: 'open-street-map',
+      type: 'raster',
+      source: 'openStreetMap',
+    },
+  ],
+} satisfies StyleSpecification
 
 export const createMapAdapter: MapAdapterFactory = () =>
   new MapLibreMapAdapter({
-    styleUrl: import.meta.env.VITE_MAP_STYLE_URL ?? defaultMapStyleUrl,
+    style: import.meta.env.VITE_MAP_STYLE_URL ?? defaultMapStyle,
   })

@@ -19,7 +19,7 @@ describe('MapLibreMapAdapter', () => {
     }
     const createMap = vi.fn(() => mapInstance)
     const adapter = new MapLibreMapAdapter({
-      styleUrl: 'https://example.test/style.json',
+      style: 'https://example.test/style.json',
       createMap,
     })
     const container = document.createElement('div')
@@ -39,6 +39,7 @@ describe('MapLibreMapAdapter', () => {
         zoom: 15,
         bearing: -20,
         pitch: 60,
+        style: 'https://example.test/style.json',
       }),
     )
     expect(easeTo).toHaveBeenCalledWith({
@@ -51,7 +52,7 @@ describe('MapLibreMapAdapter', () => {
 
   it('fails clearly when map controls are used before initialization', () => {
     const adapter = new MapLibreMapAdapter({
-      styleUrl: 'https://example.test/style.json',
+      style: 'https://example.test/style.json',
       createMap: vi.fn(),
     })
 

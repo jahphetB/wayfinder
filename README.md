@@ -1,6 +1,6 @@
 # Yote Wayfinder
 
-Yote Wayfinder is a responsive navigation-map prototype. It will provide mock origin and destination search, a sample route, and a 2D/3D MapLibre map without requiring a routing backend.
+Yote Wayfinder is a responsive navigation-map prototype. It provides mock origin and destination search, a sample route, and a 2D/3D MapLibre map with an OpenStreetMap basemap without requiring a routing backend.
 
 ## Current progress
 
@@ -19,6 +19,18 @@ See [the detailed progress log](docs/PROGRESS.md) and [the AI skills inventory](
 npm install
 npm run dev
 ```
+
+Open the exact local URL printed by Vite. If the default port is already in
+use, Vite selects another port such as `http://localhost:5174/`.
+
+MapLibre's vendor stylesheet is loaded before the application's stylesheet in
+`src/main.tsx`. This order lets the application preserve the map host's full
+height. If the map canvas exists but is not visible, inspect `.map-canvas` in
+the browser and confirm that its computed height is greater than zero.
+
+The default street tiles come from OpenStreetMap for prototype use. Set
+`VITE_MAP_STYLE_URL` to a compatible hosted MapLibre style URL when a dedicated
+production tile provider is selected.
 
 ## Quality checks
 
