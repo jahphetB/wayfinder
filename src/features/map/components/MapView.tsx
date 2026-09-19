@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import 'maplibre-gl/dist/maplibre-gl.css'
 import type { Location, MapMode, Route } from '@/domain/navigation/types'
 import { createMapAdapter } from '@/composition/createMapAdapter'
 import type { MapAdapter } from '@/features/map/contracts/MapAdapter'

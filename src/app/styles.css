@@ -265,9 +265,11 @@ form {
   overflow: hidden;
   background: #d7eadb;
 }
-.map-canvas {
+.map-view > .map-canvas {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
 }
 .map-mode-toggle {
   position: absolute;
