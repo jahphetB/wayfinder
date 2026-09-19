@@ -37,3 +37,4 @@ Status: complete
 - Lifted route-planner state to the application composition layer so the navigation panel and map share one source of truth.
 - Verified formatting, type-checking, linting, tests, and the production build.
 - Adjusted mobile behavior so previewing a route scrolls the interactive map into view.
+- Configured MapLibre's Vite worker URL so the map renderer loads in development and production.

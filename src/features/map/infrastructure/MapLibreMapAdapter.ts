@@ -1,8 +1,10 @@
 import {
   Map as MapLibreMap,
+  setWorkerUrl,
   type EaseToOptions,
   type MapOptions,
 } from 'maplibre-gl'
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 
 import type { MapMode } from '@/domain/navigation/types'
 import type {
@@ -31,6 +33,8 @@ export interface MapLibreMapAdapterOptions {
   readonly styleUrl: string
   readonly createMap?: MapLibreMapFactory
 }
+
+setWorkerUrl(workerUrl)
 
 const defaultMapFactory: MapLibreMapFactory = (options) =>
   new MapLibreMap(options)
