@@ -12,6 +12,7 @@ Commit: `33e2dbd` (`chore: initialize React project foundation`)
 ## Step 2: Domain model and provider abstraction
 
 Status: complete
+Commit: `0d1807b` (`feat: add navigation domain and map adapter`)
 
 - Established provider-independent navigation models and validation.
 - Added immutable local mock locations, search results, and route data.
