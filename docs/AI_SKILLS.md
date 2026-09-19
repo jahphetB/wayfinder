@@ -29,3 +29,4 @@ This file records AI-related skills, tools, and project practices used during de
 | React composition and hook isolation            | Step 3        | Keeps navigation visuals separate from selection and route-preview behavior.      |
 | Lazy-loaded map integration                     | Step 4        | Defers the large MapLibre bundle until the interactive map component is needed.   |
 | MapLibre Vite worker configuration              | Step 4 fix    | Bundles MapLibre's required map-rendering worker for Vite development and builds. |
+| Vite dependency optimization control            | Step 4 fix    | Prevents Vite from pre-bundling MapLibre with a stale worker path.                |

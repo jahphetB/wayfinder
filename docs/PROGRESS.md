@@ -38,3 +38,4 @@ Status: complete
 - Verified formatting, type-checking, linting, tests, and the production build.
 - Adjusted mobile behavior so previewing a route scrolls the interactive map into view.
 - Configured MapLibre's Vite worker URL so the map renderer loads in development and production.
+- Excluded MapLibre from Vite dependency pre-bundling to prevent stale worker-path errors during local development.
