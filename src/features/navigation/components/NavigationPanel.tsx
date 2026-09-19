@@ -92,8 +92,11 @@ function RouteSummary({
     </section>
   )
 }
-export function NavigationPanel() {
-  const planner = useRoutePlanner()
+export function NavigationPanel({
+  planner,
+}: {
+  readonly planner: ReturnType<typeof useRoutePlanner>
+}) {
   return (
     <section className="navigation-panel">
       <p className="eyebrow">Route planner</p>

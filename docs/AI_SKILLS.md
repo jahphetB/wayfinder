@@ -27,3 +27,4 @@ This file records AI-related skills, tools, and project practices used during de
 | Technical-term and file-connection explanations | Step 2        | Makes the project easier to understand and maintain.                              |
 | Commit-before-push workflow                     | Step 2        | Preserves a reviewable local history and requires approval before remote changes. |
 | React composition and hook isolation            | Step 3        | Keeps navigation visuals separate from selection and route-preview behavior.      |
+| Lazy-loaded map integration                     | Step 4        | Defers the large MapLibre bundle until the interactive map component is needed.   |

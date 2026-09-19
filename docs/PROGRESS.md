@@ -27,3 +27,12 @@ Status: complete
 - Kept selection and route matching in a dedicated hook and model rather than UI components.
 - Added a visual map placeholder; the real MapLibre map remains intentionally deferred to Step 4.
 - Verified formatting, type-checking, linting, tests, and the production build.
+
+## Step 4: Interactive map
+
+Status: complete
+
+- Replaced the visual placeholder with a lazy-loaded MapLibre map.
+- Added provider-contained GeoJSON route and location layers, route camera fitting, and a 2D/3D perspective control.
+- Lifted route-planner state to the application composition layer so the navigation panel and map share one source of truth.
+- Verified formatting, type-checking, linting, tests, and the production build.

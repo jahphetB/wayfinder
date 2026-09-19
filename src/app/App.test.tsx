@@ -1,4 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
+
+vi.mock('@/features/map/components/MapView', () => ({
+  MapView: () => <section aria-label="Interactive map" />,
+}))
 
 import { App } from './App'
 
@@ -10,7 +15,7 @@ describe('App', () => {
       screen.getByRole('heading', { name: 'Find your way, beautifully.' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('region', { name: 'Map preview' }),
+      screen.getByRole('region', { name: 'Interactive map' }),
     ).toBeInTheDocument()
   })
 })

@@ -7,11 +7,21 @@ import {
 import type { MapMode } from '@/domain/navigation/types'
 import type {
   MapAdapter,
+  MapContent,
   MapInitialView,
 } from '@/features/map/contracts/MapAdapter'
 
 export interface MapLibreMapInstance {
   easeTo(options: EaseToOptions): unknown
+  on(event: 'load', listener: () => void): unknown
+  addSource(id: string, source: object): unknown
+  getSource(id: string): unknown
+  addLayer(layer: object): unknown
+  getLayer(id: string): unknown
+  fitBounds(
+    bounds: [[number, number], [number, number]],
+    options: object,
+  ): unknown
   remove(): void
 }
 
@@ -27,6 +37,14 @@ const defaultMapFactory: MapLibreMapFactory = (options) =>
 
 export class MapLibreMapAdapter implements MapAdapter {
   private map: MapLibreMapInstance | undefined
+
+  private isReady = false
+
+  private content: MapContent = {
+    origin: undefined,
+    destination: undefined,
+    route: undefined,
+  }
 
   private readonly createMap: MapLibreMapFactory
 
@@ -46,6 +64,10 @@ export class MapLibreMapAdapter implements MapAdapter {
       zoom: initialView.zoom,
       ...cameraForMode(initialView.mode),
     })
+    this.map.on('load', () => {
+      this.isReady = true
+      this.syncContent()
+    })
   }
 
   setMode(mode: MapMode): void {
@@ -55,9 +77,15 @@ export class MapLibreMapAdapter implements MapAdapter {
     })
   }
 
+  setContent(content: MapContent): void {
+    this.content = content
+    if (this.isReady) this.syncContent()
+  }
+
   destroy(): void {
     this.map?.remove()
     this.map = undefined
+    this.isReady = false
   }
 
   private requireMap(): MapLibreMapInstance {
@@ -67,6 +95,87 @@ export class MapLibreMapAdapter implements MapAdapter {
 
     return this.map
   }
+
+  private syncContent(): void {
+    const map = this.requireMap()
+    const routeData = {
+      type: 'FeatureCollection',
+      features: this.content.route
+        ? [
+            {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates: this.content.route.coordinates.map((point) => [
+                  point.longitude,
+                  point.latitude,
+                ]),
+              },
+            },
+          ]
+        : [],
+    }
+    const locations = [this.content.origin, this.content.destination].filter(
+      (location): location is NonNullable<MapContent['origin']> =>
+        location !== undefined,
+    )
+    const locationData = {
+      type: 'FeatureCollection',
+      features: locations.map((location) => ({
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'Point',
+          coordinates: [
+            location.coordinates.longitude,
+            location.coordinates.latitude,
+          ],
+        },
+      })),
+    }
+    const routeSource = map.getSource('yote-route')
+    if (isGeoJsonSource(routeSource)) routeSource.setData(routeData)
+    else map.addSource('yote-route', { type: 'geojson', data: routeData })
+    const locationSource = map.getSource('yote-locations')
+    if (isGeoJsonSource(locationSource)) locationSource.setData(locationData)
+    else
+      map.addSource('yote-locations', { type: 'geojson', data: locationData })
+    if (!map.getLayer('yote-route-line'))
+      map.addLayer({
+        id: 'yote-route-line',
+        type: 'line',
+        source: 'yote-route',
+        paint: { 'line-color': '#155f3a', 'line-width': 6 },
+      })
+    if (!map.getLayer('yote-location-points'))
+      map.addLayer({
+        id: 'yote-location-points',
+        type: 'circle',
+        source: 'yote-locations',
+        paint: {
+          'circle-radius': 8,
+          'circle-color': '#ef694c',
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 3,
+        },
+      })
+    if (this.content.route) {
+      const longitudes = this.content.route.coordinates.map(
+        (point) => point.longitude,
+      )
+      const latitudes = this.content.route.coordinates.map(
+        (point) => point.latitude,
+      )
+      map.fitBounds(
+        [
+          [Math.min(...longitudes), Math.min(...latitudes)],
+          [Math.max(...longitudes), Math.max(...latitudes)],
+        ],
+        { padding: 80, maxZoom: 16, duration: 700 },
+      )
+    }
+  }
 }
 
 function cameraForMode(mode: MapMode): EaseToOptions {
@@ -75,4 +184,10 @@ function cameraForMode(mode: MapMode): EaseToOptions {
   }
 
   return { bearing: 0, pitch: 0 }
+}
+
+function isGeoJsonSource(
+  value: unknown,
+): value is { setData(data: object): void } {
+  return typeof value === 'object' && value !== null && 'setData' in value
 }

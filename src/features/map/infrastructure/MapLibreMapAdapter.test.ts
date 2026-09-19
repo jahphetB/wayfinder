@@ -9,6 +9,12 @@ describe('MapLibreMapAdapter', () => {
     const remove = vi.fn()
     const mapInstance: MapLibreMapInstance = {
       easeTo,
+      on: vi.fn(),
+      addSource: vi.fn(),
+      getSource: vi.fn(),
+      addLayer: vi.fn(),
+      getLayer: vi.fn(),
+      fitBounds: vi.fn(),
       remove,
     }
     const createMap = vi.fn(() => mapInstance)
