@@ -4,10 +4,11 @@ Yote Wayfinder is a responsive navigation-map prototype. It will provide mock or
 
 ## Current progress
 
-| Step                          | Status      | Outcome                                                                                      |
-| ----------------------------- | ----------- | -------------------------------------------------------------------------------------------- |
-| 1. Project foundation         | Complete    | React, TypeScript, quality checks, test tooling, and production builds are configured.       |
+| Step                          | Status   | Outcome                                                                                        |
+| ----------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| 1. Project foundation         | Complete | React, TypeScript, quality checks, test tooling, and production builds are configured.         |
 | 2. Domain and map abstraction | Complete | Provider-independent models, validated mock data, and a tested MapLibre boundary are in place. |
+| 3. Navigation interface | Complete | Responsive location inputs, autocomplete, swapping, route preview, and a visual map placeholder are ready. |
 
 See [the detailed progress log](docs/PROGRESS.md) and [the AI skills inventory](docs/AI_SKILLS.md).
 
