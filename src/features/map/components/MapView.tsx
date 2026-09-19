@@ -37,6 +37,12 @@ export function MapView({
   }, [])
   useEffect(() => {
     adapterRef.current?.setContent({ origin, destination, route })
+    if (route && window.matchMedia('(max-width: 760px)').matches) {
+      containerRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    }
   }, [origin, destination, route])
   useEffect(() => {
     adapterRef.current?.setMode(mode)
