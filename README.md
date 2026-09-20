@@ -15,6 +15,8 @@ Wayfinder is a responsive navigation-map prototype. It provides mock origin and 
 | 7. Routing foundation              | Complete | A validated, testable College of Idaho walking graph and shortest-path logic are ready for later UI integration. |
 | 8. Graph route integration         | Complete | The planner now converts calculated walking paths into routes that the existing map can render.                  |
 | 9. Route constraints               | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.      |
+| 10. Data verification workflow     | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.               |
+| 9. Route constraints               | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.      |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [detailed progress log](docs/PROGRESS.md), and

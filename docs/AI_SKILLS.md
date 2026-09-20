@@ -42,3 +42,4 @@ This file records AI-related skills, tools, and project practices used during de
 | Graph-to-route transformation                   | Step 8                 | Converts a calculated path into the established provider-neutral route shape without changing map-provider code.                    |
 | Constraint-aware graph routing                  | Step 9                 | Models closures and one-way paths as validated data, then tests the shortest-path logic against those restrictions.                 |
 | Cohesive commit cadence                         | Step 9                 | Creates separate verified commits for independently complete code and documentation units within an approved step.                  |
+| Route-data provenance validation                | Step 10                | Records source, review date, and verification status so illustrative and verified graph data cannot be confused.                    |

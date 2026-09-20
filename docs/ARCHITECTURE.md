@@ -86,6 +86,11 @@ forward-only, and its accessibility status. Current College of Idaho values are
 deliberately marked accessibility-unverified. The path calculation ignores
 closed edges and will not travel backward across a forward-only edge.
 
+The graph is packaged with a release record that identifies its source,
+review date, and verification status. This release is currently marked
+illustrative, not campus-approved. The project will reject a future release that
+claims verified data without naming the person or organization that verified it.
+
 MapLibre GL JS draws the interactive map. MapLibre is a rendering engine: it
 turns map data into the pixels, labels, markers, and lines seen in the browser.
 OpenStreetMap raster tiles provide the current street background. A raster tile
@@ -322,15 +327,15 @@ This subfolder owns navigation vocabulary and validity. It should not import
 from `data`, `features`, or MapLibre. Those outer areas depend on the domain,
 not the other way around.
 
-| File                                          | Importance and relationship to other files                                                                                                                                                                                                                                                                     |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/domain/navigation/types.ts`              | Defines shared meanings for locations, rendered routes, walking-graph nodes, edges, paths, and path-restriction values. These provider-independent shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                             |
-| `src/domain/navigation/factories.ts`          | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, invalid graph edges, unknown restriction values, and non-positive distances or durations. Immutable means callers cannot accidentally alter accepted data later. |
-| `src/domain/navigation/factories.test.ts`     | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                                                         |
-| `src/domain/navigation/pathfinding.ts`        | Contains the pure shortest-path calculation. It reads a `WalkingGraph`, skips closed edges, respects forward-only edges, and returns a `WalkingPath` without importing React, MapLibre, or mock-data files.                                                                                                    |
-| `src/domain/navigation/pathfinding.test.ts`   | Proves the algorithm chooses the shorter allowed path, supports permitted reverse travel, rejects forbidden reverse travel, avoids closures, and safely reports no path for unknown or unreachable nodes.                                                                                                      |
-| `src/domain/navigation/walkingRoutes.ts`      | Converts a calculated `WalkingPath` into the existing renderable `Route` shape. It derives an estimate using the documented prototype walking-speed constant.                                                                                                                                                  |
-| `src/domain/navigation/walkingRoutes.test.ts` | Proves path-to-route conversion preserves ordered coordinates, distance, duration, and unavailable-route behavior.                                                                                                                                                                                             |
+| File                                          | Importance and relationship to other files                                                                                                                                                                                                                                                                                         |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/domain/navigation/types.ts`              | Defines shared meanings for locations, rendered routes, walking-graph nodes, edges, paths, restrictions, provenance, and releases. These provider-independent shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                                      |
+| `src/domain/navigation/factories.ts`          | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, invalid graph edges, unknown restriction values, invalid review dates, and unsubstantiated verified releases. Immutable means callers cannot accidentally alter accepted data later. |
+| `src/domain/navigation/factories.test.ts`     | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                                                                             |
+| `src/domain/navigation/pathfinding.ts`        | Contains the pure shortest-path calculation. It reads a `WalkingGraph`, skips closed edges, respects forward-only edges, and returns a `WalkingPath` without importing React, MapLibre, or mock-data files.                                                                                                                        |
+| `src/domain/navigation/pathfinding.test.ts`   | Proves the algorithm chooses the shorter allowed path, supports permitted reverse travel, rejects forbidden reverse travel, avoids closures, and safely reports no path for unknown or unreachable nodes.                                                                                                                          |
+| `src/domain/navigation/walkingRoutes.ts`      | Converts a calculated `WalkingPath` into the existing renderable `Route` shape. It derives an estimate using the documented prototype walking-speed constant.                                                                                                                                                                      |
+| `src/domain/navigation/walkingRoutes.test.ts` | Proves path-to-route conversion preserves ordered coordinates, distance, duration, and unavailable-route behavior.                                                                                                                                                                                                                 |
 
 ## The `src/data` folder
 
@@ -350,13 +355,13 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                                                                          |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes. |
-| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                      |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | Defines the small, illustrative campus path network and explicitly labels each edge's direction, availability, and unverified accessibility status. `useRoutePlanner.ts` supplies it to `routePlanner.ts`, which requests a calculated route.       |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path and confirms every searchable mock location is represented by a graph node.                                                                                                                |
-| `src/data/navigation/mockLocations.ts`                   | Defines searchable locations and derives search-result records from them. Every searchable location must also have a graph node before the route planner can calculate a route.                                                                     |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                            |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes.                                   |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                        |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | Defines the small, illustrative campus path network and its release record. The record explains source, review date, and verification status; it prevents the data from being mistaken for campus-approved information. `useRoutePlanner.ts` supplies its graph to `routePlanner.ts`. |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path, confirms every searchable mock location is represented by a graph node, and verifies the graph is labeled illustrative.                                                                                                     |
+| `src/data/navigation/mockLocations.ts`                   | Defines searchable locations and derives search-result records from them. Every searchable location must also have a graph node before the route planner can calculate a route.                                                                                                       |
 
 ## The `src/features` folder
 
@@ -603,6 +608,26 @@ a closed shortcut, and it rejects reverse travel across a forward-only edge.
 This lets a future verified data source express closures and restrictions without
 rewriting the route algorithm.
 
+### Step 10: Data verification workflow
+
+Step 10 makes the trust level of route data explicit. A `WalkingGraphRelease`
+contains the graph plus immutable provenance: a source description, review date,
+verification status, and—only when verified—a named verifier. Provenance means
+a record of where information came from and how it was checked.
+
+The factory accepts `illustrative` data for prototype use, but it rejects a
+release labeled `verified` when no verifier is named. It also rejects an invalid
+calendar date. This does not prove route accuracy by itself; it prevents the
+application from accidentally presenting unreviewed data as approved.
+
+`collegeOfIdahoWalkingGraphRelease` records that the current topology comes
+from project mock locations and is not campus-approved. Before changing it to
+verified, a campus owner or authorized source must document the origin of every
+node and edge, confirm its distance, direction, availability, and accessibility
+status, identify the verifier, and update the review date. The UI continues to
+work from the graph inside that release, so this governance improvement does not
+change the map or the route experience.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -634,6 +659,21 @@ not bypass it by placing unvalidated plain objects into the application.
 
 An edge is treated as two-way only when its direction is `bidirectional` and is
 considered only when its availability is `available`.
+
+### Verify and release campus graph data
+
+1. Collect the approved source for every affected campus path.
+2. Verify node coordinates, edge distance, direction, availability, and
+   accessibility status with an authorized campus reviewer.
+3. Update `collegeOfIdahoWalkingGraph.ts` and its release provenance together.
+4. Set `verificationStatus` to `verified`, provide `verifiedBy`, and use a real
+   `reviewedOn` date in `YYYY-MM-DD` format.
+5. Update focused tests for the changed path behavior.
+6. Run the quality checks and inspect calculated routes in the browser.
+
+Do not mark a release verified from an unreviewed screenshot, informal memory,
+or an unconfirmed public map. Keep it illustrative until the required evidence
+and named review exist.
 
 ### Change visible wording
 
@@ -921,6 +961,19 @@ historical context.
 - **Consequence:** Future verified data can safely restrict a calculated route.
   Adding accessible-route selection will require an explicit product decision,
   user interface, and tests.
+
+### ADR-018: Require provenance before declaring route data verified
+
+- **Status:** Accepted for the prototype
+- **Decision:** Package walking graphs with a validated release record that
+  contains a source description, review date, verification status, and a named
+  verifier when verified.
+- **Reason:** A route can be technically valid while its real-world path data is
+  unreviewed. The application needs a clear distinction between illustrative
+  prototype data and information approved by a responsible source.
+- **Consequence:** Replacing illustrative data now has a documented checklist
+  and a validation boundary. The project can remain honest about data quality
+  without blocking prototype development.
 
 ## Engineering principles in plain language
 
