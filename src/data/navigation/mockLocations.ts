@@ -15,9 +15,9 @@ export const mockLocations = Object.freeze([
     coordinates: { latitude: 43.6534, longitude: -116.6768 },
   }),
   createLocation({
-    id: 'tertelings-library',
-    label: 'N.L. Terteling Library',
-    coordinates: { latitude: 43.65392, longitude: -116.67593 },
+    id: 'cruzen-murray-library',
+    label: 'Cruzen-Murray Library',
+    coordinates: { latitude: 43.6545, longitude: -116.67654 },
   }),
 ])
 

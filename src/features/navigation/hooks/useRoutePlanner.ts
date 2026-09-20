@@ -18,7 +18,7 @@ const findLocation = (id: string): Location => {
   return location
 }
 const initialOrigin = findLocation('campus-entrance')
-const initialDestination = findLocation('tertelings-library')
+const initialDestination = findLocation('cruzen-murray-library')
 
 export function useRoutePlanner() {
   const [origin, setOrigin] = useState<Location | undefined>(initialOrigin)

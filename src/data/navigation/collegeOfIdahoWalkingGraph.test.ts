@@ -2,14 +2,24 @@ import {
   collegeOfIdahoWalkingGraph,
   collegeOfIdahoWalkingGraphRelease,
 } from './collegeOfIdahoWalkingGraph'
+import { collegeOfIdahoWalkingGraphData } from './collegeOfIdahoWalkingGraphData'
 import { findShortestWalkingPath } from '@/domain/navigation/pathfinding'
 import { mockLocations } from './mockLocations'
 
 describe('College of Idaho walking graph', () => {
+  it('loads the editable dataset through the validated graph boundary', () => {
+    expect(collegeOfIdahoWalkingGraphRelease).toEqual(
+      collegeOfIdahoWalkingGraphData,
+    )
+    expect(collegeOfIdahoWalkingGraphRelease).not.toBe(
+      collegeOfIdahoWalkingGraphData,
+    )
+  })
+
   it('labels current path data as illustrative rather than verified', () => {
     expect(collegeOfIdahoWalkingGraphRelease.provenance).toEqual({
       sourceDescription:
-        'Location names were checked against the College of Idaho campus map; the N.L. Terteling Library coordinate was corroborated with OpenStreetMap-derived public map data. Path topology, distances, restrictions, and accessibility remain illustrative and are not campus-approved.',
+        'Published location names were checked against College of Idaho sources. Cruzen-Murray Library identity and coordinate were corroborated with Google Maps and OpenStreetMap-derived public map data. Path topology, distances, restrictions, and accessibility remain illustrative and are not campus-approved.',
       verificationStatus: 'illustrative',
       reviewedOn: '2026-09-20',
     })
@@ -25,39 +35,39 @@ describe('College of Idaho walking graph', () => {
     ).toBe(true)
   })
 
-  it('keeps the publicly corroborated library coordinate consistent', () => {
+  it('keeps the publicly corroborated current-library coordinate consistent', () => {
     const libraryLocation = mockLocations.find(
-      (location) => location.id === 'tertelings-library',
+      (location) => location.id === 'cruzen-murray-library',
     )
     const libraryNode = collegeOfIdahoWalkingGraph.nodes.find(
-      (node) => node.id === 'tertelings-library',
+      (node) => node.id === 'cruzen-murray-library',
     )
 
     expect(libraryLocation).toMatchObject({
-      label: 'N.L. Terteling Library',
-      coordinates: { latitude: 43.65392, longitude: -116.67593 },
+      label: 'Cruzen-Murray Library',
+      coordinates: { latitude: 43.6545, longitude: -116.67654 },
     })
     expect(libraryNode?.coordinates).toEqual(libraryLocation?.coordinates)
   })
 
-  it('provides a shorter connected path to the library', () => {
+  it('provides a shorter connected path to the current library', () => {
     expect(
       findShortestWalkingPath(
         collegeOfIdahoWalkingGraph,
         'campus-entrance',
-        'tertelings-library',
+        'cruzen-murray-library',
       ),
     ).toEqual({
       nodeIds: [
         'campus-entrance',
         'central-walkway',
         'morrison-quadrangle',
-        'tertelings-library',
+        'cruzen-murray-library',
       ],
       edgeIds: [
         'campus-entrance-to-central-walkway',
         'central-walkway-to-morrison-quadrangle',
-        'morrison-quadrangle-to-tertelings-library',
+        'morrison-quadrangle-to-cruzen-murray-library',
       ],
       distanceMeters: 330,
     })
