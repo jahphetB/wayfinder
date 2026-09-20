@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Location, MapMode, Route } from '@/domain/navigation/types'
 import { createMapAdapter } from '@/composition/createMapAdapter'
+import { collegeOfIdahoCampus } from '@/data/navigation/collegeOfIdahoCampus'
 import type { MapAdapter } from '@/features/map/contracts/MapAdapter'
 
 interface MapViewProps {
@@ -37,9 +38,10 @@ export function MapView({
       adapter.initialize(
         containerRef.current,
         {
-          center: { latitude: 43.666, longitude: -116.687 },
-          zoom: 15,
+          center: collegeOfIdahoCampus.center,
+          zoom: collegeOfIdahoCampus.initialZoom,
           mode: initialMode.current,
+          maxBounds: collegeOfIdahoCampus.bounds,
         },
         {
           onReady: () => setMapStatus('ready'),

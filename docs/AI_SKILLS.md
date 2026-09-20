@@ -11,13 +11,14 @@ This file records AI-related skills, tools, and project practices used during de
 
 ## External technology
 
-| Technology                 | Used in       | Purpose                                                                                              |
-| -------------------------- | ------------- | ---------------------------------------------------------------------------------------------------- |
-| Vite                       | Step 1        | Provides local development and production bundling.                                                  |
-| React                      | Step 1        | Provides component composition for the web interface.                                                |
-| MapLibre GL JS             | Step 1 onward | Provides the eventual 2D/3D map renderer behind a provider-neutral contract.                         |
-| OpenStreetMap raster tiles | Step 4 fix    | Provide a recognizable prototype street basemap through MapLibre's documented raster-source pattern. |
-| Vitest and Testing Library | Step 1 onward | Verify behavior without manually testing every change.                                               |
+| Technology                  | Used in       | Purpose                                                                                              |
+| --------------------------- | ------------- | ---------------------------------------------------------------------------------------------------- |
+| Vite                        | Step 1        | Provides local development and production bundling.                                                  |
+| React                       | Step 1        | Provides component composition for the web interface.                                                |
+| MapLibre GL JS              | Step 1 onward | Provides the eventual 2D/3D map renderer behind a provider-neutral contract.                         |
+| OpenStreetMap raster tiles  | Step 4 fix    | Provide a recognizable prototype street basemap through MapLibre's documented raster-source pattern. |
+| College of Idaho campus map | Step 6        | Informed campus naming and prototype map focus; it is not used as routing data.                      |
+| Vitest and Testing Library  | Step 1 onward | Verify behavior without manually testing every change.                                               |
 
 ## Yote Wayfinder project practices
 
@@ -34,3 +35,5 @@ This file records AI-related skills, tools, and project practices used during de
 | Browser runtime and CSS layout diagnosis        | Step 4 fix             | Uses console, network, and computed DOM measurements to find invisible rendered content.                                            |
 | Living architecture documentation               | Architecture milestone | Translates code boundaries, decisions, change recipes, and troubleshooting into a navigable handbook for non-technical maintainers. |
 | Accessible interaction design                   | Step 5                 | Adds keyboard-operable autocomplete, semantic status messages, and clear recovery behavior.                                         |
+| Campus-scope configuration                      | Step 6                 | Keeps the College of Idaho focus, initial view, and pan limits in one data module separate from map-provider code.                  |
+| Evidence-based bundle review                    | Step 6                 | Retains existing lazy loading unless build output shows a material, user-facing need for more splitting.                            |

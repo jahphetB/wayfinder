@@ -4,22 +4,22 @@ import { determineRoutePlan, findRouteForLocations } from './routePlanner'
 import { mockRoutes } from '@/data/navigation/mockRoutes'
 import { mockLocations } from '@/data/navigation/mockLocations'
 
-const coyoteGateway = mockLocations.find(
-  (location) => location.id === 'coyote-gateway',
+const campusEntrance = mockLocations.find(
+  (location) => location.id === 'campus-entrance',
 )
-const ridgeLibrary = mockLocations.find(
-  (location) => location.id === 'ridge-library',
+const tertelingsLibrary = mockLocations.find(
+  (location) => location.id === 'tertelings-library',
 )
 
-if (!coyoteGateway || !ridgeLibrary) {
+if (!campusEntrance || !tertelingsLibrary) {
   throw new Error('Required navigation fixtures are missing')
 }
 
 describe('route planner model', () => {
   it('returns an invalid-location state when a selection is missing', () => {
-    expect(determineRoutePlan(mockRoutes, undefined, ridgeLibrary)).toEqual({
-      status: 'invalid-location',
-    })
+    expect(
+      determineRoutePlan(mockRoutes, undefined, tertelingsLibrary),
+    ).toEqual({ status: 'invalid-location' })
   })
 
   it('returns an unavailable state when no sample route connects the locations', () => {
@@ -30,16 +30,20 @@ describe('route planner model', () => {
     })
 
     expect(
-      determineRoutePlan(mockRoutes, coyoteGateway, unconnectedLocation),
+      determineRoutePlan(mockRoutes, campusEntrance, unconnectedLocation),
     ).toEqual({ status: 'route-unavailable' })
   })
 
   it('returns a route-ready state and finds routes in either direction', () => {
-    const route = findRouteForLocations(mockRoutes, ridgeLibrary, coyoteGateway)
-
-    expect(route?.id).toBe('coyote-gateway-to-ridge-library')
-    expect(determineRoutePlan(mockRoutes, coyoteGateway, ridgeLibrary)).toEqual(
-      { status: 'route-ready', route },
+    const route = findRouteForLocations(
+      mockRoutes,
+      tertelingsLibrary,
+      campusEntrance,
     )
+
+    expect(route?.id).toBe('campus-entrance-to-tertelings-library')
+    expect(
+      determineRoutePlan(mockRoutes, campusEntrance, tertelingsLibrary),
+    ).toEqual({ status: 'route-ready', route })
   })
 })

@@ -9,6 +9,12 @@ export interface MapInitialView {
   readonly center: Coordinates
   readonly zoom: number
   readonly mode: MapMode
+  readonly maxBounds?: MapBounds
+}
+
+export interface MapBounds {
+  readonly southwest: Coordinates
+  readonly northeast: Coordinates
 }
 
 export interface MapAdapterCallbacks {

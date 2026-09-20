@@ -40,10 +40,10 @@ describe('App', () => {
 
     const startInput = screen.getByRole('combobox', { name: 'Start' })
     await user.clear(startInput)
-    await user.type(startInput, 'Willow')
+    await user.type(startInput, 'Morrison')
     await user.keyboard('{ArrowDown}{Enter}')
 
-    expect(startInput).toHaveValue('Willow Commons')
+    expect(startInput).toHaveValue('Morrison Quadrangle')
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
     expect(screen.getByText('Sample route')).toBeInTheDocument()
   })

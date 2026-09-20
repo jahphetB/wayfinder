@@ -10,6 +10,7 @@ import type { MapMode } from '@/domain/navigation/types'
 import type {
   MapAdapter,
   MapAdapterCallbacks,
+  MapBounds,
   MapContent,
   MapInitialView,
 } from '@/features/map/contracts/MapAdapter'
@@ -67,12 +68,17 @@ export class MapLibreMapAdapter implements MapAdapter {
       throw new Error('Map adapter has already been initialized')
     }
 
+    const maxBounds = initialView.maxBounds
+      ? { maxBounds: mapLibreBounds(initialView.maxBounds) }
+      : {}
+
     this.map = this.createMap({
       container,
       style: this.options.style,
       center: [initialView.center.longitude, initialView.center.latitude],
       zoom: initialView.zoom,
       ...cameraForMode(initialView.mode),
+      ...maxBounds,
     })
     this.map.on('load', () => {
       this.isReady = true
@@ -192,6 +198,15 @@ export class MapLibreMapAdapter implements MapAdapter {
       )
     }
   }
+}
+
+function mapLibreBounds(
+  bounds: MapBounds,
+): [[number, number], [number, number]] {
+  return [
+    [bounds.southwest.longitude, bounds.southwest.latitude],
+    [bounds.northeast.longitude, bounds.northeast.latitude],
+  ]
 }
 
 function cameraForMode(mode: MapMode): EaseToOptions {

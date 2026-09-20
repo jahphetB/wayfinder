@@ -67,10 +67,13 @@ checks whether the browser-ready application can be produced.
 
 ## What the application does today
 
-The current version uses three sample locations and three sample routes. The
-location and route data live inside the project, so no routing server is
-required. Searching filters those known locations. Pressing **Preview route**
-looks for a matching known route and sends it to the map.
+The current version is focused on The College of Idaho in Caldwell, Idaho. It
+uses three campus-named sample locations and three sample routes. The location
+and route data live inside the project, so no routing server is required.
+Searching filters those known locations. Pressing **Preview route** looks for a
+matching known route and sends it to the map. The locations, route lines, and
+campus boundary are illustrative prototype data: they are not official walking,
+accessibility, or emergency directions.
 
 MapLibre GL JS draws the interactive map. MapLibre is a rendering engine: it
 turns map data into the pixels, labels, markers, and lines seen in the browser.
@@ -329,10 +332,12 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                   | Importance and relationship to other files                                                                                                                                          |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/navigation/mockLocations.ts` | Defines the searchable locations and derives search-result records from them. Location IDs are referenced by routes, so changing an ID requires updating every route that uses it.  |
-| `src/data/navigation/mockRoutes.ts`    | Defines sample route geometry, distances, and durations. Every endpoint ID must match a location ID from `mockLocations.ts`; coordinate order determines the line drawn on the map. |
+| File                                               | Importance and relationship to other files                                                                                                                                                                                                          |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/collegeOfIdahoCampus.ts`      | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes. |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts` | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                      |
+| `src/data/navigation/mockLocations.ts`             | Defines the searchable locations and derives search-result records from them. Location IDs are referenced by routes, so changing an ID requires updating every route that uses it.                                                                  |
+| `src/data/navigation/mockRoutes.ts`                | Defines sample route geometry, distances, and durations. Every endpoint ID must match a location ID from `mockLocations.ts`; coordinate order determines the line drawn on the map.                                                                 |
 
 ## The `src/features` folder
 
@@ -402,10 +407,9 @@ Map components connect the React lifecycle to the provider-neutral adapter.
 Lifecycle means the sequence in which a component is created, updated, and
 removed.
 
-| File                                                   | Importance and relationship to other files                                                                                                                                                                           |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/map/components/MapView.tsx`              | Creates one adapter when its browser container becomes available, sends new locations and routes to it, changes camera mode, and destroys it during cleanup. It also renders the 2D/3D buttons and explanatory note. |
-| `src/features/map/components/MapCanvasPlaceholder.tsx` | The visual placeholder used before interactive-map integration. It is no longer imported by the running application. It remains as historical code and can be removed in an approved cleanup.                        |
+| File                                      | Importance and relationship to other files                                                                                                                                                                           |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/map/components/MapView.tsx` | Creates one adapter when its browser container becomes available, sends new locations and routes to it, changes camera mode, and destroys it during cleanup. It also renders the 2D/3D buttons and explanatory note. |
 
 ### `src/features/map/contracts`
 
@@ -491,6 +495,35 @@ route outcomes, `NavigationPanel.tsx` for messages and keyboard interaction,
 `MapLibreMapAdapter.ts` for provider callbacks, and `styles.css` for visible
 status treatment. The related tests are in `App.test.tsx`, `routePlanner.test.ts`,
 and `MapLibreMapAdapter.test.ts`.
+
+### Step 6: Testing, bundling, delivery, and College of Idaho focus
+
+Step 6 finishes the agreed prototype delivery work and narrows its geographic
+purpose to The College of Idaho. The map now opens at a campus-sized view and
+cannot normally be panned far outside the campus boundary. A boundary is a
+rectangle with southwest and northeast corners that limits the map camera. This
+does not make the map authoritative: the campus locations and route lines remain
+clearly labeled illustrative data until they are replaced by approved, verified
+campus walking data.
+
+`collegeOfIdahoCampus.ts` is the single place to change the campus name,
+address, opening viewpoint, or allowed map area. `MapView.tsx` reads that
+configuration and passes it through `MapAdapter.ts`; `MapLibreMapAdapter.ts`
+translates it into MapLibre's `maxBounds` option. This keeps campus policy out
+of the visual component and out of the provider-specific implementation.
+
+The selected landmark names are informed by The College of Idaho's official
+[campus map](https://collegeofidaho.edu/visit/campus-map/) and its
+[campus-map PDF](https://collegeofidaho.edu/wp-content/uploads/2025/09/2021-2022-Campus-Map.pdf).
+They are used only for prototype demonstration, not as a claim of official
+route accuracy.
+
+The production bundle was also inspected. A production bundle is the set of
+optimized browser files produced by `npm run build`. MapLibre remains in the
+already lazy-loaded map chunk, meaning it is downloaded separately from the
+initial application interface. Additional code splitting would add complexity
+without a material benefit for this small prototype, so it was intentionally
+not added.
 
 ## Safe change recipes
 
@@ -749,6 +782,27 @@ historical context.
 - **Consequence:** The map reports provider failures with useful recovery. A
   separate error boundary remains appropriate if a future React component has
   render-time failure risk.
+
+### ADR-013: Keep the prototype geographically focused on The College of Idaho
+
+- **Status:** Accepted
+- **Decision:** Store the campus opening view and panning boundary in a
+  dedicated data module, and use College of Idaho landmark names in the mock
+  data.
+- **Reason:** A campus wayfinding prototype should present a meaningful local
+  context without coupling that policy to the map provider or interface.
+- **Consequence:** Replacing the prototype area later requires a data/configuration
+  change first. Official route verification remains a separate future task.
+
+### ADR-014: Retain the current lazy-loaded map bundle
+
+- **Status:** Accepted for the prototype
+- **Decision:** Keep the existing MapView lazy-loading boundary and do not add
+  more chunks after inspecting the production build.
+- **Reason:** The large MapLibre dependency is already deferred until the map
+  is needed; extra splitting has no demonstrated benefit yet.
+- **Consequence:** Reassess after adding more routes, map layers, or an
+  authenticated data provider, when bundle measurements may materially change.
 
 ## Engineering principles in plain language
 

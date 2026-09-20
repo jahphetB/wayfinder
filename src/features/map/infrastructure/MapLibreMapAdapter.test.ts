@@ -28,6 +28,10 @@ describe('MapLibreMapAdapter', () => {
       center: { latitude: 43.6642, longitude: -116.6885 },
       zoom: 15,
       mode: '3d',
+      maxBounds: {
+        southwest: { latitude: 43.65, longitude: -116.69 },
+        northeast: { latitude: 43.66, longitude: -116.68 },
+      },
     })
     adapter.setMode('2d')
     adapter.destroy()
@@ -40,6 +44,10 @@ describe('MapLibreMapAdapter', () => {
         bearing: -20,
         pitch: 60,
         style: 'https://example.test/style.json',
+        maxBounds: [
+          [-116.69, 43.65],
+          [-116.68, 43.66],
+        ],
       }),
     )
     expect(easeTo).toHaveBeenCalledWith({

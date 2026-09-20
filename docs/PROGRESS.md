@@ -39,36 +39,34 @@ Status: complete
 - Adjusted mobile behavior so previewing a route scrolls the interactive map into view.
 - Configured MapLibre's Vite worker URL so the map renderer loads in development and production.
 - Excluded MapLibre from Vite dependency pre-bundling to prevent stale worker-path errors during local development.
-- Fixed the invisible-map cause found through browser inspection: MapLibre's
-  vendor CSS overrode the absolutely positioned host and collapsed it to zero
-  height. Vendor CSS now loads before application CSS, and the map host has an
-  explicit full width and height.
-- Replaced the low-detail MapLibre demonstration style with the official
-  OpenStreetMap raster-style pattern so the prototype shows recognizable streets
-  at campus zoom levels. A hosted style can still be injected through
-  `VITE_MAP_STYLE_URL`.
+- Fixed the invisible-map cause found through browser inspection: MapLibre's vendor CSS overrode the absolutely positioned host and collapsed it to zero height. Vendor CSS now loads before application CSS, and the map host has an explicit full width and height.
+- Replaced the low-detail MapLibre demonstration style with the official OpenStreetMap raster-style pattern so the prototype shows recognizable streets at campus zoom levels. A hosted style can still be injected through `VITE_MAP_STYLE_URL`.
 
 ## Architecture handbook milestone
 
 Status: complete
 
 - Added a living architecture handbook for technical and non-technical readers.
-- Documented every current project-controlled folder and file, system data flow,
-  safe change recipes, troubleshooting paths, terminology, engineering
-  principles, and accepted architectural decisions.
-- Updated the project working agreement so future architectural changes keep the
-  handbook synchronized with the implementation.
+- Documented every current project-controlled folder and file, system data flow, safe change recipes, troubleshooting paths, terminology, engineering principles, and accepted architectural decisions.
+- Updated the project working agreement so future architectural changes keep the handbook synchronized with the implementation.
 
 ## Step 5: Application states and polish
 
 Status: complete
 
-- Added explicit empty, invalid-location, unavailable-route, and route-ready
-  outcomes to route planning.
-- Added keyboard autocomplete behavior with arrow-key navigation, Enter
-  selection, Escape dismissal, and accessible combobox/listbox state.
-- Added map loading and retryable map-error states through adapter lifecycle
-  callbacks rather than silently leaving a blank map panel.
+- Added explicit empty, invalid-location, unavailable-route, and route-ready outcomes to route planning.
+- Added keyboard autocomplete behavior with arrow-key navigation, Enter selection, Escape dismissal, and accessible combobox/listbox state.
+- Added map loading and retryable map-error states through adapter lifecycle callbacks rather than silently leaving a blank map panel.
 - Added focused route-outcome, keyboard-interaction, and map-lifecycle tests.
-- Documented Step 5 in `docs/ARCHITECTURE.md` under
-  “Implementation step guides.”
+- Documented Step 5 in `docs/ARCHITECTURE.md` under implementation step guides.
+
+## Step 6: Testing, bundling, and delivery
+
+Status: complete
+
+- Focused the prototype on The College of Idaho with campus-named locations, campus-sized map bounds, and illustrative route geometry.
+- Kept campus configuration separate from route and location data so its scope can change without modifying MapLibre infrastructure or navigation UI.
+- Removed the unused pre-MapLibre map placeholder.
+- Added campus-configuration and map-bound tests, then verified formatting, linting, strict TypeScript, tests, and the production build.
+- Reviewed the production output: MapLibre remains isolated in the existing lazy-loaded map chunk, so no extra splitting is justified at this prototype stage.
+- Documented the delivery decision and College of Idaho boundary in the architecture handbook.
