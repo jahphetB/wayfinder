@@ -1,0 +1,779 @@
+# Yote Wayfinder Architecture Handbook
+
+This is the living handbook for Yote Wayfinder. It explains what the project
+does, how its pieces fit together, where common changes belong, and how to
+investigate problems. It is written so that a reader does not need a software
+engineering background to understand the overall system.
+
+The handbook describes the application as it exists today. It is intentionally
+updated as the project grows instead of trying to predict every future feature.
+Whenever an architectural decision changes how multiple parts of the project
+work together, that decision should be recorded here.
+
+## Table of contents
+
+1. [Start here](#start-here)
+2. [What the application does today](#what-the-application-does-today)
+3. [The architecture in one picture](#the-architecture-in-one-picture)
+4. [How a route preview moves through the system](#how-a-route-preview-moves-through-the-system)
+5. [Project folder map](#project-folder-map)
+6. [Root files](#root-files)
+7. [The `docs` folder](#the-docs-folder)
+8. [The `public` folder](#the-public-folder)
+9. [The `src` folder](#the-src-folder)
+10. [The `src/app` folder](#the-srcapp-folder)
+11. [The `src/composition` folder](#the-srccomposition-folder)
+12. [The `src/domain` folder](#the-srcdomain-folder)
+13. [The `src/data` folder](#the-srcdata-folder)
+14. [The `src/features` folder](#the-srcfeatures-folder)
+15. [The navigation feature](#the-navigation-feature)
+16. [The map feature](#the-map-feature)
+17. [The `src/test` folder](#the-srctest-folder)
+18. [Generated and tool-owned folders](#generated-and-tool-owned-folders)
+19. [Safe change recipes](#safe-change-recipes)
+20. [Troubleshooting guide](#troubleshooting-guide)
+21. [Architectural decision log](#architectural-decision-log)
+22. [Engineering principles in plain language](#engineering-principles-in-plain-language)
+23. [Glossary](#glossary)
+24. [How to maintain this handbook](#how-to-maintain-this-handbook)
+
+## Start here
+
+Yote Wayfinder is a browser-based route-planning prototype. A person chooses a
+starting place and a destination, previews a sample route, and sees that route
+on an interactive map. The map can be viewed from a flat 2D angle or a tilted
+3D-like perspective.
+
+The project is deliberately divided into areas with different responsibilities.
+This is similar to organizing a business so that accounting, customer service,
+and operations do not all use the same desk. A map-rendering problem should not
+require changing the meaning of a route, and adding a new location should not
+require rewriting the map library.
+
+If you only need to make a small content change, begin with
+[`src/data/navigation`](../src/data/navigation). If you need to change the
+screen, begin with [`src/features`](../src/features) and
+[`src/app/styles.css`](../src/app/styles.css). If the map itself is failing,
+begin with [`src/features/map`](../src/features/map),
+[`src/composition/createMapAdapter.ts`](../src/composition/createMapAdapter.ts),
+and the [map troubleshooting section](#the-map-is-blank-or-invisible).
+
+Before accepting any change, run the quality commands documented in
+[`README.md`](../README.md). These checks act like several independent
+inspectors: formatting checks consistency, linting catches suspicious code,
+TypeScript checks data contracts, tests check important behavior, and the build
+checks whether the browser-ready application can be produced.
+
+## What the application does today
+
+The current version uses three sample locations and three sample routes. The
+location and route data live inside the project, so no routing server is
+required. Searching filters those known locations. Pressing **Preview route**
+looks for a matching known route and sends it to the map.
+
+MapLibre GL JS draws the interactive map. MapLibre is a rendering engine: it
+turns map data into the pixels, labels, markers, and lines seen in the browser.
+OpenStreetMap raster tiles provide the current street background. A raster tile
+is a small map image; many tiles are placed together to form the visible map.
+
+The current “3D” mode tilts and rotates the camera. It does not yet contain
+three-dimensional buildings or terrain. Adding real building height or terrain
+later will require an appropriate map data source, not merely another button.
+
+## The architecture in one picture
+
+```text
+Person using the browser
+        |
+        v
+App.tsx - assembles the screen and owns shared map mode
+        |
+        +------------------------------+
+        |                              |
+        v                              v
+NavigationPanel.tsx                MapView.tsx
+shows inputs and summary           owns the map container
+        |                              |
+        v                              v
+useRoutePlanner.ts                 MapAdapter contract
+owns route-planner state              |
+        |                              v
+        v                         createMapAdapter.ts
+routePlanner.ts                       |
+searches and selects routes           v
+        |                         MapLibreMapAdapter.ts
+        v                              |
+mock locations and routes             v
+        |                         MapLibre GL JS
+        v                              |
+domain types and factories            v
+                                  OpenStreetMap tiles
+```
+
+The arrows show dependency direction: a file higher in the picture may call or
+use a file below it. The lower-level files do not need to know how the whole
+screen is arranged. This one-way relationship reduces accidental coupling.
+Coupling means that two pieces are so dependent on each other that changing one
+unexpectedly breaks the other.
+
+The most important boundary is the `MapAdapter` contract. The rest of the app
+asks for general actions such as “initialize the map,” “show this content,” or
+“switch to 2D.” Only the MapLibre adapter knows the MapLibre-specific commands.
+That makes it possible to replace the map provider later without rewriting the
+navigation interface.
+
+## How a route preview moves through the system
+
+1. `main.tsx` starts React and renders `App.tsx` into the page.
+2. `App.tsx` creates one route-planner state object by calling
+   `useRoutePlanner()`.
+3. `App.tsx` gives that same state object to `NavigationPanel.tsx` and gives its
+   selected locations and planned route to `MapView.tsx`.
+4. When a person types, `NavigationPanel.tsx` reports the new text to
+   `useRoutePlanner.ts`.
+5. `useRoutePlanner.ts` calls pure search logic in `routePlanner.ts`. A pure
+   function is a calculation that does not secretly change outside state.
+6. When the person selects a location, the hook stores the full validated
+   `Location` object, not only the visible label.
+7. When **Preview route** is pressed, the hook asks `routePlanner.ts` to find a
+   route in `mockRoutes.ts` whose endpoint identifiers match the selections.
+8. React notices the new route and gives it to `MapView.tsx`.
+9. `MapView.tsx` calls the provider-neutral `MapAdapter` methods.
+10. `MapLibreMapAdapter.ts` converts the route and locations into GeoJSON.
+    GeoJSON is a common text-based format for geographic shapes and points.
+11. MapLibre draws the route line and location circles, then moves the camera so
+    the route fits inside the visible map.
+
+Keeping this path explicit is important for debugging. If suggestions are
+wrong, inspect navigation data and model logic. If the route summary is right
+but the map line is wrong, inspect the map adapter. If neither appears, inspect
+the shared state in the hook and `App.tsx`.
+
+## Project folder map
+
+```text
+YoteWayfinder/
+├── docs/                         Human-readable project records
+├── public/                       Static browser assets; currently empty
+├── src/                          Application source code
+│   ├── app/                      Screen assembly and global presentation
+│   ├── composition/              Chooses concrete service implementations
+│   ├── data/navigation/          Local sample content
+│   ├── domain/navigation/        Business meaning and validation
+│   ├── features/
+│   │   ├── map/                  Interactive-map capability
+│   │   └── navigation/           Route-planning capability
+│   └── test/                     Shared automated-test setup
+├── dist/                         Generated production output
+├── node_modules/                 Installed third-party packages
+└── configuration and guide files Project-wide instructions and tooling
+```
+
+The tree is organized primarily by business capability and responsibility. A
+new route-planning behavior should normally be placed inside the navigation
+feature, while a new map-provider behavior should remain inside the map
+feature. General business definitions that both features need belong in the
+domain layer.
+
+Generated folders appear in the tree because they are important when running
+the project, but they are not source code. They should be recreated by tools
+instead of edited manually.
+
+## Root files
+
+The project root is the control desk for the repository. Files here tell tools
+how to install, validate, build, and start the application. The root should not
+become a collection of unrelated application code; product behavior belongs
+under `src` and durable project explanations belong under `docs`.
+
+A non-technical maintainer will interact most often with `README.md` for setup,
+`package.json` for available commands, and this handbook for understanding the
+system. Tool configuration files usually need changes only when the project
+adopts a new compiler rule, testing behavior, or build requirement.
+
+| File                 | Why it exists and when to change it                                                                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.gitignore`         | Tells Git which machine-generated or personal files must not be committed. Add entries when a tool creates local output that should never be shared.                                               |
+| `.prettierignore`    | Tells Prettier which files it should not format. Generated output and the dependency lockfile are excluded because other tools own their formatting.                                               |
+| `.prettierrc.json`   | Defines the automatic writing style: no semicolons, single quotes, and trailing commas. Change it only through an agreed project-wide style decision.                                              |
+| `AGENTS.md`          | Records the collaboration agreement for AI coding agents, including approval, verification, documentation, Git, and architecture rules. It affects how work is performed, not the running website. |
+| `README.md`          | The short front door to the project. It explains purpose, progress, setup, checks, architecture, and publishing. It links to detailed documents instead of duplicating them.                       |
+| `package.json`       | Names the project, lists third-party packages, and defines commands such as `npm run dev`, `npm run test`, and `npm run build`. Add a package only when the application genuinely needs it.        |
+| `package-lock.json`  | Records exact installed dependency versions so different computers receive consistent packages. It is generated by npm and should not be hand-edited.                                              |
+| `index.html`         | Supplies the small HTML shell loaded first by the browser. It provides the page title, description, root element, and link to `src/main.tsx`.                                                      |
+| `vite.config.ts`     | Configures Vite, Vitest, the `@/` import shortcut, production source maps, test environment, and MapLibre optimization exception. Map bundling or test-startup problems may lead here.             |
+| `eslint.config.js`   | Configures linting rules for TypeScript, React hooks, and React refresh. Linting looks for unsafe or suspicious patterns that formatting alone cannot detect.                                      |
+| `tsconfig.json`      | Connects the browser and tool TypeScript configurations into one project. It is mostly an index rather than the detailed rule set.                                                                 |
+| `tsconfig.app.json`  | Applies strict TypeScript rules to browser code under `src`. These rules prevent mistakes involving missing values, unused code, and incorrect data shapes.                                        |
+| `tsconfig.node.json` | Applies TypeScript rules to Node-based configuration files such as `vite.config.ts` and `eslint.config.js`.                                                                                        |
+
+## The `docs` folder
+
+The `docs` folder is the project’s institutional memory. Source code can show
+what the computer does, but it often cannot explain why a choice was made,
+which alternatives were rejected, or how a non-technical contributor should
+approach a change. Those explanations belong here.
+
+Documentation must stay connected to reality. When implementation changes make
+a statement here incorrect, updating the relevant document is part of the code
+change, not a later optional task.
+
+| File                   | Importance and relationship to other files                                                                                                                                                                                  |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/ARCHITECTURE.md` | This living handbook. It explains folders, files, data flow, change recipes, failure diagnosis, principles, and architectural decisions. Update it whenever a change alters boundaries or introduces an important new file. |
+| `docs/PROGRESS.md`     | A chronological record of completed project steps and verified fixes. It answers “what has been accomplished?” while this handbook answers “how is it organized and why?”                                                   |
+| `docs/AI_SKILLS.md`    | A branded inventory of AI capabilities, external technologies, and project-specific practices used during development. It makes AI-assisted work visible and auditable.                                                     |
+
+## The `public` folder
+
+`public` is reserved for static files that should be copied directly into the
+built website without being processed as source code. Examples might include a
+favicon, a downloadable PDF, or an image whose filename must remain unchanged.
+The folder is currently empty.
+
+Most images imported by React or CSS should normally live near the source code
+that uses them so Vite can optimize and fingerprint them. Use `public` only when
+direct, unchanged browser access is intentional. A fingerprint is a generated
+filename fragment that helps browsers recognize when an asset has changed.
+
+## The `src` folder
+
+`src` contains the application’s human-written runtime source. Vite begins at
+`main.tsx`, follows imports to the rest of the files, and bundles the needed
+code for the browser. Keeping runtime code under one top-level folder makes it
+clear what belongs to the application rather than its build tools.
+
+The subfolders divide responsibilities. `domain` defines valid navigation
+concepts, `data` supplies current sample records, `features` implements user
+capabilities, `composition` chooses concrete external integrations, `app`
+assembles the screen, and `test` configures shared test behavior.
+
+| File                | Importance and relationship to other files                                                                                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/main.tsx`      | The browser entry point. It finds the HTML root, starts React in strict mode, imports MapLibre CSS before application CSS, and renders `App`. If nothing appears, this is one of the first files to inspect. |
+| `src/vite-env.d.ts` | Teaches TypeScript about Vite and the optional `VITE_MAP_STYLE_URL` environment setting. Add future `VITE_...` settings here so their names and types are checked.                                           |
+
+## The `src/app` folder
+
+The `app` folder assembles the top-level experience. It decides which major
+features appear together and which state must be shared between them. It should
+remain a coordinator, not become the place where search algorithms or
+MapLibre-specific commands accumulate.
+
+The application currently creates one route planner in `App.tsx`. Both the
+navigation panel and map receive information from that same source. This is a
+single source of truth: one authoritative copy of state prevents two parts of
+the screen from disagreeing about the selected route.
+
+| File                   | Importance and relationship to other files                                                                                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/app/App.tsx`      | Composes the header, navigation panel, and map. It owns 2D/3D mode and passes route-planner state to both features. It lazy-loads `MapView`, so the large map code is requested separately.                  |
+| `src/app/App.test.tsx` | Checks that the route-planning heading and map region are present. It replaces the real map with a test substitute because browser map rendering does not belong in this basic application test.             |
+| `src/app/styles.css`   | Contains the global visual system and responsive layout. It also guarantees that the map host fills its panel. Change colors, spacing, typography, and layout here while checking desktop and mobile widths. |
+
+## The `src/composition` folder
+
+Composition is the point where a general contract is connected to a specific
+tool. The application asks for a `MapAdapter`; `createMapAdapter.ts` decides
+that the current implementation is `MapLibreMapAdapter`. This keeps provider
+selection out of user-interface components.
+
+Think of this folder as a hiring desk. The rest of the company describes the
+job it needs performed, and the composition layer selects the vendor that will
+perform it. Changing providers should primarily change this desk and the new
+provider implementation, not every caller.
+
+| File                                  | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/composition/createMapAdapter.ts` | Creates the concrete MapLibre adapter and supplies its style. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
+
+## The `src/domain` folder
+
+The domain folder describes what navigation information means independently of
+React, MapLibre, or the current mock data. A `Location` has an identifier,
+label, and coordinates. A `Route` connects two location identifiers and has
+geometry, distance, and estimated duration.
+
+Because these definitions do not depend on screen or map libraries, they can be
+used by future APIs, routing algorithms, administrative tools, and tests. This
+is one of the most valuable long-term boundaries in the project.
+
+### `src/domain/navigation`
+
+This subfolder owns navigation vocabulary and validity. It should not import
+from `data`, `features`, or MapLibre. Those outer areas depend on the domain,
+not the other way around.
+
+| File                                      | Importance and relationship to other files                                                                                                                                                                                                                  |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/domain/navigation/types.ts`          | Defines `Coordinates`, `Location`, `LocationSearchResult`, `Route`, and `MapMode`. These shared shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                             |
+| `src/domain/navigation/factories.ts`      | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, and non-positive distance or duration. Immutable means callers cannot accidentally alter accepted data later. |
+| `src/domain/navigation/factories.test.ts` | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, and a route cannot start and end at the same place. Add tests here when a new domain rule is introduced.                                                           |
+
+## The `src/data` folder
+
+The data folder supplies records used by the application. Today these are local
+mock records, meaning realistic sample information stored in source code instead
+of retrieved from a server. This makes the prototype reliable while the real
+data source is still undecided.
+
+The files construct records through domain factories. Sample data therefore
+cannot quietly bypass the rules expected from future live data. When an API
+replaces these files, its responses should be translated and validated at a
+similar boundary.
+
+### `src/data/navigation`
+
+This subfolder is the safest place for many current content changes. A person
+can add a location or route without editing React components or MapLibre code,
+provided identifiers and coordinates remain consistent.
+
+| File                                   | Importance and relationship to other files                                                                                                                                          |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/mockLocations.ts` | Defines the searchable locations and derives search-result records from them. Location IDs are referenced by routes, so changing an ID requires updating every route that uses it.  |
+| `src/data/navigation/mockRoutes.ts`    | Defines sample route geometry, distances, and durations. Every endpoint ID must match a location ID from `mockLocations.ts`; coordinate order determines the line drawn on the map. |
+
+## The `src/features` folder
+
+A feature is a capability recognizable to a user or product owner. The current
+features are navigation and map display. Each feature owns its interface and
+behavior while depending on shared domain concepts.
+
+Organizing by feature keeps related changes close together. It also discourages
+an oversized general components folder where unrelated files become difficult
+to find. Cross-feature communication happens through typed props, hooks, and
+contracts rather than hidden global variables.
+
+## The navigation feature
+
+The navigation feature controls location queries, suggestions, selections,
+route lookup, and the visible planning panel. It does not issue MapLibre
+commands. Its output is provider-independent data that any map or text-only
+interface could consume.
+
+The feature separates calculation, state, and presentation. The model performs
+calculations, the hook manages changing values over time, and the component
+renders controls. This makes each area easier to test and reason about.
+
+### `src/features/navigation/model`
+
+The model holds pure navigation calculations. Keeping these functions free of
+React makes them suitable for focused tests and reuse.
+
+| File                                            | Importance and relationship to other files                                                                                                                                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/features/navigation/model/routePlanner.ts` | Filters location results and finds a route between two locations. Route lookup accepts either endpoint direction. Future restrictions or a real pathfinding algorithm would change or replace logic at this level. |
+
+### `src/features/navigation/hooks`
+
+A React hook is a reusable stateful function. The hook acts as the navigation
+feature’s controller: components ask it to change queries, select locations,
+swap endpoints, or plan a route.
+
+| File                                               | Importance and relationship to other files                                                                                                                                                 |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/features/navigation/hooks/useRoutePlanner.ts` | Owns origin, destination, query text, suggestions, and planned route. It reads mock data, calls model functions, and returns a small public interface used by `App` and `NavigationPanel`. |
+
+### `src/features/navigation/components`
+
+Components are visible building blocks rendered by React. Navigation components
+focus on what the person sees and does, delegating route logic to the hook and
+model.
+
+| File                                                     | Importance and relationship to other files                                                                                                                                                            |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/navigation/components/NavigationPanel.tsx` | Renders both location fields, suggestions, swap button, preview action, and route summary. It receives the planner object instead of constructing a second one, preserving shared state with the map. |
+
+## The map feature
+
+The map feature converts provider-independent navigation information into an
+interactive visual map. It is divided into components, contracts, and
+infrastructure. These distinguish what React needs, what the app may ask of a
+map, and how MapLibre performs the work.
+
+This boundary limits the effect of provider changes. UI code uses the contract,
+while infrastructure code may use MapLibre-specific classes, worker files,
+layers, sources, and camera commands.
+
+### `src/features/map/components`
+
+Map components connect the React lifecycle to the provider-neutral adapter.
+Lifecycle means the sequence in which a component is created, updated, and
+removed.
+
+| File                                                   | Importance and relationship to other files                                                                                                                                                                           |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/map/components/MapView.tsx`              | Creates one adapter when its browser container becomes available, sends new locations and routes to it, changes camera mode, and destroys it during cleanup. It also renders the 2D/3D buttons and explanatory note. |
+| `src/features/map/components/MapCanvasPlaceholder.tsx` | The visual placeholder used before interactive-map integration. It is no longer imported by the running application. It remains as historical code and can be removed in an approved cleanup.                        |
+
+### `src/features/map/contracts`
+
+A contract is a description of what a service must be able to do. It does not
+say how the service performs those actions. Components depend on this contract
+instead of a particular map provider.
+
+| File                                       | Importance and relationship to other files                                                                                                                                   |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/map/contracts/MapAdapter.ts` | Defines initialization, content updates, mode changes, and cleanup. It also defines content and initial-view shapes. Any replacement provider must implement this interface. |
+
+### `src/features/map/infrastructure`
+
+Infrastructure contains code that talks to an external technical system. In
+this project, MapLibre is that system. Provider-specific imports and commands
+belong here rather than in navigation or general UI code.
+
+| File                                                         | Importance and relationship to other files                                                                                                                                                                                                                                                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/map/infrastructure/MapLibreMapAdapter.ts`      | Implements `MapAdapter` with MapLibre. It configures the web worker, creates the map, converts routes and locations to GeoJSON, creates sources and layers, fits route bounds, changes camera pitch, and cleans up. A web worker is a browser process that performs work away from the main interface thread. |
+| `src/features/map/infrastructure/MapLibreMapAdapter.test.ts` | Uses a test substitute for MapLibre to verify initialization, 2D/3D behavior, cleanup, and clear failure when controls are used too early. This protects the provider boundary without opening a real browser map.                                                                                            |
+
+## The `src/test` folder
+
+The test folder contains setup shared by automated tests. Central setup avoids
+repeating the same testing imports and ensures all tests use consistent matchers
+and browser simulation.
+
+The current test environment is jsdom, a lightweight simulation of browser
+documents used inside Node. It is suitable for component and logic tests but is
+not a replacement for visually checking real WebGL map rendering in a browser.
+
+| File                | Importance and relationship to other files                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/test/setup.ts` | Loads Testing Library’s DOM matchers for every Vitest test. These matchers allow readable checks such as “this heading is in the document.” |
+
+## Generated and tool-owned folders
+
+These folders are necessary, but their contents are not maintained like source
+code. Editing them creates changes that are easily lost and hard to reproduce.
+
+### `.git`
+
+`.git` is Git’s internal database containing commits, branches, and repository
+metadata. Use Git commands to interact with it. Never manually edit or delete
+its contents during ordinary project work.
+
+### `node_modules`
+
+`node_modules` contains installed third-party packages. `npm install` recreates
+it from `package.json` and `package-lock.json`. If it becomes corrupted, repair
+the installation process instead of editing package files inside this folder.
+
+### `dist`
+
+`dist` contains the production website generated by `npm run build`. It can be
+deleted and rebuilt. Hosting systems deploy this output, but human changes must
+be made in `src` or configuration and then rebuilt.
+
+## Safe change recipes
+
+These recipes identify normal starting points. Always run quality checks
+afterward and inspect the browser for visual changes.
+
+### Add a location
+
+1. Open `src/data/navigation/mockLocations.ts`.
+2. Add a `createLocation` entry with a unique ID, label, latitude, and longitude.
+3. Keep the ID stable and machine-friendly, such as `science-building`.
+4. If the location needs a previewable route, add one in `mockRoutes.ts`.
+5. Run checks and confirm the suggestion appears in both fields.
+
+The factory rejects empty text or coordinates outside valid world ranges. Do
+not bypass it by placing unvalidated plain objects into the application.
+
+### Add or adjust a sample route
+
+1. Open `src/data/navigation/mockRoutes.ts`.
+2. Ensure endpoint IDs exactly match IDs in `mockLocations.ts`.
+3. Add coordinates in walking order from one endpoint to the other.
+4. Update distance in meters and duration in minutes.
+5. Preview both location directions because matching supports either direction.
+
+The map draws straight segments between supplied coordinates. It does not yet
+snap them to sidewalks or calculate a path. Accurate walking geometry therefore
+needs enough intermediate coordinates.
+
+### Change visible wording
+
+- Header wording lives in `src/app/App.tsx`.
+- Planner wording lives in `NavigationPanel.tsx`.
+- Map note text and mode labels live in `MapView.tsx`.
+- Browser tab title and page description live in `index.html`.
+
+Update tests if they intentionally search for old wording. Preserve accessible
+labels so keyboard and assistive-technology users understand the controls.
+
+### Change colors, spacing, or responsive layout
+
+Start in `src/app/styles.css`. Search for the component class, make the smallest
+relevant change, and inspect a wide and narrow window. The current mobile
+breakpoint is 760 pixels.
+
+Be especially careful with `.map-view` and `.map-canvas`. MapLibre adds its own
+classes to the same element. Application CSS must continue to give the map host
+a nonzero width and height.
+
+### Change the default map style
+
+For a deployment-specific hosted style, set `VITE_MAP_STYLE_URL`. For a new
+project default, update `defaultMapStyle` in
+`src/composition/createMapAdapter.ts`.
+
+Do not put provider URLs inside `MapView.tsx`. Keeping them in composition
+preserves the adapter boundary. Confirm that any tile service permits expected
+usage and provides required attribution.
+
+### Replace MapLibre in the future
+
+1. Leave domain and navigation files unchanged.
+2. Create another infrastructure implementation of `MapAdapter`.
+3. Change `createMapAdapter.ts` to construct the new implementation.
+4. Add focused tests for its lifecycle and content translation.
+5. Remove MapLibre packages and Vite exceptions only after no imports remain.
+
+If replacement requires changing many navigation components, the abstraction
+has leaked. A leak means provider-specific knowledge escaped beyond its intended
+boundary and should be moved back behind the contract.
+
+## Troubleshooting guide
+
+### Nothing appears in the browser
+
+1. Read the URL printed by `npm run dev`; Vite may choose port 5174 if 5173 is
+   occupied.
+2. Check `index.html` for the `root` element and `src/main.tsx` script.
+3. Check the browser console for an exception.
+4. Confirm `main.tsx` found the root and rendered `App`.
+5. Run `npm run typecheck` and `npm run build`.
+
+### The map is blank or invisible
+
+1. Inspect `.map-view`, `.map-canvas`, and `.maplibregl-canvas` in browser
+   developer tools. Their computed width and height must be greater than zero.
+2. Confirm MapLibre CSS is imported before application CSS in `main.tsx`.
+3. Confirm `styles.css` targets `.map-view > .map-canvas`.
+4. Check the console for worker or WebGL errors. WebGL is the browser graphics
+   technology MapLibre uses to draw the map.
+5. Check the Network panel for failed style, tile, or worker requests.
+6. Confirm `setWorkerUrl` and the `?worker&url` import remain in
+   `MapLibreMapAdapter.ts`.
+7. Confirm `vite.config.ts` still excludes `maplibre-gl` from dependency
+   optimization unless a tested upgrade makes the exception unnecessary.
+
+The September 2026 invisible-map failure was caused by a zero-height map host:
+MapLibre vendor CSS overrode application positioning. A second usability issue
+came from a demonstration style that showed little street detail at campus zoom.
+
+### The map appears but streets do not
+
+1. Open the Network panel and filter for `tile.openstreetmap.org`.
+2. Confirm tile requests succeed and internet access is available.
+3. Check `defaultMapStyle` in `createMapAdapter.ts`.
+4. If `VITE_MAP_STYLE_URL` is set, confirm it returns a valid MapLibre style.
+5. Remember that the former demonstration style could appear mostly solid at
+   high zoom even though rendering technically worked.
+
+### Points appear but no route line appears
+
+1. Confirm **Preview route** was pressed.
+2. Confirm the route summary appears.
+3. Check that both selected IDs match a route in `mockRoutes.ts`.
+4. Confirm the route has at least two valid coordinates.
+5. If the summary appears but the line does not, inspect `syncContent()` in
+   `MapLibreMapAdapter.ts` and browser console errors.
+
+### Search does not show a location
+
+1. Confirm the location exists in `mockLocations.ts`.
+2. Confirm it was created through `createLocation`.
+3. Check that the label contains the typed text; matching is a case-insensitive
+   substring search.
+4. Inspect `filterLocationSearchResults` in `routePlanner.ts` if deliberately
+   changing filtering rules.
+
+### A quality command fails
+
+- Formatting: run `npm run format`, review, then rerun `npm run format:check`.
+- Linting: read the rule and location printed by `npm run lint`.
+- Type checking: compare the supplied value with the interface in the error.
+- Tests: read the first failed expectation and decide whether code or expected
+  behavior intentionally changed.
+- Build: resolve TypeScript errors first, then Vite bundling errors.
+
+## Architectural decision log
+
+Each decision has a stable number. “Accepted” means it is the current project
+rule. A later decision may supersede an older one; keep the old entry for
+historical context.
+
+### ADR-001: React, TypeScript, and Vite foundation
+
+- **Status:** Accepted
+- **Decision:** Use React for interface composition, strict TypeScript for data
+  contracts, and Vite for development and production bundling.
+- **Reason:** This supports a small interactive app with fast local feedback and
+  explicit compile-time checks.
+- **Consequence:** Contributors need Node and npm, and browser code must satisfy
+  strict rules before production builds pass.
+
+### ADR-002: Organize by feature and responsibility
+
+- **Status:** Accepted
+- **Decision:** Separate app assembly, domain meaning, data, features,
+  infrastructure, composition, and tests.
+- **Reason:** A growing map project can otherwise concentrate routing, UI, and
+  provider code in a few oversized files.
+- **Consequence:** There are more small folders, but each has a predictable job.
+
+### ADR-003: Keep navigation models provider-independent
+
+- **Status:** Accepted
+- **Decision:** `Location`, `Route`, `Coordinates`, and `MapMode` do not contain
+  MapLibre types.
+- **Reason:** Locations and routes are business concepts, not MapLibre concepts.
+- **Consequence:** The adapter translates domain objects into GeoJSON, while
+  future providers and routing services can reuse the domain.
+
+### ADR-004: Validate and freeze local data
+
+- **Status:** Accepted
+- **Decision:** Create domain objects through validating factory functions.
+- **Reason:** Problems should be rejected when data enters the system instead of
+  producing confusing map failures later.
+- **Consequence:** Invalid data stops startup clearly. Future external data needs
+  a similarly explicit validation step.
+
+### ADR-005: Isolate map providers behind `MapAdapter`
+
+- **Status:** Accepted
+- **Decision:** React map components depend on a contract; MapLibre lives in
+  infrastructure and is selected in composition.
+- **Reason:** Provider lifecycle and commands change independently from UI.
+- **Consequence:** A translation layer exists, but provider replacement and
+  focused tests become practical.
+
+### ADR-006: Store navigation state in one hook
+
+- **Status:** Accepted
+- **Decision:** `useRoutePlanner` owns queries, selections, suggestions, and the
+  route, and `App` shares that one instance with its children.
+- **Reason:** The panel and map must agree about selected locations and route.
+- **Consequence:** Components remain small, while the hook is the first place to
+  inspect state-transition bugs.
+
+### ADR-007: Lazy-load the map feature
+
+- **Status:** Accepted
+- **Decision:** `App.tsx` uses a dynamic import for `MapView`.
+- **Reason:** MapLibre is much larger than the route-planning interface.
+- **Consequence:** The map has a short loading boundary, and basic application
+  tests substitute a lightweight map component.
+
+### ADR-008: Configure the MapLibre worker explicitly for Vite
+
+- **Status:** Accepted
+- **Decision:** Import the worker with `?worker&url`, call `setWorkerUrl`, and
+  exclude `maplibre-gl` from Vite dependency optimization.
+- **Reason:** The default worker path became stale in Vite’s dependency cache.
+- **Consequence:** Worker configuration is explicit. Revisit it when upgrading
+  MapLibre or Vite.
+
+### ADR-009: Load vendor map CSS before application overrides
+
+- **Status:** Accepted
+- **Decision:** Import MapLibre CSS before `styles.css`, and use a specific
+  full-size rule for `.map-view > .map-canvas`.
+- **Reason:** MapLibre CSS overrode host positioning, collapsed its height to
+  zero, and made a correctly created canvas invisible.
+- **Consequence:** Stylesheet order is architectural. Reorganization must
+  preserve the map host’s computed size.
+
+### ADR-010: Use OpenStreetMap raster tiles for the prototype basemap
+
+- **Status:** Accepted for prototype use
+- **Decision:** Define an inline OpenStreetMap raster style while allowing
+  `VITE_MAP_STYLE_URL` to inject another hosted style.
+- **Reason:** The former demo style showed little recognizable detail at campus
+  zoom. The raster pattern works without a provider token.
+- **Consequence:** The prototype depends on network access and OpenStreetMap tile
+  availability and policy. Production should use a provider suited to its
+  expected traffic.
+
+## Engineering principles in plain language
+
+### Single responsibility
+
+Each module has one main reason to change. `mockLocations.ts` changes when
+sample places change; `styles.css` changes when presentation changes;
+`MapLibreMapAdapter.ts` changes when MapLibre behavior changes.
+
+### Open/closed design
+
+Important boundaries allow a new implementation without rewriting unrelated
+code. `MapAdapter` lets the provider be extended or replaced while navigation
+components remain closed to provider-specific edits.
+
+### Dependency inversion
+
+High-level product code depends on a small capability description, not a large
+external library. `MapView` depends on `MapAdapter`; composition supplies
+MapLibre. This is the “D” in SOLID, a group of maintainability principles.
+
+### Composition over forced inheritance
+
+React components combine smaller functions and hooks. A class is used for the
+stateful MapLibre adapter because it retains and cleans up one map instance. The
+project does not force class inheritance into UI code where functions are clearer.
+
+### Explicit failure
+
+Invalid data throws `NavigationValidationError`, missing required mock locations
+throw a clear error, and adapter methods reject use before initialization. Clear
+failures are easier to diagnose than silent corruption.
+
+### Minimal useful abstraction
+
+An abstraction is a simplified boundary hiding unnecessary detail. The project
+creates one where a real boundary exists, such as the map provider, and avoids
+speculative frameworks for features that have not been approved.
+
+## Glossary
+
+| Term                  | Plain-language meaning                                                       |
+| --------------------- | ---------------------------------------------------------------------------- |
+| Adapter               | A translator that makes one system fit the interface expected by another.    |
+| API                   | A defined way for one piece of software to communicate with another.         |
+| Basemap               | The background geographic map beneath custom markers and route lines.        |
+| Build                 | Turning source files into optimized files suitable for hosting.              |
+| Bundle                | Browser-ready files assembled from source and dependencies.                  |
+| Component             | A reusable visible part of a React interface.                                |
+| Contract or interface | A checked description of operations or data another module must provide.     |
+| Dependency            | Code, data, or a service that another part requires.                         |
+| Domain                | The business meaning of the application, such as locations and routes.       |
+| GeoJSON               | A standard JSON format for geographic points, lines, and areas.              |
+| Hook                  | A React function that manages reusable state or lifecycle behavior.          |
+| Infrastructure        | Code communicating with an external technical system or provider.            |
+| Lazy loading          | Delaying download or initialization until a feature is needed.               |
+| Mock data             | Local sample information used before or instead of a live backend.           |
+| Provider              | A library or service supplying a capability, such as map rendering or tiles. |
+| Raster tile           | A small map image combined with neighboring images to form a map.            |
+| State                 | Information that can change while the application is being used.             |
+| TypeScript            | JavaScript with compile-time checks for expected data shapes.                |
+| WebGL                 | Browser graphics technology used by MapLibre for fast map drawing.           |
+| Web worker            | A separate browser execution context that avoids blocking the interface.     |
+
+## How to maintain this handbook
+
+Update this file in the same commit when a change:
+
+- adds, removes, renames, or significantly repurposes a file or folder;
+- changes data flow between major parts of the system;
+- introduces or replaces an external provider;
+- creates an important configuration or environment setting;
+- fixes a failure whose cause would help a future maintainer;
+- accepts, supersedes, or reverses an architectural decision;
+- changes a safe recipe or troubleshooting procedure.
+
+Do not rewrite the entire handbook for each step. Update the smallest sections
+that became inaccurate, add a decision when its reason matters, and keep the
+table of contents useful. Source code remains the final authority for current
+behavior, so documentation and implementation should be reviewed together.

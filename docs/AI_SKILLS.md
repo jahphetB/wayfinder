@@ -21,14 +21,15 @@ This file records AI-related skills, tools, and project practices used during de
 
 ## Yote Wayfinder project practices
 
-| Practice                                        | Introduced in | Purpose                                                                                  |
-| ----------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------- |
-| Approval-gated delivery                         | Step 1        | Keeps implementation within the agreed scope.                                            |
-| Maintainable frontend boundaries                | Step 2        | Separates domain, data, UI, map infrastructure, and composition.                         |
-| Technical-term and file-connection explanations | Step 2        | Makes the project easier to understand and maintain.                                     |
-| Commit-before-push workflow                     | Step 2        | Preserves a reviewable local history and requires approval before remote changes.        |
-| React composition and hook isolation            | Step 3        | Keeps navigation visuals separate from selection and route-preview behavior.             |
-| Lazy-loaded map integration                     | Step 4        | Defers the large MapLibre bundle until the interactive map component is needed.          |
-| MapLibre Vite worker configuration              | Step 4 fix    | Bundles MapLibre's required map-rendering worker for Vite development and builds.        |
-| Vite dependency optimization control            | Step 4 fix    | Prevents Vite from pre-bundling MapLibre with a stale worker path.                       |
-| Browser runtime and CSS layout diagnosis        | Step 4 fix    | Uses console, network, and computed DOM measurements to find invisible rendered content. |
+| Practice                                        | Introduced in          | Purpose                                                                                                                             |
+| ----------------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                       |
+| Maintainable frontend boundaries                | Step 2                 | Separates domain, data, UI, map infrastructure, and composition.                                                                    |
+| Technical-term and file-connection explanations | Step 2                 | Makes the project easier to understand and maintain.                                                                                |
+| Commit-before-push workflow                     | Step 2                 | Preserves a reviewable local history and requires approval before remote changes.                                                   |
+| React composition and hook isolation            | Step 3                 | Keeps navigation visuals separate from selection and route-preview behavior.                                                        |
+| Lazy-loaded map integration                     | Step 4                 | Defers the large MapLibre bundle until the interactive map component is needed.                                                     |
+| MapLibre Vite worker configuration              | Step 4 fix             | Bundles MapLibre's required map-rendering worker for Vite development and builds.                                                   |
+| Vite dependency optimization control            | Step 4 fix             | Prevents Vite from pre-bundling MapLibre with a stale worker path.                                                                  |
+| Browser runtime and CSS layout diagnosis        | Step 4 fix             | Uses console, network, and computed DOM measurements to find invisible rendered content.                                            |
+| Living architecture documentation               | Architecture milestone | Translates code boundaries, decisions, change recipes, and troubleshooting into a navigable handbook for non-technical maintainers. |

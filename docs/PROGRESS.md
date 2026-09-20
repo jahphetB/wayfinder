@@ -47,3 +47,14 @@ Status: complete
   OpenStreetMap raster-style pattern so the prototype shows recognizable streets
   at campus zoom levels. A hosted style can still be injected through
   `VITE_MAP_STYLE_URL`.
+
+## Architecture handbook milestone
+
+Status: complete
+
+- Added a living architecture handbook for technical and non-technical readers.
+- Documented every current project-controlled folder and file, system data flow,
+  safe change recipes, troubleshooting paths, terminology, engineering
+  principles, and accepted architectural decisions.
+- Updated the project working agreement so future architectural changes keep the
+  handbook synchronized with the implementation.

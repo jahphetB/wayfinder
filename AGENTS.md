@@ -6,6 +6,8 @@
 - After every step, explain completed work, verification, key files and their connections, and technical terms when first introduced.
 - Recommend concise or detailed reporting and ask for the user's preference for the next step.
 - Update `README.md`, `docs/PROGRESS.md`, and `docs/AI_SKILLS.md` with meaningful progress.
+- Keep `docs/ARCHITECTURE.md` synchronized when a change affects project
+  structure, cross-file data flow, troubleshooting, or an architectural decision.
 
 ## Scope and change control
 

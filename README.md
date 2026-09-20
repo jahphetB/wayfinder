@@ -11,7 +11,9 @@ Yote Wayfinder is a responsive navigation-map prototype. It provides mock origin
 | 3. Navigation interface       | Complete | Responsive location inputs, autocomplete, swapping, route preview, and a visual map placeholder are ready. |
 | 4. Interactive map            | Complete | MapLibre renders the selected route and locations, fits the camera, and switches between 2D and 3D views.  |
 
-See [the detailed progress log](docs/PROGRESS.md) and [the AI skills inventory](docs/AI_SKILLS.md).
+See the [architecture handbook](docs/ARCHITECTURE.md),
+[detailed progress log](docs/PROGRESS.md), and
+[AI skills inventory](docs/AI_SKILLS.md).
 
 ## Local development
 
@@ -43,6 +45,10 @@ npm run build
 ```
 
 ## Architecture
+
+The [living architecture handbook](docs/ARCHITECTURE.md) explains every current
+folder and file, the route-preview data flow, safe change recipes,
+troubleshooting, and the architectural decision log in non-technical language.
 
 - `src/app` contains application composition and global styles.
 - `src/domain` contains provider-independent business models and validation.
