@@ -11,13 +11,13 @@ export const mockLocations = Object.freeze([
   }),
   createLocation({
     id: 'morrison-quadrangle',
-    label: 'Morrison Quadrangle',
+    label: 'Morrison Quadrangle & Clock Tower',
     coordinates: { latitude: 43.6534, longitude: -116.6768 },
   }),
   createLocation({
     id: 'tertelings-library',
-    label: 'N. L. Terteling Library',
-    coordinates: { latitude: 43.6537, longitude: -116.6749 },
+    label: 'N.L. Terteling Library',
+    coordinates: { latitude: 43.65392, longitude: -116.67593 },
   }),
 ])
 

@@ -19,7 +19,7 @@ const walkingGraph = createWalkingGraph({
     },
     {
       id: 'tertelings-library',
-      coordinates: { latitude: 43.6537, longitude: -116.6749 },
+      coordinates: { latitude: 43.65392, longitude: -116.67593 },
     },
   ],
   edges: [
@@ -66,7 +66,7 @@ export const collegeOfIdahoWalkingGraphRelease = createWalkingGraphRelease({
   graph: walkingGraph,
   provenance: {
     sourceDescription:
-      'Illustrative prototype topology created from project mock locations; not campus-approved.',
+      'Location names were checked against the College of Idaho campus map; the N.L. Terteling Library coordinate was corroborated with OpenStreetMap-derived public map data. Path topology, distances, restrictions, and accessibility remain illustrative and are not campus-approved.',
     verificationStatus: 'illustrative',
     reviewedOn: '2026-09-20',
   },

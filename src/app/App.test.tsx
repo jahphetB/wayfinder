@@ -43,7 +43,7 @@ describe('App', () => {
     await user.type(startInput, 'Morrison')
     await user.keyboard('{ArrowDown}{Enter}')
 
-    expect(startInput).toHaveValue('Morrison Quadrangle')
+    expect(startInput).toHaveValue('Morrison Quadrangle & Clock Tower')
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
     expect(screen.getByText('Walking route')).toBeInTheDocument()
   })
