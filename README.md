@@ -4,14 +4,15 @@ Yote Wayfinder is a responsive navigation-map prototype for The College of Idaho
 
 ## Current progress
 
-| Step                               | Status   | Outcome                                                                                                        |
-| ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------- |
-| 1. Project foundation              | Complete | React, TypeScript, quality checks, test tooling, and production builds are configured.                         |
-| 2. Domain and map abstraction      | Complete | Provider-independent models, validated mock data, and a tested MapLibre boundary are in place.                 |
-| 3. Navigation interface            | Complete | Responsive location inputs, autocomplete, swapping, route preview, and a visual map placeholder are ready.     |
-| 4. Interactive map                 | Complete | MapLibre renders the selected route and locations, fits the camera, and switches between 2D and 3D views.      |
-| 5. Application states and polish   | Complete | Clear route and map states, keyboard autocomplete, accessible status messaging, and map recovery are in place. |
-| 6. Testing, bundling, and delivery | Complete | Campus-focused mock data, map bounds, verification, bundle review, and delivery documentation are complete.    |
+| Step                               | Status   | Outcome                                                                                                          |
+| ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1. Project foundation              | Complete | React, TypeScript, quality checks, test tooling, and production builds are configured.                           |
+| 2. Domain and map abstraction      | Complete | Provider-independent models, validated mock data, and a tested MapLibre boundary are in place.                   |
+| 3. Navigation interface            | Complete | Responsive location inputs, autocomplete, swapping, route preview, and a visual map placeholder are ready.       |
+| 4. Interactive map                 | Complete | MapLibre renders the selected route and locations, fits the camera, and switches between 2D and 3D views.        |
+| 5. Application states and polish   | Complete | Clear route and map states, keyboard autocomplete, accessible status messaging, and map recovery are in place.   |
+| 6. Testing, bundling, and delivery | Complete | Campus-focused mock data, map bounds, verification, bundle review, and delivery documentation are complete.      |
+| 7. Routing foundation              | Complete | A validated, testable College of Idaho walking graph and shortest-path logic are ready for later UI integration. |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [detailed progress log](docs/PROGRESS.md), and

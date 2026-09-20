@@ -24,3 +24,26 @@ export interface Route {
   readonly distanceMeters: number
   readonly estimatedDurationMinutes: number
 }
+
+export interface WalkingGraphNode {
+  readonly id: string
+  readonly coordinates: Coordinates
+}
+
+export interface WalkingGraphEdge {
+  readonly id: string
+  readonly fromNodeId: string
+  readonly toNodeId: string
+  readonly distanceMeters: number
+}
+
+export interface WalkingGraph {
+  readonly nodes: readonly WalkingGraphNode[]
+  readonly edges: readonly WalkingGraphEdge[]
+}
+
+export interface WalkingPath {
+  readonly nodeIds: readonly string[]
+  readonly edgeIds: readonly string[]
+  readonly distanceMeters: number
+}

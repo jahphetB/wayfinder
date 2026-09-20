@@ -3,6 +3,9 @@ import type {
   Location,
   LocationSearchResult,
   Route,
+  WalkingGraph,
+  WalkingGraphEdge,
+  WalkingGraphNode,
 } from './types'
 
 interface CoordinatesInput {
@@ -28,6 +31,23 @@ interface RouteInput {
   readonly coordinates: readonly CoordinatesInput[]
   readonly distanceMeters: number
   readonly estimatedDurationMinutes: number
+}
+
+interface WalkingGraphNodeInput {
+  readonly id: string
+  readonly coordinates: CoordinatesInput
+}
+
+interface WalkingGraphEdgeInput {
+  readonly id: string
+  readonly fromNodeId: string
+  readonly toNodeId: string
+  readonly distanceMeters: number
+}
+
+interface WalkingGraphInput {
+  readonly nodes: readonly WalkingGraphNodeInput[]
+  readonly edges: readonly WalkingGraphEdgeInput[]
 }
 
 export class NavigationValidationError extends Error {
@@ -87,6 +107,70 @@ export function createRoute(input: RouteInput): Route {
     ...input,
     coordinates: Object.freeze(input.coordinates.map(createCoordinates)),
   })
+}
+
+export function createWalkingGraph(input: WalkingGraphInput): WalkingGraph {
+  if (input.nodes.length === 0) {
+    throw new NavigationValidationError(
+      'Walking graph requires at least one node',
+    )
+  }
+
+  const nodes = input.nodes.map(createWalkingGraphNode)
+  assertUniqueIds(nodes, 'Walking graph node')
+
+  const nodeIds = new Set(nodes.map((node) => node.id))
+  const edges = input.edges.map((edge) => createWalkingGraphEdge(edge, nodeIds))
+  assertUniqueIds(edges, 'Walking graph edge')
+
+  return Object.freeze({
+    nodes: Object.freeze(nodes),
+    edges: Object.freeze(edges),
+  })
+}
+
+function createWalkingGraphNode(
+  input: WalkingGraphNodeInput,
+): WalkingGraphNode {
+  assertText(input.id, 'Walking graph node id')
+
+  return Object.freeze({
+    id: input.id,
+    coordinates: createCoordinates(input.coordinates),
+  })
+}
+
+function createWalkingGraphEdge(
+  input: WalkingGraphEdgeInput,
+  nodeIds: ReadonlySet<string>,
+): WalkingGraphEdge {
+  assertText(input.id, 'Walking graph edge id')
+  assertText(input.fromNodeId, 'Walking graph edge start node id')
+  assertText(input.toNodeId, 'Walking graph edge end node id')
+  assertPositive(input.distanceMeters, 'Walking graph edge distance')
+
+  if (input.fromNodeId === input.toNodeId) {
+    throw new NavigationValidationError(
+      'Walking graph edge must connect different nodes',
+    )
+  }
+
+  if (!nodeIds.has(input.fromNodeId) || !nodeIds.has(input.toNodeId)) {
+    throw new NavigationValidationError(
+      'Walking graph edge must reference existing nodes',
+    )
+  }
+
+  return Object.freeze({ ...input })
+}
+
+function assertUniqueIds(
+  values: readonly { readonly id: string }[],
+  name: string,
+): void {
+  if (new Set(values.map((value) => value.id)).size !== values.length) {
+    throw new NavigationValidationError(`${name} ids must be unique`)
+  }
 }
 
 function assertText(value: string, name: string): void {

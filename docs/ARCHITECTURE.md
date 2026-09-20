@@ -75,6 +75,11 @@ matching known route and sends it to the map. The locations, route lines, and
 campus boundary are illustrative prototype data: they are not official walking,
 accessibility, or emergency directions.
 
+The project also contains a separate College of Idaho walking graph and a
+shortest-path calculation. It is deliberately not connected to the visible route
+preview yet. This lets the team verify the routing foundation before changing
+what a person sees in the browser.
+
 MapLibre GL JS draws the interactive map. MapLibre is a rendering engine: it
 turns map data into the pixels, labels, markers, and lines seen in the browser.
 OpenStreetMap raster tiles provide the current street background. A raster tile
@@ -308,11 +313,13 @@ This subfolder owns navigation vocabulary and validity. It should not import
 from `data`, `features`, or MapLibre. Those outer areas depend on the domain,
 not the other way around.
 
-| File                                      | Importance and relationship to other files                                                                                                                                                                                                                  |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/domain/navigation/types.ts`          | Defines `Coordinates`, `Location`, `LocationSearchResult`, `Route`, and `MapMode`. These shared shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                             |
-| `src/domain/navigation/factories.ts`      | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, and non-positive distance or duration. Immutable means callers cannot accidentally alter accepted data later. |
-| `src/domain/navigation/factories.test.ts` | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, and a route cannot start and end at the same place. Add tests here when a new domain rule is introduced.                                                           |
+| File                                        | Importance and relationship to other files                                                                                                                                                                                                                                         |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/domain/navigation/types.ts`            | Defines shared meanings for locations, rendered routes, and walking-graph nodes, edges, and paths. These provider-independent shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                      |
+| `src/domain/navigation/factories.ts`        | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, invalid graph edges, and non-positive distances or durations. Immutable means callers cannot accidentally alter accepted data later. |
+| `src/domain/navigation/factories.test.ts`   | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                             |
+| `src/domain/navigation/pathfinding.ts`      | Contains the pure shortest-path calculation. It reads a `WalkingGraph` and returns a `WalkingPath` without importing React, MapLibre, or mock-data files.                                                                                                                          |
+| `src/domain/navigation/pathfinding.test.ts` | Proves the algorithm chooses the shorter connected path, supports travel in either direction, and safely reports no path for unknown or unreachable nodes.                                                                                                                         |
 
 ## The `src/data` folder
 
@@ -332,12 +339,14 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                               | Importance and relationship to other files                                                                                                                                                                                                          |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/navigation/collegeOfIdahoCampus.ts`      | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes. |
-| `src/data/navigation/collegeOfIdahoCampus.test.ts` | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                      |
-| `src/data/navigation/mockLocations.ts`             | Defines the searchable locations and derives search-result records from them. Location IDs are referenced by routes, so changing an ID requires updating every route that uses it.                                                                  |
-| `src/data/navigation/mockRoutes.ts`                | Defines sample route geometry, distances, and durations. Every endpoint ID must match a location ID from `mockLocations.ts`; coordinate order determines the line drawn on the map.                                                                 |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                          |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes. |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                      |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | Defines the small, illustrative campus path network. It uses validated domain factories and is read only by routing tests at this stage; the current UI still reads `mockRoutes.ts`.                                                                |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path and protects the graph's connection order and total distance.                                                                                                                              |
+| `src/data/navigation/mockLocations.ts`                   | Defines the searchable locations and derives search-result records from them. Location IDs are referenced by routes, so changing an ID requires updating every route that uses it.                                                                  |
+| `src/data/navigation/mockRoutes.ts`                      | Defines sample route geometry, distances, and durations. Every endpoint ID must match a location ID from `mockLocations.ts`; coordinate order determines the line drawn on the map.                                                                 |
 
 ## The `src/features` folder
 
@@ -525,6 +534,27 @@ initial application interface. Additional code splitting would add complexity
 without a material benefit for this small prototype, so it was intentionally
 not added.
 
+### Step 7: Routing foundation
+
+Step 7 introduces the first reusable routing building block without changing
+the current route-preview screen. A walking graph represents places as nodes and
+walkable connections as edges. An edge includes its length in meters. The pure
+`findShortestWalkingPath` function uses Dijkstra's algorithm: it repeatedly
+explores the currently shortest known route until it reaches the destination.
+
+The graph data in `collegeOfIdahoWalkingGraph.ts` is intentionally small and
+illustrative. Its values are not official pedestrian, accessibility, or
+emergency guidance. Before this graph drives the interface, a campus owner must
+verify every node, connection, distance, direction, closure, and accessibility
+restriction. Keeping that data separate from the algorithm means a verified
+replacement can be introduced without rewriting the calculation.
+
+`types.ts` defines the graph vocabulary, `factories.ts` validates and freezes
+graph data, and `pathfinding.ts` performs the calculation. The campus graph is
+in the data folder, while both domain and data tests prove the expected path.
+The existing `useRoutePlanner.ts` still reads `mockRoutes.ts`; that intentional
+boundary prevents unfinished data from affecting people using the prototype.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -552,6 +582,17 @@ not bypass it by placing unvalidated plain objects into the application.
 The map draws straight segments between supplied coordinates. It does not yet
 snap them to sidewalks or calculate a path. Accurate walking geometry therefore
 needs enough intermediate coordinates.
+
+### Change the walking graph
+
+1. Open `src/data/navigation/collegeOfIdahoWalkingGraph.ts`.
+2. Add or adjust nodes and edges through `createWalkingGraph` only.
+3. Keep every edge endpoint ID equal to an existing node ID.
+4. Update the graph test with the route and distance that should result.
+5. Obtain campus verification before treating the data as official.
+
+An edge is currently treated as two-way. A future one-way or closed path needs
+an explicit rule in the domain model and new tests before its data is added.
 
 ### Change visible wording
 
@@ -803,6 +844,17 @@ historical context.
   is needed; extra splitting has no demonstrated benefit yet.
 - **Consequence:** Reassess after adding more routes, map layers, or an
   authenticated data provider, when bundle measurements may materially change.
+
+### ADR-015: Keep pathfinding in the domain layer until data is verified
+
+- **Status:** Accepted
+- **Decision:** Add a provider-independent walking graph and shortest-path
+  function without wiring it into React, MapLibre, or the existing preview UI.
+- **Reason:** Route calculation should be testable independently, and the
+  current campus topology is illustrative rather than verified.
+- **Consequence:** A later integration can transform a calculated path into a
+  rendered route. It must first establish verified source data and rules for
+  accessibility, closures, and directionality.
 
 ## Engineering principles in plain language
 

@@ -2,6 +2,7 @@ import {
   NavigationValidationError,
   createCoordinates,
   createRoute,
+  createWalkingGraph,
 } from './factories'
 
 describe('navigation factories', () => {
@@ -33,6 +34,27 @@ describe('navigation factories', () => {
         ],
         distanceMeters: 100,
         estimatedDurationMinutes: 2,
+      }),
+    ).toThrow(NavigationValidationError)
+  })
+
+  it('rejects a walking edge that references an unknown node', () => {
+    expect(() =>
+      createWalkingGraph({
+        nodes: [
+          {
+            id: 'known-node',
+            coordinates: { latitude: 43.6642, longitude: -116.6885 },
+          },
+        ],
+        edges: [
+          {
+            id: 'invalid-edge',
+            fromNodeId: 'known-node',
+            toNodeId: 'unknown-node',
+            distanceMeters: 100,
+          },
+        ],
       }),
     ).toThrow(NavigationValidationError)
   })

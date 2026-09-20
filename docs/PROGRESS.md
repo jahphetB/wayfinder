@@ -70,3 +70,13 @@ Status: complete
 - Added campus-configuration and map-bound tests, then verified formatting, linting, strict TypeScript, tests, and the production build.
 - Reviewed the production output: MapLibre remains isolated in the existing lazy-loaded map chunk, so no extra splitting is justified at this prototype stage.
 - Documented the delivery decision and College of Idaho boundary in the architecture handbook.
+
+## Step 7: Routing foundation
+
+Status: complete
+
+- Added immutable, validated walking-graph types for nodes, edges, and paths.
+- Added a pure Dijkstra shortest-path function with no React or MapLibre dependency.
+- Added a small College of Idaho prototype graph that remains separate from the visible route-preview interface until campus paths are verified.
+- Added factory, algorithm, and campus-graph tests for validation, shortest path selection, reverse travel, and unavailable paths.
+- Updated the project agreement, README, AI skills inventory, and architecture handbook with the new routing boundary and data-verification requirements.

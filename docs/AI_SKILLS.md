@@ -37,3 +37,5 @@ This file records AI-related skills, tools, and project practices used during de
 | Accessible interaction design                   | Step 5                 | Adds keyboard-operable autocomplete, semantic status messages, and clear recovery behavior.                                         |
 | Campus-scope configuration                      | Step 6                 | Keeps the College of Idaho focus, initial view, and pan limits in one data module separate from map-provider code.                  |
 | Evidence-based bundle review                    | Step 6                 | Retains existing lazy loading unless build output shows a material, user-facing need for more splitting.                            |
+| Domain-level Dijkstra pathfinding               | Step 7                 | Calculates a shortest walking path from validated graph data without coupling the algorithm to React or MapLibre.                   |
+| Two-part approval report                        | Step 7                 | Uses a completed-step report followed by a brief next-step preview for predictable approval decisions.                              |
