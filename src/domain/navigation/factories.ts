@@ -3,12 +3,15 @@ import type {
   Location,
   LocationSearchResult,
   Route,
+  RouteDataVerificationStatus,
   WalkingGraph,
   WalkingEdgeAccessibility,
   WalkingEdgeAvailability,
   WalkingEdgeDirection,
   WalkingGraphEdge,
   WalkingGraphNode,
+  WalkingGraphProvenance,
+  WalkingGraphRelease,
 } from './types'
 
 interface CoordinatesInput {
@@ -54,6 +57,18 @@ interface WalkingGraphEdgeInput {
 interface WalkingGraphInput {
   readonly nodes: readonly WalkingGraphNodeInput[]
   readonly edges: readonly WalkingGraphEdgeInput[]
+}
+
+interface WalkingGraphProvenanceInput {
+  readonly sourceDescription: string
+  readonly verificationStatus: RouteDataVerificationStatus
+  readonly reviewedOn: string
+  readonly verifiedBy?: string
+}
+
+interface WalkingGraphReleaseInput {
+  readonly graph: WalkingGraph
+  readonly provenance: WalkingGraphProvenanceInput
 }
 
 export class NavigationValidationError extends Error {
@@ -132,6 +147,46 @@ export function createWalkingGraph(input: WalkingGraphInput): WalkingGraph {
   return Object.freeze({
     nodes: Object.freeze(nodes),
     edges: Object.freeze(edges),
+  })
+}
+
+export function createWalkingGraphRelease(
+  input: WalkingGraphReleaseInput,
+): WalkingGraphRelease {
+  const provenance = createWalkingGraphProvenance(input.provenance)
+
+  return Object.freeze({
+    graph: input.graph,
+    provenance,
+  })
+}
+
+function createWalkingGraphProvenance(
+  input: WalkingGraphProvenanceInput,
+): WalkingGraphProvenance {
+  assertText(input.sourceDescription, 'Walking graph source description')
+  assertOneOf(
+    input.verificationStatus,
+    ['illustrative', 'verified'],
+    'Walking graph verification status',
+  )
+  assertIsoDate(input.reviewedOn, 'Walking graph review date')
+
+  if (input.verificationStatus === 'verified') {
+    if (!input.verifiedBy) {
+      throw new NavigationValidationError(
+        'Verified walking graph data requires a verifier',
+      )
+    }
+
+    assertText(input.verifiedBy, 'Walking graph verifier')
+  }
+
+  return Object.freeze({
+    sourceDescription: input.sourceDescription,
+    verificationStatus: input.verificationStatus,
+    reviewedOn: input.reviewedOn,
+    ...(input.verifiedBy ? { verifiedBy: input.verifiedBy } : {}),
   })
 }
 
@@ -228,6 +283,20 @@ function assertOneOf<T extends string>(
     throw new NavigationValidationError(
       `${name} must be one of: ${allowedValues.join(', ')}`,
     )
+  }
+}
+
+function assertIsoDate(value: string, name: string): void {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new NavigationValidationError(`${name} must use YYYY-MM-DD format`)
+  }
+
+  const parsedDate = new Date(`${value}T00:00:00.000Z`)
+  if (
+    Number.isNaN(parsedDate.valueOf()) ||
+    !parsedDate.toISOString().startsWith(value)
+  ) {
+    throw new NavigationValidationError(`${name} must be a real calendar date`)
   }
 }
 

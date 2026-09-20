@@ -1,8 +1,20 @@
-import { collegeOfIdahoWalkingGraph } from './collegeOfIdahoWalkingGraph'
+import {
+  collegeOfIdahoWalkingGraph,
+  collegeOfIdahoWalkingGraphRelease,
+} from './collegeOfIdahoWalkingGraph'
 import { findShortestWalkingPath } from '@/domain/navigation/pathfinding'
 import { mockLocations } from './mockLocations'
 
 describe('College of Idaho walking graph', () => {
+  it('labels current path data as illustrative rather than verified', () => {
+    expect(collegeOfIdahoWalkingGraphRelease.provenance).toEqual({
+      sourceDescription:
+        'Illustrative prototype topology created from project mock locations; not campus-approved.',
+      verificationStatus: 'illustrative',
+      reviewedOn: '2026-09-20',
+    })
+  })
+
   it('represents each searchable mock location as a graph node', () => {
     const graphNodeIds = new Set(
       collegeOfIdahoWalkingGraph.nodes.map((node) => node.id),

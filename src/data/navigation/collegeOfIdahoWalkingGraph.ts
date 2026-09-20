@@ -1,7 +1,9 @@
-import { createWalkingGraph } from '@/domain/navigation/factories'
+import {
+  createWalkingGraph,
+  createWalkingGraphRelease,
+} from '@/domain/navigation/factories'
 
-// Illustrative prototype topology only. Replace after campus path verification.
-export const collegeOfIdahoWalkingGraph = createWalkingGraph({
+const walkingGraph = createWalkingGraph({
   nodes: [
     {
       id: 'campus-entrance',
@@ -59,3 +61,16 @@ export const collegeOfIdahoWalkingGraph = createWalkingGraph({
     },
   ],
 })
+
+export const collegeOfIdahoWalkingGraphRelease = createWalkingGraphRelease({
+  graph: walkingGraph,
+  provenance: {
+    sourceDescription:
+      'Illustrative prototype topology created from project mock locations; not campus-approved.',
+    verificationStatus: 'illustrative',
+    reviewedOn: '2026-09-20',
+  },
+})
+
+export const collegeOfIdahoWalkingGraph =
+  collegeOfIdahoWalkingGraphRelease.graph

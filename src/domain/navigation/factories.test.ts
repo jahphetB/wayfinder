@@ -3,6 +3,7 @@ import {
   createCoordinates,
   createRoute,
   createWalkingGraph,
+  createWalkingGraphRelease,
 } from './factories'
 
 describe('navigation factories', () => {
@@ -55,6 +56,29 @@ describe('navigation factories', () => {
             distanceMeters: 100,
           },
         ],
+      }),
+    ).toThrow(NavigationValidationError)
+  })
+
+  it('rejects verified walking-graph data without a named verifier', () => {
+    const graph = createWalkingGraph({
+      nodes: [
+        {
+          id: 'known-node',
+          coordinates: { latitude: 43.6642, longitude: -116.6885 },
+        },
+      ],
+      edges: [],
+    })
+
+    expect(() =>
+      createWalkingGraphRelease({
+        graph,
+        provenance: {
+          sourceDescription: 'Campus facilities survey',
+          verificationStatus: 'verified',
+          reviewedOn: '2026-09-20',
+        },
       }),
     ).toThrow(NavigationValidationError)
   })

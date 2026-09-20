@@ -51,6 +51,20 @@ export interface WalkingGraph {
   readonly edges: readonly WalkingGraphEdge[]
 }
 
+export type RouteDataVerificationStatus = 'illustrative' | 'verified'
+
+export interface WalkingGraphProvenance {
+  readonly sourceDescription: string
+  readonly verificationStatus: RouteDataVerificationStatus
+  readonly reviewedOn: string
+  readonly verifiedBy?: string
+}
+
+export interface WalkingGraphRelease {
+  readonly graph: WalkingGraph
+  readonly provenance: WalkingGraphProvenance
+}
+
 export interface WalkingPath {
   readonly nodeIds: readonly string[]
   readonly edgeIds: readonly string[]
