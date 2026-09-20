@@ -1,10 +1,22 @@
-import type { WalkingGraphRelease } from '@/domain/navigation/types'
+import type { Location, WalkingGraphRelease } from '@/domain/navigation/types'
+
+interface CollegeOfIdahoWalkingGraphData extends WalkingGraphRelease {
+  readonly locations: readonly Pick<Location, 'id' | 'label'>[]
+}
 
 /**
  * Editable campus graph dataset. Replace these records with reviewed source
  * data; the loader validates them before routing code can use them.
  */
 export const collegeOfIdahoWalkingGraphData = {
+  locations: [
+    { id: 'campus-entrance', label: 'Campus Entrance' },
+    {
+      id: 'morrison-quadrangle',
+      label: 'Morrison Quadrangle & Clock Tower',
+    },
+    { id: 'cruzen-murray-library', label: 'Cruzen-Murray Library' },
+  ],
   graph: {
     nodes: [
       {
@@ -69,4 +81,4 @@ export const collegeOfIdahoWalkingGraphData = {
     verificationStatus: 'illustrative',
     reviewedOn: '2026-09-20',
   },
-} satisfies WalkingGraphRelease
+} satisfies CollegeOfIdahoWalkingGraphData

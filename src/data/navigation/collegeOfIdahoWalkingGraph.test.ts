@@ -8,11 +8,12 @@ import { mockLocations } from './mockLocations'
 
 describe('College of Idaho walking graph', () => {
   it('loads the editable dataset through the validated graph boundary', () => {
-    expect(collegeOfIdahoWalkingGraphRelease).toEqual(
-      collegeOfIdahoWalkingGraphData,
-    )
-    expect(collegeOfIdahoWalkingGraphRelease).not.toBe(
-      collegeOfIdahoWalkingGraphData,
+    expect(collegeOfIdahoWalkingGraphRelease).toMatchObject({
+      graph: collegeOfIdahoWalkingGraphData.graph,
+      provenance: collegeOfIdahoWalkingGraphData.provenance,
+    })
+    expect(collegeOfIdahoWalkingGraphRelease.graph).not.toBe(
+      collegeOfIdahoWalkingGraphData.graph,
     )
   })
 
