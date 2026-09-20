@@ -94,3 +94,17 @@ Status: complete
 - Added route-conversion and graph-to-searchable-location contract tests.
 - Removed duplicated prewritten route data and documented the new integration
   boundary, validation rules, and future data limitations.
+
+## Step 9: Route constraints
+
+Status: complete
+
+- Added validated direction, availability, and accessibility-status fields to
+  every walking-graph edge.
+- Updated shortest-path calculation to skip closed edges and respect
+  forward-only direction rules.
+- Kept all current College of Idaho prototype paths explicitly available,
+  bidirectional, and accessibility-unverified rather than making claims.
+- Added focused tests for closed shortcuts and reverse travel on a one-way edge.
+- Created separate verified commits for the code/test unit and its documentation
+  unit, following the project’s more frequent commit cadence.
