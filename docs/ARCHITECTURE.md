@@ -368,10 +368,10 @@ provided identifiers and coordinates remain consistent.
 | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes. |
 | `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                      |
-| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps nodes, edges, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code.                                                        |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code.                                     |
 | `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                        |
 | `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path, confirms every searchable mock location is represented by a graph node, and verifies the graph is labeled illustrative.                                                                   |
-| `src/data/navigation/mockLocations.ts`                   | Defines searchable locations and derives search-result records from them. Every searchable location must also have a graph node before the route planner can calculate a route.                                                                     |
+| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                               |
 
 ## The `src/features` folder
 
@@ -672,7 +672,8 @@ is marked permanently closed. The independent
 Cruzen-Murray coordinate `43.6545, -116.67654`.
 
 `collegeOfIdahoWalkingGraphData.ts` is now the editable dataset: it contains
-the nodes, edges, and provenance together. The small
+searchable labels, nodes, edges, and provenance together. `mockLocations.ts`
+derives its location records and coordinates from this one dataset. The small
 `collegeOfIdahoWalkingGraph.ts` loader passes that data through domain factories
 before exporting it. A loader is code that turns stored information into safe
 application data. This means an invalid future import fails at the existing
@@ -694,10 +695,12 @@ afterward and inspect the browser for visual changes.
 
 ### Add a location
 
-1. Open `src/data/navigation/mockLocations.ts`.
-2. Add a `createLocation` entry with a unique ID, label, latitude, and longitude.
-3. Keep the ID stable and machine-friendly, such as `science-building`.
-4. Add a graph node with the same ID in `collegeOfIdahoWalkingGraph.ts`.
+1. Open `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`.
+2. Add a searchable location label with a unique, machine-friendly ID, such as
+   `science-building`.
+3. Add a graph node with that same ID and its latitude and longitude.
+4. `mockLocations.ts` will derive the validated searchable location from those
+   records; do not add a second copy there.
 5. Add verified connecting edges if the location should have a calculated route.
 6. Run checks and confirm the suggestion appears in both fields.
 
@@ -1070,9 +1073,9 @@ historical context.
 ### ADR-020: Keep replaceable graph records separate from their validated loader
 
 - **Status:** Accepted for the prototype
-- **Decision:** Store editable College of Idaho graph records in a dedicated
-  dataset module, then construct the runtime release through the existing
-  domain factories in a small loader module.
+- **Decision:** Store editable College of Idaho location and graph records in a
+  dedicated dataset module, then construct the runtime release through the
+  existing domain factories in a small loader module.
 - **Reason:** A future verified source should be able to replace graph data in
   one place without learning the route planner, React state, or MapLibre. The
   existing factories already enforce the data rules, so a second import

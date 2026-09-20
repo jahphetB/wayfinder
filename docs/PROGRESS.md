@@ -105,7 +105,10 @@ Commit: `32c40cb` (`feat: corroborate campus location data`)
 ## Step 12: Validated data replacement
 
 Status: complete
-Commit: `4e13e03` (`feat: isolate campus graph dataset`)
+Commits:
+
+- `4e13e03` (`feat: isolate campus graph dataset`)
+- `cf5c055` (`refactor: derive locations from graph dataset`)
 
 - Used a temporary local browser session to inspect Google Maps directly. It
   identifies N.L. Terteling Library as permanently closed and identifies
@@ -114,9 +117,11 @@ Commit: `4e13e03` (`feat: isolate campus graph dataset`)
   and OpenStreetMap-derived public map data. Updated the displayed destination
   and its graph node to Cruzen-Murray Library at `43.6545, -116.67654`.
 - Moved editable graph records and provenance into
-  `collegeOfIdahoWalkingGraphData.ts`. The existing graph module now validates
-  that dataset before the planner can use it, so a future verified dataset can
-  replace this one without changing routing, React UI, or MapLibre code.
+  `collegeOfIdahoWalkingGraphData.ts`. It is also the single source of truth
+  for searchable location labels and coordinates. The existing graph module now
+  validates that dataset before the planner can use it, so a future verified
+  dataset can replace this one without changing routing, React UI, or MapLibre
+  code.
 - Retained illustrative status for the path topology, edge distances,
   availability, direction, and accessibility because public map listings do
   not verify those operational route facts.

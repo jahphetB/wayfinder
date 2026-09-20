@@ -17,7 +17,7 @@ Wayfinder is a responsive navigation-map prototype. It provides mock origin and 
 | 9. Route constraints               | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.                    |
 | 10. Data verification workflow     | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.                             |
 | 11. Public-source corroboration    | Complete | Official campus naming and one independently mapped coordinate are recorded while operational route data remains illustrative. |
-| 12. Validated data replacement     | Complete | Current-library data is corrected and isolated in one validated dataset for future verified-data replacement.                  |
+| 12. Validated data replacement     | Complete | Current-library data is corrected and isolated as the single source of truth for future verified-data replacement.             |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [detailed progress log](docs/PROGRESS.md), and
