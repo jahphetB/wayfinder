@@ -91,13 +91,14 @@ review date, and verification status. This release is currently marked
 illustrative, not campus-approved. The project will reject a future release that
 claims verified data without naming the person or organization that verified it.
 
-The visible labels for Morrison Quadrangle & Clock Tower and N.L. Terteling
-Library were checked against the College's published campus map. The library's
-prototype coordinate was also corroborated by an OpenStreetMap-derived public
-map record. This is intentionally a narrow claim: no public source reviewed in
-Step 11 proves the exact walking edges, their distances, temporary closures,
-travel directions, or accessibility. Those routing facts remain illustrative
-until an authorized campus reviewer checks them.
+The visible labels for Morrison Quadrangle & Clock Tower and Cruzen-Murray
+Library are supported by current College and public-map sources. A Google Maps
+check showed the former N.L. Terteling Library listing as permanently closed,
+so it is not presented as a current destination. This is intentionally a
+narrow claim: no public source reviewed in Steps 11 or 12 proves the exact
+walking edges, their distances, temporary closures, travel directions, or
+accessibility. Those routing facts remain illustrative until an authorized
+campus reviewer checks them.
 
 MapLibre GL JS draws the interactive map. MapLibre is a rendering engine: it
 turns map data into the pixels, labels, markers, and lines seen in the browser.
@@ -363,13 +364,14 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                            |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes.                                   |
-| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                        |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | Defines the small, illustrative campus path network and its release record. The record explains source, review date, and verification status; it prevents the data from being mistaken for campus-approved information. `useRoutePlanner.ts` supplies its graph to `routePlanner.ts`. |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path, confirms every searchable mock location is represented by a graph node, and verifies the graph is labeled illustrative.                                                                                                     |
-| `src/data/navigation/mockLocations.ts`                   | Defines searchable locations and derives search-result records from them. Every searchable location must also have a graph node before the route planner can calculate a route.                                                                                                       |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                          |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes. |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                      |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps nodes, edges, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code.                                                        |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                        |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path, confirms every searchable mock location is represented by a graph node, and verifies the graph is labeled illustrative.                                                                   |
+| `src/data/navigation/mockLocations.ts`                   | Defines searchable locations and derives search-result records from them. Every searchable location must also have a graph node before the route planner can calculate a route.                                                                     |
 
 ## The `src/features` folder
 
@@ -642,27 +644,48 @@ Step 11 makes a careful improvement to the information a person can see without
 pretending that public maps are an authorized routing survey. The official
 [College of Idaho campus map](https://collegeofidaho.edu/visit/campus-map/) and
 its [downloadable map](https://collegeofidaho.edu/wp-content/uploads/2025/09/2021-2022-Campus-Map.pdf)
-confirm the published labels `Morrison Quadrangle & Clock Tower` and `N.L.
-Terteling Library`. The independent [OpenStreetMap-derived library record](https://mapcarta.com/W492831877)
-places N.L. Terteling Library at latitude `43.65392` and longitude
-`-116.67593`, which now supplies that prototype marker and graph-node
-coordinate.
+confirm the published label `Morrison Quadrangle & Clock Tower`. The map PDF
+also contained N.L. Terteling Library, but that map is not sufficient evidence
+that it is a current destination. Step 12 supersedes the prototype's former
+Terteling marker after direct Google Maps and current College sources showed
+that Cruzen-Murray Library is the current library and the Terteling listing is
+permanently closed.
 
-The official College page also provides a Google Map link. The automated
-research environment could not retrieve Google Maps during this step, so it was
-not used as independent evidence. This is a transparent limitation, not a
-failed claim of confirmation. A maintainer or campus reviewer can compare the
-prototype against [Google Maps](https://www.google.com/maps/search/?api=1&query=The+College+of+Idaho%2C+Caldwell%2C+ID)
-in a normal browser before a later data release.
+Only limited visible facts are supported by named public sources. A
+corroborated fact is checked against a source beyond the project's own mock
+record; it is not the same as a campus-approved operational instruction. The
+graph therefore remains `illustrative`: its central waypoint, all edge geometry
+and distances, availability, direction, and accessibility values still need
+authorized review.
 
-Only the two labels and the library coordinate are supported by named public
-sources. A corroborated fact is checked against a source beyond the project's
-own mock record; it is not the same as a campus-approved operational
-instruction. The graph
-therefore remains `illustrative`: its central waypoint, all edge geometry and
-distances, availability, direction, and accessibility values still need
-authorized review. The application continues to show the update immediately in
-autocomplete and as map labels after a route preview.
+### Step 12: Validated data replacement
+
+Step 12 both corrects the current library destination and makes later verified
+data replacement deliberately small. The College's current
+[Cruzen-Murray Library page](https://collegeofidaho.edu/library/) identifies
+the library as part of The College of Idaho. Direct inspection of the public
+[Google Maps listing](https://www.google.com/maps/search/?api=1&query=Cruzen-Murray+Library%2C+College+of+Idaho%2C+Caldwell%2C+ID)
+also identifies it as a College library; the former
+[N.L. Terteling Library listing](https://www.google.com/maps/search/?api=1&query=N.L.+Terteling+Library%2C+College+of+Idaho%2C+Caldwell%2C+ID)
+is marked permanently closed. The independent
+[OpenStreetMap-derived record](https://mapcarta.com/W603509923) supplies the
+Cruzen-Murray coordinate `43.6545, -116.67654`.
+
+`collegeOfIdahoWalkingGraphData.ts` is now the editable dataset: it contains
+the nodes, edges, and provenance together. The small
+`collegeOfIdahoWalkingGraph.ts` loader passes that data through domain factories
+before exporting it. A loader is code that turns stored information into safe
+application data. This means an invalid future import fails at the existing
+validation boundary instead of reaching Dijkstra pathfinding or the map.
+
+When verified data is available, replace the contents of the dataset file,
+including its provenance, rather than modifying the route planner, React hook,
+or MapLibre adapter. The expected fields are already visible in the dataset:
+node IDs and coordinates; edge endpoints, meters, direction, availability, and
+accessibility; and the release source, review date, status, and verifier. Keep
+the status `illustrative` unless the existing verification checklist can be
+completed. This avoids a speculative import framework while giving future data
+providers one clear, tested entry point.
 
 ## Safe change recipes
 
@@ -683,8 +706,9 @@ not bypass it by placing unvalidated plain objects into the application.
 
 ### Change the walking graph
 
-1. Open `src/data/navigation/collegeOfIdahoWalkingGraph.ts`.
-2. Add or adjust nodes and edges through `createWalkingGraph` only.
+1. Open `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`.
+2. Add or adjust nodes and edges in that dataset; the loader will validate them
+   through `createWalkingGraph`.
 3. Keep every edge endpoint ID equal to an existing node ID.
 4. Set `availability`, `direction`, and `accessibility` deliberately for every
    edge; use `unverified` when campus accessibility information is unknown.
@@ -701,7 +725,8 @@ considered only when its availability is `available`.
 1. Collect the approved source for every affected campus path.
 2. Verify node coordinates, edge distance, direction, availability, and
    accessibility status with an authorized campus reviewer.
-3. Update `collegeOfIdahoWalkingGraph.ts` and its release provenance together.
+3. Update `collegeOfIdahoWalkingGraphData.ts` and its release provenance
+   together; do not alter the loader unless the domain contract changes.
 4. Set `verificationStatus` to `verified`, provide `verifiedBy`, and use a real
    `reviewedOn` date in `YYYY-MM-DD` format.
 5. Update focused tests for the changed path behavior.
@@ -1041,6 +1066,20 @@ historical context.
 - **Consequence:** The visible prototype can become more accurate in small,
   traceable ways now. Each route edge still requires its own authoritative
   review before release data can be marked verified.
+
+### ADR-020: Keep replaceable graph records separate from their validated loader
+
+- **Status:** Accepted for the prototype
+- **Decision:** Store editable College of Idaho graph records in a dedicated
+  dataset module, then construct the runtime release through the existing
+  domain factories in a small loader module.
+- **Reason:** A future verified source should be able to replace graph data in
+  one place without learning the route planner, React state, or MapLibre. The
+  existing factories already enforce the data rules, so a second import
+  framework would add cost without present benefit.
+- **Consequence:** Future data changes are localized and fail early when they
+  violate a contract. A different file format or remote provider can later be
+  translated into this same dataset shape without changing application behavior.
 
 ## Engineering principles in plain language
 

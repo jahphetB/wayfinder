@@ -17,6 +17,7 @@ Wayfinder is a responsive navigation-map prototype. It provides mock origin and 
 | 9. Route constraints               | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.                    |
 | 10. Data verification workflow     | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.                             |
 | 11. Public-source corroboration    | Complete | Official campus naming and one independently mapped coordinate are recorded while operational route data remains illustrative. |
+| 12. Validated data replacement     | Complete | Current-library data is corrected and isolated in one validated dataset for future verified-data replacement.                  |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [detailed progress log](docs/PROGRESS.md), and
@@ -42,13 +43,13 @@ The default street tiles come from OpenStreetMap for prototype use. Set
 production tile provider is selected.
 
 The map starts at The College of Idaho campus and limits ordinary panning to a
-campus-sized area. Location labels have been checked against the College's
-published campus map, and the N.L. Terteling Library coordinate was corroborated
-with public OpenStreetMap-derived data. The walking-path topology, distances,
-closures, direction rules, and accessibility information are still illustrative
-prototype data, not official accessibility or walking directions. See the
-[architecture handbook's Step 11 guide](docs/ARCHITECTURE.md#step-11-public-source-corroboration)
-for the evidence boundary and source links.
+campus-sized area. Current visible location data includes Cruzen-Murray Library,
+whose identity and coordinate were checked against College of Idaho, Google Maps,
+and OpenStreetMap-derived public information. The walking-path topology,
+distances, closures, direction rules, and accessibility information are still
+illustrative prototype data, not official accessibility or walking directions.
+See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
+for source links and the future verified-data replacement process.
 
 ## Quality checks
 

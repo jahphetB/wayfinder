@@ -101,3 +101,22 @@ Commit: `32c40cb` (`feat: corroborate campus location data`)
 - The official College map links to Google Maps. Google Maps itself could not
   be retrieved by the automated research environment, so it was not counted as
   independent machine-checked evidence.
+
+## Step 12: Validated data replacement
+
+Status: complete
+Commit: `4e13e03` (`feat: isolate campus graph dataset`)
+
+- Used a temporary local browser session to inspect Google Maps directly. It
+  identifies N.L. Terteling Library as permanently closed and identifies
+  Cruzen-Murray Library as the current College of Idaho library.
+- Confirmed the current library with the College's library page, Google Maps,
+  and OpenStreetMap-derived public map data. Updated the displayed destination
+  and its graph node to Cruzen-Murray Library at `43.6545, -116.67654`.
+- Moved editable graph records and provenance into
+  `collegeOfIdahoWalkingGraphData.ts`. The existing graph module now validates
+  that dataset before the planner can use it, so a future verified dataset can
+  replace this one without changing routing, React UI, or MapLibre code.
+- Retained illustrative status for the path topology, edge distances,
+  availability, direction, and accessibility because public map listings do
+  not verify those operational route facts.

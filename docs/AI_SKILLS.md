@@ -11,17 +11,17 @@ This file records AI-related skills, tools, and project practices used during de
 
 ## External technology
 
-| Technology                     | Used in       | Purpose                                                                                                                                                               |
-| ------------------------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vite                           | Step 1        | Provides local development and production bundling.                                                                                                                   |
-| React                          | Step 1        | Provides component composition for the web interface.                                                                                                                 |
-| MapLibre GL JS                 | Step 1 onward | Provides the eventual 2D/3D map renderer behind a provider-neutral contract.                                                                                          |
-| OpenStreetMap raster tiles     | Step 4 fix    | Provide a recognizable prototype street basemap through MapLibre's documented raster-source pattern.                                                                  |
-| College of Idaho campus map    | Step 6        | Informed campus naming and prototype map focus; it is not used as routing data.                                                                                       |
-| Vitest and Testing Library     | Step 1 onward | Verify behavior without manually testing every change.                                                                                                                |
-| College of Idaho campus map    | Step 11       | Confirms published campus place names used in the prototype.                                                                                                          |
-| OpenStreetMap-derived map data | Step 11       | Corroborates the public coordinate for N.L. Terteling Library.                                                                                                        |
-| Google Maps                    | Step 11       | Was requested as a comparison source; the official College page links to it, but automated retrieval was unavailable, so it is not treated as corroborating evidence. |
+| Technology                     | Used in       | Purpose                                                                                                              |
+| ------------------------------ | ------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Vite                           | Step 1        | Provides local development and production bundling.                                                                  |
+| React                          | Step 1        | Provides component composition for the web interface.                                                                |
+| MapLibre GL JS                 | Step 1 onward | Provides the eventual 2D/3D map renderer behind a provider-neutral contract.                                         |
+| OpenStreetMap raster tiles     | Step 4 fix    | Provide a recognizable prototype street basemap through MapLibre's documented raster-source pattern.                 |
+| College of Idaho campus map    | Step 6        | Informed campus naming and prototype map focus; it is not used as routing data.                                      |
+| Vitest and Testing Library     | Step 1 onward | Verify behavior without manually testing every change.                                                               |
+| College of Idaho campus map    | Steps 11-12   | Confirms published campus place names and the current Cruzen-Murray Library identity.                                |
+| OpenStreetMap-derived map data | Steps 11-12   | Corroborates public building coordinates, including Cruzen-Murray Library.                                           |
+| Google Maps                    | Step 12       | Directly checked the current library listing and identified that the former Terteling listing is permanently closed. |
 
 ## Yote Wayfinder project practices
 
@@ -47,3 +47,4 @@ This file records AI-related skills, tools, and project practices used during de
 | Cohesive commit cadence                         | Step 9                 | Creates separate verified commits for independently complete code and documentation units within an approved step.                                 |
 | Route-data provenance validation                | Step 10                | Records source, review date, and verification status so illustrative and verified graph data cannot be confused.                                   |
 | Public-source evidence boundary                 | Step 11                | Uses official and independent public maps for limited location corroboration while preserving the illustrative label for unverified routing facts. |
+| Validated editable graph dataset                | Step 12                | Isolates replaceable campus data from its runtime loader so future verified data can enter without changing route, UI, or map code.                |
