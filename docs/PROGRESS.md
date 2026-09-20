@@ -84,3 +84,20 @@ Status: complete
 - Labeled the current College of Idaho graph explicitly illustrative and not campus-approved.
 - Added validation and provenance tests, plus documentation for the future campus-data release checklist.
 - Created separate verified code and documentation commits.
+
+## Step 11: Public-source corroboration
+
+Status: complete
+Commit: `32c40cb` (`feat: corroborate campus location data`)
+
+- Checked visible place names against the College of Idaho's published campus
+  map and updated the prototype to use its exact labels for Morrison Quadrangle
+  & Clock Tower and N.L. Terteling Library.
+- Corroborated the N.L. Terteling Library point with OpenStreetMap-derived
+  public map data and synchronized the location and graph-node coordinate.
+- Recorded the limited scope in graph provenance: public sources do not prove
+  usable pedestrian paths, distances, closures, direction rules, or
+  accessibility. Those facts remain illustrative and not campus-approved.
+- The official College map links to Google Maps. Google Maps itself could not
+  be retrieved by the automated research environment, so it was not counted as
+  independent machine-checked evidence.

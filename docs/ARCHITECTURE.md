@@ -91,6 +91,14 @@ review date, and verification status. This release is currently marked
 illustrative, not campus-approved. The project will reject a future release that
 claims verified data without naming the person or organization that verified it.
 
+The visible labels for Morrison Quadrangle & Clock Tower and N.L. Terteling
+Library were checked against the College's published campus map. The library's
+prototype coordinate was also corroborated by an OpenStreetMap-derived public
+map record. This is intentionally a narrow claim: no public source reviewed in
+Step 11 proves the exact walking edges, their distances, temporary closures,
+travel directions, or accessibility. Those routing facts remain illustrative
+until an authorized campus reviewer checks them.
+
 MapLibre GL JS draws the interactive map. MapLibre is a rendering engine: it
 turns map data into the pixels, labels, markers, and lines seen in the browser.
 OpenStreetMap raster tiles provide the current street background. A raster tile
@@ -628,6 +636,34 @@ status, identify the verifier, and update the review date. The UI continues to
 work from the graph inside that release, so this governance improvement does not
 change the map or the route experience.
 
+### Step 11: Public-source corroboration
+
+Step 11 makes a careful improvement to the information a person can see without
+pretending that public maps are an authorized routing survey. The official
+[College of Idaho campus map](https://collegeofidaho.edu/visit/campus-map/) and
+its [downloadable map](https://collegeofidaho.edu/wp-content/uploads/2025/09/2021-2022-Campus-Map.pdf)
+confirm the published labels `Morrison Quadrangle & Clock Tower` and `N.L.
+Terteling Library`. The independent [OpenStreetMap-derived library record](https://mapcarta.com/W492831877)
+places N.L. Terteling Library at latitude `43.65392` and longitude
+`-116.67593`, which now supplies that prototype marker and graph-node
+coordinate.
+
+The official College page also provides a Google Map link. The automated
+research environment could not retrieve Google Maps during this step, so it was
+not used as independent evidence. This is a transparent limitation, not a
+failed claim of confirmation. A maintainer or campus reviewer can compare the
+prototype against [Google Maps](https://www.google.com/maps/search/?api=1&query=The+College+of+Idaho%2C+Caldwell%2C+ID)
+in a normal browser before a later data release.
+
+Only the two labels and the library coordinate are supported by named public
+sources. A corroborated fact is checked against a source beyond the project's
+own mock record; it is not the same as a campus-approved operational
+instruction. The graph
+therefore remains `illustrative`: its central waypoint, all edge geometry and
+distances, availability, direction, and accessibility values still need
+authorized review. The application continues to show the update immediately in
+autocomplete and as map labels after a route preview.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -674,6 +710,23 @@ considered only when its availability is `available`.
 Do not mark a release verified from an unreviewed screenshot, informal memory,
 or an unconfirmed public map. Keep it illustrative until the required evidence
 and named review exist.
+
+### Corroborate a public location fact safely
+
+1. Start with the College's current published map for the location's official
+   name and campus context.
+2. Find an independent public map record for a coordinate or building outline.
+   Record the exact page and date checked in the Step guide and provenance text.
+3. Change only the fact the sources support: for example, a label or one marker
+   coordinate. Do not infer a walkable path, entrance, distance, closure, or
+   accessibility property from a pin alone.
+4. Keep the graph release `illustrative` unless the full verification checklist
+   above is completed by an authorized campus reviewer.
+5. Update the location and matching graph node together, add a focused test,
+   then inspect the changed marker and label in the browser.
+
+This small process prevents a helpful public-map correction from silently
+turning into an unverified directions claim.
 
 ### Change visible wording
 
@@ -975,6 +1028,20 @@ historical context.
   and a validation boundary. The project can remain honest about data quality
   without blocking prototype development.
 
+### ADR-019: Separate public corroboration from operational route verification
+
+- **Status:** Accepted for the prototype
+- **Decision:** Use official and independent public maps to improve only facts
+  they plainly support, while retaining the `illustrative` release status until
+  an authorized campus reviewer confirms operational route data.
+- **Reason:** Public map labels and a building coordinate are useful evidence,
+  but they do not establish that a particular walking line is usable, current,
+  accessible, or approved. Treating them as full routing verification would
+  create a misleading safety claim.
+- **Consequence:** The visible prototype can become more accurate in small,
+  traceable ways now. Each route edge still requires its own authoritative
+  review before release data can be marked verified.
+
 ## Engineering principles in plain language
 
 ### Single responsibility
@@ -1015,28 +1082,29 @@ speculative frameworks for features that have not been approved.
 
 ## Glossary
 
-| Term                  | Plain-language meaning                                                       |
-| --------------------- | ---------------------------------------------------------------------------- |
-| Adapter               | A translator that makes one system fit the interface expected by another.    |
-| API                   | A defined way for one piece of software to communicate with another.         |
-| Basemap               | The background geographic map beneath custom markers and route lines.        |
-| Build                 | Turning source files into optimized files suitable for hosting.              |
-| Bundle                | Browser-ready files assembled from source and dependencies.                  |
-| Component             | A reusable visible part of a React interface.                                |
-| Contract or interface | A checked description of operations or data another module must provide.     |
-| Dependency            | Code, data, or a service that another part requires.                         |
-| Domain                | The business meaning of the application, such as locations and routes.       |
-| GeoJSON               | A standard JSON format for geographic points, lines, and areas.              |
-| Hook                  | A React function that manages reusable state or lifecycle behavior.          |
-| Infrastructure        | Code communicating with an external technical system or provider.            |
-| Lazy loading          | Delaying download or initialization until a feature is needed.               |
-| Mock data             | Local sample information used before or instead of a live backend.           |
-| Provider              | A library or service supplying a capability, such as map rendering or tiles. |
-| Raster tile           | A small map image combined with neighboring images to form a map.            |
-| State                 | Information that can change while the application is being used.             |
-| TypeScript            | JavaScript with compile-time checks for expected data shapes.                |
-| WebGL                 | Browser graphics technology used by MapLibre for fast map drawing.           |
-| Web worker            | A separate browser execution context that avoids blocking the interface.     |
+| Term                  | Plain-language meaning                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Adapter               | A translator that makes one system fit the interface expected by another.                                     |
+| API                   | A defined way for one piece of software to communicate with another.                                          |
+| Basemap               | The background geographic map beneath custom markers and route lines.                                         |
+| Build                 | Turning source files into optimized files suitable for hosting.                                               |
+| Bundle                | Browser-ready files assembled from source and dependencies.                                                   |
+| Component             | A reusable visible part of a React interface.                                                                 |
+| Corroborated fact     | A limited fact checked beyond the project's own mock record; it is not automatically an approved instruction. |
+| Contract or interface | A checked description of operations or data another module must provide.                                      |
+| Dependency            | Code, data, or a service that another part requires.                                                          |
+| Domain                | The business meaning of the application, such as locations and routes.                                        |
+| GeoJSON               | A standard JSON format for geographic points, lines, and areas.                                               |
+| Hook                  | A React function that manages reusable state or lifecycle behavior.                                           |
+| Infrastructure        | Code communicating with an external technical system or provider.                                             |
+| Lazy loading          | Delaying download or initialization until a feature is needed.                                                |
+| Mock data             | Local sample information used before or instead of a live backend.                                            |
+| Provider              | A library or service supplying a capability, such as map rendering or tiles.                                  |
+| Raster tile           | A small map image combined with neighboring images to form a map.                                             |
+| State                 | Information that can change while the application is being used.                                              |
+| TypeScript            | JavaScript with compile-time checks for expected data shapes.                                                 |
+| WebGL                 | Browser graphics technology used by MapLibre for fast map drawing.                                            |
+| Web worker            | A separate browser execution context that avoids blocking the interface.                                      |
 
 ## How to maintain this handbook
 
