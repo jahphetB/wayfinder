@@ -1,10 +1,7 @@
-import { useState } from 'react'
-import type {
-  Location,
-  LocationSearchResult,
-  Route,
-} from '@/domain/navigation/types'
+import { useId, useState, type KeyboardEvent } from 'react'
+import type { Location, LocationSearchResult } from '@/domain/navigation/types'
 import { useRoutePlanner } from '../hooks/useRoutePlanner'
+import type { RoutePlanState } from '../model/routePlanner'
 
 interface FieldProps {
   readonly label: string
@@ -21,19 +18,72 @@ function LocationField({
   onSelect,
 }: FieldProps) {
   const [open, setOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const listboxId = useId()
+
+  function selectSuggestion(location: Location): void {
+    onSelect(location)
+    setOpen(false)
+    setActiveIndex(-1)
+  }
+
+  function moveActiveSuggestion(direction: 1 | -1): void {
+    if (suggestions.length === 0) return
+
+    setOpen(true)
+    setActiveIndex((currentIndex) => {
+      const nextIndex = currentIndex + direction
+      if (nextIndex < 0) return suggestions.length - 1
+      return nextIndex % suggestions.length
+    })
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      moveActiveSuggestion(1)
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      moveActiveSuggestion(-1)
+    } else if (event.key === 'Enter' && open && activeIndex >= 0) {
+      const suggestion = suggestions[activeIndex]
+      if (!suggestion) return
+      event.preventDefault()
+      selectSuggestion(suggestion.location)
+    } else if (event.key === 'Escape') {
+      setOpen(false)
+      setActiveIndex(-1)
+    }
+  }
+
   return (
     <div className="location-field">
       <label>
         {label}
         <input
           aria-label={label}
+          aria-activedescendant={
+            open && activeIndex >= 0
+              ? `${listboxId}-option-${activeIndex}`
+              : undefined
+          }
+          aria-autocomplete="list"
+          aria-controls={open ? listboxId : undefined}
           aria-expanded={open}
-          onBlur={() => setOpen(false)}
+          onBlur={() => {
+            setOpen(false)
+            setActiveIndex(-1)
+          }}
           onChange={(event) => {
             onChange(event.target.value)
             setOpen(true)
+            setActiveIndex(-1)
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            setOpen(true)
+            setActiveIndex(-1)
+          }}
+          onKeyDown={handleKeyDown}
           role="combobox"
           value={query}
         />
@@ -42,16 +92,15 @@ function LocationField({
         <ul
           aria-label={`${label} suggestions`}
           className="suggestions"
+          id={listboxId}
           role="listbox"
         >
-          {suggestions.map(({ location }) => (
-            <li key={location.id}>
+          {suggestions.map(({ location }, index) => (
+            <li id={`${listboxId}-option-${index}`} key={location.id}>
               <button
+                aria-selected={activeIndex === index}
                 onMouseDown={(event) => event.preventDefault()}
-                onClick={() => {
-                  onSelect(location)
-                  setOpen(false)
-                }}
+                onClick={() => selectSuggestion(location)}
                 role="option"
                 type="button"
               >
@@ -65,20 +114,37 @@ function LocationField({
   )
 }
 function RouteSummary({
-  route,
+  planState,
   origin,
   destination,
 }: {
-  route: Route | undefined
+  planState: RoutePlanState
   origin: Location | undefined
   destination: Location | undefined
 }) {
-  if (!route || !origin || !destination)
+  if (planState.status === 'invalid-location')
+    return (
+      <p className="route-summary-error" role="alert">
+        Choose a suggestion for both locations before previewing a route.
+      </p>
+    )
+
+  if (planState.status === 'route-unavailable')
+    return (
+      <p className="route-summary-error" role="alert">
+        A sample route is not available for this location pair yet.
+      </p>
+    )
+
+  if (planState.status === 'empty' || !origin || !destination)
     return (
       <p className="route-summary-empty">
         Select locations, then preview a sample route.
       </p>
     )
+
+  const { route } = planState
+
   return (
     <section aria-live="polite" className="route-summary">
       <p>Sample route</p>
@@ -134,18 +200,14 @@ export function NavigationPanel({
           query={planner.destinationQuery}
           suggestions={planner.destinationSuggestions}
         />
-        <button
-          className="route-action"
-          disabled={!planner.canPlanRoute}
-          type="submit"
-        >
+        <button className="route-action" type="submit">
           Preview route
         </button>
       </form>
       <RouteSummary
         destination={planner.destination}
         origin={planner.origin}
-        route={planner.plannedRoute}
+        planState={planner.routePlanState}
       />
     </section>
   )

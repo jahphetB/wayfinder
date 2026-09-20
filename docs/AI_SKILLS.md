@@ -33,3 +33,4 @@ This file records AI-related skills, tools, and project practices used during de
 | Vite dependency optimization control            | Step 4 fix             | Prevents Vite from pre-bundling MapLibre with a stale worker path.                                                                  |
 | Browser runtime and CSS layout diagnosis        | Step 4 fix             | Uses console, network, and computed DOM measurements to find invisible rendered content.                                            |
 | Living architecture documentation               | Architecture milestone | Translates code boundaries, decisions, change recipes, and troubleshooting into a navigable handbook for non-technical maintainers. |
+| Accessible interaction design                   | Step 5                 | Adds keyboard-operable autocomplete, semantic status messages, and clear recovery behavior.                                         |

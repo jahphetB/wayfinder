@@ -6,8 +6,9 @@ import {
 import { mockRoutes } from '@/data/navigation/mockRoutes'
 import type { Location, Route } from '@/domain/navigation/types'
 import {
+  determineRoutePlan,
   filterLocationSearchResults,
-  findRouteForLocations,
+  type RoutePlanState,
 } from '@/features/navigation/model/routePlanner'
 
 type Field = 'origin' | 'destination'
@@ -28,7 +29,11 @@ export function useRoutePlanner() {
   const [destinationQuery, setDestinationQuery] = useState(
     initialDestination.label,
   )
-  const [plannedRoute, setPlannedRoute] = useState<Route | undefined>()
+  const [routePlanState, setRoutePlanState] = useState<RoutePlanState>({
+    status: 'empty',
+  })
+  const plannedRoute: Route | undefined =
+    routePlanState.status === 'route-ready' ? routePlanState.route : undefined
   const originSuggestions = useMemo(
     () => filterLocationSearchResults(mockLocationSearchResults, originQuery),
     [originQuery],
@@ -46,7 +51,7 @@ export function useRoutePlanner() {
       setDestinationQuery(value)
       setDestination(undefined)
     }
-    setPlannedRoute(undefined)
+    setRoutePlanState({ status: 'empty' })
   }
   function selectLocation(field: Field, location: Location): void {
     if (field === 'origin') {
@@ -56,18 +61,17 @@ export function useRoutePlanner() {
       setDestination(location)
       setDestinationQuery(location.label)
     }
-    setPlannedRoute(undefined)
+    setRoutePlanState({ status: 'empty' })
   }
   function swapLocations(): void {
     setOrigin(destination)
     setDestination(origin)
     setOriginQuery(destination?.label ?? '')
     setDestinationQuery(origin?.label ?? '')
-    setPlannedRoute(undefined)
+    setRoutePlanState({ status: 'empty' })
   }
   function planRoute(): void {
-    if (origin && destination)
-      setPlannedRoute(findRouteForLocations(mockRoutes, origin, destination))
+    setRoutePlanState(determineRoutePlan(mockRoutes, origin, destination))
   }
   return {
     origin,
@@ -77,7 +81,7 @@ export function useRoutePlanner() {
     originSuggestions,
     destinationSuggestions,
     plannedRoute,
-    canPlanRoute: Boolean(origin && destination),
+    routePlanState,
     changeQuery,
     selectLocation,
     swapLocations,

@@ -11,8 +11,17 @@ export interface MapInitialView {
   readonly mode: MapMode
 }
 
+export interface MapAdapterCallbacks {
+  readonly onReady?: () => void
+  readonly onError?: (error: Error) => void
+}
+
 export interface MapAdapter {
-  initialize(container: HTMLElement, initialView: MapInitialView): void
+  initialize(
+    container: HTMLElement,
+    initialView: MapInitialView,
+    callbacks?: MapAdapterCallbacks,
+  ): void
   setMode(mode: MapMode): void
   setContent(content: MapContent): void
   destroy(): void

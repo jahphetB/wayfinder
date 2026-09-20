@@ -9,6 +9,7 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import type { MapMode } from '@/domain/navigation/types'
 import type {
   MapAdapter,
+  MapAdapterCallbacks,
   MapContent,
   MapInitialView,
 } from '@/features/map/contracts/MapAdapter'
@@ -16,6 +17,7 @@ import type {
 export interface MapLibreMapInstance {
   easeTo(options: EaseToOptions): unknown
   on(event: 'load', listener: () => void): unknown
+  on(event: 'error', listener: (event: { error?: Error }) => void): unknown
   addSource(id: string, source: object): unknown
   getSource(id: string): unknown
   addLayer(layer: object): unknown
@@ -56,7 +58,11 @@ export class MapLibreMapAdapter implements MapAdapter {
     this.createMap = options.createMap ?? defaultMapFactory
   }
 
-  initialize(container: HTMLElement, initialView: MapInitialView): void {
+  initialize(
+    container: HTMLElement,
+    initialView: MapInitialView,
+    callbacks?: MapAdapterCallbacks,
+  ): void {
     if (this.map) {
       throw new Error('Map adapter has already been initialized')
     }
@@ -71,6 +77,12 @@ export class MapLibreMapAdapter implements MapAdapter {
     this.map.on('load', () => {
       this.isReady = true
       this.syncContent()
+      callbacks?.onReady?.()
+    })
+    this.map.on('error', (event) => {
+      callbacks?.onError?.(
+        event.error ?? new Error('MapLibre could not load the map.'),
+      )
     })
   }
 

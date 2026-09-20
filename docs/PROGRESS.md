@@ -58,3 +58,17 @@ Status: complete
   principles, and accepted architectural decisions.
 - Updated the project working agreement so future architectural changes keep the
   handbook synchronized with the implementation.
+
+## Step 5: Application states and polish
+
+Status: complete
+
+- Added explicit empty, invalid-location, unavailable-route, and route-ready
+  outcomes to route planning.
+- Added keyboard autocomplete behavior with arrow-key navigation, Enter
+  selection, Escape dismissal, and accessible combobox/listbox state.
+- Added map loading and retryable map-error states through adapter lifecycle
+  callbacks rather than silently leaving a blank map panel.
+- Added focused route-outcome, keyboard-interaction, and map-lifecycle tests.
+- Documented Step 5 in `docs/ARCHITECTURE.md` under
+  “Implementation step guides.”

@@ -30,12 +30,13 @@ work together, that decision should be recorded here.
 16. [The map feature](#the-map-feature)
 17. [The `src/test` folder](#the-srctest-folder)
 18. [Generated and tool-owned folders](#generated-and-tool-owned-folders)
-19. [Safe change recipes](#safe-change-recipes)
-20. [Troubleshooting guide](#troubleshooting-guide)
-21. [Architectural decision log](#architectural-decision-log)
-22. [Engineering principles in plain language](#engineering-principles-in-plain-language)
-23. [Glossary](#glossary)
-24. [How to maintain this handbook](#how-to-maintain-this-handbook)
+19. [Implementation step guides](#implementation-step-guides)
+20. [Safe change recipes](#safe-change-recipes)
+21. [Troubleshooting guide](#troubleshooting-guide)
+22. [Architectural decision log](#architectural-decision-log)
+23. [Engineering principles in plain language](#engineering-principles-in-plain-language)
+24. [Glossary](#glossary)
+25. [How to maintain this handbook](#how-to-maintain-this-handbook)
 
 ## Start here
 
@@ -464,6 +465,33 @@ the installation process instead of editing package files inside this folder.
 deleted and rebuilt. Hosting systems deploy this output, but human changes must
 be made in `src` or configuration and then rebuilt.
 
+## Implementation step guides
+
+Each completed implementation step receives a focused guide here. These guides
+are an easier starting point than reading the entire handbook when you only need
+to understand one step.
+
+### Step 5: Application states and polish
+
+Step 5 makes the application explain what is happening instead of leaving a
+person to infer it from a blank or unchanged screen. The route planner now
+distinguishes an untouched form, an invalid typed location, a valid pair without
+a sample route, and a route that is ready to show. The map likewise says when
+it is loading and provides a clear recovery action if MapLibre reports an error.
+
+Keyboard users can open location suggestions with the arrow keys, move through
+them, choose one with Enter, and close the list with Escape. The active choice
+is communicated through accessibility attributes so assistive technology can
+announce it. Accessibility attributes are semantic information that helps screen
+readers understand controls and their current state.
+
+The main files for this step are `useRoutePlanner.ts` and `routePlanner.ts` for
+route outcomes, `NavigationPanel.tsx` for messages and keyboard interaction,
+`MapView.tsx` and `MapAdapter.ts` for map loading/error recovery,
+`MapLibreMapAdapter.ts` for provider callbacks, and `styles.css` for visible
+status treatment. The related tests are in `App.test.tsx`, `routePlanner.test.ts`,
+and `MapLibreMapAdapter.test.ts`.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -697,6 +725,30 @@ historical context.
 - **Consequence:** The prototype depends on network access and OpenStreetMap tile
   availability and policy. Production should use a provider suited to its
   expected traffic.
+
+### ADR-011: Model route outcomes and map lifecycle explicitly
+
+- **Status:** Accepted
+- **Decision:** Represent empty, invalid-location, unavailable-route, and
+  route-ready states in navigation logic, and expose map ready/error callbacks
+  through the map adapter contract.
+- **Reason:** The application should tell people why a route or map is absent
+  rather than relying on a blank area, disabled control, or hidden technical
+  failure.
+- **Consequence:** UI components can present clear accessible messages without
+  knowing route lookup or MapLibre internals. New route providers must map their
+  outcomes into the same user-facing states.
+
+### ADR-012: Use an adapter-level map recovery state
+
+- **Status:** Accepted
+- **Decision:** Display a retryable map error state driven by adapter callbacks
+  instead of adding a generic React error boundary for MapLibre failures.
+- **Reason:** MapLibre problems usually occur asynchronously after React has
+  already rendered, while error boundaries primarily catch rendering errors.
+- **Consequence:** The map reports provider failures with useful recovery. A
+  separate error boundary remains appropriate if a future React component has
+  render-time failure risk.
 
 ## Engineering principles in plain language
 

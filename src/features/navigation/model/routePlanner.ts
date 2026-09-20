@@ -4,6 +4,12 @@ import type {
   Route,
 } from '@/domain/navigation/types'
 
+export type RoutePlanState =
+  | { readonly status: 'empty' }
+  | { readonly status: 'invalid-location' }
+  | { readonly status: 'route-unavailable' }
+  | { readonly status: 'route-ready'; readonly route: Route }
+
 export function filterLocationSearchResults(
   results: readonly LocationSearchResult[],
   query: string,
@@ -28,4 +34,17 @@ export function findRouteForLocations(
       (route.originLocationId === destination.id &&
         route.destinationLocationId === origin.id),
   )
+}
+
+export function determineRoutePlan(
+  routes: readonly Route[],
+  origin: Location | undefined,
+  destination: Location | undefined,
+): RoutePlanState {
+  if (!origin || !destination) return { status: 'invalid-location' }
+
+  const route = findRouteForLocations(routes, origin, destination)
+  return route
+    ? { status: 'route-ready', route }
+    : { status: 'route-unavailable' }
 }

@@ -60,4 +60,48 @@ describe('MapLibreMapAdapter', () => {
       'Map adapter must be initialized before use',
     )
   })
+
+  it('reports MapLibre readiness and errors through adapter callbacks', () => {
+    const on = vi.fn()
+    const mapInstance: MapLibreMapInstance = {
+      easeTo: vi.fn(),
+      on,
+      addSource: vi.fn(),
+      getSource: vi.fn(),
+      addLayer: vi.fn(),
+      getLayer: vi.fn(),
+      fitBounds: vi.fn(),
+      remove: vi.fn(),
+    }
+    const onReady = vi.fn()
+    const onError = vi.fn()
+    const adapter = new MapLibreMapAdapter({
+      style: 'https://example.test/style.json',
+      createMap: vi.fn(() => mapInstance),
+    })
+
+    adapter.initialize(
+      document.createElement('div'),
+      {
+        center: { latitude: 43.6642, longitude: -116.6885 },
+        zoom: 15,
+        mode: '3d',
+      },
+      { onReady, onError },
+    )
+
+    const loadListener = on.mock.calls.find(
+      ([event]) => event === 'load',
+    )?.[1] as () => void
+    const errorListener = on.mock.calls.find(
+      ([event]) => event === 'error',
+    )?.[1] as (event: { error: Error }) => void
+
+    loadListener()
+    const error = new Error('Tile request failed')
+    errorListener({ error })
+
+    expect(onReady).toHaveBeenCalledTimes(1)
+    expect(onError).toHaveBeenCalledWith(error)
+  })
 })
