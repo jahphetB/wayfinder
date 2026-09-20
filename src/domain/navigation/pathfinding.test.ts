@@ -58,4 +58,73 @@ describe('findShortestWalkingPath', () => {
       findShortestWalkingPath(graph, 'entrance', 'missing'),
     ).toBeUndefined()
   })
+
+  it('skips closed edges when a longer available path exists', () => {
+    const graphWithClosure = createWalkingGraph({
+      nodes: [
+        { id: 'start', coordinates: { latitude: 43.65, longitude: -116.68 } },
+        {
+          id: 'detour',
+          coordinates: { latitude: 43.651, longitude: -116.679 },
+        },
+        { id: 'end', coordinates: { latitude: 43.652, longitude: -116.678 } },
+      ],
+      edges: [
+        {
+          id: 'closed-shortcut',
+          fromNodeId: 'start',
+          toNodeId: 'end',
+          distanceMeters: 20,
+          availability: 'closed',
+        },
+        {
+          id: 'start-to-detour',
+          fromNodeId: 'start',
+          toNodeId: 'detour',
+          distanceMeters: 100,
+        },
+        {
+          id: 'detour-to-end',
+          fromNodeId: 'detour',
+          toNodeId: 'end',
+          distanceMeters: 100,
+        },
+      ],
+    })
+
+    expect(findShortestWalkingPath(graphWithClosure, 'start', 'end')).toEqual({
+      nodeIds: ['start', 'detour', 'end'],
+      edgeIds: ['start-to-detour', 'detour-to-end'],
+      distanceMeters: 200,
+    })
+  })
+
+  it('does not traverse a forward-only edge in reverse', () => {
+    const graphWithOneWayEdge = createWalkingGraph({
+      nodes: [
+        { id: 'start', coordinates: { latitude: 43.65, longitude: -116.68 } },
+        { id: 'end', coordinates: { latitude: 43.651, longitude: -116.679 } },
+      ],
+      edges: [
+        {
+          id: 'start-to-end',
+          fromNodeId: 'start',
+          toNodeId: 'end',
+          distanceMeters: 100,
+          direction: 'forward-only',
+        },
+      ],
+    })
+
+    expect(
+      findShortestWalkingPath(graphWithOneWayEdge, 'start', 'end'),
+    ).toEqual({
+      nodeIds: ['start', 'end'],
+      edgeIds: ['start-to-end'],
+      distanceMeters: 100,
+    })
+    expect(
+      findShortestWalkingPath(graphWithOneWayEdge, 'end', 'start'),
+    ).toBeUndefined()
+  })
 })

@@ -30,11 +30,20 @@ export interface WalkingGraphNode {
   readonly coordinates: Coordinates
 }
 
+export type WalkingEdgeDirection = 'bidirectional' | 'forward-only'
+
+export type WalkingEdgeAvailability = 'available' | 'closed'
+
+export type WalkingEdgeAccessibility = 'unverified' | 'step-free' | 'stairs'
+
 export interface WalkingGraphEdge {
   readonly id: string
   readonly fromNodeId: string
   readonly toNodeId: string
   readonly distanceMeters: number
+  readonly direction: WalkingEdgeDirection
+  readonly availability: WalkingEdgeAvailability
+  readonly accessibility: WalkingEdgeAccessibility
 }
 
 export interface WalkingGraph {

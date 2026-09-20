@@ -75,7 +75,11 @@ function connectedEdges(
   nodeId: string,
 ): readonly WalkingGraphEdge[] {
   return edges.filter(
-    (edge) => edge.fromNodeId === nodeId || edge.toNodeId === nodeId,
+    (edge) =>
+      edge.availability === 'available' &&
+      (edge.direction === 'bidirectional'
+        ? edge.fromNodeId === nodeId || edge.toNodeId === nodeId
+        : edge.fromNodeId === nodeId),
   )
 }
 

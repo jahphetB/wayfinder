@@ -4,6 +4,9 @@ import type {
   LocationSearchResult,
   Route,
   WalkingGraph,
+  WalkingEdgeAccessibility,
+  WalkingEdgeAvailability,
+  WalkingEdgeDirection,
   WalkingGraphEdge,
   WalkingGraphNode,
 } from './types'
@@ -43,6 +46,9 @@ interface WalkingGraphEdgeInput {
   readonly fromNodeId: string
   readonly toNodeId: string
   readonly distanceMeters: number
+  readonly direction?: WalkingEdgeDirection
+  readonly availability?: WalkingEdgeAvailability
+  readonly accessibility?: WalkingEdgeAccessibility
 }
 
 interface WalkingGraphInput {
@@ -149,6 +155,26 @@ function createWalkingGraphEdge(
   assertText(input.toNodeId, 'Walking graph edge end node id')
   assertPositive(input.distanceMeters, 'Walking graph edge distance')
 
+  const direction = input.direction ?? 'bidirectional'
+  const availability = input.availability ?? 'available'
+  const accessibility = input.accessibility ?? 'unverified'
+
+  assertOneOf(
+    direction,
+    ['bidirectional', 'forward-only'],
+    'Walking graph edge direction',
+  )
+  assertOneOf(
+    availability,
+    ['available', 'closed'],
+    'Walking graph edge availability',
+  )
+  assertOneOf(
+    accessibility,
+    ['unverified', 'step-free', 'stairs'],
+    'Walking graph edge accessibility',
+  )
+
   if (input.fromNodeId === input.toNodeId) {
     throw new NavigationValidationError(
       'Walking graph edge must connect different nodes',
@@ -161,7 +187,15 @@ function createWalkingGraphEdge(
     )
   }
 
-  return Object.freeze({ ...input })
+  return Object.freeze({
+    id: input.id,
+    fromNodeId: input.fromNodeId,
+    toNodeId: input.toNodeId,
+    distanceMeters: input.distanceMeters,
+    direction,
+    availability,
+    accessibility,
+  })
 }
 
 function assertUniqueIds(
@@ -182,6 +216,18 @@ function assertText(value: string, name: string): void {
 function assertPositive(value: number, name: string): void {
   if (!Number.isFinite(value) || value <= 0) {
     throw new NavigationValidationError(`${name} must be a positive number`)
+  }
+}
+
+function assertOneOf<T extends string>(
+  value: T,
+  allowedValues: readonly T[],
+  name: string,
+): void {
+  if (!allowedValues.includes(value)) {
+    throw new NavigationValidationError(
+      `${name} must be one of: ${allowedValues.join(', ')}`,
+    )
   }
 }
 

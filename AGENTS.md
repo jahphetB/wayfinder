@@ -20,6 +20,8 @@
 ## Git workflow
 
 - Commit each meaningful completed change with a focused conventional-style message.
+- Prefer several small, cohesive commits within a larger approved step when each
+  unit can be independently verified and documented.
 - Do not push commits until the user explicitly approves that push and a remote is configured.
 - Keep build, lint, type-check, formatting, and relevant tests passing before committing.
 
