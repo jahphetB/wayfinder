@@ -41,7 +41,7 @@ work together, that decision should be recorded here.
 ## Start here
 
 Yote Wayfinder is a browser-based route-planning prototype. A person chooses a
-starting place and a destination, previews a sample route, and sees that route
+starting place and a destination, previews a calculated walking route, and sees that route
 on an interactive map. The map can be viewed from a flat 2D angle or a tilted
 3D-like perspective.
 
@@ -68,17 +68,18 @@ checks whether the browser-ready application can be produced.
 ## What the application does today
 
 The current version is focused on The College of Idaho in Caldwell, Idaho. It
-uses three campus-named sample locations and three sample routes. The location
-and route data live inside the project, so no routing server is required.
-Searching filters those known locations. Pressing **Preview route** looks for a
-matching known route and sends it to the map. The locations, route lines, and
+uses three campus-named sample locations and a small walking graph. The location
+and graph data live inside the project, so no routing server is required.
+Searching filters those known locations. Pressing **Preview route** calculates a
+shortest graph path, converts it to a route, and sends it to the map. The
+locations, route lines, and
 campus boundary are illustrative prototype data: they are not official walking,
 accessibility, or emergency directions.
 
-The project also contains a separate College of Idaho walking graph and a
-shortest-path calculation. It is deliberately not connected to the visible route
-preview yet. This lets the team verify the routing foundation before changing
-what a person sees in the browser.
+The College of Idaho walking graph and shortest-path calculation are now
+connected to the route-preview feature. The map receives the same provider-
+independent `Route` shape as before, so this change does not alter MapLibre
+integration.
 
 MapLibre GL JS draws the interactive map. MapLibre is a rendering engine: it
 turns map data into the pixels, labels, markers, and lines seen in the browser.
@@ -109,10 +110,10 @@ owns route-planner state              |
         |                              v
         v                         createMapAdapter.ts
 routePlanner.ts                       |
-searches and selects routes           v
+searches and requests routes          v
         |                         MapLibreMapAdapter.ts
         v                              |
-mock locations and routes             v
+mock locations and walking graph      v
         |                         MapLibre GL JS
         v                              |
 domain types and factories            v
@@ -144,13 +145,16 @@ navigation interface.
    function is a calculation that does not secretly change outside state.
 6. When the person selects a location, the hook stores the full validated
    `Location` object, not only the visible label.
-7. When **Preview route** is pressed, the hook asks `routePlanner.ts` to find a
-   route in `mockRoutes.ts` whose endpoint identifiers match the selections.
-8. React notices the new route and gives it to `MapView.tsx`.
-9. `MapView.tsx` calls the provider-neutral `MapAdapter` methods.
-10. `MapLibreMapAdapter.ts` converts the route and locations into GeoJSON.
+7. When **Preview route** is pressed, the hook asks `routePlanner.ts` to request
+   a route from the walking graph for the selected location identifiers.
+8. `walkingRoutes.ts` asks `pathfinding.ts` for the shortest path, converts its
+   graph-node coordinates into a `Route`, and derives the duration from the
+   prototype walking-speed constant.
+9. React notices the new route and gives it to `MapView.tsx`.
+10. `MapView.tsx` calls the provider-neutral `MapAdapter` methods.
+11. `MapLibreMapAdapter.ts` converts the route and locations into GeoJSON.
     GeoJSON is a common text-based format for geographic shapes and points.
-11. MapLibre draws the route line and location circles, then moves the camera so
+12. MapLibre draws the route line and location circles, then moves the camera so
     the route fits inside the visible map.
 
 Keeping this path explicit is important for debugging. If suggestions are
@@ -313,13 +317,15 @@ This subfolder owns navigation vocabulary and validity. It should not import
 from `data`, `features`, or MapLibre. Those outer areas depend on the domain,
 not the other way around.
 
-| File                                        | Importance and relationship to other files                                                                                                                                                                                                                                         |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/domain/navigation/types.ts`            | Defines shared meanings for locations, rendered routes, and walking-graph nodes, edges, and paths. These provider-independent shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                      |
-| `src/domain/navigation/factories.ts`        | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, invalid graph edges, and non-positive distances or durations. Immutable means callers cannot accidentally alter accepted data later. |
-| `src/domain/navigation/factories.test.ts`   | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                             |
-| `src/domain/navigation/pathfinding.ts`      | Contains the pure shortest-path calculation. It reads a `WalkingGraph` and returns a `WalkingPath` without importing React, MapLibre, or mock-data files.                                                                                                                          |
-| `src/domain/navigation/pathfinding.test.ts` | Proves the algorithm chooses the shorter connected path, supports travel in either direction, and safely reports no path for unknown or unreachable nodes.                                                                                                                         |
+| File                                          | Importance and relationship to other files                                                                                                                                                                                                                                         |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/domain/navigation/types.ts`              | Defines shared meanings for locations, rendered routes, and walking-graph nodes, edges, and paths. These provider-independent shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                      |
+| `src/domain/navigation/factories.ts`          | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, invalid graph edges, and non-positive distances or durations. Immutable means callers cannot accidentally alter accepted data later. |
+| `src/domain/navigation/factories.test.ts`     | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                             |
+| `src/domain/navigation/pathfinding.ts`        | Contains the pure shortest-path calculation. It reads a `WalkingGraph` and returns a `WalkingPath` without importing React, MapLibre, or mock-data files.                                                                                                                          |
+| `src/domain/navigation/pathfinding.test.ts`   | Proves the algorithm chooses the shorter connected path, supports travel in either direction, and safely reports no path for unknown or unreachable nodes.                                                                                                                         |
+| `src/domain/navigation/walkingRoutes.ts`      | Converts a calculated `WalkingPath` into the existing renderable `Route` shape. It derives an estimate using the documented prototype walking-speed constant.                                                                                                                      |
+| `src/domain/navigation/walkingRoutes.test.ts` | Proves path-to-route conversion preserves ordered coordinates, distance, duration, and unavailable-route behavior.                                                                                                                                                                 |
 
 ## The `src/data` folder
 
@@ -343,10 +349,9 @@ provided identifiers and coordinates remain consistent.
 | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes. |
 | `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                      |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | Defines the small, illustrative campus path network. It uses validated domain factories and is read only by routing tests at this stage; the current UI still reads `mockRoutes.ts`.                                                                |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path and protects the graph's connection order and total distance.                                                                                                                              |
-| `src/data/navigation/mockLocations.ts`                   | Defines the searchable locations and derives search-result records from them. Location IDs are referenced by routes, so changing an ID requires updating every route that uses it.                                                                  |
-| `src/data/navigation/mockRoutes.ts`                      | Defines sample route geometry, distances, and durations. Every endpoint ID must match a location ID from `mockLocations.ts`; coordinate order determines the line drawn on the map.                                                                 |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | Defines the small, illustrative campus path network. `useRoutePlanner.ts` supplies it to `routePlanner.ts`, which requests a calculated route.                                                                                                      |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path and confirms every searchable mock location is represented by a graph node.                                                                                                                |
+| `src/data/navigation/mockLocations.ts`                   | Defines searchable locations and derives search-result records from them. Every searchable location must also have a graph node before the route planner can calculate a route.                                                                     |
 
 ## The `src/features` folder
 
@@ -375,9 +380,9 @@ renders controls. This makes each area easier to test and reason about.
 The model holds pure navigation calculations. Keeping these functions free of
 React makes them suitable for focused tests and reuse.
 
-| File                                            | Importance and relationship to other files                                                                                                                                                                         |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/features/navigation/model/routePlanner.ts` | Filters location results and finds a route between two locations. Route lookup accepts either endpoint direction. Future restrictions or a real pathfinding algorithm would change or replace logic at this level. |
+| File                                            | Importance and relationship to other files                                                                                                                             |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/navigation/model/routePlanner.ts` | Filters location results and asks the domain walking-route function for a route between two locations. It maps absent paths into the existing unavailable-route state. |
 
 ### `src/features/navigation/hooks`
 
@@ -489,7 +494,7 @@ to understand one step.
 Step 5 makes the application explain what is happening instead of leaving a
 person to infer it from a blank or unchanged screen. The route planner now
 distinguishes an untouched form, an invalid typed location, a valid pair without
-a sample route, and a route that is ready to show. The map likewise says when
+a walking route, and a route that is ready to show. The map likewise says when
 it is loading and provides a clear recovery action if MapLibre reports an error.
 
 Keyboard users can open location suggestions with the arrow keys, move through
@@ -552,8 +557,26 @@ replacement can be introduced without rewriting the calculation.
 `types.ts` defines the graph vocabulary, `factories.ts` validates and freezes
 graph data, and `pathfinding.ts` performs the calculation. The campus graph is
 in the data folder, while both domain and data tests prove the expected path.
-The existing `useRoutePlanner.ts` still reads `mockRoutes.ts`; that intentional
-boundary prevents unfinished data from affecting people using the prototype.
+
+### Step 8: Graph route integration
+
+Step 8 connects the approved routing foundation to the existing planner without
+changing the map boundary. `walkingRoutes.ts` converts the shortest graph path
+into the established `Route` record that `MapView.tsx` already understands. This
+is a transformation boundary: it turns one internal data shape into another
+without making MapLibre or React aware of graph details.
+
+The route duration is derived from a prototype walking-speed constant of 66
+meters per minute and rounded up to a whole minute. It is an estimate, not an
+accessibility or travel-time promise. `routePlanner.ts` preserves the existing
+invalid-location, unavailable-route, and route-ready outcomes, while
+`useRoutePlanner.ts` supplies the campus graph. The old `mockRoutes.ts` file was
+removed because it duplicated calculated route geometry and could drift out of
+sync with the graph.
+
+Every searchable mock location must now have a node in the graph. The graph test
+protects that rule. If a new location lacks a node or has no connected path, the
+application reports an unavailable route instead of inventing directions.
 
 ## Safe change recipes
 
@@ -565,23 +588,12 @@ afterward and inspect the browser for visual changes.
 1. Open `src/data/navigation/mockLocations.ts`.
 2. Add a `createLocation` entry with a unique ID, label, latitude, and longitude.
 3. Keep the ID stable and machine-friendly, such as `science-building`.
-4. If the location needs a previewable route, add one in `mockRoutes.ts`.
-5. Run checks and confirm the suggestion appears in both fields.
+4. Add a graph node with the same ID in `collegeOfIdahoWalkingGraph.ts`.
+5. Add verified connecting edges if the location should have a calculated route.
+6. Run checks and confirm the suggestion appears in both fields.
 
 The factory rejects empty text or coordinates outside valid world ranges. Do
 not bypass it by placing unvalidated plain objects into the application.
-
-### Add or adjust a sample route
-
-1. Open `src/data/navigation/mockRoutes.ts`.
-2. Ensure endpoint IDs exactly match IDs in `mockLocations.ts`.
-3. Add coordinates in walking order from one endpoint to the other.
-4. Update distance in meters and duration in minutes.
-5. Preview both location directions because matching supports either direction.
-
-The map draws straight segments between supplied coordinates. It does not yet
-snap them to sidewalks or calculate a path. Accurate walking geometry therefore
-needs enough intermediate coordinates.
 
 ### Change the walking graph
 
@@ -589,7 +601,8 @@ needs enough intermediate coordinates.
 2. Add or adjust nodes and edges through `createWalkingGraph` only.
 3. Keep every edge endpoint ID equal to an existing node ID.
 4. Update the graph test with the route and distance that should result.
-5. Obtain campus verification before treating the data as official.
+5. Check the calculated route in the browser after pressing **Preview route**.
+6. Obtain campus verification before treating the data as official.
 
 An edge is currently treated as two-way. A future one-way or closed path needs
 an explicit rule in the domain model and new tests before its data is added.
@@ -678,9 +691,11 @@ came from a demonstration style that showed little street detail at campus zoom.
 
 1. Confirm **Preview route** was pressed.
 2. Confirm the route summary appears.
-3. Check that both selected IDs match a route in `mockRoutes.ts`.
-4. Confirm the route has at least two valid coordinates.
-5. If the summary appears but the line does not, inspect `syncContent()` in
+3. Confirm both selected location IDs exist as nodes in
+   `collegeOfIdahoWalkingGraph.ts`.
+4. Confirm connected edges lead between the selected nodes.
+5. Confirm the graph route has at least two coordinates after conversion.
+6. If the summary appears but the line does not, inspect `syncContent()` in
    `MapLibreMapAdapter.ts` and browser console errors.
 
 ### Search does not show a location
@@ -847,14 +862,25 @@ historical context.
 
 ### ADR-015: Keep pathfinding in the domain layer until data is verified
 
-- **Status:** Accepted
+- **Status:** Superseded by ADR-016
 - **Decision:** Add a provider-independent walking graph and shortest-path
-  function without wiring it into React, MapLibre, or the existing preview UI.
+  function before connecting it to React, MapLibre, or the existing preview UI.
 - **Reason:** Route calculation should be testable independently, and the
   current campus topology is illustrative rather than verified.
-- **Consequence:** A later integration can transform a calculated path into a
-  rendered route. It must first establish verified source data and rules for
-  accessibility, closures, and directionality.
+- **Consequence:** The independent foundation made later UI integration smaller
+  and safer. Verified source data and rules for accessibility, closures, and
+  directionality remain required.
+
+### ADR-016: Transform calculated paths into the existing route contract
+
+- **Status:** Accepted for the prototype
+- **Decision:** Convert `WalkingPath` data to the established `Route` shape in
+  a domain module, then supply it through the existing route-planner state.
+- **Reason:** The map already renders `Route` records, so reusing that contract
+  avoids coupling map-provider code to the graph or duplicating rendering logic.
+- **Consequence:** The visible prototype now uses calculated routes. Its walking
+  speed and graph data are still illustrative and must be replaced or verified
+  before production use.
 
 ## Engineering principles in plain language
 

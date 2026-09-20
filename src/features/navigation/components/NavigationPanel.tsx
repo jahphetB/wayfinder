@@ -132,14 +132,14 @@ function RouteSummary({
   if (planState.status === 'route-unavailable')
     return (
       <p className="route-summary-error" role="alert">
-        A sample route is not available for this location pair yet.
+        A walking route is not available for this location pair yet.
       </p>
     )
 
   if (planState.status === 'empty' || !origin || !destination)
     return (
       <p className="route-summary-empty">
-        Select locations, then preview a sample route.
+        Select locations, then preview a walking route.
       </p>
     )
 
@@ -147,7 +147,7 @@ function RouteSummary({
 
   return (
     <section aria-live="polite" className="route-summary">
-      <p>Sample route</p>
+      <p>Walking route</p>
       <strong>
         {origin.label} to {destination.label}
       </strong>

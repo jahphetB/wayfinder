@@ -1,7 +1,7 @@
 import { createLocation } from '@/domain/navigation/factories'
 
 import { determineRoutePlan, findRouteForLocations } from './routePlanner'
-import { mockRoutes } from '@/data/navigation/mockRoutes'
+import { collegeOfIdahoWalkingGraph } from '@/data/navigation/collegeOfIdahoWalkingGraph'
 import { mockLocations } from '@/data/navigation/mockLocations'
 
 const campusEntrance = mockLocations.find(
@@ -18,11 +18,15 @@ if (!campusEntrance || !tertelingsLibrary) {
 describe('route planner model', () => {
   it('returns an invalid-location state when a selection is missing', () => {
     expect(
-      determineRoutePlan(mockRoutes, undefined, tertelingsLibrary),
+      determineRoutePlan(
+        collegeOfIdahoWalkingGraph,
+        undefined,
+        tertelingsLibrary,
+      ),
     ).toEqual({ status: 'invalid-location' })
   })
 
-  it('returns an unavailable state when no sample route connects the locations', () => {
+  it('returns an unavailable state when the graph has no connected location', () => {
     const unconnectedLocation = createLocation({
       id: 'unconnected-location',
       label: 'Unconnected Location',
@@ -30,20 +34,34 @@ describe('route planner model', () => {
     })
 
     expect(
-      determineRoutePlan(mockRoutes, campusEntrance, unconnectedLocation),
+      determineRoutePlan(
+        collegeOfIdahoWalkingGraph,
+        campusEntrance,
+        unconnectedLocation,
+      ),
     ).toEqual({ status: 'route-unavailable' })
   })
 
-  it('returns a route-ready state and finds routes in either direction', () => {
-    const route = findRouteForLocations(
-      mockRoutes,
+  it('returns a route-ready state and calculates routes in either direction', () => {
+    const reverseRoute = findRouteForLocations(
+      collegeOfIdahoWalkingGraph,
       tertelingsLibrary,
       campusEntrance,
     )
+    const forwardRoute = findRouteForLocations(
+      collegeOfIdahoWalkingGraph,
+      campusEntrance,
+      tertelingsLibrary,
+    )
 
-    expect(route?.id).toBe('campus-entrance-to-tertelings-library')
+    expect(reverseRoute?.id).toBe('tertelings-library-to-campus-entrance')
+    expect(forwardRoute?.id).toBe('campus-entrance-to-tertelings-library')
     expect(
-      determineRoutePlan(mockRoutes, campusEntrance, tertelingsLibrary),
-    ).toEqual({ status: 'route-ready', route })
+      determineRoutePlan(
+        collegeOfIdahoWalkingGraph,
+        campusEntrance,
+        tertelingsLibrary,
+      ),
+    ).toEqual({ status: 'route-ready', route: forwardRoute })
   })
 })

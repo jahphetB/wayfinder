@@ -80,3 +80,17 @@ Status: complete
 - Added a small College of Idaho prototype graph that remains separate from the visible route-preview interface until campus paths are verified.
 - Added factory, algorithm, and campus-graph tests for validation, shortest path selection, reverse travel, and unavailable paths.
 - Updated the project agreement, README, AI skills inventory, and architecture handbook with the new routing boundary and data-verification requirements.
+
+## Step 8: Graph route integration
+
+Status: complete
+
+- Replaced prewritten route lookup with calculated routes from the College of
+  Idaho walking graph.
+- Added a domain conversion from shortest walking paths to renderable `Route`
+  records, including derived walking duration.
+- Preserved existing invalid-location, unavailable-route, and route-ready
+  application states.
+- Added route-conversion and graph-to-searchable-location contract tests.
+- Removed duplicated prewritten route data and documented the new integration
+  boundary, validation rules, and future data limitations.

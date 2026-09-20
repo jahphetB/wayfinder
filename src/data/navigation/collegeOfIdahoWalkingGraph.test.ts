@@ -1,7 +1,18 @@
 import { collegeOfIdahoWalkingGraph } from './collegeOfIdahoWalkingGraph'
 import { findShortestWalkingPath } from '@/domain/navigation/pathfinding'
+import { mockLocations } from './mockLocations'
 
 describe('College of Idaho walking graph', () => {
+  it('represents each searchable mock location as a graph node', () => {
+    const graphNodeIds = new Set(
+      collegeOfIdahoWalkingGraph.nodes.map((node) => node.id),
+    )
+
+    expect(
+      mockLocations.every((location) => graphNodeIds.has(location.id)),
+    ).toBe(true)
+  })
+
   it('provides a shorter connected path to the library', () => {
     expect(
       findShortestWalkingPath(

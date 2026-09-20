@@ -1,6 +1,6 @@
 # Yote Wayfinder
 
-Yote Wayfinder is a responsive navigation-map prototype for The College of Idaho. It provides mock origin and destination search, a sample route, and a 2D/3D MapLibre map with an OpenStreetMap basemap without requiring a routing backend.
+Yote Wayfinder is a responsive navigation-map prototype for The College of Idaho. It provides mock origin and destination search, calculated prototype walking routes, and a 2D/3D MapLibre map with an OpenStreetMap basemap without requiring a routing backend.
 
 ## Current progress
 
@@ -13,6 +13,7 @@ Yote Wayfinder is a responsive navigation-map prototype for The College of Idaho
 | 5. Application states and polish   | Complete | Clear route and map states, keyboard autocomplete, accessible status messaging, and map recovery are in place.   |
 | 6. Testing, bundling, and delivery | Complete | Campus-focused mock data, map bounds, verification, bundle review, and delivery documentation are complete.      |
 | 7. Routing foundation              | Complete | A validated, testable College of Idaho walking graph and shortest-path logic are ready for later UI integration. |
+| 8. Graph route integration         | Complete | The planner now converts calculated walking paths into routes that the existing map can render.                  |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [detailed progress log](docs/PROGRESS.md), and

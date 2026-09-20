@@ -3,7 +3,7 @@ import {
   mockLocationSearchResults,
   mockLocations,
 } from '@/data/navigation/mockLocations'
-import { mockRoutes } from '@/data/navigation/mockRoutes'
+import { collegeOfIdahoWalkingGraph } from '@/data/navigation/collegeOfIdahoWalkingGraph'
 import type { Location, Route } from '@/domain/navigation/types'
 import {
   determineRoutePlan,
@@ -71,7 +71,9 @@ export function useRoutePlanner() {
     setRoutePlanState({ status: 'empty' })
   }
   function planRoute(): void {
-    setRoutePlanState(determineRoutePlan(mockRoutes, origin, destination))
+    setRoutePlanState(
+      determineRoutePlan(collegeOfIdahoWalkingGraph, origin, destination),
+    )
   }
   return {
     origin,

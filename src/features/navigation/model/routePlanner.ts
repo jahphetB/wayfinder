@@ -2,7 +2,9 @@ import type {
   Location,
   LocationSearchResult,
   Route,
+  WalkingGraph,
 } from '@/domain/navigation/types'
+import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
 
 export type RoutePlanState =
   | { readonly status: 'empty' }
@@ -23,27 +25,21 @@ export function filterLocationSearchResults(
 }
 
 export function findRouteForLocations(
-  routes: readonly Route[],
+  graph: WalkingGraph,
   origin: Location,
   destination: Location,
 ): Route | undefined {
-  return routes.find(
-    (route) =>
-      (route.originLocationId === origin.id &&
-        route.destinationLocationId === destination.id) ||
-      (route.originLocationId === destination.id &&
-        route.destinationLocationId === origin.id),
-  )
+  return findWalkingRoute(graph, origin.id, destination.id)
 }
 
 export function determineRoutePlan(
-  routes: readonly Route[],
+  graph: WalkingGraph,
   origin: Location | undefined,
   destination: Location | undefined,
 ): RoutePlanState {
   if (!origin || !destination) return { status: 'invalid-location' }
 
-  const route = findRouteForLocations(routes, origin, destination)
+  const route = findRouteForLocations(graph, origin, destination)
   return route
     ? { status: 'route-ready', route }
     : { status: 'route-unavailable' }

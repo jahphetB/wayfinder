@@ -39,3 +39,4 @@ This file records AI-related skills, tools, and project practices used during de
 | Evidence-based bundle review                    | Step 6                 | Retains existing lazy loading unless build output shows a material, user-facing need for more splitting.                            |
 | Domain-level Dijkstra pathfinding               | Step 7                 | Calculates a shortest walking path from validated graph data without coupling the algorithm to React or MapLibre.                   |
 | Two-part approval report                        | Step 7                 | Uses a completed-step report followed by a brief next-step preview for predictable approval decisions.                              |
+| Graph-to-route transformation                   | Step 8                 | Converts a calculated path into the established provider-neutral route shape without changing map-provider code.                    |

@@ -45,6 +45,6 @@ describe('App', () => {
 
     expect(startInput).toHaveValue('Morrison Quadrangle')
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
-    expect(screen.getByText('Sample route')).toBeInTheDocument()
+    expect(screen.getByText('Walking route')).toBeInTheDocument()
   })
 })
