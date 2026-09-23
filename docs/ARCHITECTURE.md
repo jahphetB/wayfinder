@@ -345,17 +345,21 @@ This subfolder owns navigation vocabulary and validity. It should not import
 from `data`, `features`, or MapLibre. Those outer areas depend on the domain,
 not the other way around.
 
-| File                                          | Importance and relationship to other files                                                                                                                                                                                                                                                                                         |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/domain/navigation/types.ts`              | Defines shared meanings for locations, rendered routes, walking-graph nodes, edges, paths, restrictions, provenance, and releases. These provider-independent shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                                      |
-| `src/domain/navigation/factories.ts`          | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, invalid graph edges, unknown restriction values, invalid review dates, and unsubstantiated verified releases. Immutable means callers cannot accidentally alter accepted data later. |
-| `src/domain/navigation/factories.test.ts`     | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                                                                             |
-| `src/domain/navigation/pathfinding.ts`        | Contains the pure shortest-path calculation. It reads a `WalkingGraph`, skips closed edges, respects forward-only edges, and returns a `WalkingPath` without importing React, MapLibre, or mock-data files.                                                                                                                        |
-| `src/domain/navigation/pathfinding.test.ts`   | Proves the algorithm chooses the shorter allowed path, supports permitted reverse travel, rejects forbidden reverse travel, avoids closures, and safely reports no path for unknown or unreachable nodes.                                                                                                                          |
-| `src/domain/navigation/routeSteps.ts`         | Converts selected graph edges into travel-oriented geometry, classifies maneuvers from geographic bearings, writes short instructions, and places a turn or destination checkpoint at each step endpoint. It remains independent from React, MapLibre, and browser geolocation.                                                    |
-| `src/domain/navigation/routeSteps.test.ts`    | Proves left and right turns, checkpoint order, instructions, and reverse travel through bidirectional geometry.                                                                                                                                                                                                                    |
-| `src/domain/navigation/walkingRoutes.ts`      | Coordinates shortest-path selection, route-step creation, validation, and the prototype walking-duration estimate.                                                                                                                                                                                                                 |
-| `src/domain/navigation/walkingRoutes.test.ts` | Proves path-to-route conversion preserves ordered detailed geometry, distance, duration, checkpoints, and unavailable-route behavior.                                                                                                                                                                                              |
+| File                                                 | Importance and relationship to other files                                                                                                                                                                                                                                                                                         |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/domain/navigation/types.ts`                     | Defines shared meanings for locations, rendered routes, walking-graph nodes, edges, paths, restrictions, provenance, and releases. These provider-independent shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                                      |
+| `src/domain/navigation/factories.ts`                 | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, invalid graph edges, unknown restriction values, invalid review dates, and unsubstantiated verified releases. Immutable means callers cannot accidentally alter accepted data later. |
+| `src/domain/navigation/factories.test.ts`            | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                                                                             |
+| `src/domain/navigation/pathfinding.ts`               | Contains the pure shortest-path calculation. It reads a `WalkingGraph`, skips closed edges, respects forward-only edges, and returns a `WalkingPath` without importing React, MapLibre, or mock-data files.                                                                                                                        |
+| `src/domain/navigation/pathfinding.test.ts`          | Proves the algorithm chooses the shorter allowed path, supports permitted reverse travel, rejects forbidden reverse travel, avoids closures, and safely reports no path for unknown or unreachable nodes.                                                                                                                          |
+| `src/domain/navigation/routeSteps.ts`                | Converts selected graph edges into travel-oriented geometry, classifies maneuvers from geographic bearings, writes short instructions, and places a turn or destination checkpoint at each step endpoint. It remains independent from React, MapLibre, and browser geolocation.                                                    |
+| `src/domain/navigation/routeSteps.test.ts`           | Proves left and right turns, checkpoint order, instructions, and reverse travel through bidirectional geometry.                                                                                                                                                                                                                    |
+| `src/domain/navigation/locationVerification.ts`      | Creates validated one-shot location readings, calculates geographic distance, and classifies checkpoint proximity with reported accuracy and reading age. It contains provisional policy values but does not request browser location.                                                                                             |
+| `src/domain/navigation/locationVerification.test.ts` | Proves meter distance, numerical edge cases, validation, confirmed/mismatched boundaries, overlapping accuracy, and stale or future readings.                                                                                                                                                                                      |
+| `src/domain/navigation/navigationSession.ts`         | Implements explicit awaiting-start, navigating, and arrived transitions. It chooses the expected origin or route-step checkpoint and advances only after confirmed verification without retaining raw reading coordinates.                                                                                                         |
+| `src/domain/navigation/navigationSession.test.ts`    | Proves origin validation, no progress after mismatch or uncertainty, ordered turn advancement, arrival, completed-session failure, and location-data minimization.                                                                                                                                                                 |
+| `src/domain/navigation/walkingRoutes.ts`             | Coordinates shortest-path selection, route-step creation, validation, and the prototype walking-duration estimate.                                                                                                                                                                                                                 |
+| `src/domain/navigation/walkingRoutes.test.ts`        | Proves path-to-route conversion preserves ordered detailed geometry, distance, duration, checkpoints, and unavailable-route behavior.                                                                                                                                                                                              |
 
 ## The `src/data` folder
 
@@ -416,6 +420,16 @@ interface could consume.
 The feature separates calculation, state, and presentation. The model performs
 calculations, the hook manages changing values over time, and the component
 renders controls. This makes each area easier to test and reason about.
+
+### `src/features/navigation/contracts`
+
+Contracts describe capabilities the feature may use without choosing a browser
+or service implementation. The contract exists now so a browser adapter can be
+added later without importing the Geolocation API into domain calculations.
+
+| File                                                    | Importance and relationship to other files                                                                                                                                                  |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/navigation/contracts/LocationProvider.ts` | Defines one asynchronous `requestCurrentLocation` operation returning the domain reading shape. A future browser adapter must construct a validated reading; no implementation is selected. |
 
 ### `src/features/navigation/model`
 
@@ -766,10 +780,10 @@ profiles were deleted after inspection; generated verification artifacts are
 not project source.
 
 The approved target beyond this spike is shown in `ARCHITECTURE_DIAGRAM.md`.
-Step 14 has since implemented route steps and checkpoints. One-shot browser
-geolocation, a provider-independent location service, checkpoint navigation
-state, and an authorized photogrammetry-to-optimized-model pipeline remain
-dashed gray future components.
+Steps 14 and 15 have since implemented route steps, location verification, the
+provider contract, and checkpoint session state. Browser geolocation, visible
+navigation controls, and an authorized photogrammetry-to-optimized-model
+pipeline remain dashed or gray future integrations.
 
 ### Step 14: Route geometry, instructions, and checkpoints
 
@@ -819,6 +833,58 @@ generation keeps no state between calls. That is React- and provider-independent
 functional domain logic, while OOP remains useful in the stateful MapLibre and
 Three.js lifecycle adapters. The implementation therefore follows Single
 Responsibility without forcing the same programming style into every module.
+
+### Step 15: Location verification and navigation-session foundation
+
+Step 15 implements the decision-making core for one-shot GPS navigation without
+requesting a person's location. `LocationProvider.ts` is only a contract: it
+states that a future implementation can request one current reading containing
+coordinates, accuracy, and capture time. The browser Geolocation API is not
+imported, and no permission prompt or automatic polling exists.
+
+`locationVerification.ts` measures the distance between a reading and an
+expected checkpoint with the Haversine formula. Haversine is a standard way to
+calculate approximate great-circle distance between latitude/longitude points
+on Earth. The implementation clamps its intermediate value to the valid range,
+which prevents tiny floating-point errors from producing an invalid result at
+extreme distances.
+
+A GPS reading is not treated as one perfectly known point. Its reported
+accuracy is modeled as a circle around the reported center. The prototype
+checkpoint radius is 20 meters. A reading is `confirmed` only when the farthest
+edge of its accuracy circle remains within 20 meters. It is `mismatched` only
+when even the nearest edge is more than 20 meters away. When the accuracy circle
+crosses the boundary, the result is `uncertain`. This conservative policy avoids
+turning an imprecise signal into a false claim about where a person is.
+
+Readings more than 30 seconds old are also uncertain, as are readings whose
+timestamp appears to be in the future. Twenty meters and 30 seconds are
+provisional engineering values, not verified campus safety tolerances. They
+must be tested with real phones in different campus locations and conditions
+before production use.
+
+`navigationSession.ts` is a pure state machine. A state machine is a model with
+named states and controlled transitions. A session starts as `awaiting-start`
+and expects the route origin. A confirmed origin changes it to `navigating`.
+Each confirmed turn advances exactly one route step, and a confirmed destination
+changes the status to `arrived`. Uncertain or mismatched results record the
+outcome but do not advance. An arrived session explicitly rejects another check.
+
+The application must call verification deliberately; the session contains no
+timer, watcher, or background loop. This preserves the approved interaction:
+request once at navigation start, then request again only when the person
+presses the future Next Turn control.
+
+The session also applies data minimization. Data minimization means retaining
+only what is needed for the feature. It records the result, calculated distance,
+and reported accuracy but not the raw coordinates from the person's reading.
+The immutable route remains present because it defines the next expected
+checkpoint.
+
+This step remains invisible in the current browser application. A later adapter
+must implement `LocationProvider` with browser geolocation, and a later UI step
+must handle permission denial, unavailable readings, uncertainty, mismatch,
+retry, current instructions, and the explicit Next Turn action.
 
 ## Safe change recipes
 
@@ -893,6 +959,23 @@ and named review exist.
 
 This small process prevents a helpful public-map correction from silently
 turning into an unverified directions claim.
+
+### Change checkpoint verification policy
+
+1. Begin in `src/domain/navigation/locationVerification.ts` and identify whether
+   the change affects radius, reading freshness, or classification boundaries.
+2. Base a production change on documented campus field tests across representative
+   devices and locations; do not tune it from one convenient reading.
+3. Preserve the three outcomes. Poor accuracy that overlaps a boundary must stay
+   uncertain rather than being forced into confirmed or mismatched.
+4. Add boundary tests for the smallest accepted and rejected values and for stale
+   readings.
+5. Update ADR-025 and the Step 15 guide with the evidence and consequences.
+6. Later, test the complete browser flow without introducing continuous tracking.
+
+The current 20-meter radius and 30-second maximum age are prototype defaults.
+They are not campus-approved guarantees and should remain visibly described as
+provisional until field evidence supports a release decision.
 
 ### Change visible wording
 
@@ -1276,19 +1359,19 @@ historical context.
   remain separate from authoritative entrances and walking-graph data. A later
   asset pipeline must optimize and benchmark every realistic model.
 
-### ADR-022: Use one-shot GPS checkpoints for future navigation
+### ADR-022: Use one-shot GPS checkpoints for navigation
 
-- **Status:** Accepted target; not implemented
+- **Status:** Accepted; domain foundation implemented, browser integration pending
 - **Decision:** Request browser location when navigation starts and when the
   person presses a future Next Turn control. Evaluate the reported position and
   accuracy as confirmed, uncertain, or mismatched before advancing.
 - **Reason:** This reduces continuous location collection and battery use while
   still checking progress at important route points.
-- **Consequence:** Detailed edge geometry and route steps now exist. A future
-  `LocationProvider`, navigation-session state machine, GPS tolerance policy,
-  interface, and campus field testing are still required. Poor-accuracy readings
-  must be reported as inconclusive rather than as proof that the person is in
-  the wrong place.
+- **Consequence:** Detailed geometry, route steps, a `LocationProvider` contract,
+  accuracy-aware verification, and navigation-session state now exist. A browser
+  provider, interface, permission/recovery behavior, and campus field testing
+  are still required. Poor-accuracy readings remain uncertain rather than being
+  treated as proof that the person is in the wrong place.
 
 ### ADR-023: Use current documentation through Context7 with official fallback
 
@@ -1315,7 +1398,22 @@ historical context.
 - **Consequence:** Verified campus replacement data must include path shapes as
   well as connectivity. Generic instructions are deterministic but will need
   reviewed path or landmark names before they become polished campus directions.
-  GPS tolerance and step advancement remain separate future policies.
+  GPS verification and step advancement remain separate domain modules.
+
+### ADR-025: Use conservative accuracy-aware checkpoint verification
+
+- **Status:** Accepted and implemented as a prototype policy
+- **Decision:** Model reported GPS accuracy as an uncertainty circle. Confirm a
+  checkpoint only when that circle is fully inside the allowed radius, report a
+  mismatch only when it is fully outside, and report uncertainty when it
+  overlaps or the reading is not fresh.
+- **Reason:** A phone's reported coordinate is an estimate. Comparing only its
+  center to a radius would create false confirmation or false wrong-location
+  warnings when reported accuracy is poor.
+- **Consequence:** The current 20-meter radius and 30-second freshness limit are
+  provisional and require field testing. The session advances only on confirmed
+  results, stores no raw reading coordinates, and requires an explicit action
+  for every verification. Browser permissions and UI recovery remain separate.
 
 ## Engineering principles in plain language
 
@@ -1360,6 +1458,7 @@ speculative frameworks for features that have not been approved.
 | Term                  | Plain-language meaning                                                                                        |
 | --------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Adapter               | A translator that makes one system fit the interface expected by another.                                     |
+| Accuracy area         | The area around a reported location where the device indicates the real position may be.                      |
 | API                   | A defined way for one piece of software to communicate with another.                                          |
 | Basemap               | The background geographic map beneath custom markers and route lines.                                         |
 | Bearing               | A compass direction measured in degrees and calculated between two geographic points.                         |
@@ -1369,11 +1468,13 @@ speculative frameworks for features that have not been approved.
 | Checkpoint            | The expected geographic endpoint of a route step, later usable for progress verification.                     |
 | Corroborated fact     | A limited fact checked beyond the project's own mock record; it is not automatically an approved instruction. |
 | Contract or interface | A checked description of operations or data another module must provide.                                      |
+| Data minimization     | Keeping only the information needed for a feature and discarding unnecessary sensitive detail.                |
 | Dependency            | Code, data, or a service that another part requires.                                                          |
 | Domain                | The business meaning of the application, such as locations and routes.                                        |
 | Georeferencing        | Attaching data or a 3D object to a real location on Earth.                                                    |
 | GeoJSON               | A standard JSON format for geographic points, lines, and areas.                                               |
 | GLB                   | A compact binary file containing a web-ready 3D model and related data.                                       |
+| Haversine formula     | A calculation for approximate distance between two latitude/longitude points on Earth.                        |
 | Hook                  | A React function that manages reusable state or lifecycle behavior.                                           |
 | Infrastructure        | Code communicating with an external technical system or provider.                                             |
 | Lazy loading          | Delaying download or initialization until a feature is needed.                                                |
@@ -1385,6 +1486,7 @@ speculative frameworks for features that have not been approved.
 | Provider              | A library or service supplying a capability, such as map rendering or tiles.                                  |
 | Raster tile           | A small map image combined with neighboring images to form a map.                                             |
 | State                 | Information that can change while the application is being used.                                              |
+| State machine         | A model that permits only defined transitions between named states.                                           |
 | Three.js              | The browser 3D library currently used to draw project-owned geometry inside MapLibre.                         |
 | TypeScript            | JavaScript with compile-time checks for expected data shapes.                                                 |
 | WGS84                 | The world latitude-and-longitude coordinate reference used by GPS.                                            |

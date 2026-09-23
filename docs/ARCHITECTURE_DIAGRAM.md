@@ -1,10 +1,10 @@
 # Yote Wayfinder Architecture Diagram
 
 This is the maintained visual map of the project. Solid arrows and green or
-gold boxes represent implemented behavior. Dashed arrows and gray boxes show
-the approved direction for later GPS checkpoint navigation; they are not yet
-implemented. Update this diagram whenever a major module, data flow, external
-dependency, or architectural boundary changes.
+gold boxes represent implemented behavior. Dashed arrows show approved but
+unwired integrations, and gray boxes show components that have not been built.
+Update this diagram whenever a major module, data flow, external dependency, or
+architectural boundary changes.
 
 ```mermaid
 flowchart TB
@@ -19,12 +19,15 @@ flowchart TB
             Panel[NavigationPanel.tsx<br/>inputs, suggestions, route summary]
             PlannerHook[useRoutePlanner.ts<br/>shared planner state]
             PlannerModel[routePlanner.ts<br/>search and route outcomes]
+            LocationContract[LocationProvider.ts<br/>one-shot provider contract]
         end
 
         subgraph NavigationDomain[Provider-independent navigation domain]
             WalkingRoutes[walkingRoutes.ts<br/>path-to-route conversion]
             Pathfinder[pathfinding.ts<br/>Dijkstra shortest path]
             RouteSteps[routeSteps.ts<br/>maneuvers, instructions, checkpoints]
+            LocationVerification[locationVerification.ts<br/>distance and accuracy classification]
+            NavigationSession[navigationSession.ts<br/>explicit progress state machine]
             DomainTypes[types.ts<br/>locations, routes, graph contracts]
             Factories[factories.ts<br/>validation and immutability]
         end
@@ -68,10 +71,9 @@ flowchart TB
         AgentRules[AGENTS.md<br/>approval and engineering rules]
     end
 
-    subgraph ApprovedFuture[Approved future navigation architecture - not implemented]
+    subgraph ApprovedFuture[Approved future integrations - not implemented]
         BrowserGPS[Browser Geolocation API<br/>one-shot location requests]
-        LocationProvider[LocationProvider contract<br/>position, accuracy, timestamp]
-        NavigationSession[NavigationSession<br/>current turn and verification state]
+        NavigationControls[Start navigation and Next Turn UI<br/>permission and recovery states]
         ModelPipeline[Authorized photos and photogrammetry<br/>optimized GLB and KTX2 assets]
     end
 
@@ -85,6 +87,10 @@ flowchart TB
     WalkingRoutes --> RouteSteps
     WalkingRoutes --> Factories
     RouteSteps --> DomainTypes
+    NavigationSession --> RouteSteps
+    NavigationSession --> LocationVerification
+    LocationVerification --> DomainTypes
+    LocationContract --> DomainTypes
     Pathfinder --> DomainTypes
     Factories --> DomainTypes
     GraphLoader --> GraphData
@@ -112,9 +118,9 @@ flowchart TB
     AgentRules -. governs changes .-> QualityAndKnowledge
     Context7 -. current dependency docs .-> QualityAndKnowledge
 
-    BrowserGPS -. planned .-> LocationProvider
-    LocationProvider -. planned .-> NavigationSession
-    NavigationSession -. consumes route checkpoints .-> RouteSteps
+    BrowserGPS -. planned implementation .-> LocationContract
+    LocationContract -. planned reading .-> NavigationSession
+    NavigationControls -. planned action .-> NavigationSession
     NavigationSession -. planned display state .-> Panel
     ModelPipeline -. planned replacement assets .-> Scene
 
@@ -123,10 +129,10 @@ flowchart TB
     classDef external fill:#e9f0ff,stroke:#315da8,color:#172f58,stroke-width:2px
     classDef future fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
 
-    class Index,Main,App,Panel,PlannerHook,PlannerModel,WalkingRoutes,Pathfinder,RouteSteps,DomainTypes,Factories,MapView,MapContract,BuildingContract,GraphData,GraphLoader,Locations,Campus,Scene implemented
+    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,BuildingContract,GraphData,GraphLoader,Locations,Campus,Scene implemented
     class CreateAdapter,Adapter,BuildingLayer,MapLibre,Three,GPU integration
     class OSM,Tests,Tooling,Handbook,Context7,AgentRules external
-    class BrowserGPS,LocationProvider,NavigationSession,ModelPipeline future
+    class BrowserGPS,NavigationControls,ModelPipeline future
 ```
 
 ## How to read the diagram
@@ -138,8 +144,11 @@ flowchart TB
 - The walking graph is the routing authority. The 3D scene is visual content and
   cannot define an entrance or a safe walking path by itself.
 - `routeSteps.ts` is implemented domain logic. It converts selected edge
-  geometry into maneuvers and checkpoints; the gray navigation session that will
-  consume those checkpoints remains future work.
+  geometry into maneuvers and checkpoints. The implemented navigation session
+  consumes those checkpoints without depending on a browser location API.
+- Location verification and session transitions are implemented and tested.
+  The dashed links show that browser GPS and visible navigation controls are not
+  connected yet.
 - MapLibre and Three.js share the browser's WebGL graphics context. MapLibre owns
   the camera and geographic projection; Three.js draws the owned 3D geometry.
 - Gray nodes describe the approved next architecture, not current behavior.

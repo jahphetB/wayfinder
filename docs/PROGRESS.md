@@ -188,3 +188,35 @@ Implementation commit: `a92963d` (`feat: add route steps and checkpoints`)
 - Production build passed. The initial application chunk is 237.86 kB minified
   and 74.39 kB gzip; the deferred map chunk remains 1,545.66 kB minified and
   406.75 kB gzip.
+
+## Step 15: Location verification and navigation-session foundation
+
+Status: complete
+Implementation commit: `630abbb` (`feat: add checkpoint location verification`)
+
+- Added a provider-independent location reading containing coordinates, reported
+  accuracy in meters, and a capture timestamp.
+- Added a small `LocationProvider` contract with an explicitly one-shot
+  `requestCurrentLocation` operation. No browser implementation or permission
+  request was added in this step.
+- Added a Haversine distance calculation for measuring the great-circle distance
+  between a reading and an expected checkpoint. Its numerical input is clamped
+  to protect antipodal and floating-point edge cases.
+- Added a conservative prototype verification policy with a 20-meter checkpoint
+  radius and a 30-second maximum reading age. These values require campus field
+  testing before production use.
+- Classifies a reading as confirmed only when its complete accuracy area fits
+  inside the checkpoint radius, mismatched only when the area is entirely
+  outside, and uncertain when it overlaps the boundary or is stale/future-dated.
+- Added immutable navigation-session states for awaiting the initial origin
+  check, navigating through route-step checkpoints, and arrival.
+- Session progress advances only after an explicit confirmed verification.
+  Uncertain and mismatched readings preserve the current step.
+- Applied location-data minimization: the session stores the verification
+  result, distance, and accuracy, but not the raw GPS coordinates.
+- Added focused distance, validation, accuracy-boundary, freshness, origin,
+  turn, arrival, and no-advance tests. The complete suite now contains 42
+  passing tests across 12 files.
+- Formatting, linting, strict type-checking, tests, and production build passed.
+  Bundle sizes are unchanged because the new foundation is not connected to the
+  visible browser application yet.

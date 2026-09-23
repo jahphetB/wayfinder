@@ -79,3 +79,6 @@ stale.
 | Current-documentation fallback rule             | Step 13                | Uses Context7 when available, official primary documentation as fallback, and avoids silently relying on stale model memory.                       |
 | Bearing-based maneuver derivation               | Step 14                | Compares incoming and outgoing geographic bearings to classify straight, left, right, and turn-around instructions.                                |
 | Validated route-step pipeline                   | Step 14                | Keeps edge geometry, maneuvers, checkpoints, flattened map geometry, and total distance consistent through immutable domain validation.            |
+| Accuracy-aware checkpoint verification          | Step 15                | Treats reported location as an uncertainty area and avoids claiming confirmation or mismatch when it overlaps the checkpoint boundary.             |
+| Explicit navigation state machine               | Step 15                | Allows progress only through tested awaiting-start, navigating, and arrived transitions triggered by one-shot verification actions.                |
+| Location-data minimization                      | Step 15                | Retains a verification result, distance, and accuracy in session state without retaining the raw location reading.                                 |

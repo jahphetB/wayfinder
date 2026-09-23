@@ -24,6 +24,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 12. Validated data replacement     | Complete | Current-library data is corrected and isolated as the single source of truth for future verified-data replacement.             |
 | 13. Georeferenced 3D spike         | Complete | MapLibre and Three.js share one map camera to render a tested, geographically anchored calibration building in 3D mode.        |
 | 14. Route steps and checkpoints    | Complete | Graph edges now carry detailed geometry, and calculated routes contain validated turn instructions and expected checkpoints.   |
+| 15. Location verification domain   | Complete | One-shot location readings can be conservatively classified, and tested session logic advances only after confirmed checks.    |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -62,7 +63,9 @@ distances, closures, direction rules, and accessibility information are still
 illustrative prototype data, not official accessibility or walking directions.
 Calculated routes now retain each edge's detailed geometry and produce internal
 turn-by-turn steps. Those steps are domain data for later navigation work; they
-are not yet displayed as a Next Turn interface and do not request GPS location.
+are not yet displayed as a Next Turn interface. The project now also contains a
+tested, provider-independent location-verification and navigation-session
+foundation. It does not yet request browser location or show navigation controls.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 
