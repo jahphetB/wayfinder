@@ -1,5 +1,6 @@
 import { createRoute } from './factories'
 import { findShortestWalkingPath } from './pathfinding'
+import { createRouteSteps } from './routeSteps'
 import type { Route, WalkingGraph } from './types'
 
 const walkingSpeedMetersPerMinute = 66
@@ -23,24 +24,14 @@ export function findWalkingRoute(
     return undefined
   }
 
-  const coordinatesByNodeId = new Map(
-    graph.nodes.map((node) => [node.id, node.coordinates]),
-  )
-  const coordinates = path.nodeIds.map((nodeId) => {
-    const coordinate = coordinatesByNodeId.get(nodeId)
-
-    if (!coordinate) {
-      throw new Error(`Walking path references unknown node: ${nodeId}`)
-    }
-
-    return coordinate
-  })
+  const routeId = `${originLocationId}-to-${destinationLocationId}`
+  const steps = createRouteSteps(graph, path, routeId)
 
   return createRoute({
-    id: `${originLocationId}-to-${destinationLocationId}`,
+    id: routeId,
     originLocationId,
     destinationLocationId,
-    coordinates,
+    steps,
     distanceMeters: path.distanceMeters,
     estimatedDurationMinutes: Math.max(
       1,

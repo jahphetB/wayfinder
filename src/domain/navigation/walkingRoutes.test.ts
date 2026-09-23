@@ -25,18 +25,25 @@ describe('findWalkingRoute', () => {
   })
 
   it('converts a shortest walking path into a renderable route', () => {
-    expect(findWalkingRoute(graph, 'entrance', 'library')).toEqual({
+    const route = findWalkingRoute(graph, 'entrance', 'library')
+
+    expect(route).toMatchObject({
       id: 'entrance-to-library',
       originLocationId: 'entrance',
       destinationLocationId: 'library',
-      coordinates: [
-        { latitude: 43.65, longitude: -116.68 },
-        { latitude: 43.651, longitude: -116.679 },
-        { latitude: 43.652, longitude: -116.678 },
-      ],
       distanceMeters: 250,
       estimatedDurationMinutes: 4,
     })
+    expect(route?.coordinates).toEqual([
+      { latitude: 43.65, longitude: -116.68 },
+      { latitude: 43.651, longitude: -116.679 },
+      { latitude: 43.652, longitude: -116.678 },
+    ])
+    expect(route?.steps).toHaveLength(2)
+    expect(route?.steps.map((step) => step.checkpoint.kind)).toEqual([
+      'turn',
+      'destination',
+    ])
   })
 
   it('returns no route when the locations are the same or disconnected', () => {

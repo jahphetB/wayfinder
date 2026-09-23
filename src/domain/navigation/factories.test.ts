@@ -29,9 +29,23 @@ describe('navigation factories', () => {
         id: 'invalid-route',
         originLocationId: 'same-location',
         destinationLocationId: 'same-location',
-        coordinates: [
-          { latitude: 43.6642, longitude: -116.6885 },
-          { latitude: 43.6652, longitude: -116.6871 },
+        steps: [
+          {
+            id: 'invalid-route-step-1',
+            edgeId: 'test-edge',
+            maneuver: 'depart',
+            instruction: 'Start walking for 100 m.',
+            coordinates: [
+              { latitude: 43.6642, longitude: -116.6885 },
+              { latitude: 43.6652, longitude: -116.6871 },
+            ],
+            distanceMeters: 100,
+            checkpoint: {
+              id: 'invalid-route-checkpoint-1',
+              kind: 'destination',
+              coordinates: { latitude: 43.6652, longitude: -116.6871 },
+            },
+          },
         ],
         distanceMeters: 100,
         estimatedDurationMinutes: 2,
@@ -54,6 +68,29 @@ describe('navigation factories', () => {
             fromNodeId: 'known-node',
             toNodeId: 'unknown-node',
             distanceMeters: 100,
+          },
+        ],
+      }),
+    ).toThrow(NavigationValidationError)
+  })
+
+  it('rejects edge geometry that does not connect its declared nodes', () => {
+    expect(() =>
+      createWalkingGraph({
+        nodes: [
+          { id: 'start', coordinates: { latitude: 43.65, longitude: -116.68 } },
+          { id: 'end', coordinates: { latitude: 43.651, longitude: -116.679 } },
+        ],
+        edges: [
+          {
+            id: 'disconnected-geometry',
+            fromNodeId: 'start',
+            toNodeId: 'end',
+            distanceMeters: 100,
+            geometry: [
+              { latitude: 43.6505, longitude: -116.6795 },
+              { latitude: 43.651, longitude: -116.679 },
+            ],
           },
         ],
       }),

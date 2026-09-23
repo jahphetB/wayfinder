@@ -21,8 +21,30 @@ export interface Route {
   readonly originLocationId: string
   readonly destinationLocationId: string
   readonly coordinates: readonly Coordinates[]
+  readonly steps: readonly RouteStep[]
   readonly distanceMeters: number
   readonly estimatedDurationMinutes: number
+}
+
+export type RouteManeuver =
+  'depart' | 'continue' | 'turn-left' | 'turn-right' | 'turn-around'
+
+export type RouteCheckpointKind = 'turn' | 'destination'
+
+export interface RouteCheckpoint {
+  readonly id: string
+  readonly kind: RouteCheckpointKind
+  readonly coordinates: Coordinates
+}
+
+export interface RouteStep {
+  readonly id: string
+  readonly edgeId: string
+  readonly maneuver: RouteManeuver
+  readonly instruction: string
+  readonly coordinates: readonly Coordinates[]
+  readonly distanceMeters: number
+  readonly checkpoint: RouteCheckpoint
 }
 
 export interface WalkingGraphNode {
@@ -41,6 +63,7 @@ export interface WalkingGraphEdge {
   readonly fromNodeId: string
   readonly toNodeId: string
   readonly distanceMeters: number
+  readonly geometry: readonly Coordinates[]
   readonly direction: WalkingEdgeDirection
   readonly availability: WalkingEdgeAvailability
   readonly accessibility: WalkingEdgeAccessibility

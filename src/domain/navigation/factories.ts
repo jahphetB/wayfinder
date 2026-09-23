@@ -3,7 +3,10 @@ import type {
   Location,
   LocationSearchResult,
   Route,
+  RouteCheckpointKind,
   RouteDataVerificationStatus,
+  RouteManeuver,
+  RouteStep,
   WalkingGraph,
   WalkingEdgeAccessibility,
   WalkingEdgeAvailability,
@@ -34,9 +37,23 @@ interface RouteInput {
   readonly id: string
   readonly originLocationId: string
   readonly destinationLocationId: string
-  readonly coordinates: readonly CoordinatesInput[]
+  readonly steps: readonly RouteStepInput[]
   readonly distanceMeters: number
   readonly estimatedDurationMinutes: number
+}
+
+interface RouteStepInput {
+  readonly id: string
+  readonly edgeId: string
+  readonly maneuver: RouteManeuver
+  readonly instruction: string
+  readonly coordinates: readonly CoordinatesInput[]
+  readonly distanceMeters: number
+  readonly checkpoint: {
+    readonly id: string
+    readonly kind: RouteCheckpointKind
+    readonly coordinates: CoordinatesInput
+  }
 }
 
 interface WalkingGraphNodeInput {
@@ -49,6 +66,7 @@ interface WalkingGraphEdgeInput {
   readonly fromNodeId: string
   readonly toNodeId: string
   readonly distanceMeters: number
+  readonly geometry?: readonly CoordinatesInput[]
   readonly direction?: WalkingEdgeDirection
   readonly availability?: WalkingEdgeAvailability
   readonly accessibility?: WalkingEdgeAccessibility
@@ -115,18 +133,38 @@ export function createRoute(input: RouteInput): Route {
     )
   }
 
-  if (input.coordinates.length < 2) {
-    throw new NavigationValidationError(
-      'Route geometry requires at least two coordinates',
-    )
+  if (input.steps.length === 0) {
+    throw new NavigationValidationError('Route requires at least one step')
   }
 
   assertPositive(input.distanceMeters, 'Route distance')
   assertPositive(input.estimatedDurationMinutes, 'Route estimated duration')
 
+  const steps = input.steps.map(createRouteStep)
+  assertRouteStepSequence(steps)
+
+  const stepDistanceMeters = steps.reduce(
+    (total, step) => total + step.distanceMeters,
+    0,
+  )
+  if (Math.abs(stepDistanceMeters - input.distanceMeters) > 0.001) {
+    throw new NavigationValidationError(
+      'Route distance must equal the combined step distance',
+    )
+  }
+
+  const coordinates = steps.flatMap((step, index) =>
+    index === 0 ? step.coordinates : step.coordinates.slice(1),
+  )
+
   return Object.freeze({
-    ...input,
-    coordinates: Object.freeze(input.coordinates.map(createCoordinates)),
+    id: input.id,
+    originLocationId: input.originLocationId,
+    destinationLocationId: input.destinationLocationId,
+    coordinates: Object.freeze(coordinates),
+    steps: Object.freeze(steps),
+    distanceMeters: input.distanceMeters,
+    estimatedDurationMinutes: input.estimatedDurationMinutes,
   })
 }
 
@@ -140,8 +178,10 @@ export function createWalkingGraph(input: WalkingGraphInput): WalkingGraph {
   const nodes = input.nodes.map(createWalkingGraphNode)
   assertUniqueIds(nodes, 'Walking graph node')
 
-  const nodeIds = new Set(nodes.map((node) => node.id))
-  const edges = input.edges.map((edge) => createWalkingGraphEdge(edge, nodeIds))
+  const nodesById = new Map(nodes.map((node) => [node.id, node]))
+  const edges = input.edges.map((edge) =>
+    createWalkingGraphEdge(edge, nodesById),
+  )
   assertUniqueIds(edges, 'Walking graph edge')
 
   return Object.freeze({
@@ -203,7 +243,7 @@ function createWalkingGraphNode(
 
 function createWalkingGraphEdge(
   input: WalkingGraphEdgeInput,
-  nodeIds: ReadonlySet<string>,
+  nodesById: ReadonlyMap<string, WalkingGraphNode>,
 ): WalkingGraphEdge {
   assertText(input.id, 'Walking graph edge id')
   assertText(input.fromNodeId, 'Walking graph edge start node id')
@@ -236,9 +276,30 @@ function createWalkingGraphEdge(
     )
   }
 
-  if (!nodeIds.has(input.fromNodeId) || !nodeIds.has(input.toNodeId)) {
+  const fromNode = nodesById.get(input.fromNodeId)
+  const toNode = nodesById.get(input.toNodeId)
+  if (!fromNode || !toNode) {
     throw new NavigationValidationError(
       'Walking graph edge must reference existing nodes',
+    )
+  }
+
+  const geometry = (
+    input.geometry ?? [fromNode.coordinates, toNode.coordinates]
+  ).map(createCoordinates)
+
+  if (geometry.length < 2) {
+    throw new NavigationValidationError(
+      'Walking graph edge geometry requires at least two coordinates',
+    )
+  }
+
+  if (
+    !coordinatesEqual(geometry[0], fromNode.coordinates) ||
+    !coordinatesEqual(geometry.at(-1), toNode.coordinates)
+  ) {
+    throw new NavigationValidationError(
+      'Walking graph edge geometry must start and end at its connected nodes',
     )
   }
 
@@ -247,10 +308,115 @@ function createWalkingGraphEdge(
     fromNodeId: input.fromNodeId,
     toNodeId: input.toNodeId,
     distanceMeters: input.distanceMeters,
+    geometry: Object.freeze(geometry),
     direction,
     availability,
     accessibility,
   })
+}
+
+function createRouteStep(input: RouteStepInput): RouteStep {
+  assertText(input.id, 'Route step id')
+  assertText(input.edgeId, 'Route step edge id')
+  assertText(input.instruction, 'Route step instruction')
+  assertPositive(input.distanceMeters, 'Route step distance')
+  assertOneOf(
+    input.maneuver,
+    ['depart', 'continue', 'turn-left', 'turn-right', 'turn-around'],
+    'Route step maneuver',
+  )
+  assertText(input.checkpoint.id, 'Route checkpoint id')
+  assertOneOf(
+    input.checkpoint.kind,
+    ['turn', 'destination'],
+    'Route checkpoint kind',
+  )
+
+  if (input.coordinates.length < 2) {
+    throw new NavigationValidationError(
+      'Route step geometry requires at least two coordinates',
+    )
+  }
+
+  const coordinates = input.coordinates.map(createCoordinates)
+  const checkpointCoordinates = createCoordinates(input.checkpoint.coordinates)
+
+  if (!coordinatesEqual(coordinates.at(-1), checkpointCoordinates)) {
+    throw new NavigationValidationError(
+      'Route checkpoint must match the end of its step geometry',
+    )
+  }
+
+  return Object.freeze({
+    id: input.id,
+    edgeId: input.edgeId,
+    maneuver: input.maneuver,
+    instruction: input.instruction,
+    coordinates: Object.freeze(coordinates),
+    distanceMeters: input.distanceMeters,
+    checkpoint: Object.freeze({
+      id: input.checkpoint.id,
+      kind: input.checkpoint.kind,
+      coordinates: checkpointCoordinates,
+    }),
+  })
+}
+
+function assertRouteStepSequence(steps: readonly RouteStep[]): void {
+  const firstStep = steps[0]
+  if (!firstStep || firstStep.maneuver !== 'depart') {
+    throw new NavigationValidationError(
+      'The first route step maneuver must be depart',
+    )
+  }
+
+  for (let index = 1; index < steps.length; index += 1) {
+    const previousStep = steps[index - 1]
+    const currentStep = steps[index]
+
+    if (!previousStep || !currentStep) {
+      throw new NavigationValidationError('Route step sequence is incomplete')
+    }
+
+    if (currentStep.maneuver === 'depart') {
+      throw new NavigationValidationError(
+        'Only the first route step maneuver can be depart',
+      )
+    }
+
+    if (
+      !coordinatesEqual(
+        previousStep.coordinates.at(-1),
+        currentStep.coordinates[0],
+      )
+    ) {
+      throw new NavigationValidationError(
+        'Route step geometries must form a continuous path',
+      )
+    }
+
+    if (previousStep.checkpoint.kind !== 'turn') {
+      throw new NavigationValidationError(
+        'Only the final route checkpoint can be a destination',
+      )
+    }
+  }
+
+  if (steps.at(-1)?.checkpoint.kind !== 'destination') {
+    throw new NavigationValidationError(
+      'The final route checkpoint must be the destination',
+    )
+  }
+}
+
+function coordinatesEqual(
+  first: Coordinates | undefined,
+  second: Coordinates | undefined,
+): boolean {
+  return (
+    first?.latitude === second?.latitude &&
+    first?.longitude === second?.longitude
+  )
 }
 
 function assertUniqueIds(

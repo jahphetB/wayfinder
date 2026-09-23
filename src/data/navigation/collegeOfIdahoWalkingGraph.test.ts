@@ -4,6 +4,7 @@ import {
 } from './collegeOfIdahoWalkingGraph'
 import { collegeOfIdahoWalkingGraphData } from './collegeOfIdahoWalkingGraphData'
 import { findShortestWalkingPath } from '@/domain/navigation/pathfinding'
+import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
 import { mockLocations } from './mockLocations'
 
 describe('College of Idaho walking graph', () => {
@@ -71,6 +72,30 @@ describe('College of Idaho walking graph', () => {
         'morrison-quadrangle-to-cruzen-murray-library',
       ],
       distanceMeters: 330,
+    })
+  })
+
+  it('preserves illustrative edge geometry and creates checkpoint steps', () => {
+    const route = findWalkingRoute(
+      collegeOfIdahoWalkingGraph,
+      'campus-entrance',
+      'cruzen-murray-library',
+    )
+
+    expect(route?.coordinates).toHaveLength(7)
+    expect(route?.steps).toHaveLength(3)
+    expect(route?.steps.map((step) => step.checkpoint.kind)).toEqual([
+      'turn',
+      'turn',
+      'destination',
+    ])
+    expect(route?.coordinates[0]).toEqual({
+      latitude: 43.6522,
+      longitude: -116.6799,
+    })
+    expect(route?.coordinates.at(-1)).toEqual({
+      latitude: 43.6545,
+      longitude: -116.67654,
     })
   })
 })
