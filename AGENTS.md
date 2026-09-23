@@ -31,3 +31,12 @@
 - Favor React composition for UI and classes for stateful infrastructure only when encapsulation is useful.
 - Keep map-provider dependencies behind typed contracts and compose implementations at the application boundary.
 - Avoid speculative abstractions and duplicate logic.
+
+## Current technical documentation
+
+- Use the project-scoped Context7 MCP server for current third-party library and
+  API documentation when it is available.
+- Prefer official primary documentation when a library's own documentation is
+  available, and record consequential source links in the architecture handbook.
+- If Context7 is unavailable, continue with official documentation rather than
+  blocking implementation or relying silently on model memory.

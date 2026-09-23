@@ -4,10 +4,32 @@ This file records AI-related skills, tools, and project practices used during de
 
 ## OpenAI
 
-| Skill or capability          | Used in         | Purpose                                                                         |
-| ---------------------------- | --------------- | ------------------------------------------------------------------------------- |
-| OpenAI Docs skill            | Step 1 planning | Selected a cost-conscious coding-model approach using official OpenAI guidance. |
-| Codex file and command tools | Steps 1-2       | Created, inspected, tested, and documented the project in small approved steps. |
+| Skill or capability            | Used in        | Purpose                                                                                                                        |
+| ------------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| OpenAI Docs skill              | Steps 1 and 13 | Uses current official OpenAI guidance for model, skill, MCP, and Codex decisions.                                              |
+| OpenAI Cookbook                | Step 13        | Supplied the documented Context7 MCP pattern for coding with current third-party library documentation.                        |
+| OpenAI Playwright skill        | Step 13 setup  | Installed locally for browser automation and end-to-end verification in future approved steps; available in new sessions.      |
+| OpenAI security-best-practices | Step 13 setup  | Installed locally for focused secure implementation reviews in future approved steps; available in new sessions.               |
+| OpenAI security-threat-model   | Step 13 setup  | Installed locally for structured threat modeling when the application gains GPS, storage, deployment, or other security scope. |
+| Codex file and command tools   | Steps 1-13     | Inspect, implement, test, document, commit, and publish approved project changes.                                              |
+
+### Local quick-reference installations
+
+These first-party OpenAI skills are installed under the user's Codex skill
+directory so future sessions can load their complete instructions without
+downloading them again. They are development guidance, not application runtime
+dependencies.
+
+| Brand and skill                  | Local path                                            | When to use it                                                                                               |
+| -------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| OpenAI / Playwright              | `%USERPROFILE%\.codex\skills\playwright`              | Browser interaction, screenshots, console checks, and end-to-end flow verification.                          |
+| OpenAI / security-best-practices | `%USERPROFILE%\.codex\skills\security-best-practices` | A focused TypeScript security review when the user explicitly approves or requests one.                      |
+| OpenAI / security-threat-model   | `%USERPROFILE%\.codex\skills\security-threat-model`   | A repository-grounded threat model when GPS, stored data, deployment, or another trust boundary warrants it. |
+
+The OpenAI Cookbook and official OpenAI documentation remain linked online
+because they change over time. Context7 is used to retrieve current third-party
+library documentation rather than committing copies that would quickly become
+stale.
 
 ## External technology
 
@@ -22,6 +44,9 @@ This file records AI-related skills, tools, and project practices used during de
 | College of Idaho campus map    | Steps 11-12   | Confirms published campus place names and the current Cruzen-Murray Library identity.                                |
 | OpenStreetMap-derived map data | Steps 11-12   | Corroborates public building coordinates, including Cruzen-Murray Library.                                           |
 | Google Maps                    | Step 12       | Directly checked the current library listing and identified that the former Terteling listing is permanently closed. |
+| Three.js                       | Step 13       | Draws the owned procedural 3D calibration building inside MapLibre's shared WebGL context.                           |
+| Context7 MCP                   | Step 13       | Supplies current third-party library documentation through a project-scoped, secret-free remote connection.          |
+| Microsoft Edge headless mode   | Step 13       | Captured the real WebGL result for visual verification without adding a browser-test dependency to the application.  |
 
 ## Yote Wayfinder project practices
 
@@ -48,3 +73,7 @@ This file records AI-related skills, tools, and project practices used during de
 | Route-data provenance validation                | Step 10                | Records source, review date, and verification status so illustrative and verified graph data cannot be confused.                                   |
 | Public-source evidence boundary                 | Step 11                | Uses official and independent public maps for limited location corroboration while preserving the illustrative label for unverified routing facts. |
 | Validated editable graph dataset                | Step 12                | Isolates replaceable campus data from its runtime loader so future verified data can enter without changing route, UI, or map code.                |
+| Georeferenced procedural 3D spike               | Step 13                | Proves that a meter-sized Three.js object can remain anchored to campus coordinates under MapLibre's camera and projection.                        |
+| Shared-WebGL lifecycle isolation                | Step 13                | Keeps Three.js creation, rendering, visibility, and resource disposal inside one provider-specific layer.                                          |
+| Maintained Mermaid architecture map             | Step 13                | Shows implemented dependencies and clearly distinguishes approved future GPS and model-pipeline components.                                        |
+| Current-documentation fallback rule             | Step 13                | Uses Context7 when available, official primary documentation as fallback, and avoids silently relying on stale model memory.                       |
