@@ -182,6 +182,9 @@ Implementation commit: `a92963d` (`feat: add route steps and checkpoints`)
   Turn interface was added in this step.
 - Added focused maneuver, reverse-travel, geometry, checkpoint, and campus-route
   tests. The complete suite now contains 33 passing tests across 10 files.
+- Used the OpenAI Playwright workflow against the running application to confirm
+  that the multi-point route, markers, route summary, and 3D calibration building
+  render together. The browser console reported zero errors and zero warnings.
 - Production build passed. The initial application chunk is 237.86 kB minified
   and 74.39 kB gzip; the deferred map chunk remains 1,545.66 kB minified and
   406.75 kB gzip.

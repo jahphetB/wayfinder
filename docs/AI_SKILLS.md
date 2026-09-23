@@ -6,9 +6,9 @@ This file records AI-related skills, tools, and project practices used during de
 
 | Skill or capability            | Used in        | Purpose                                                                                                                        |
 | ------------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| OpenAI Docs skill              | Steps 1 and 13 | Uses current official OpenAI guidance for model, skill, MCP, and Codex decisions.                                              |
+| OpenAI Docs skill              | Steps 1, 13-14 | Uses current official OpenAI guidance for model, skill, MCP, and Codex decisions.                                              |
 | OpenAI Cookbook                | Step 13        | Supplied the documented Context7 MCP pattern for coding with current third-party library documentation.                        |
-| OpenAI Playwright skill        | Step 13 setup  | Installed locally for browser automation and end-to-end verification in future approved steps; available in new sessions.      |
+| OpenAI Playwright skill        | Steps 13-14    | Drives browser flows, screenshots, and console inspection without adding browser-test dependencies to the application.         |
 | OpenAI security-best-practices | Step 13 setup  | Installed locally for focused secure implementation reviews in future approved steps; available in new sessions.               |
 | OpenAI security-threat-model   | Step 13 setup  | Installed locally for structured threat modeling when the application gains GPS, storage, deployment, or other security scope. |
 | Codex file and command tools   | Steps 1-13     | Inspect, implement, test, document, commit, and publish approved project changes.                                              |
