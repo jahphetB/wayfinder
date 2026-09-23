@@ -23,6 +23,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 11. Public-source corroboration    | Complete | Official campus naming and one independently mapped coordinate are recorded while operational route data remains illustrative. |
 | 12. Validated data replacement     | Complete | Current-library data is corrected and isolated as the single source of truth for future verified-data replacement.             |
 | 13. Georeferenced 3D spike         | Complete | MapLibre and Three.js share one map camera to render a tested, geographically anchored calibration building in 3D mode.        |
+| 14. Route steps and checkpoints    | Complete | Graph edges now carry detailed geometry, and calculated routes contain validated turn instructions and expected checkpoints.   |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -59,6 +60,9 @@ whose identity and coordinate were checked against College of Idaho, Google Maps
 and OpenStreetMap-derived public information. The walking-path topology,
 distances, closures, direction rules, and accessibility information are still
 illustrative prototype data, not official accessibility or walking directions.
+Calculated routes now retain each edge's detailed geometry and produce internal
+turn-by-turn steps. Those steps are domain data for later navigation work; they
+are not yet displayed as a Next Turn interface and do not request GPS location.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

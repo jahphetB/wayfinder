@@ -41,9 +41,9 @@ work together, that decision should be recorded here.
 ## Start here
 
 Yote Wayfinder is a browser-based route-planning prototype. A person chooses a
-starting place and a destination, previews a calculated walking route, and sees that route
-on an interactive map. The map can be viewed from a flat 2D angle or a tilted
-3D-like perspective.
+starting place and a destination, previews a calculated walking route, and sees
+that route on an interactive map. The map can be viewed from a flat 2D angle or
+a tilted 3D perspective with project-owned calibration geometry.
 
 The project is deliberately divided into areas with different responsibilities.
 This is similar to organizing a business so that accounting, customer service,
@@ -152,16 +152,18 @@ navigation interface.
    `Location` object, not only the visible label.
 7. When **Preview route** is pressed, the hook asks `routePlanner.ts` to request
    a route from the walking graph for the selected location identifiers.
-8. `walkingRoutes.ts` asks `pathfinding.ts` for the shortest path, converts its
-   graph-node coordinates into a `Route`, and derives the duration from the
-   prototype walking-speed constant.
-9. React notices the new route and gives it to `MapView.tsx`.
-10. `MapView.tsx` calls the provider-neutral `MapAdapter` methods.
-11. `MapLibreMapAdapter.ts` converts the route and locations into GeoJSON.
+8. `walkingRoutes.ts` asks `pathfinding.ts` for the shortest path, then asks
+   `routeSteps.ts` to orient each selected edge's geometry in travel order and
+   derive maneuvers, instructions, and checkpoints.
+9. The route factory validates that the steps form one continuous path and
+   derives the flattened coordinates used by the map and the estimated duration.
+10. React notices the new route and gives it to `MapView.tsx`.
+11. `MapView.tsx` calls the provider-neutral `MapAdapter` methods.
+12. `MapLibreMapAdapter.ts` converts the route and locations into GeoJSON.
     GeoJSON is a common text-based format for geographic shapes and points.
-12. MapLibre draws the route line and location circles, then moves the camera so
+13. MapLibre draws the route line and location circles, then moves the camera so
     the route fits inside the visible map.
-13. In 3D mode, `MapLibreGeoreferencedBuildingLayer.ts` reads MapLibre's current
+14. In 3D mode, `MapLibreGeoreferencedBuildingLayer.ts` reads MapLibre's current
     projection matrix and uses Three.js to draw the calibration building at its
     geographic anchor. In 2D mode, the adapter hides that building layer.
 
@@ -330,7 +332,8 @@ provider implementation, not every caller.
 The domain folder describes what navigation information means independently of
 React, MapLibre, or the current mock data. A `Location` has an identifier,
 label, and coordinates. A `Route` connects two location identifiers and has
-geometry, distance, and estimated duration.
+geometry, distance, estimated duration, and ordered route steps. Each step has a
+maneuver, instruction, walking geometry, and expected checkpoint.
 
 Because these definitions do not depend on screen or map libraries, they can be
 used by future APIs, routing algorithms, administrative tools, and tests. This
@@ -349,8 +352,10 @@ not the other way around.
 | `src/domain/navigation/factories.test.ts`     | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                                                                             |
 | `src/domain/navigation/pathfinding.ts`        | Contains the pure shortest-path calculation. It reads a `WalkingGraph`, skips closed edges, respects forward-only edges, and returns a `WalkingPath` without importing React, MapLibre, or mock-data files.                                                                                                                        |
 | `src/domain/navigation/pathfinding.test.ts`   | Proves the algorithm chooses the shorter allowed path, supports permitted reverse travel, rejects forbidden reverse travel, avoids closures, and safely reports no path for unknown or unreachable nodes.                                                                                                                          |
-| `src/domain/navigation/walkingRoutes.ts`      | Converts a calculated `WalkingPath` into the existing renderable `Route` shape. It derives an estimate using the documented prototype walking-speed constant.                                                                                                                                                                      |
-| `src/domain/navigation/walkingRoutes.test.ts` | Proves path-to-route conversion preserves ordered coordinates, distance, duration, and unavailable-route behavior.                                                                                                                                                                                                                 |
+| `src/domain/navigation/routeSteps.ts`         | Converts selected graph edges into travel-oriented geometry, classifies maneuvers from geographic bearings, writes short instructions, and places a turn or destination checkpoint at each step endpoint. It remains independent from React, MapLibre, and browser geolocation.                                                    |
+| `src/domain/navigation/routeSteps.test.ts`    | Proves left and right turns, checkpoint order, instructions, and reverse travel through bidirectional geometry.                                                                                                                                                                                                                    |
+| `src/domain/navigation/walkingRoutes.ts`      | Coordinates shortest-path selection, route-step creation, validation, and the prototype walking-duration estimate.                                                                                                                                                                                                                 |
+| `src/domain/navigation/walkingRoutes.test.ts` | Proves path-to-route conversion preserves ordered detailed geometry, distance, duration, checkpoints, and unavailable-route behavior.                                                                                                                                                                                              |
 
 ## The `src/data` folder
 
@@ -381,14 +386,14 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                                                                          |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes. |
-| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                      |
-| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code.                                     |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                        |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path, confirms every searchable mock location is represented by a graph node, and verifies the graph is labeled illustrative.                                                                   |
-| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                               |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                           |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes.                                  |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                       |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, detailed edge geometry, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code. The current path shapes remain illustrative. |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                         |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path, confirms every searchable mock location is represented by a graph node, and verifies the graph is labeled illustrative.                                                                                                    |
+| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                |
 
 ## The `src/features` folder
 
@@ -760,11 +765,60 @@ and the existing interface remains intact. The temporary screenshot and browser
 profiles were deleted after inspection; generated verification artifacts are
 not project source.
 
-The approved target beyond this spike is shown as dashed gray components in
-`ARCHITECTURE_DIAGRAM.md`: one-shot browser geolocation, a provider-independent
-location service, checkpoint navigation state, turn instructions, and an
-authorized photogrammetry-to-optimized-model pipeline. None of those components
-is implemented in Step 13.
+The approved target beyond this spike is shown in `ARCHITECTURE_DIAGRAM.md`.
+Step 14 has since implemented route steps and checkpoints. One-shot browser
+geolocation, a provider-independent location service, checkpoint navigation
+state, and an authorized photogrammetry-to-optimized-model pipeline remain
+dashed gray future components.
+
+### Step 14: Route geometry, instructions, and checkpoints
+
+Step 14 adds the provider-independent information that future Next Turn
+navigation will consume. A graph edge no longer means only “node A connects to
+node B.” Every runtime edge now has geometry: an ordered list of geographic
+points describing the shape of that walking leg. The factory supplies a direct
+two-point line when an input omits geometry, but the editable campus dataset
+contains explicit intermediate points so it demonstrates the intended
+replacement format. Those points remain illustrative until they are replaced by
+an authorized survey or another approved source.
+
+After Dijkstra's algorithm selects edge identifiers, `routeSteps.ts` orients
+each edge's geometry in the actual direction of travel. This matters because a
+bidirectional edge is stored once but can be walked forward or backward. The
+module examines the final segment of the incoming edge and the first segment of
+the outgoing edge, calculates their geographic bearings, and classifies the
+change as continue, turn left, turn right, or turn around. A bearing is a
+direction around the compass measured in degrees. Changes smaller than 30
+degrees are treated as continuing straight; changes of at least 150 degrees are
+treated as turning around.
+
+Each selected edge becomes one `RouteStep`. The step contains the edge ID,
+maneuver, short instruction, distance, travel-oriented geometry, and one
+checkpoint. A checkpoint is the expected geographic point at the end of a
+walking leg. Intermediate endpoints are `turn` checkpoints and the final
+endpoint is a `destination` checkpoint. This means a later navigation session
+can verify the current step's checkpoint before advancing, without asking
+MapLibre to decide what a route means.
+
+The route factory is the consistency gate. It rejects an empty route, a first
+step that does not depart, another depart in the middle, disconnected step
+geometry, a checkpoint that differs from the end of its step, an early
+destination checkpoint, or a total distance that differs from the sum of step
+distances. It then derives the one flattened coordinate list that the existing
+MapLibre adapter already renders. Deriving rather than duplicating this list
+prevents turn instructions and the visible line from quietly disagreeing.
+
+This step deliberately stops before interactive navigation. Route instructions
+exist as domain data but are not shown in the current route summary. There is no
+browser location request, GPS accuracy calculation, tolerance radius,
+navigation-session state, or Next Turn button yet. Those responsibilities need
+their own approved boundary and field-tested policy.
+
+The design uses small pure functions rather than a class because route-step
+generation keeps no state between calls. That is React- and provider-independent
+functional domain logic, while OOP remains useful in the stateful MapLibre and
+Three.js lifecycle adapters. The implementation therefore follows Single
+Responsibility without forcing the same programming style into every module.
 
 ## Safe change recipes
 
@@ -779,7 +833,8 @@ afterward and inspect the browser for visual changes.
 3. Add a graph node with that same ID and its latitude and longitude.
 4. `mockLocations.ts` will derive the validated searchable location from those
    records; do not add a second copy there.
-5. Add verified connecting edges if the location should have a calculated route.
+5. Add verified connecting edges, including ordered walking geometry from the
+   start node to the end node, if the location should have a calculated route.
 6. Run checks and confirm the suggestion appears in both fields.
 
 The factory rejects empty text or coordinates outside valid world ranges. Do
@@ -791,12 +846,17 @@ not bypass it by placing unvalidated plain objects into the application.
 2. Add or adjust nodes and edges in that dataset; the loader will validate them
    through `createWalkingGraph`.
 3. Keep every edge endpoint ID equal to an existing node ID.
-4. Set `availability`, `direction`, and `accessibility` deliberately for every
+4. Keep the first geometry coordinate equal to the `fromNode` coordinate and the
+   last equal to the `toNode` coordinate. Add intermediate points in walking
+   order when the path bends.
+5. Set `availability`, `direction`, and `accessibility` deliberately for every
    edge; use `unverified` when campus accessibility information is unknown.
-5. Update the graph test with the route and distance that should result.
-6. Add a restriction test when using a closure or a forward-only edge.
-7. Check the calculated route in the browser after pressing **Preview route**.
-8. Obtain campus verification before treating the data as official.
+6. Update the graph test with the route, geometry, checkpoints, and distance that
+   should result.
+7. Add a restriction test when using a closure or a forward-only edge.
+8. Check the calculated route in both directions in the browser after pressing
+   **Preview route**.
+9. Obtain campus verification before treating the data as official.
 
 An edge is treated as two-way only when its direction is `bidirectional` and is
 considered only when its availability is `available`.
@@ -1224,10 +1284,11 @@ historical context.
   accuracy as confirmed, uncertain, or mismatched before advancing.
 - **Reason:** This reduces continuous location collection and battery use while
   still checking progress at important route points.
-- **Consequence:** A future `LocationProvider`, navigation-session state machine,
-  detailed edge geometry, route steps, and campus field testing are required.
-  Poor-accuracy readings must be reported as inconclusive rather than as proof
-  that the person is in the wrong place.
+- **Consequence:** Detailed edge geometry and route steps now exist. A future
+  `LocationProvider`, navigation-session state machine, GPS tolerance policy,
+  interface, and campus field testing are still required. Poor-accuracy readings
+  must be reported as inconclusive rather than as proof that the person is in
+  the wrong place.
 
 ### ADR-023: Use current documentation through Context7 with official fallback
 
@@ -1240,6 +1301,21 @@ historical context.
 - **Consequence:** Context7 is a development dependency rather than a website
   runtime dependency. The repository stores no API key, and work must continue
   from official documentation if the remote service is unavailable.
+
+### ADR-024: Derive route steps from graph-edge geometry
+
+- **Status:** Accepted and implemented
+- **Decision:** Store ordered geometry on validated walking edges, orient the
+  selected geometry in travel direction, derive maneuvers from geographic
+  bearings, and place a typed checkpoint at every route-step endpoint.
+- **Reason:** Route calculation, the visible path, and future checkpoint
+  navigation need one provider-independent source of truth. Deriving flattened
+  map geometry from validated steps prevents parallel route representations from
+  drifting apart.
+- **Consequence:** Verified campus replacement data must include path shapes as
+  well as connectivity. Generic instructions are deterministic but will need
+  reviewed path or landmark names before they become polished campus directions.
+  GPS tolerance and step advancement remain separate future policies.
 
 ## Engineering principles in plain language
 
@@ -1286,9 +1362,11 @@ speculative frameworks for features that have not been approved.
 | Adapter               | A translator that makes one system fit the interface expected by another.                                     |
 | API                   | A defined way for one piece of software to communicate with another.                                          |
 | Basemap               | The background geographic map beneath custom markers and route lines.                                         |
+| Bearing               | A compass direction measured in degrees and calculated between two geographic points.                         |
 | Build                 | Turning source files into optimized files suitable for hosting.                                               |
 | Bundle                | Browser-ready files assembled from source and dependencies.                                                   |
 | Component             | A reusable visible part of a React interface.                                                                 |
+| Checkpoint            | The expected geographic endpoint of a route step, later usable for progress verification.                     |
 | Corroborated fact     | A limited fact checked beyond the project's own mock record; it is not automatically an approved instruction. |
 | Contract or interface | A checked description of operations or data another module must provide.                                      |
 | Dependency            | Code, data, or a service that another part requires.                                                          |
@@ -1300,6 +1378,7 @@ speculative frameworks for features that have not been approved.
 | Infrastructure        | Code communicating with an external technical system or provider.                                             |
 | Lazy loading          | Delaying download or initialization until a feature is needed.                                                |
 | Matrix                | A mathematical structure used to combine 3D position, rotation, scale, and camera projection.                 |
+| Maneuver              | The action beginning a walking leg, such as depart, continue, turn left, or turn right.                       |
 | MCP                   | Model Context Protocol, a standard connection between an AI tool and an information or action service.        |
 | Mock data             | Local sample information used before or instead of a live backend.                                            |
 | Procedural model      | 3D geometry created by code instead of loaded from a model file.                                              |

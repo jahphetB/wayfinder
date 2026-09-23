@@ -156,3 +156,32 @@ Implementation commit: `0281d4c` (`feat: add georeferenced 3d building spike`)
   documentation, plus explicit fallback to official documentation.
 - Installed the first-party OpenAI Playwright, security best-practices, and
   security threat-model skills locally for later approved steps.
+
+## Step 14: Route geometry, instructions, and checkpoints
+
+Status: complete
+Implementation commit: `a92963d` (`feat: add route steps and checkpoints`)
+
+- Added validated geometry to every runtime walking-graph edge. When source data
+  omits geometry, the factory safely creates a direct line between the declared
+  nodes; the editable campus dataset now supplies explicit illustrative geometry.
+- Added provider-independent route maneuvers, instructions, and checkpoints.
+  Every selected graph edge becomes one route step, intermediate step endpoints
+  are turn checkpoints, and the last endpoint is the destination checkpoint.
+- Derived left, right, straight, and turn-around maneuvers from geographic
+  bearings rather than map-renderer behavior.
+- Reversed edge geometry when a bidirectional edge is traveled backward, so
+  route instructions and map lines always follow the person's travel direction.
+- Made the validated route factory derive flattened map geometry from its steps
+  and reject discontinuous steps, misplaced checkpoints, invalid maneuver order,
+  or a total distance inconsistent with the step distances.
+- Preserved the existing MapLibre boundary: it still receives one provider-
+  independent `Route` and automatically renders the richer geometry.
+- Kept all current College of Idaho path geometry and instructions explicitly
+  illustrative. No GPS request, navigation session, tolerance policy, or Next
+  Turn interface was added in this step.
+- Added focused maneuver, reverse-travel, geometry, checkpoint, and campus-route
+  tests. The complete suite now contains 33 passing tests across 10 files.
+- Production build passed. The initial application chunk is 237.86 kB minified
+  and 74.39 kB gzip; the deferred map chunk remains 1,545.66 kB minified and
+  406.75 kB gzip.

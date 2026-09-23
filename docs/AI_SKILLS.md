@@ -77,3 +77,5 @@ stale.
 | Shared-WebGL lifecycle isolation                | Step 13                | Keeps Three.js creation, rendering, visibility, and resource disposal inside one provider-specific layer.                                          |
 | Maintained Mermaid architecture map             | Step 13                | Shows implemented dependencies and clearly distinguishes approved future GPS and model-pipeline components.                                        |
 | Current-documentation fallback rule             | Step 13                | Uses Context7 when available, official primary documentation as fallback, and avoids silently relying on stale model memory.                       |
+| Bearing-based maneuver derivation               | Step 14                | Compares incoming and outgoing geographic bearings to classify straight, left, right, and turn-around instructions.                                |
+| Validated route-step pipeline                   | Step 14                | Keeps edge geometry, maneuvers, checkpoints, flattened map geometry, and total distance consistent through immutable domain validation.            |

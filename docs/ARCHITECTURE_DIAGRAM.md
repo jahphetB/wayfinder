@@ -24,6 +24,7 @@ flowchart TB
         subgraph NavigationDomain[Provider-independent navigation domain]
             WalkingRoutes[walkingRoutes.ts<br/>path-to-route conversion]
             Pathfinder[pathfinding.ts<br/>Dijkstra shortest path]
+            RouteSteps[routeSteps.ts<br/>maneuvers, instructions, checkpoints]
             DomainTypes[types.ts<br/>locations, routes, graph contracts]
             Factories[factories.ts<br/>validation and immutability]
         end
@@ -71,19 +72,25 @@ flowchart TB
         BrowserGPS[Browser Geolocation API<br/>one-shot location requests]
         LocationProvider[LocationProvider contract<br/>position, accuracy, timestamp]
         NavigationSession[NavigationSession<br/>current turn and verification state]
-        RouteSteps[Route steps and checkpoints<br/>turn instructions]
         ModelPipeline[Authorized photos and photogrammetry<br/>optimized GLB and KTX2 assets]
     end
 
     User --> Index --> Main --> App
     App --> Panel
     App --> MapView
-    Panel --> PlannerHook --> PlannerModel --> WalkingRoutes --> Pathfinder
-    DomainTypes --> Factories
-    Factories --> GraphLoader
-    Pathfinder --> GraphLoader
-    GraphData --> GraphLoader
-    GraphData --> Locations --> PlannerHook
+    Panel --> PlannerHook --> PlannerModel --> WalkingRoutes
+    PlannerHook --> GraphLoader
+    PlannerHook --> Locations
+    WalkingRoutes --> Pathfinder
+    WalkingRoutes --> RouteSteps
+    WalkingRoutes --> Factories
+    RouteSteps --> DomainTypes
+    Pathfinder --> DomainTypes
+    Factories --> DomainTypes
+    GraphLoader --> GraphData
+    GraphLoader --> Factories
+    Locations --> GraphData
+    Locations --> Factories
     WalkingRoutes --> MapView
 
     MapView --> MapContract --> CreateAdapter --> Adapter
@@ -107,8 +114,7 @@ flowchart TB
 
     BrowserGPS -. planned .-> LocationProvider
     LocationProvider -. planned .-> NavigationSession
-    NavigationSession -. planned .-> RouteSteps
-    RouteSteps -. planned extension .-> WalkingRoutes
+    NavigationSession -. consumes route checkpoints .-> RouteSteps
     NavigationSession -. planned display state .-> Panel
     ModelPipeline -. planned replacement assets .-> Scene
 
@@ -117,10 +123,10 @@ flowchart TB
     classDef external fill:#e9f0ff,stroke:#315da8,color:#172f58,stroke-width:2px
     classDef future fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
 
-    class Index,Main,App,Panel,PlannerHook,PlannerModel,WalkingRoutes,Pathfinder,DomainTypes,Factories,MapView,MapContract,BuildingContract,GraphData,GraphLoader,Locations,Campus,Scene implemented
+    class Index,Main,App,Panel,PlannerHook,PlannerModel,WalkingRoutes,Pathfinder,RouteSteps,DomainTypes,Factories,MapView,MapContract,BuildingContract,GraphData,GraphLoader,Locations,Campus,Scene implemented
     class CreateAdapter,Adapter,BuildingLayer,MapLibre,Three,GPU integration
     class OSM,Tests,Tooling,Handbook,Context7,AgentRules external
-    class BrowserGPS,LocationProvider,NavigationSession,RouteSteps,ModelPipeline future
+    class BrowserGPS,LocationProvider,NavigationSession,ModelPipeline future
 ```
 
 ## How to read the diagram
@@ -131,6 +137,9 @@ flowchart TB
   MapLibre and the Three.js building layer at the application edge.
 - The walking graph is the routing authority. The 3D scene is visual content and
   cannot define an entrance or a safe walking path by itself.
+- `routeSteps.ts` is implemented domain logic. It converts selected edge
+  geometry into maneuvers and checkpoints; the gray navigation session that will
+  consume those checkpoints remains future work.
 - MapLibre and Three.js share the browser's WebGL graphics context. MapLibre owns
   the camera and geographic projection; Three.js draws the owned 3D geometry.
 - Gray nodes describe the approved next architecture, not current behavior.
