@@ -125,3 +125,34 @@ Commits:
 - Retained illustrative status for the path topology, edge distances,
   availability, direction, and accessibility because public map listings do
   not verify those operational route facts.
+
+## Step 13: Georeferenced 3D architecture spike
+
+Status: complete
+Implementation commit: `0281d4c` (`feat: add georeferenced 3d building spike`)
+
+- Added Three.js behind the existing MapLibre infrastructure boundary instead
+  of importing it into React or navigation-domain code.
+- Added one procedural calibration building anchored to the College of Idaho
+  campus center. Its geographic anchor is real, while its shape, dimensions,
+  heading, and identity are explicitly illustrative.
+- Used MapLibre's projected camera matrix and meter conversion so the Three.js
+  geometry stays attached to its latitude and longitude while the map moves.
+- Hid the building in 2D mode, restored it in 3D mode, and released its geometry,
+  material, and renderer resources during map cleanup.
+- Added focused lifecycle and adapter tests. The complete suite now contains 29
+  passing tests across 9 files.
+- Verified the real WebGL result with a headless Microsoft Edge screenshot: the
+  calibration building appeared over the campus map and the existing interface
+  remained visible.
+- Measured the production output. The deferred map chunk is now 1,545.66 kB
+  minified and 406.75 kB gzip, approximately 530 kB minified and 132 kB gzip
+  larger than the pre-Three.js build. This cost remains outside the initial app
+  chunk because `MapView` is lazy-loaded.
+- Added a maintained comprehensive Mermaid architecture diagram and recorded the
+  approved future GPS checkpoint and photogrammetry boundaries as not yet
+  implemented.
+- Added a project-scoped Context7 MCP configuration for current library
+  documentation, plus explicit fallback to official documentation.
+- Installed the first-party OpenAI Playwright, security best-practices, and
+  security threat-model skills locally for later approved steps.

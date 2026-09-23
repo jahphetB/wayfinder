@@ -1,6 +1,10 @@
 # Wayfinder
 
-Wayfinder is a responsive navigation-map prototype. It provides mock origin and destination search, calculated prototype walking routes, and a 2D/3D MapLibre map with an OpenStreetMap basemap without requiring a routing backend.
+Wayfinder is a responsive College of Idaho navigation-map prototype. It provides
+origin and destination search, locally calculated prototype walking routes, and
+a 2D/3D MapLibre map with an OpenStreetMap basemap. Its 3D mode now includes one
+geographically anchored, illustrative Three.js building used to validate the
+future owned-campus-model architecture without requiring a routing backend.
 
 ## Current progress
 
@@ -18,8 +22,10 @@ Wayfinder is a responsive navigation-map prototype. It provides mock origin and 
 | 10. Data verification workflow     | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.                             |
 | 11. Public-source corroboration    | Complete | Official campus naming and one independently mapped coordinate are recorded while operational route data remains illustrative. |
 | 12. Validated data replacement     | Complete | Current-library data is corrected and isolated as the single source of truth for future verified-data replacement.             |
+| 13. Georeferenced 3D spike         | Complete | MapLibre and Three.js share one map camera to render a tested, geographically anchored calibration building in 3D mode.        |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
+[comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
 [detailed progress log](docs/PROGRESS.md), and
 [AI skills inventory](docs/AI_SKILLS.md).
 
@@ -41,6 +47,11 @@ the browser and confirm that its computed height is greater than zero.
 The default street tiles come from OpenStreetMap for prototype use. Set
 `VITE_MAP_STYLE_URL` to a compatible hosted MapLibre style URL when a dedicated
 production tile provider is selected.
+
+The gold block visible in 3D mode is a procedural calibration building. Its
+campus coordinate is real, but its shape, dimensions, heading, and identity are
+illustrative. It proves that owned models can share MapLibre's geographic camera;
+it must not be interpreted as an accurate campus building.
 
 The map starts at The College of Idaho campus and limits ordinary panning to a
 campus-sized area. Current visible location data includes Cruzen-Murray Library,
@@ -73,7 +84,18 @@ troubleshooting, and the architectural decision log in non-technical language.
 - `src/features/map` contains the map contract and provider-specific infrastructure.
 - `src/composition` connects contracts to concrete implementations.
 
-This separation means route data can be replaced with a live routing service and MapLibre can be replaced with another map provider without rewriting UI code.
+This separation keeps the project-owned walking graph independent from map
+rendering. MapLibre handles geographic projection and camera behavior, while an
+isolated Three.js custom layer draws owned 3D content. Both can evolve without
+moving route calculation into a map provider.
+
+## Current documentation integration
+
+The project includes a project-scoped Context7 MCP connection in
+`.codex/config.toml`. Start a new Codex session from this trusted repository to
+make its current third-party library documentation tools available. Basic remote
+access is configured without storing an API key; an optional personal Context7
+key may be configured outside the repository for higher limits.
 
 ## GitHub publishing
 

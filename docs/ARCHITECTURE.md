@@ -105,39 +105,25 @@ turns map data into the pixels, labels, markers, and lines seen in the browser.
 OpenStreetMap raster tiles provide the current street background. A raster tile
 is a small map image; many tiles are placed together to form the visible map.
 
-The current “3D” mode tilts and rotates the camera. It does not yet contain
-three-dimensional buildings or terrain. Adding real building height or terrain
-later will require an appropriate map data source, not merely another button.
+The 3D mode now combines MapLibre with an isolated Three.js custom layer.
+Three.js is a browser 3D rendering library. The layer currently draws one gold
+calibration building at a real campus coordinate. The shape, dimensions,
+heading, and identity are illustrative; it exists to prove geographic anchoring
+and cleanup before the project invests in real building assets. Two-dimensional
+mode hides this geometry while preserving the route and map state.
 
 ## The architecture in one picture
 
-```text
-Person using the browser
-        |
-        v
-App.tsx - assembles the screen and owns shared map mode
-        |
-        +------------------------------+
-        |                              |
-        v                              v
-NavigationPanel.tsx                MapView.tsx
-shows inputs and summary           owns the map container
-        |                              |
-        v                              v
-useRoutePlanner.ts                 MapAdapter contract
-owns route-planner state              |
-        |                              v
-        v                         createMapAdapter.ts
-routePlanner.ts                       |
-searches and requests routes          v
-        |                         MapLibreMapAdapter.ts
-        v                              |
-mock locations and walking graph      v
-        |                         MapLibre GL JS
-        v                              |
-domain types and factories            v
-                                  OpenStreetMap tiles
-```
+The maintained [comprehensive Mermaid architecture diagram](ARCHITECTURE_DIAGRAM.md)
+shows the implemented runtime, project-owned data, external dependencies,
+quality systems, and approved future GPS and photogrammetry boundaries. Mermaid
+is a text format that GitHub turns into a navigable diagram; because the source
+is text, it can be reviewed and updated alongside code.
+
+The diagram uses solid connections for implemented behavior and dashed gray
+connections for approved work that has not been built. This distinction keeps
+the target architecture visible without suggesting that checkpoint navigation
+or photogrammetry already works.
 
 The arrows show dependency direction: a file higher in the picture may call or
 use a file below it. The lower-level files do not need to know how the whole
@@ -175,6 +161,9 @@ navigation interface.
     GeoJSON is a common text-based format for geographic shapes and points.
 12. MapLibre draws the route line and location circles, then moves the camera so
     the route fits inside the visible map.
+13. In 3D mode, `MapLibreGeoreferencedBuildingLayer.ts` reads MapLibre's current
+    projection matrix and uses Three.js to draw the calibration building at its
+    geographic anchor. In 2D mode, the adapter hides that building layer.
 
 Keeping this path explicit is important for debugging. If suggestions are
 wrong, inspect navigation data and model logic. If the route summary is right
@@ -185,12 +174,14 @@ the shared state in the hook and `App.tsx`.
 
 ```text
 YoteWayfinder/
+├── .codex/                       Project-scoped agent integrations
 ├── docs/                         Human-readable project records
 ├── public/                       Static browser assets; currently empty
 ├── src/                          Application source code
 │   ├── app/                      Screen assembly and global presentation
 │   ├── composition/              Chooses concrete service implementations
-│   ├── data/navigation/          Local sample content
+│   ├── data/map/                 Owned 3D scene descriptions
+│   ├── data/navigation/          Local route and campus content
 │   ├── domain/navigation/        Business meaning and validation
 │   ├── features/
 │   │   ├── map/                  Interactive-map capability
@@ -210,6 +201,20 @@ domain layer.
 Generated folders appear in the tree because they are important when running
 the project, but they are not source code. They should be recreated by tools
 instead of edited manually.
+
+### The `.codex` folder
+
+The `.codex` folder contains project-scoped configuration for Codex. Its
+`config.toml` registers the remote Context7 MCP server without storing an API
+key. MCP, or Model Context Protocol, is a standard way for an AI development
+tool to request information or actions from another tool. Context7 supplies
+current third-party library documentation; it does not run inside the finished
+Wayfinder website.
+
+Codex loads project-scoped configuration only for a trusted project and may
+require a new session after the configuration changes. A personal Context7 key
+may provide higher limits, but it belongs in user-level configuration or a
+secure environment setting and must never be committed here.
 
 ## Root files
 
@@ -250,11 +255,12 @@ Documentation must stay connected to reality. When implementation changes make
 a statement here incorrect, updating the relevant document is part of the code
 change, not a later optional task.
 
-| File                   | Importance and relationship to other files                                                                                                                                                                                  |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `docs/ARCHITECTURE.md` | This living handbook. It explains folders, files, data flow, change recipes, failure diagnosis, principles, and architectural decisions. Update it whenever a change alters boundaries or introduces an important new file. |
-| `docs/PROGRESS.md`     | A chronological record of completed project steps and verified fixes. It answers “what has been accomplished?” while this handbook answers “how is it organized and why?”                                                   |
-| `docs/AI_SKILLS.md`    | A branded inventory of AI capabilities, external technologies, and project-specific practices used during development. It makes AI-assisted work visible and auditable.                                                     |
+| File                           | Importance and relationship to other files                                                                                                                                                                                  |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/ARCHITECTURE.md`         | This living handbook. It explains folders, files, data flow, change recipes, failure diagnosis, principles, and architectural decisions. Update it whenever a change alters boundaries or introduces an important new file. |
+| `docs/ARCHITECTURE_DIAGRAM.md` | The comprehensive Mermaid dependency and data-flow diagram. It distinguishes implemented components from approved future components and must change with major architecture boundaries.                                     |
+| `docs/PROGRESS.md`             | A chronological record of completed project steps and verified fixes. It answers “what has been accomplished?” while this handbook answers “how is it organized and why?”                                                   |
+| `docs/AI_SKILLS.md`            | A branded inventory of AI capabilities, external technologies, and project-specific practices used during development. It makes AI-assisted work visible and auditable.                                                     |
 
 ## The `public` folder
 
@@ -315,9 +321,9 @@ job it needs performed, and the composition layer selects the vendor that will
 perform it. Changing providers should primarily change this desk and the new
 provider implementation, not every caller.
 
-| File                                  | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                               |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/composition/createMapAdapter.ts` | Creates the concrete MapLibre adapter and supplies its style. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
+| File                                  | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/composition/createMapAdapter.ts` | Creates the concrete MapLibre adapter, its style, and the georeferenced Three.js building layer. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
 
 ## The `src/domain` folder
 
@@ -357,6 +363,17 @@ The files construct records through domain factories. Sample data therefore
 cannot quietly bypass the rules expected from future live data. When an API
 replaces these files, its responses should be translated and validated at a
 similar boundary.
+
+### `src/data/map`
+
+This subfolder describes project-owned visual scene content separately from
+walking directions. The distinction is important: a building model can look
+correct while an entrance or path remains unverified. Visual geometry must
+never silently become routing authority.
+
+| File                                  | Importance and relationship to other files                                                                                                                                                                                                               |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/map/collegeOfIdahoScene.ts` | Defines the current procedural calibration building and its geographic anchor. `createMapAdapter.ts` supplies it to the Three.js layer. Its explicit `illustrative` status prevents the spike from being mistaken for a measured campus-building record. |
 
 ### `src/data/navigation`
 
@@ -451,20 +468,23 @@ A contract is a description of what a service must be able to do. It does not
 say how the service performs those actions. Components depend on this contract
 instead of a particular map provider.
 
-| File                                       | Importance and relationship to other files                                                                                                                                   |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/map/contracts/MapAdapter.ts` | Defines initialization, content updates, mode changes, and cleanup. It also defines content and initial-view shapes. Any replacement provider must implement this interface. |
+| File                                                  | Importance and relationship to other files                                                                                                                                                                 |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/map/contracts/MapAdapter.ts`            | Defines initialization, content updates, mode changes, and cleanup. It also defines content and initial-view shapes. Any replacement provider must implement this interface.                               |
+| `src/features/map/contracts/GeoreferencedBuilding.ts` | Defines a provider-independent building anchor, dimensions, heading, color, and verification status. It contains no MapLibre or Three.js types, so owned scene data is not locked to the current renderer. |
 
 ### `src/features/map/infrastructure`
 
 Infrastructure contains code that talks to an external technical system. In
-this project, MapLibre is that system. Provider-specific imports and commands
-belong here rather than in navigation or general UI code.
+this project, MapLibre and Three.js are those systems. Provider-specific imports
+and commands belong here rather than in navigation or general UI code.
 
-| File                                                         | Importance and relationship to other files                                                                                                                                                                                                                                                                    |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/map/infrastructure/MapLibreMapAdapter.ts`      | Implements `MapAdapter` with MapLibre. It configures the web worker, creates the map, converts routes and locations to GeoJSON, creates sources and layers, fits route bounds, changes camera pitch, and cleans up. A web worker is a browser process that performs work away from the main interface thread. |
-| `src/features/map/infrastructure/MapLibreMapAdapter.test.ts` | Uses a test substitute for MapLibre to verify initialization, 2D/3D behavior, cleanup, and clear failure when controls are used too early. This protects the provider boundary without opening a real browser map.                                                                                            |
+| File                                                                         | Importance and relationship to other files                                                                                                                                                                                                                                                                       |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/map/infrastructure/MapLibreMapAdapter.ts`                      | Implements `MapAdapter` with MapLibre. It configures the worker, creates the map, translates route content to GeoJSON, coordinates the 3D layer, changes camera mode, fits route bounds, and cleans up. A web worker is a separate browser execution context that prevents map work from blocking the interface. |
+| `src/features/map/infrastructure/MapLibreMapAdapter.test.ts`                 | Uses substitutes to verify initialization, 2D/3D behavior, custom-layer visibility, cleanup, readiness, and explicit failure when controls are used too early.                                                                                                                                                   |
+| `src/features/map/infrastructure/MapLibreGeoreferencedBuildingLayer.ts`      | Implements a MapLibre custom 3D layer with Three.js. It converts the building's latitude, longitude, altitude, heading, and meter dimensions into MapLibre coordinates; shares MapLibre's WebGL canvas; and disposes geometry, material, and renderer resources when removed.                                    |
+| `src/features/map/infrastructure/MapLibreGeoreferencedBuildingLayer.test.ts` | Uses a renderer substitute to prove the layer shares the map canvas, renders only while visible, requests a repaint when its visibility changes, and disposes the renderer. Actual WebGL appearance still requires a real-browser check.                                                                         |
 
 ## The `src/test` folder
 
@@ -688,6 +708,64 @@ the status `illustrative` unless the existing verification checklist can be
 completed. This avoids a speculative import framework while giving future data
 providers one clear, tested entry point.
 
+### Step 13: Georeferenced 3D architecture spike
+
+Step 13 proves the smallest uncertain part of the approved owned-map direction:
+a Three.js object measured in meters can stay attached to a real campus latitude
+and longitude while MapLibre moves, tilts, and rotates the camera. The result is
+the gold block visible near the campus center in 3D mode. It is a procedural
+model, meaning code creates its box geometry instead of downloading a model
+file. It is not a representation of a particular College of Idaho building.
+
+`GeoreferencedBuilding.ts` describes the object without importing a rendering
+library. `collegeOfIdahoScene.ts` supplies the illustrative dimensions and
+anchor. `createMapAdapter.ts` constructs the concrete Three.js layer and gives
+it to `MapLibreMapAdapter`. The adapter adds the layer after MapLibre loads and
+controls whether it is visible. This follows dependency inversion: general
+application code describes a building, while the infrastructure layer decides
+how Three.js and MapLibre draw it.
+
+`MapLibreGeoreferencedBuildingLayer.ts` converts the WGS84 coordinate into a
+MapLibre `MercatorCoordinate`, obtains the scale corresponding to one real-world
+meter at that latitude, and combines translation, scale, and rotation matrices.
+WGS84 is the geographic latitude-and-longitude system used by GPS. A matrix is
+a compact mathematical description of movement, rotation, scale, and camera
+projection in 3D space.
+
+MapLibre and Three.js share one WebGL context. A WebGL context is the browser's
+connection to graphics resources on the device's GPU. Sharing avoids a second
+canvas and keeps both renderers on the same camera, but it requires explicit
+state reset and cleanup. The layer therefore resets Three.js state before each
+draw and disposes its geometry, material, and renderer when MapLibre removes it.
+It does not request continuous repaints because the calibration building is
+static; this avoids unnecessary battery and graphics work.
+
+The layer is hidden when the user selects 2D and shown in 3D. The route remains
+owned by the existing graph and MapLibre GeoJSON layers. The block cannot define
+an entrance, walkway, or route. Later GLB assets will replace procedural geometry
+only after an approved capture, optimization, and performance process. GLB is a
+compact binary file format for delivering 3D models on the web.
+
+The production build measured the cost of the experiment. The deferred map
+chunk is 1,545.66 kB minified and 406.75 kB gzip, about 530 kB minified and
+132 kB gzip larger than before Three.js. Gzip is compression used during web
+delivery. This increase does not affect the initial application chunk because
+`MapView` remains lazy-loaded, but it is a meaningful baseline. Future work
+should load building assets separately, use compressed textures and geometry,
+and test real phones before adding many buildings.
+
+Automated tests verify the lifecycle and provider boundary. A headless Edge
+browser capture verified that the actual WebGL block appears on the campus map
+and the existing interface remains intact. The temporary screenshot and browser
+profiles were deleted after inspection; generated verification artifacts are
+not project source.
+
+The approved target beyond this spike is shown as dashed gray components in
+`ARCHITECTURE_DIAGRAM.md`: one-shot browser geolocation, a provider-independent
+location service, checkpoint navigation state, turn instructions, and an
+authorized photogrammetry-to-optimized-model pipeline. None of those components
+is implemented in Step 13.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -786,6 +864,28 @@ Do not put provider URLs inside `MapView.tsx`. Keeping them in composition
 preserves the adapter boundary. Confirm that any tile service permits expected
 usage and provides required attribution.
 
+### Change the 3D calibration building
+
+1. Open `src/data/map/collegeOfIdahoScene.ts` for its anchor, heading,
+   dimensions, or color.
+2. Keep `verificationStatus` as `illustrative` unless the building record has
+   approved geographic and dimensional evidence.
+3. Do not use the model as evidence for an entrance or walkable connection;
+   those facts belong in the walking graph.
+4. Update the layer test if lifecycle behavior changes.
+5. Run the production build and record a material bundle-size change.
+6. Inspect both 3D and 2D modes in a real browser. Confirm the object is anchored
+   while panning and hidden in 2D.
+
+When replacing the procedural block with GLB assets, add a separately approved
+asset-loading and performance step. Do not place a raw photogrammetry mesh in
+the browser application without simplification, compression, and device tests.
+Do not trace or digitize Google Maps content into project-owned geographic data
+or 3D assets. Google Maps may help identify a question that needs checking, but
+the correction must be independently confirmed through an authorized campus
+source, an open-license source, or the project's own field survey before it is
+recorded as verified data.
+
 ### Replace MapLibre in the future
 
 1. Leave domain and navigation files unchanged.
@@ -826,6 +926,23 @@ boundary and should be moved back behind the contract.
 The September 2026 invisible-map failure was caused by a zero-height map host:
 MapLibre vendor CSS overrode application positioning. A second usability issue
 came from a demonstration style that showed little street detail at campus zoom.
+
+### The map works but the 3D building is missing
+
+1. Confirm the 3D button is selected. The layer is deliberately hidden in 2D.
+2. Check the browser console for WebGL or Three.js errors.
+3. Confirm `createMapAdapter.ts` constructs
+   `MapLibreGeoreferencedBuildingLayer` with `collegeOfIdahoScenePrototype`.
+4. Confirm `MapLibreMapAdapter` adds the layer from its map-load callback.
+5. Check that the anchor remains inside `collegeOfIdahoCampus.bounds` and the
+   dimensions are positive meter values.
+6. If the object moves away from its map position while panning, inspect the
+   model transform and MapLibre projection-matrix use in the layer.
+7. Toggle 2D and 3D. If the camera changes but visibility does not, inspect
+   `setVisible` calls in `MapLibreMapAdapter.setMode`.
+
+If the map and routes work, begin diagnosis in the Three.js layer rather than
+the navigation domain. That separation is intentional.
 
 ### The map appears but streets do not
 
@@ -1084,6 +1201,46 @@ historical context.
   violate a contract. A different file format or remote provider can later be
   translated into this same dataset shape without changing application behavior.
 
+### ADR-021: Own campus 3D content while retaining MapLibre as renderer
+
+- **Status:** Accepted
+- **Decision:** Keep MapLibre for geographic projection, camera behavior, map
+  interaction, and overlays; render project-owned 3D campus content through an
+  isolated Three.js custom layer that shares MapLibre's WebGL context.
+- **Reason:** The project can own its geographic data, route calculation, and
+  visual assets without recreating mature map projection, touch interaction,
+  camera, and 2D-map behavior. The existing adapter already provides a safe
+  integration boundary.
+- **Consequence:** Three.js adds a measurable deferred bundle cost and requires
+  explicit shared-context state management and resource disposal. Visual models
+  remain separate from authoritative entrances and walking-graph data. A later
+  asset pipeline must optimize and benchmark every realistic model.
+
+### ADR-022: Use one-shot GPS checkpoints for future navigation
+
+- **Status:** Accepted target; not implemented
+- **Decision:** Request browser location when navigation starts and when the
+  person presses a future Next Turn control. Evaluate the reported position and
+  accuracy as confirmed, uncertain, or mismatched before advancing.
+- **Reason:** This reduces continuous location collection and battery use while
+  still checking progress at important route points.
+- **Consequence:** A future `LocationProvider`, navigation-session state machine,
+  detailed edge geometry, route steps, and campus field testing are required.
+  Poor-accuracy readings must be reported as inconclusive rather than as proof
+  that the person is in the wrong place.
+
+### ADR-023: Use current documentation through Context7 with official fallback
+
+- **Status:** Accepted for development workflow
+- **Decision:** Configure Context7 as a project-scoped MCP server and instruct
+  coding agents to use it for current third-party library/API documentation when
+  available, falling back to official primary documentation.
+- **Reason:** Mapping and 3D library APIs change, while a committed server URL
+  gives future sessions a consistent way to retrieve current documentation.
+- **Consequence:** Context7 is a development dependency rather than a website
+  runtime dependency. The repository stores no API key, and work must continue
+  from official documentation if the remote service is unavailable.
+
 ## Engineering principles in plain language
 
 ### Single responsibility
@@ -1136,16 +1293,24 @@ speculative frameworks for features that have not been approved.
 | Contract or interface | A checked description of operations or data another module must provide.                                      |
 | Dependency            | Code, data, or a service that another part requires.                                                          |
 | Domain                | The business meaning of the application, such as locations and routes.                                        |
+| Georeferencing        | Attaching data or a 3D object to a real location on Earth.                                                    |
 | GeoJSON               | A standard JSON format for geographic points, lines, and areas.                                               |
+| GLB                   | A compact binary file containing a web-ready 3D model and related data.                                       |
 | Hook                  | A React function that manages reusable state or lifecycle behavior.                                           |
 | Infrastructure        | Code communicating with an external technical system or provider.                                             |
 | Lazy loading          | Delaying download or initialization until a feature is needed.                                                |
+| Matrix                | A mathematical structure used to combine 3D position, rotation, scale, and camera projection.                 |
+| MCP                   | Model Context Protocol, a standard connection between an AI tool and an information or action service.        |
 | Mock data             | Local sample information used before or instead of a live backend.                                            |
+| Procedural model      | 3D geometry created by code instead of loaded from a model file.                                              |
 | Provider              | A library or service supplying a capability, such as map rendering or tiles.                                  |
 | Raster tile           | A small map image combined with neighboring images to form a map.                                             |
 | State                 | Information that can change while the application is being used.                                              |
+| Three.js              | The browser 3D library currently used to draw project-owned geometry inside MapLibre.                         |
 | TypeScript            | JavaScript with compile-time checks for expected data shapes.                                                 |
-| WebGL                 | Browser graphics technology used by MapLibre for fast map drawing.                                            |
+| WGS84                 | The world latitude-and-longitude coordinate reference used by GPS.                                            |
+| WebGL                 | Browser graphics technology used by MapLibre and Three.js for GPU drawing.                                    |
+| WebGL context         | The browser-managed connection to graphics state and resources on a device's GPU.                             |
 | Web worker            | A separate browser execution context that avoids blocking the interface.                                      |
 
 ## How to maintain this handbook
