@@ -112,4 +112,48 @@ describe('MapLibreMapAdapter', () => {
     expect(onReady).toHaveBeenCalledTimes(1)
     expect(onError).toHaveBeenCalledWith(error)
   })
+
+  it('adds the campus layer after load and hides it in 2D mode', () => {
+    const on = vi.fn()
+    const addLayer = vi.fn()
+    const setVisible = vi.fn()
+    const campusLayer = {
+      id: 'test-campus-layer',
+      type: 'custom' as const,
+      renderingMode: '3d' as const,
+      render: vi.fn(),
+      setVisible,
+    }
+    const mapInstance: MapLibreMapInstance = {
+      easeTo: vi.fn(),
+      on,
+      addSource: vi.fn(),
+      getSource: vi.fn(),
+      addLayer,
+      getLayer: vi.fn(),
+      fitBounds: vi.fn(),
+      remove: vi.fn(),
+    }
+    const adapter = new MapLibreMapAdapter({
+      style: 'https://example.test/style.json',
+      createMap: vi.fn(() => mapInstance),
+      campusLayer,
+    })
+
+    adapter.initialize(document.createElement('div'), {
+      center: { latitude: 43.6526, longitude: -116.676 },
+      zoom: 17,
+      mode: '3d',
+    })
+    const loadListener = on.mock.calls.find(
+      ([event]) => event === 'load',
+    )?.[1] as () => void
+
+    loadListener()
+    adapter.setMode('2d')
+
+    expect(addLayer).toHaveBeenCalledWith(campusLayer)
+    expect(setVisible).toHaveBeenNthCalledWith(1, true)
+    expect(setVisible).toHaveBeenNthCalledWith(2, false)
+  })
 })

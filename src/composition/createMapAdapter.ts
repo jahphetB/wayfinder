@@ -1,6 +1,8 @@
 import type { StyleSpecification } from 'maplibre-gl'
 
+import { collegeOfIdahoScenePrototype } from '@/data/map/collegeOfIdahoScene'
 import type { MapAdapterFactory } from '@/features/map/contracts/MapAdapter'
+import { MapLibreGeoreferencedBuildingLayer } from '@/features/map/infrastructure/MapLibreGeoreferencedBuildingLayer'
 import { MapLibreMapAdapter } from '@/features/map/infrastructure/MapLibreMapAdapter'
 
 const defaultMapStyle = {
@@ -27,4 +29,7 @@ const defaultMapStyle = {
 export const createMapAdapter: MapAdapterFactory = () =>
   new MapLibreMapAdapter({
     style: import.meta.env.VITE_MAP_STYLE_URL ?? defaultMapStyle,
+    campusLayer: new MapLibreGeoreferencedBuildingLayer(
+      collegeOfIdahoScenePrototype.building,
+    ),
   })

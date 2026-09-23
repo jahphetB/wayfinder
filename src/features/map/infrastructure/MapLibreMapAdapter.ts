@@ -1,6 +1,7 @@
 import {
   Map as MapLibreMap,
   setWorkerUrl,
+  type CustomLayerInterface,
   type EaseToOptions,
   type MapOptions,
 } from 'maplibre-gl'
@@ -35,6 +36,9 @@ export type MapLibreMapFactory = (options: MapOptions) => MapLibreMapInstance
 export interface MapLibreMapAdapterOptions {
   readonly style: NonNullable<MapOptions['style']>
   readonly createMap?: MapLibreMapFactory
+  readonly campusLayer?: CustomLayerInterface & {
+    setVisible(isVisible: boolean): void
+  }
 }
 
 setWorkerUrl(workerUrl)
@@ -46,6 +50,8 @@ export class MapLibreMapAdapter implements MapAdapter {
   private map: MapLibreMapInstance | undefined
 
   private isReady = false
+
+  private mode: MapMode = '3d'
 
   private content: MapContent = {
     origin: undefined,
@@ -68,6 +74,7 @@ export class MapLibreMapAdapter implements MapAdapter {
       throw new Error('Map adapter has already been initialized')
     }
 
+    this.mode = initialView.mode
     const maxBounds = initialView.maxBounds
       ? { maxBounds: mapLibreBounds(initialView.maxBounds) }
       : {}
@@ -82,6 +89,7 @@ export class MapLibreMapAdapter implements MapAdapter {
     })
     this.map.on('load', () => {
       this.isReady = true
+      this.syncCampusLayer()
       this.syncContent()
       callbacks?.onReady?.()
     })
@@ -93,6 +101,8 @@ export class MapLibreMapAdapter implements MapAdapter {
   }
 
   setMode(mode: MapMode): void {
+    this.mode = mode
+    this.options.campusLayer?.setVisible(mode === '3d')
     this.requireMap().easeTo({
       ...cameraForMode(mode),
       duration: 450,
@@ -197,6 +207,15 @@ export class MapLibreMapAdapter implements MapAdapter {
         { padding: 80, maxZoom: 16, duration: 700 },
       )
     }
+  }
+
+  private syncCampusLayer(): void {
+    const campusLayer = this.options.campusLayer
+    if (!campusLayer) return
+
+    const map = this.requireMap()
+    campusLayer.setVisible(this.mode === '3d')
+    if (!map.getLayer(campusLayer.id)) map.addLayer(campusLayer)
   }
 }
 
