@@ -21,9 +21,9 @@ describe('College of Idaho walking graph', () => {
   it('labels current path data as illustrative rather than verified', () => {
     expect(collegeOfIdahoWalkingGraphRelease.provenance).toEqual({
       sourceDescription:
-        'Published location names were checked against College of Idaho sources. Cruzen-Murray Library identity and coordinate were corroborated with Google Maps and OpenStreetMap-derived public map data. Path topology, distances, restrictions, and accessibility remain illustrative and are not campus-approved.',
+        'Published location names were checked against College of Idaho sources. Cruzen-Murray Library identity and coordinate were corroborated with Google Maps and OpenStreetMap-derived public map data. Prototype path shapes were aligned to visible OpenStreetMap footways on 2026-09-24, with a temporary connector from the off-walkway campus entrance. Distances, restrictions, accessibility, entrance connections, and physical accuracy remain illustrative and are not campus-approved.',
       verificationStatus: 'illustrative',
-      reviewedOn: '2026-09-20',
+      reviewedOn: '2026-09-24',
     })
   })
 
@@ -71,7 +71,7 @@ describe('College of Idaho walking graph', () => {
         'central-walkway-to-morrison-quadrangle',
         'morrison-quadrangle-to-cruzen-murray-library',
       ],
-      distanceMeters: 330,
+      distanceMeters: 490,
     })
   })
 
@@ -82,7 +82,7 @@ describe('College of Idaho walking graph', () => {
       'cruzen-murray-library',
     )
 
-    expect(route?.coordinates).toHaveLength(7)
+    expect(route?.coordinates).toHaveLength(27)
     expect(route?.steps).toHaveLength(3)
     expect(route?.steps.map((step) => step.checkpoint.kind)).toEqual([
       'turn',
@@ -92,6 +92,10 @@ describe('College of Idaho walking graph', () => {
     expect(route?.coordinates[0]).toEqual({
       latitude: 43.6522,
       longitude: -116.6799,
+    })
+    expect(route?.coordinates[1]).toEqual({
+      latitude: 43.6526291,
+      longitude: -116.6786006,
     })
     expect(route?.coordinates.at(-1)).toEqual({
       latitude: 43.6545,
