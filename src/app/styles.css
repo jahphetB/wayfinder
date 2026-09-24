@@ -365,6 +365,31 @@ form {
   font-size: 0.78rem;
   line-height: 1.4;
 }
+.checkpoint-navigation {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #bad3c2;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.checkpoint-navigation h2 {
+  font-size: 1.15rem;
+}
+.checkpoint-navigation h3 {
+  font-size: 1rem;
+}
+.prototype-notice {
+  color: #79420b;
+}
+.current-instruction {
+  padding: 0.8rem;
+  background: #edf4ee;
+  border-radius: 0.7rem;
+}
+.checkpoint-navigation button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
 @media (max-width: 760px) {
   .app-shell {
     padding: 1.15rem;

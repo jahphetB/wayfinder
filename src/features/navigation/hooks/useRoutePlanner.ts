@@ -21,6 +21,7 @@ const initialOrigin = findLocation('campus-entrance')
 const initialDestination = findLocation('cruzen-murray-library')
 
 export function useRoutePlanner() {
+  const [routeRevision, setRouteRevision] = useState(0)
   const [origin, setOrigin] = useState<Location | undefined>(initialOrigin)
   const [destination, setDestination] = useState<Location | undefined>(
     initialDestination,
@@ -71,11 +72,13 @@ export function useRoutePlanner() {
     setRoutePlanState({ status: 'empty' })
   }
   function planRoute(): void {
+    setRouteRevision((revision) => revision + 1)
     setRoutePlanState(
       determineRoutePlan(collegeOfIdahoWalkingGraph, origin, destination),
     )
   }
   return {
+    routeRevision,
     origin,
     destination,
     originQuery,

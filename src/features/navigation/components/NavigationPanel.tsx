@@ -2,6 +2,8 @@ import { useId, useState, type KeyboardEvent } from 'react'
 import type { Location, LocationSearchResult } from '@/domain/navigation/types'
 import { useRoutePlanner } from '../hooks/useRoutePlanner'
 import type { RoutePlanState } from '../model/routePlanner'
+import type { LocationProvider } from '../contracts/LocationProvider'
+import { CheckpointNavigation } from './CheckpointNavigation'
 
 interface FieldProps {
   readonly label: string
@@ -160,8 +162,10 @@ function RouteSummary({
 }
 export function NavigationPanel({
   planner,
+  locationProvider,
 }: {
   readonly planner: ReturnType<typeof useRoutePlanner>
+  readonly locationProvider: LocationProvider
 }) {
   return (
     <section className="navigation-panel">
@@ -209,6 +213,13 @@ export function NavigationPanel({
         origin={planner.origin}
         planState={planner.routePlanState}
       />
+      {planner.plannedRoute && (
+        <CheckpointNavigation
+          key={planner.routeRevision}
+          route={planner.plannedRoute}
+          provider={locationProvider}
+        />
+      )}
     </section>
   )
 }

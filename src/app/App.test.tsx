@@ -9,6 +9,30 @@ vi.mock('@/features/map/components/MapView', () => ({
 import { App } from './App'
 
 describe('App', () => {
+  it('mounts navigation only after preview and resets it when editing the route', async () => {
+    const user = userEvent.setup()
+    const requestCurrentLocation = vi.fn().mockResolvedValue({
+      coordinates: { latitude: 43.6522, longitude: -116.6799 },
+      accuracyMeters: 1,
+      capturedAtMilliseconds: Date.now(),
+    })
+    render(<App locationProvider={{ requestCurrentLocation }} />)
+    expect(
+      screen.queryByRole('button', { name: 'Start navigation' }),
+    ).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Preview route' }))
+    expect(requestCurrentLocation).not.toHaveBeenCalled()
+    await user.click(screen.getByRole('button', { name: 'Start navigation' }))
+    expect(screen.getByText('Step 1 of 3')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Preview route' }))
+    expect(
+      screen.getByRole('button', { name: 'Start navigation' }),
+    ).toBeInTheDocument()
+    await user.clear(screen.getByRole('combobox', { name: 'Start' }))
+    expect(
+      screen.queryByRole('region', { name: 'Checkpoint navigation' }),
+    ).not.toBeInTheDocument()
+  })
   it('renders the route-planning workspace', () => {
     render(<App />)
 
