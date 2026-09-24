@@ -1,8 +1,9 @@
 # Yote Wayfinder Architecture Diagram
 
 This is the maintained visual map of the project. Solid arrows and green or
-gold boxes represent implemented behavior. Dashed arrows show approved but
-unwired integrations, and gray boxes show components that have not been built.
+gold boxes represent implemented behavior. Dashed arrows are labeled to distinguish
+contract implementations, verification relationships, and planned integrations;
+gray boxes show components that have not been built.
 Update this diagram whenever a major module, data flow, external dependency, or
 architectural boundary changes.
 
@@ -20,6 +21,9 @@ flowchart TB
             PlannerHook[useRoutePlanner.ts<br/>shared planner state]
             PlannerModel[routePlanner.ts<br/>search and route outcomes]
             LocationContract[LocationProvider.ts<br/>one-shot provider contract]
+            NavigationControls[CheckpointNavigation.tsx<br/>Start navigation, Next Turn, recovery]
+            CheckpointHook[useCheckpointNavigation.ts<br/>request guard and session state]
+            BrowserProvider[BrowserLocationProvider.ts<br/>validated readings and typed failures]
         end
 
         subgraph NavigationDomain[Provider-independent navigation domain]
@@ -49,6 +53,7 @@ flowchart TB
 
     subgraph Composition[Application composition boundary]
         CreateAdapter[createMapAdapter.ts<br/>constructs concrete integrations]
+        CreateLocation[createLocationProvider.ts<br/>injects browser location provider]
     end
 
     subgraph OwnedData[Project-owned data]
@@ -61,6 +66,7 @@ flowchart TB
 
     subgraph ExternalRuntime[Current external runtime dependency]
         OSM[OpenStreetMap raster tiles<br/>prototype basemap]
+        BrowserGPS[Browser Geolocation API<br/>one-shot location requests]
     end
 
     subgraph QualityAndKnowledge[Development quality and project knowledge]
@@ -72,8 +78,6 @@ flowchart TB
     end
 
     subgraph ApprovedFuture[Approved future integrations - not implemented]
-        BrowserGPS[Browser Geolocation API<br/>one-shot location requests]
-        NavigationControls[Start navigation and Next Turn UI<br/>permission and recovery states]
         ModelPipeline[Authorized photos and photogrammetry<br/>optimized GLB and KTX2 assets]
     end
 
@@ -118,10 +122,13 @@ flowchart TB
     AgentRules -. governs changes .-> QualityAndKnowledge
     Context7 -. current dependency docs .-> QualityAndKnowledge
 
-    BrowserGPS -. planned implementation .-> LocationContract
-    LocationContract -. planned reading .-> NavigationSession
-    NavigationControls -. planned action .-> NavigationSession
-    NavigationSession -. planned display state .-> Panel
+    App --> CreateLocation --> BrowserProvider
+    Panel --> NavigationControls --> CheckpointHook
+    CheckpointHook --> LocationContract
+    BrowserProvider -. implements .-> LocationContract
+    BrowserProvider --> BrowserGPS
+    CheckpointHook --> NavigationSession
+    NavigationSession --> NavigationControls
     ModelPipeline -. planned replacement assets .-> Scene
 
     classDef implemented fill:#dff3e7,stroke:#155f3a,color:#082f20,stroke-width:2px
@@ -132,7 +139,10 @@ flowchart TB
     class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,BuildingContract,GraphData,GraphLoader,Locations,Campus,Scene implemented
     class CreateAdapter,Adapter,BuildingLayer,MapLibre,Three,GPU integration
     class OSM,Tests,Tooling,Handbook,Context7,AgentRules external
-    class BrowserGPS,NavigationControls,ModelPipeline future
+    class NavigationControls,CheckpointHook implemented
+    class CreateLocation,BrowserProvider integration
+    class BrowserGPS external
+    class ModelPipeline future
 ```
 
 ## How to read the diagram
@@ -146,9 +156,9 @@ flowchart TB
 - `routeSteps.ts` is implemented domain logic. It converts selected edge
   geometry into maneuvers and checkpoints. The implemented navigation session
   consumes those checkpoints without depending on a browser location API.
-- Location verification and session transitions are implemented and tested.
-  The dashed links show that browser GPS and visible navigation controls are not
-  connected yet.
+- Location verification, session transitions, the browser provider, and visible
+  navigation controls are connected. Requests happen only on explicit navigation
+  clicks; route revisions reset the session and discard late results.
 - MapLibre and Three.js share the browser's WebGL graphics context. MapLibre owns
   the camera and geographic projection; Three.js draws the owned 3D geometry.
 - Gray nodes describe the approved next architecture, not current behavior.

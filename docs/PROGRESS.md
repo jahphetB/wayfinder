@@ -220,3 +220,34 @@ Implementation commit: `630abbb` (`feat: add checkpoint location verification`)
 - Formatting, linting, strict type-checking, tests, and production build passed.
   Bundle sizes are unchanged because the new foundation is not connected to the
   visible browser application yet.
+
+## Step 16: Browser location and checkpoint navigation
+
+Status: complete
+Implementation commit: `1a57bb7` (`feat: add one-shot browser checkpoint navigation`)
+
+- Pushed the approved Step 15 commits (`630abbb`, `21231f6`) before this step.
+- Added an injected browser location provider with validated one-shot readings,
+  explicit permission/unavailable/timeout/unsupported/insecure-context failures,
+  high-accuracy requests, no cached readings, and a 15-second acquisition timeout.
+- Added Start navigation, current instruction/progress, Next Turn, retry, and
+  arrival states. No automatic location request, continuous tracking, or raw
+  reading storage was added. Existing illustrative-data warnings remain visible.
+- Preserved route/progress on failed checks, prevented simultaneous requests,
+  rejected reused timestamps, and ignored late results after route replacement.
+- Re-preview resets the session; map mode changes preserve it. Domain policy is
+  unchanged (20-meter radius / 30-second maximum age, pending field validation).
+- All 57 tests across 14 files passed. Formatting, lint, strict type-checking,
+  production build, and whitespace checks passed. The sandbox blocked a test
+  subprocess once; the approved unrestricted rerun passed.
+- Playwright browser checks used simulated coordinates: origin, uncertain turn,
+  successful retry, intermediate checkpoints, and arrival. Switching to 2D
+  preserved the active step. A 390-by-844 screenshot showed readable controls
+  and the map. Console: zero errors, zero warnings. These are not physical-phone
+  GPS or campus-path validation results.
+- Initial JavaScript: 244.83 kB minified / 76.58 kB gzip (+6.97 / +2.19 kB).
+  Deferred map chunk unchanged at 1,545.66 / 406.75 kB; existing large-chunk
+  warning remains. No dependency added; no device performance claim is made.
+- Updated the handbook's dedicated Step 16 guide, ADR-026, file inventory,
+  architecture diagram, README, and skills inventory. Preserved the user's
+  pre-existing README introduction edit without committing it.

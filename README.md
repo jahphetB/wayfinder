@@ -8,23 +8,24 @@ future owned-campus-model architecture without requiring a routing backend.
 
 ## Current progress
 
-| Step                               | Status   | Outcome                                                                                                                        |
-| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| 1. Project foundation              | Complete | React, TypeScript, quality checks, test tooling, and production builds are configured.                                         |
-| 2. Domain and map abstraction      | Complete | Provider-independent models, validated mock data, and a tested MapLibre boundary are in place.                                 |
-| 3. Navigation interface            | Complete | Responsive location inputs, autocomplete, swapping, route preview, and a visual map placeholder are ready.                     |
-| 4. Interactive map                 | Complete | MapLibre renders the selected route and locations, fits the camera, and switches between 2D and 3D views.                      |
-| 5. Application states and polish   | Complete | Clear route and map states, keyboard autocomplete, accessible status messaging, and map recovery are in place.                 |
-| 6. Testing, bundling, and delivery | Complete | Campus-focused mock data, map bounds, verification, bundle review, and delivery documentation are complete.                    |
-| 7. Routing foundation              | Complete | A validated, testable College of Idaho walking graph and shortest-path logic are ready for later UI integration.               |
-| 8. Graph route integration         | Complete | The planner now converts calculated walking paths into routes that the existing map can render.                                |
-| 9. Route constraints               | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.                    |
-| 10. Data verification workflow     | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.                             |
-| 11. Public-source corroboration    | Complete | Official campus naming and one independently mapped coordinate are recorded while operational route data remains illustrative. |
-| 12. Validated data replacement     | Complete | Current-library data is corrected and isolated as the single source of truth for future verified-data replacement.             |
-| 13. Georeferenced 3D spike         | Complete | MapLibre and Three.js share one map camera to render a tested, geographically anchored calibration building in 3D mode.        |
-| 14. Route steps and checkpoints    | Complete | Graph edges now carry detailed geometry, and calculated routes contain validated turn instructions and expected checkpoints.   |
-| 15. Location verification domain   | Complete | One-shot location readings can be conservatively classified, and tested session logic advances only after confirmed checks.    |
+| Step                               | Status   | Outcome                                                                                                                            |
+| ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Project foundation              | Complete | React, TypeScript, quality checks, test tooling, and production builds are configured.                                             |
+| 2. Domain and map abstraction      | Complete | Provider-independent models, validated mock data, and a tested MapLibre boundary are in place.                                     |
+| 3. Navigation interface            | Complete | Responsive location inputs, autocomplete, swapping, route preview, and a visual map placeholder are ready.                         |
+| 4. Interactive map                 | Complete | MapLibre renders the selected route and locations, fits the camera, and switches between 2D and 3D views.                          |
+| 5. Application states and polish   | Complete | Clear route and map states, keyboard autocomplete, accessible status messaging, and map recovery are in place.                     |
+| 6. Testing, bundling, and delivery | Complete | Campus-focused mock data, map bounds, verification, bundle review, and delivery documentation are complete.                        |
+| 7. Routing foundation              | Complete | A validated, testable College of Idaho walking graph and shortest-path logic are ready for later UI integration.                   |
+| 8. Graph route integration         | Complete | The planner now converts calculated walking paths into routes that the existing map can render.                                    |
+| 9. Route constraints               | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.                        |
+| 10. Data verification workflow     | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.                                 |
+| 11. Public-source corroboration    | Complete | Official campus naming and one independently mapped coordinate are recorded while operational route data remains illustrative.     |
+| 12. Validated data replacement     | Complete | Current-library data is corrected and isolated as the single source of truth for future verified-data replacement.                 |
+| 13. Georeferenced 3D spike         | Complete | MapLibre and Three.js share one map camera to render a tested, geographically anchored calibration building in 3D mode.            |
+| 14. Route steps and checkpoints    | Complete | Graph edges now carry detailed geometry, and calculated routes contain validated turn instructions and expected checkpoints.       |
+| 15. Location verification domain   | Complete | One-shot location readings can be conservatively classified, and tested session logic advances only after confirmed checks.        |
+| 16. Browser checkpoint navigation  | Complete | Explicit one-shot location requests power Start navigation, Next Turn, recovery messages, and arrival without continuous tracking. |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -62,10 +63,13 @@ and OpenStreetMap-derived public information. The walking-path topology,
 distances, closures, direction rules, and accessibility information are still
 illustrative prototype data, not official accessibility or walking directions.
 Calculated routes now retain each edge's detailed geometry and produce internal
-turn-by-turn steps. Those steps are domain data for later navigation work; they
-are not yet displayed as a Next Turn interface. The project now also contains a
-tested, provider-independent location-verification and navigation-session
-foundation. It does not yet request browser location or show navigation controls.
+turn-by-turn steps. Preview a route to see **Walk the route**, then use **Start
+navigation** and **Next Turn** for explicit location checks. The browser requests
+permission only when a navigation button is pressed. Uncertain, mismatched, or
+failed readings do not advance progress. Use HTTPS for phone testing; ordinary
+HTTP on a local-network address may block location. Paths remain illustrative:
+do not rely on this prototype for safe campus navigation.
+Read only this step in the [Step 16 handbook guide](docs/ARCHITECTURE.md#step-16-browser-location-and-checkpoint-navigation).
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

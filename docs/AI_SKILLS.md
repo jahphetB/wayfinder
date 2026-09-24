@@ -50,6 +50,30 @@ stale.
 
 ## Yote Wayfinder project practices
 
+### Step 16 usage record
+
+- **OPENAI / OpenAI Docs:** Checked official model-selection guidance for the
+  next-step recommendation; use one agent and increase reasoning only when the
+  observed task warrants it. This does not change the application's dependencies.
+
+- **OPENAI / Playwright:** Used the installed browser-testing skill with an
+  isolated session and emulated geolocation to check progress, uncertainty,
+  arrival, map-mode preservation, mobile layout, and console output. No real
+  user location was collected. Local screenshots remain ignored by Git.
+- **EXTERNAL / Context7 + primary documentation:** Queried current React cleanup
+  and state-reset documentation through Context7; consulted W3C Geolocation for
+  permission, accuracy, freshness, and timeout behavior. No new skill download
+  or dependency was necessary.
+- **YOTE / Approved-step workflow:** Applied the existing project memory skill
+  to preserve scope, isolated domain/provider boundaries, verification, focused
+  commits, and explicit push approval.
+- **YOTE / One-shot request lifecycle:** Applied an immediate duplicate-request
+  guard, late-result disposal, preview-keyed session reset, typed recovery
+  failures, and timestamp-reuse rejection. This is a documented project practice,
+  not a newly installed OpenAI skill.
+
+### Practice inventory
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |

@@ -67,6 +67,11 @@ checks whether the browser-ready application can be produced.
 
 ## What the application does today
 
+Previewed routes also offer explicit **Start navigation** and **Next Turn**
+location checks, instructions, retry messages, and arrival. See the
+[Step 16 guide](#step-16-browser-location-and-checkpoint-navigation) for the
+complete browser-location flow and its prototype limitations.
+
 The current version is focused on The College of Idaho in Caldwell, Idaho. It
 uses three campus-named sample locations and a small walking graph. The location
 and graph data live inside the project, so no routing server is required.
@@ -424,12 +429,21 @@ renders controls. This makes each area easier to test and reason about.
 ### `src/features/navigation/contracts`
 
 Contracts describe capabilities the feature may use without choosing a browser
-or service implementation. The contract exists now so a browser adapter can be
-added later without importing the Geolocation API into domain calculations.
+or service implementation. The browser adapter implements this contract without
+importing the Geolocation API into domain calculations.
 
-| File                                                    | Importance and relationship to other files                                                                                                                                                  |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/navigation/contracts/LocationProvider.ts` | Defines one asynchronous `requestCurrentLocation` operation returning the domain reading shape. A future browser adapter must construct a validated reading; no implementation is selected. |
+| File                                                         | Importance and relationship to other files                                                                                                          |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/navigation/contracts/LocationProvider.ts`      | Defines one asynchronous `requestCurrentLocation` operation returning the domain reading shape. The browser adapter constructs a validated reading. |
+| `src/features/navigation/contracts/LocationProviderError.ts` | Shares typed failure categories between the browser adapter, hook, and recovery interface.                                                          |
+
+### `src/features/navigation/infrastructure`
+
+This folder isolates browser location access from route calculations and screen
+presentation. `BrowserLocationProvider.ts` converts browser results to validated
+readings; `BrowserLocationProvider.test.ts` verifies that boundary with simulated
+callbacks. The [Step 16 file guide](#files-folders-and-connections) explains these
+files and their connections to composition, hooks, components, and tests in detail.
 
 ### `src/features/navigation/model`
 
@@ -881,10 +895,121 @@ and reported accuracy but not the raw coordinates from the person's reading.
 The immutable route remains present because it defines the next expected
 checkpoint.
 
-This step remains invisible in the current browser application. A later adapter
-must implement `LocationProvider` with browser geolocation, and a later UI step
-must handle permission denial, unavailable readings, uncertainty, mismatch,
-retry, current instructions, and the explicit Next Turn action.
+At the end of Step 15 this foundation was invisible in the browser. Step 16,
+documented next, connects the adapter and interface while retaining these rules.
+
+### Step 16: Browser location and checkpoint navigation
+
+This step connects Step 15's tested decision-making rules to the browser and
+the visible interface. Preview a route to reveal **Walk the route**. Press
+**Start navigation** at the selected starting place. Only a confirmed origin
+check reveals the first walking instruction. At each leg endpoint, **Next Turn**
+requests another reading; a confirmed result advances one leg, and the final
+confirmed checkpoint displays arrival. A checkpoint is an expected geographic
+position, not a guarantee that an actual campus path is safe or correctly mapped.
+
+The app does not request location merely because it opens, previews a route, or
+switches map modes. It does not call `watchPosition`, which would subscribe to
+repeated location updates. Instead, each deliberate button action calls
+`getCurrentPosition`, the browser's one-reading operation. Browser location may
+combine GPS, Wi-Fi, and other device signals; this is not guaranteed satellite
+GPS. The app does not save raw readings to storage or send them to its own
+server. The browser/operating system controls its underlying location service.
+
+#### Files, folders, and connections
+
+`src/features/navigation/infrastructure` is the new browser-facing folder.
+Infrastructure means code that talks to a concrete outside facility rather
+than deciding route rules. `BrowserLocationProvider.ts` implements the existing
+`LocationProvider` contract. Its small class holds the supplied browser facility
+and secure-context flag, converts browser callbacks into a Promise (a value that
+will arrive later), and validates the resulting reading with the existing domain
+factory. Its adjacent `.test.ts` file checks request settings, conversion, invalid
+readings, and permission/error mapping without obtaining anyone's real location.
+
+This separation makes replacing the source straightforward: implement the same
+one-shot contract and select it in `src/composition/createLocationProvider.ts`.
+Composition means assembling concrete parts at the application boundary. This
+factory supplies the browser facility and checks `isSecureContext`; constructing
+it does not request location. `App.tsx` creates a stable default provider and
+also accepts a supplied provider for tests. Supplying a dependency from outside
+is called dependency injection; the feature need not know where readings originate.
+
+`src/features/navigation/contracts/LocationProviderError.ts` defines stable error
+names shared by the browser implementation, hook, and interface. It is deliberately
+separate from browser numeric error codes. Permission denial, unavailable location,
+timeout, unsupported browsers, and insecure contexts therefore produce explicit
+messages without leaking browser-specific behavior into domain rules.
+
+`src/features/navigation/hooks/useCheckpointNavigation.ts` coordinates the
+request and immutable session. A hook is a React function that manages changing
+screen state. Immutable means an updated session replaces the old value rather
+than altering it in place. The hook delegates geographic decisions to
+`navigationSession.ts` and `locationVerification.ts`; it does not duplicate their
+calculations. A synchronous busy guard and disabled button prevent overlapping
+requests. It also rejects repeated or backward capture timestamps, preventing
+one reading from confirming successive checkpoints.
+
+`src/features/navigation/components/CheckpointNavigation.tsx` translates those
+states into instructions, a progress count, a status announcement, and the
+appropriate button. Its adjacent test file covers arrival, uncertainty,
+mismatch, stale/reused readings, failures, retries, and a late result after route
+replacement. `NavigationPanel.tsx` displays it only for a previewed route and
+passes the injected provider. `styles.css` supplies the notice, instruction, and
+disabled-button presentation. The existing map adapter remains unchanged.
+
+`useRoutePlanner.ts` now increments a route revision on each preview. A revision
+is a simple counter identifying this particular preview, even when the endpoints
+are unchanged. `NavigationPanel` uses it as React's `key`, causing the old
+navigation component to be removed and a fresh one created. Editing or swapping
+locations also removes the session until another route is previewed. The hook's
+cleanup ignores any result belonging to a removed component. This prevents a
+slow reading from advancing a replacement route. `App.test.tsx` checks the
+integration and reset behavior. Switching 2D/3D does not change the revision.
+
+#### Failure behavior and practical troubleshooting
+
+Uncertain or mismatched readings never advance the session. Neither do provider
+errors. The planned route stays available on the map while the person retries.
+Arrival removes the request button; there is no background tracking afterward.
+Re-previewing the route starts a new session instead of resuming previous progress.
+
+If permission is denied, change the browser's site permission and, if necessary,
+the device's location setting before retrying. A normal HTTP address on another
+device may not be a secure context: use HTTPS for phone testing. Localhost is
+appropriate for local desktop testing. Do not disable browser security settings
+to make the feature work. An embedded deployment can additionally be blocked by
+the host's location-permission policy.
+
+The request asks for high accuracy, disallows cached positions (`maximumAge: 0`),
+and sets a 15-second acquisition timeout. High accuracy is a request, not a
+promise. The timeout does not cover all time spent waiting for the person to
+answer a permission prompt. Answer that prompt if the button remains pending.
+Changing/re-previewing the route discards the old session; the browser API itself
+has no cancellation handle, so cleanup ignores its eventual result.
+
+The 20-meter checkpoint radius and 30-second reading-age policy remain unchanged
+and provisional. Accuracy is a statistical estimate, not a guaranteed boundary;
+passing this prototype's conservative check cannot prove physical safety. Dense
+buildings, device clocks, and weak signals can cause uncertainty. Paths, checkpoint
+positions, and distances still need campus review. Do not loosen the policy
+simply to force an illustrative route to pass.
+
+#### Verification and performance
+
+Automated tests use fake readings; browser checks use emulated coordinates, not
+the user's real location. These checks validate software behavior, not outdoor
+GPS accuracy, real mobile hardware, or correctness of campus walking directions.
+The production application chunk is 244.83 kB minified / 76.58 kB gzip, compared
+with 237.86 / 74.39 kB before integration. Gzip is transfer compression. The
+deferred map chunk remains 1,545.66 / 406.75 kB. No dependency was added, and no
+new map renderer or continuous location workload was introduced.
+
+Primary references: [W3C Geolocation](https://www.w3.org/TR/geolocation/),
+[React cleanup](https://react.dev/learn/synchronizing-with-effects), and
+[React state reset with keys](https://react.dev/learn/preserving-and-resetting-state).
+Context7 supplied current React documentation for this implementation. Consult
+the Step 16 progress entry for the final automated and browser check results.
 
 ## Safe change recipes
 
@@ -1414,6 +1539,21 @@ historical context.
   provisional and require field testing. The session advances only on confirmed
   results, stores no raw reading coordinates, and requires an explicit action
   for every verification. Browser permissions and UI recovery remain separate.
+
+### ADR-026: Connect one-shot location through an injected browser boundary
+
+- **Status:** Accepted and implemented in Step 16.
+- **Context:** Step 15's provider-neutral session needs real browser interaction
+  without coupling geographic rules to permissions or React.
+- **Decision:** Construct a browser provider in composition, inject it into the
+  navigation feature, and let a dedicated hook coordinate explicit user requests.
+  Reset navigation with each route preview and ignore late results after removal.
+- **Reason:** Domain tests remain deterministic, browser failure behavior is
+  isolated, and changing providers does not require changing route calculations.
+- **Consequences:** No continuous tracking, raw-coordinate persistence, new
+  dependency, automatic rerouting, or new claim of campus-data verification.
+  Browser permission prompts cannot be canceled by this API. Real-device field
+  validation remains necessary before relying on these directions.
 
 ## Engineering principles in plain language
 
