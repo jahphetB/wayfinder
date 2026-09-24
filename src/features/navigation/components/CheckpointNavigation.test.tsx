@@ -86,13 +86,24 @@ describe('CheckpointNavigation', () => {
     expect(requestCurrentLocation).not.toHaveBeenCalled()
     await user.click(screen.getByRole('button', { name: 'Start navigation' }))
     expect(await screen.findByText('Step 1 of 2')).toBeInTheDocument()
+    expect(
+      screen.getByRole('list', { name: 'Route leg colors' }),
+    ).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Next Turn' }))
     expect(await screen.findByText('Step 2 of 2')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Next Turn' }))
     expect(await screen.findByRole('status')).toHaveTextContent(
       'You have arrived',
     )
-    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    expect(requestCurrentLocation).toHaveBeenCalledTimes(3)
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    expect(screen.getByText('Step 2 of 2')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    expect(
+      screen.getByRole('button', { name: 'Start navigation' }),
+    ).toBeInTheDocument()
     expect(requestCurrentLocation).toHaveBeenCalledTimes(3)
   })
 

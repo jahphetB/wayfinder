@@ -1,4 +1,7 @@
 import { vi } from 'vitest'
+import { collegeOfIdahoWalkingGraph } from '@/data/navigation/collegeOfIdahoWalkingGraph'
+import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
+import type { NavigationSession } from '@/domain/navigation/types'
 
 import type { MapLibreMapInstance } from './MapLibreMapAdapter'
 import { MapLibreMapAdapter } from './MapLibreMapAdapter'
@@ -155,5 +158,94 @@ describe('MapLibreMapAdapter', () => {
     expect(addLayer).toHaveBeenCalledWith(campusLayer)
     expect(setVisible).toHaveBeenNthCalledWith(1, true)
     expect(setVisible).toHaveBeenNthCalledWith(2, false)
+  })
+
+  it('styles route legs by progress and focuses the camera along the current leg', () => {
+    const on = vi.fn()
+    const easeTo = vi.fn()
+    const addLayer = vi.fn()
+    const setRouteData = vi.fn()
+    const setLocationData = vi.fn()
+    const mapInstance: MapLibreMapInstance = {
+      easeTo,
+      on,
+      addSource: vi.fn(),
+      getSource: vi.fn((id: string) =>
+        id === 'yote-route'
+          ? { setData: setRouteData }
+          : { setData: setLocationData },
+      ),
+      addLayer,
+      getLayer: vi.fn(),
+      fitBounds: vi.fn(),
+      remove: vi.fn(),
+    }
+    const adapter = new MapLibreMapAdapter({
+      style: 'https://example.test/style.json',
+      createMap: vi.fn(() => mapInstance),
+    })
+    const route = findWalkingRoute(
+      collegeOfIdahoWalkingGraph,
+      'campus-entrance',
+      'cruzen-murray-library',
+    )
+    if (!route) throw new Error('Expected campus route fixture')
+    const navigationSession = {
+      route,
+      status: 'navigating',
+      currentStepIndex: 1,
+    } satisfies NavigationSession
+
+    adapter.initialize(document.createElement('div'), {
+      center: { latitude: 43.6526, longitude: -116.676 },
+      zoom: 17,
+      mode: '3d',
+    })
+    const loadListener = on.mock.calls.find(
+      ([event]) => event === 'load',
+    )?.[1] as () => void
+    loadListener()
+    adapter.setContent({
+      origin: undefined,
+      destination: undefined,
+      route,
+      navigationSession,
+    })
+
+    const latestRouteData = setRouteData.mock.calls.at(-1)?.[0] as {
+      features: Array<{ properties: { state: string } }>
+    }
+    expect(
+      latestRouteData.features.map(({ properties }) => properties.state),
+    ).toEqual(['completed', 'current', 'upcoming'])
+    const addedLayers = addLayer.mock.calls as unknown as Array<
+      [{ id: string; paint?: Record<string, unknown> }]
+    >
+    const routeLineLayer = addedLayers
+      .map(([layer]) => layer)
+      .find(({ id }) => id === 'yote-route-line')
+    expect(addedLayers.map(([layer]) => layer.id)).toContain(
+      'yote-route-casing',
+    )
+    expect(routeLineLayer?.paint?.['line-color']).toEqual(
+      expect.arrayContaining(['completed', 'current', 'upcoming']),
+    )
+    expect(easeTo).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        center: [
+          route.steps[1]!.coordinates[0]!.longitude,
+          route.steps[1]!.coordinates[0]!.latitude,
+        ],
+        zoom: 18,
+        pitch: 60,
+        offset: [0, 80],
+        duration: 700,
+      }),
+    )
+
+    adapter.setMode('2d')
+    expect(easeTo).toHaveBeenLastCalledWith(
+      expect.objectContaining({ pitch: 0, duration: 450 }),
+    )
   })
 })

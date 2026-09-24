@@ -393,9 +393,47 @@ form {
   background: #edf4ee;
   border-radius: 0.7rem;
 }
+.route-leg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.9rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+}
+.route-leg-legend li {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+.legend-swatch {
+  width: 1.4rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: #7b8881;
+}
+.legend-swatch.current {
+  background: #087a45;
+}
+.legend-swatch.upcoming {
+  background: #d9872f;
+}
 .checkpoint-navigation button:disabled {
   cursor: wait;
   opacity: 0.65;
+}
+.navigation-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.secondary-action {
+  border: 1px solid #155f3a;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: #155f3a;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
 }
 @media (max-width: 760px) {
   .app-shell {

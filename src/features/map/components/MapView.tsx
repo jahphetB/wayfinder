@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Location, MapMode, Route } from '@/domain/navigation/types'
+import type {
+  Location,
+  MapMode,
+  NavigationSession,
+  Route,
+} from '@/domain/navigation/types'
 import { createMapAdapter } from '@/composition/createMapAdapter'
 import { collegeOfIdahoCampus } from '@/data/navigation/collegeOfIdahoCampus'
 import type { MapAdapter } from '@/features/map/contracts/MapAdapter'
@@ -8,6 +13,7 @@ interface MapViewProps {
   readonly origin: Location | undefined
   readonly destination: Location | undefined
   readonly route: Route | undefined
+  readonly navigationSession: NavigationSession | undefined
   readonly mode: MapMode
   readonly onModeChange: (mode: MapMode) => void
 }
@@ -18,6 +24,7 @@ export function MapView({
   origin,
   destination,
   route,
+  navigationSession,
   mode,
   onModeChange,
 }: MapViewProps) {
@@ -67,14 +74,19 @@ export function MapView({
   }, [retryVersion])
 
   useEffect(() => {
-    adapterRef.current?.setContent({ origin, destination, route })
+    adapterRef.current?.setContent({
+      origin,
+      destination,
+      route,
+      navigationSession,
+    })
     if (route && window.matchMedia('(max-width: 760px)').matches) {
       containerRef.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       })
     }
-  }, [origin, destination, route, retryVersion])
+  }, [origin, destination, route, navigationSession, retryVersion])
   useEffect(() => {
     adapterRef.current?.setMode(mode)
   }, [mode, retryVersion])
@@ -121,9 +133,13 @@ export function MapView({
       <p className="map-view-note">
         {mapStatus === 'error'
           ? 'Fix the connection or graphics error, then try the map again.'
-          : route
-            ? 'Route preview is shown on the map.'
-            : 'Choose a route to show it on the map.'}
+          : navigationSession?.status === 'arrived'
+            ? 'Arrival is shown on the map.'
+            : navigationSession?.status === 'navigating'
+              ? 'The camera is following the current route leg.'
+              : route
+                ? 'Route preview is shown on the map.'
+                : 'Choose a route to show it on the map.'}
       </p>
     </section>
   )

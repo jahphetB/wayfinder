@@ -3,6 +3,7 @@ import { NavigationPanel } from '@/features/navigation/components/NavigationPane
 import { useRoutePlanner } from '@/features/navigation/hooks/useRoutePlanner'
 import { createLocationProvider } from '@/composition/createLocationProvider'
 import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
+import type { NavigationSession } from '@/domain/navigation/types'
 
 const MapView = lazy(async () => {
   const module = await import('@/features/map/components/MapView')
@@ -17,6 +18,12 @@ export function App({
   const [defaultLocationProvider] = useState(createLocationProvider)
   const planner = useRoutePlanner()
   const [mapMode, setMapMode] = useState<'2d' | '3d'>('3d')
+  const [navigationSession, setNavigationSession] =
+    useState<NavigationSession>()
+  const currentNavigationSession =
+    navigationSession?.route === planner.plannedRoute
+      ? navigationSession
+      : undefined
   return (
     <main className="app-shell">
       <header className="page-header">
@@ -33,6 +40,7 @@ export function App({
         <NavigationPanel
           planner={planner}
           locationProvider={locationProvider ?? defaultLocationProvider}
+          onNavigationSessionChange={setNavigationSession}
         />
         <Suspense
           fallback={
@@ -45,6 +53,7 @@ export function App({
             onModeChange={setMapMode}
             origin={planner.origin}
             route={planner.plannedRoute}
+            navigationSession={currentNavigationSession}
           />
         </Suspense>
       </section>

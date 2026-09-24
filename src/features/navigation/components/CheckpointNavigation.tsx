@@ -1,4 +1,5 @@
-import type { Route } from '@/domain/navigation/types'
+import { useEffect } from 'react'
+import type { NavigationSession, Route } from '@/domain/navigation/types'
 import type { LocationProvider } from '../contracts/LocationProvider'
 import type { LocationFailure } from '../contracts/LocationProviderError'
 import { useCheckpointNavigation } from '../hooks/useCheckpointNavigation'
@@ -19,14 +20,15 @@ const failureMessages: Record<LocationFailure, string> = {
 export function CheckpointNavigation({
   route,
   provider,
+  onSessionChange,
 }: {
   readonly route: Route
   readonly provider: LocationProvider
+  readonly onSessionChange?: (session: NavigationSession) => void
 }) {
-  const { session, pending, failure, checkLocation } = useCheckpointNavigation(
-    route,
-    provider,
-  )
+  const { session, pending, failure, checkLocation, goBack } =
+    useCheckpointNavigation(route, provider)
+  useEffect(() => onSessionChange?.(session), [onSessionChange, session])
   const step = route.steps[session.currentStepIndex]
   const verification = session.lastVerification
   const retry = Boolean(
@@ -88,27 +90,55 @@ export function CheckpointNavigation({
           <p>{step.instruction}</p>
         </div>
       )}
+      {!starting && (
+        <ul aria-label="Route leg colors" className="route-leg-legend">
+          <li>
+            <span className="legend-swatch completed" />
+            Completed
+          </li>
+          <li>
+            <span className="legend-swatch current" />
+            Current leg
+          </li>
+          <li>
+            <span className="legend-swatch upcoming" />
+            Upcoming
+          </li>
+        </ul>
+      )}
       <p role="status" aria-atomic="true">
         {message}
       </p>
-      {!arrived && (
-        <button
-          type="button"
-          className="route-action"
-          disabled={pending}
-          onClick={() => {
-            void checkLocation()
-          }}
-        >
-          {pending
-            ? 'Checking location…'
-            : retry
-              ? 'Try location again'
-              : starting
-                ? 'Start navigation'
-                : 'Next Turn'}
-        </button>
-      )}
+      <div className="navigation-actions">
+        {!starting && (
+          <button
+            type="button"
+            className="secondary-action"
+            disabled={pending}
+            onClick={goBack}
+          >
+            Back
+          </button>
+        )}
+        {!arrived && (
+          <button
+            type="button"
+            className="route-action"
+            disabled={pending}
+            onClick={() => {
+              void checkLocation()
+            }}
+          >
+            {pending
+              ? 'Checking location…'
+              : retry
+                ? 'Try location again'
+                : starting
+                  ? 'Start navigation'
+                  : 'Next Turn'}
+          </button>
+        )}
+      </div>
     </section>
   )
 }

@@ -90,6 +90,34 @@ export function verifyNavigationProgress(
   return Object.freeze({ session: nextSession, verification })
 }
 
+export function moveNavigationBack(
+  session: NavigationSession,
+): NavigationSession {
+  if (session.status === 'awaiting-start') return session
+
+  if (session.status === 'arrived') {
+    return Object.freeze({
+      route: session.route,
+      status: 'navigating',
+      currentStepIndex: session.route.steps.length - 1,
+    })
+  }
+
+  if (session.currentStepIndex === 0) {
+    return Object.freeze({
+      route: session.route,
+      status: 'awaiting-start',
+      currentStepIndex: 0,
+    })
+  }
+
+  return Object.freeze({
+    route: session.route,
+    status: 'navigating',
+    currentStepIndex: session.currentStepIndex - 1,
+  })
+}
+
 function advanceConfirmedSession(
   session: NavigationSession,
   verification: CheckpointVerification,

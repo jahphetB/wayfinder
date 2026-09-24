@@ -2,6 +2,7 @@ import type {
   Coordinates,
   Location,
   MapMode,
+  NavigationSession,
   Route,
 } from '@/domain/navigation/types'
 
@@ -37,6 +38,7 @@ export interface MapContent {
   readonly origin: Location | undefined
   readonly destination: Location | undefined
   readonly route: Route | undefined
+  readonly navigationSession: NavigationSession | undefined
 }
 
 export type MapAdapterFactory = () => MapAdapter

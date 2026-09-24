@@ -2,6 +2,7 @@ import { NavigationValidationError, createWalkingGraph } from './factories'
 import { createLocationReading } from './locationVerification'
 import {
   getExpectedNavigationCheckpoint,
+  moveNavigationBack,
   startNavigationSession,
   verifyNavigationProgress,
 } from './navigationSession'
@@ -138,5 +139,38 @@ describe('navigation session', () => {
         evaluatedAtMilliseconds,
       ),
     ).toThrow(NavigationValidationError)
+  })
+
+  it('moves back through route legs and from arrival without a location request', () => {
+    const initialSession = startNavigationSession(route)
+    const firstLeg = verifyNavigationProgress(
+      initialSession,
+      readingAt(originCoordinates),
+      evaluatedAtMilliseconds,
+    ).session
+    const secondLeg = verifyNavigationProgress(
+      firstLeg,
+      readingAt(firstStep.checkpoint.coordinates),
+      evaluatedAtMilliseconds,
+    ).session
+    const arrived = verifyNavigationProgress(
+      secondLeg,
+      readingAt(finalStep.checkpoint.coordinates),
+      evaluatedAtMilliseconds,
+    ).session
+
+    expect(moveNavigationBack(arrived)).toMatchObject({
+      status: 'navigating',
+      currentStepIndex: 1,
+    })
+    expect(moveNavigationBack(secondLeg)).toMatchObject({
+      status: 'navigating',
+      currentStepIndex: 0,
+    })
+    expect(moveNavigationBack(firstLeg)).toMatchObject({
+      status: 'awaiting-start',
+      currentStepIndex: 0,
+    })
+    expect(moveNavigationBack(initialSession)).toBe(initialSession)
   })
 })

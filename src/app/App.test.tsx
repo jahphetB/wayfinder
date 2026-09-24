@@ -1,9 +1,19 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
+import type { NavigationSession } from '@/domain/navigation/types'
 
 vi.mock('@/features/map/components/MapView', () => ({
-  MapView: () => <section aria-label="Interactive map" />,
+  MapView: ({
+    navigationSession,
+  }: {
+    navigationSession: NavigationSession | undefined
+  }) => (
+    <section
+      aria-label="Interactive map"
+      data-navigation-step={navigationSession?.currentStepIndex}
+    />
+  ),
 }))
 
 import { App } from './App'
@@ -24,6 +34,9 @@ describe('App', () => {
     expect(requestCurrentLocation).not.toHaveBeenCalled()
     await user.click(screen.getByRole('button', { name: 'Start navigation' }))
     expect(screen.getByText('Step 1 of 3')).toBeInTheDocument()
+    expect(
+      screen.getByRole('region', { name: 'Interactive map' }),
+    ).toHaveAttribute('data-navigation-step', '0')
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
     expect(
       screen.getByRole('button', { name: 'Start navigation' }),

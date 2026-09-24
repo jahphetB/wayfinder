@@ -1,5 +1,9 @@
 import { useId, useState, type KeyboardEvent } from 'react'
-import type { Location, LocationSearchResult } from '@/domain/navigation/types'
+import type {
+  Location,
+  LocationSearchResult,
+  NavigationSession,
+} from '@/domain/navigation/types'
 import { useRoutePlanner } from '../hooks/useRoutePlanner'
 import type { RoutePlanState } from '../model/routePlanner'
 import type { LocationProvider } from '../contracts/LocationProvider'
@@ -163,9 +167,11 @@ function RouteSummary({
 export function NavigationPanel({
   planner,
   locationProvider,
+  onNavigationSessionChange,
 }: {
   readonly planner: ReturnType<typeof useRoutePlanner>
   readonly locationProvider: LocationProvider
+  readonly onNavigationSessionChange: (session: NavigationSession) => void
 }) {
   return (
     <section className="navigation-panel">
@@ -218,6 +224,7 @@ export function NavigationPanel({
           key={planner.routeRevision}
           route={planner.plannedRoute}
           provider={locationProvider}
+          onSessionChange={onNavigationSessionChange}
         />
       )}
     </section>

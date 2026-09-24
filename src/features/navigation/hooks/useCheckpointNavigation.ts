@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   getExpectedNavigationCheckpoint,
+  moveNavigationBack,
   startNavigationSession,
   verifyNavigationProgress,
 } from '@/domain/navigation/navigationSession'
@@ -61,5 +62,11 @@ export function useCheckpointNavigation(
     }
   }
 
-  return { session, pending, failure, checkLocation }
+  function goBack(): void {
+    if (busy.current) return
+    setFailure(undefined)
+    setSession((currentSession) => moveNavigationBack(currentSession))
+  }
+
+  return { session, pending, failure, checkLocation, goBack }
 }

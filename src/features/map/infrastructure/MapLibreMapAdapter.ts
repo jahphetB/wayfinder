@@ -57,7 +57,10 @@ export class MapLibreMapAdapter implements MapAdapter {
     origin: undefined,
     destination: undefined,
     route: undefined,
+    navigationSession: undefined,
   }
+
+  private cameraStateKey: string | undefined
 
   private readonly createMap: MapLibreMapFactory
 
@@ -103,10 +106,15 @@ export class MapLibreMapAdapter implements MapAdapter {
   setMode(mode: MapMode): void {
     this.mode = mode
     this.options.campusLayer?.setVisible(mode === '3d')
-    this.requireMap().easeTo({
-      ...cameraForMode(mode),
-      duration: 450,
-    })
+    const session = this.content.navigationSession
+    if (session?.status === 'navigating' || session?.status === 'arrived') {
+      this.focusNavigationSession(session, 450)
+    } else {
+      this.requireMap().easeTo({
+        ...cameraForMode(mode),
+        duration: 450,
+      })
+    }
   }
 
   setContent(content: MapContent): void {
@@ -132,21 +140,20 @@ export class MapLibreMapAdapter implements MapAdapter {
     const map = this.requireMap()
     const routeData = {
       type: 'FeatureCollection',
-      features: this.content.route
-        ? [
-            {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'LineString',
-                coordinates: this.content.route.coordinates.map((point) => [
-                  point.longitude,
-                  point.latitude,
-                ]),
-              },
-            },
-          ]
-        : [],
+      features:
+        this.content.route?.steps.map((step, index) => ({
+          type: 'Feature',
+          properties: {
+            state: routeLegState(this.content.navigationSession, index),
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: step.coordinates.map((point) => [
+              point.longitude,
+              point.latitude,
+            ]),
+          },
+        })) ?? [],
     }
     const locations = [this.content.origin, this.content.destination].filter(
       (location): location is NonNullable<MapContent['origin']> =>
@@ -173,12 +180,51 @@ export class MapLibreMapAdapter implements MapAdapter {
     if (isGeoJsonSource(locationSource)) locationSource.setData(locationData)
     else
       map.addSource('yote-locations', { type: 'geojson', data: locationData })
+    if (!map.getLayer('yote-route-casing'))
+      map.addLayer({
+        id: 'yote-route-casing',
+        type: 'line',
+        source: 'yote-route',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': '#ffffff', 'line-width': 10 },
+      })
     if (!map.getLayer('yote-route-line'))
       map.addLayer({
         id: 'yote-route-line',
         type: 'line',
         source: 'yote-route',
-        paint: { 'line-color': '#155f3a', 'line-width': 6 },
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': [
+            'match',
+            ['get', 'state'],
+            'completed',
+            '#7b8881',
+            'current',
+            '#087a45',
+            'upcoming',
+            '#d9872f',
+            '#155f3a',
+          ],
+          'line-width': [
+            'match',
+            ['get', 'state'],
+            'current',
+            8,
+            'completed',
+            5,
+            6,
+          ],
+          'line-opacity': [
+            'match',
+            ['get', 'state'],
+            'completed',
+            0.72,
+            'upcoming',
+            0.82,
+            1,
+          ],
+        },
       })
     if (!map.getLayer('yote-location-points'))
       map.addLayer({
@@ -192,7 +238,20 @@ export class MapLibreMapAdapter implements MapAdapter {
           'circle-stroke-width': 3,
         },
       })
-    if (this.content.route) {
+    const session = this.content.navigationSession
+    const cameraProgress =
+      session && session.status !== 'awaiting-start'
+        ? `${session.status}:${session.currentStepIndex}`
+        : 'preview:-1'
+    const cameraStateKey = this.content.route
+      ? `${this.content.route.id}:${cameraProgress}`
+      : undefined
+    if (cameraStateKey === this.cameraStateKey) return
+    this.cameraStateKey = cameraStateKey
+
+    if (session?.status === 'navigating' || session?.status === 'arrived') {
+      this.focusNavigationSession(session, 700)
+    } else if (this.content.route) {
       const longitudes = this.content.route.coordinates.map(
         (point) => point.longitude,
       )
@@ -207,6 +266,41 @@ export class MapLibreMapAdapter implements MapAdapter {
         { padding: 80, maxZoom: 16, duration: 700 },
       )
     }
+  }
+
+  private focusNavigationSession(
+    session: NonNullable<MapContent['navigationSession']>,
+    duration: number,
+  ): void {
+    const route = session.route
+    const step =
+      session.status === 'arrived'
+        ? route.steps.at(-1)
+        : route.steps[session.currentStepIndex]
+    if (!step) return
+
+    const from =
+      session.status === 'arrived'
+        ? step.coordinates.at(-2)
+        : step.coordinates[0]
+    const to =
+      session.status === 'arrived'
+        ? step.coordinates.at(-1)
+        : step.coordinates[1]
+    const center =
+      session.status === 'arrived'
+        ? step.coordinates.at(-1)
+        : step.coordinates[0]
+    if (!from || !to || !center) return
+
+    this.requireMap().easeTo({
+      center: [center.longitude, center.latitude],
+      zoom: 18,
+      bearing: calculateBearing(from, to),
+      pitch: this.mode === '3d' ? 60 : 0,
+      offset: [0, 80],
+      duration,
+    })
   }
 
   private syncCampusLayer(): void {
@@ -235,6 +329,37 @@ function cameraForMode(mode: MapMode): EaseToOptions {
 
   return { bearing: 0, pitch: 0 }
 }
+
+function routeLegState(
+  session: MapContent['navigationSession'],
+  stepIndex: number,
+): 'preview' | 'completed' | 'current' | 'upcoming' {
+  if (!session || session.status === 'awaiting-start') return 'preview'
+  if (session.status === 'arrived') return 'completed'
+  if (stepIndex < session.currentStepIndex) return 'completed'
+  if (stepIndex === session.currentStepIndex) return 'current'
+  return 'upcoming'
+}
+
+function calculateBearing(
+  from: { latitude: number; longitude: number },
+  to: { latitude: number; longitude: number },
+): number {
+  const fromLatitude = degreesToRadians(from.latitude)
+  const toLatitude = degreesToRadians(to.latitude)
+  const longitudeDifference = degreesToRadians(to.longitude - from.longitude)
+  const y = Math.sin(longitudeDifference) * Math.cos(toLatitude)
+  const x =
+    Math.cos(fromLatitude) * Math.sin(toLatitude) -
+    Math.sin(fromLatitude) *
+      Math.cos(toLatitude) *
+      Math.cos(longitudeDifference)
+
+  return (radiansToDegrees(Math.atan2(y, x)) + 360) % 360
+}
+
+const degreesToRadians = (value: number): number => (value * Math.PI) / 180
+const radiansToDegrees = (value: number): number => (value * 180) / Math.PI
 
 function isGeoJsonSource(
   value: unknown,
