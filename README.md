@@ -26,6 +26,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 14. Route steps and checkpoints    | Complete | Graph edges now carry detailed geometry, and calculated routes contain validated turn instructions and expected checkpoints.       |
 | 15. Location verification domain   | Complete | One-shot location readings can be conservatively classified, and tested session logic advances only after confirmed checks.        |
 | 16. Browser checkpoint navigation  | Complete | Explicit one-shot location requests power Start navigation, Next Turn, recovery messages, and arrival without continuous tracking. |
+| 17. Prototype location simulator   | Complete | Navigation can be tested from anywhere by default; one environment setting restores physical browser-location checks later.        |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -41,6 +42,18 @@ npm run dev
 
 Open the exact local URL printed by Vite. If the default port is already in
 use, Vite selects another port such as `http://localhost:5174/`.
+
+Navigation uses clearly labeled simulated checkpoint locations by default, so
+you can test the entire interface without moving around campus or granting
+location permission. When physical campus testing begins, create `.env.local`
+in the project root with the following line, restart the development server,
+and confirm that the blue **Demo location is on** notice is gone:
+
+```text
+VITE_LOCATION_MODE=browser
+```
+
+Remove that setting, or set it to `prototype`, to return to safe simulation.
 
 MapLibre's vendor stylesheet is loaded before the application's stylesheet in
 `src/main.tsx`. This order lets the application preserve the map host's full
@@ -64,12 +77,15 @@ distances, closures, direction rules, and accessibility information are still
 illustrative prototype data, not official accessibility or walking directions.
 Calculated routes now retain each edge's detailed geometry and produce internal
 turn-by-turn steps. Preview a route to see **Walk the route**, then use **Start
-navigation** and **Next Turn** for explicit location checks. The browser requests
-permission only when a navigation button is pressed. Uncertain, mismatched, or
-failed readings do not advance progress. Use HTTPS for phone testing; ordinary
-HTTP on a local-network address may block location. Paths remain illustrative:
-do not rely on this prototype for safe campus navigation.
+navigation** and **Next Turn** to simulate the expected checkpoints from
+anywhere. The default prototype does not request your device location. Physical
+browser-location mode remains available through the environment setting above;
+in that mode uncertain, mismatched, or failed readings do not advance progress.
+Use HTTPS for later phone testing. Paths remain illustrative: do not rely on
+this prototype for safe campus navigation.
 Read only this step in the [Step 16 handbook guide](docs/ARCHITECTURE.md#step-16-browser-location-and-checkpoint-navigation).
+The [Step 17 handbook guide](docs/ARCHITECTURE.md#step-17-prototype-location-simulator)
+explains simulation and the future field-test switch.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

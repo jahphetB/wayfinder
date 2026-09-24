@@ -24,6 +24,7 @@ flowchart TB
             NavigationControls[CheckpointNavigation.tsx<br/>Start navigation, Next Turn, recovery]
             CheckpointHook[useCheckpointNavigation.ts<br/>request guard and session state]
             BrowserProvider[BrowserLocationProvider.ts<br/>validated readings and typed failures]
+            PrototypeProvider[PrototypeLocationProvider.ts<br/>expected-checkpoint simulation]
         end
 
         subgraph NavigationDomain[Provider-independent navigation domain]
@@ -53,7 +54,7 @@ flowchart TB
 
     subgraph Composition[Application composition boundary]
         CreateAdapter[createMapAdapter.ts<br/>constructs concrete integrations]
-        CreateLocation[createLocationProvider.ts<br/>injects browser location provider]
+        CreateLocation[createLocationProvider.ts<br/>selects prototype or browser provider]
     end
 
     subgraph OwnedData[Project-owned data]
@@ -122,10 +123,13 @@ flowchart TB
     AgentRules -. governs changes .-> QualityAndKnowledge
     Context7 -. current dependency docs .-> QualityAndKnowledge
 
-    App --> CreateLocation --> BrowserProvider
+    App --> CreateLocation
+    CreateLocation --> PrototypeProvider
+    CreateLocation --> BrowserProvider
     Panel --> NavigationControls --> CheckpointHook
     CheckpointHook --> LocationContract
     BrowserProvider -. implements .-> LocationContract
+    PrototypeProvider -. implements .-> LocationContract
     BrowserProvider --> BrowserGPS
     CheckpointHook --> NavigationSession
     NavigationSession --> NavigationControls
@@ -140,7 +144,7 @@ flowchart TB
     class CreateAdapter,Adapter,BuildingLayer,MapLibre,Three,GPU integration
     class OSM,Tests,Tooling,Handbook,Context7,AgentRules external
     class NavigationControls,CheckpointHook implemented
-    class CreateLocation,BrowserProvider integration
+    class CreateLocation,BrowserProvider,PrototypeProvider integration
     class BrowserGPS external
     class ModelPipeline future
 ```
@@ -159,6 +163,9 @@ flowchart TB
 - Location verification, session transitions, the browser provider, and visible
   navigation controls are connected. Requests happen only on explicit navigation
   clicks; route revisions reset the session and discard late results.
+- Composition selects the prototype simulator by default. It uses the expected
+  checkpoint supplied through the contract; `VITE_LOCATION_MODE=browser` selects
+  physical one-shot browser location for future field testing.
 - MapLibre and Three.js share the browser's WebGL graphics context. MapLibre owns
   the camera and geographic projection; Three.js draws the owned 3D geometry.
 - Gray nodes describe the approved next architecture, not current behavior.

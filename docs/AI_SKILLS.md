@@ -74,6 +74,19 @@ stale.
 
 ### Practice inventory
 
+#### Step 17 usage record
+
+- **OPENAI / Playwright:** Verified the default simulator in a real browser from
+  preview through arrival without granting location permission; checked the
+  explicit demo notice, instructions, map continuity, and browser console.
+- **YOTE / Replaceable test provider:** Developed a project-specific technique
+  that supplies each expected checkpoint through the existing provider boundary.
+  It enables interface testing from anywhere while preserving the real browser
+  adapter for later field work.
+- **YOTE / Environment-gated field mode:** Selected one typed Vite setting as the
+  reversible switch between prototype simulation and physical location. This
+  keeps test behavior visible and avoids scattered code edits.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |

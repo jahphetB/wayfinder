@@ -251,3 +251,32 @@ Implementation commit: `1a57bb7` (`feat: add one-shot browser checkpoint navigat
 - Updated the handbook's dedicated Step 16 guide, ADR-026, file inventory,
   architecture diagram, README, and skills inventory. Preserved the user's
   pre-existing README introduction edit without committing it.
+
+## Step 17: Prototype location simulator
+
+Status: complete
+Implementation commit: `6dc58ba` (`feat: add prototype checkpoint simulation`)
+
+- Revised the previously proposed field-validation step because physical campus
+  walking is intentionally postponed. The application remains a prototype.
+- Added a `PrototypeLocationProvider` that returns a fresh validated reading at
+  the session's expected checkpoint. It works in either route direction and does
+  not access browser geolocation.
+- Made simulation the default and added an explicit blue notice. Start and Next
+  Turn messages now say they simulate checkpoints rather than telling the person
+  to walk somewhere.
+- Added `VITE_LOCATION_MODE=browser` as the single future field-test switch.
+  Omitting it, or setting `prototype`, keeps simulation. Existing real-location
+  checks, accuracy policy, permission recovery, and privacy boundaries remain.
+- Expanded the provider request with expected coordinates. Browser infrastructure
+  ignores this testing context; only the simulator uses it. Domain verification
+  still decides whether a reading advances navigation.
+- Added focused simulator and end-to-end component tests. All 59 tests across 15
+  files passed, as did formatting, linting, type-checking, production build, and
+  whitespace checks. No dependency was added.
+- Browser verification completed the default route from origin through arrival
+  without granting location permission. The simulation notice and instructions
+  were visible; the console reported zero errors and zero warnings.
+- Production sizes remain effectively unchanged: initial JavaScript 244.86 kB
+  minified / 76.57 kB gzip; deferred map 1,545.66 / 406.75 kB. The existing map
+  chunk warning remains.

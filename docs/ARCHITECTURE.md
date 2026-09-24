@@ -296,7 +296,7 @@ assembles the screen, and `test` configures shared test behavior.
 | File                | Importance and relationship to other files                                                                                                                                                                   |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `src/main.tsx`      | The browser entry point. It finds the HTML root, starts React in strict mode, imports MapLibre CSS before application CSS, and renders `App`. If nothing appears, this is one of the first files to inspect. |
-| `src/vite-env.d.ts` | Teaches TypeScript about Vite and the optional `VITE_MAP_STYLE_URL` environment setting. Add future `VITE_...` settings here so their names and types are checked.                                           |
+| `src/vite-env.d.ts` | Teaches TypeScript about the optional `VITE_MAP_STYLE_URL` and typed `VITE_LOCATION_MODE` settings. Add future `VITE_...` settings here so their names and types are checked.                                |
 
 ## The `src/app` folder
 
@@ -328,9 +328,10 @@ job it needs performed, and the composition layer selects the vendor that will
 perform it. Changing providers should primarily change this desk and the new
 provider implementation, not every caller.
 
-| File                                  | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                  |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/composition/createMapAdapter.ts` | Creates the concrete MapLibre adapter, its style, and the georeferenced Three.js building layer. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
+| File                                        | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/composition/createMapAdapter.ts`       | Creates the concrete MapLibre adapter, its style, and the georeferenced Three.js building layer. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
+| `src/composition/createLocationProvider.ts` | Selects the prototype simulator by default or the browser adapter when `VITE_LOCATION_MODE=browser`, keeping that choice outside components and domain rules.                                                                                                                                                                                                                                               |
 
 ## The `src/domain` folder
 
@@ -441,9 +442,11 @@ importing the Geolocation API into domain calculations.
 
 This folder isolates browser location access from route calculations and screen
 presentation. `BrowserLocationProvider.ts` converts browser results to validated
-readings; `BrowserLocationProvider.test.ts` verifies that boundary with simulated
-callbacks. The [Step 16 file guide](#files-folders-and-connections) explains these
-files and their connections to composition, hooks, components, and tests in detail.
+readings; `PrototypeLocationProvider.ts` generates a reading at the expected
+checkpoint without accessing a device. Their adjacent tests verify both boundaries.
+The [Step 16 file guide](#files-folders-and-connections) explains the physical
+adapter, and the [Step 17 guide](#step-17-prototype-location-simulator) explains
+simulation and its connections.
 
 ### `src/features/navigation/model`
 
@@ -1011,6 +1014,52 @@ Primary references: [W3C Geolocation](https://www.w3.org/TR/geolocation/),
 Context7 supplied current React documentation for this implementation. Consult
 the Step 16 progress entry for the final automated and browser check results.
 
+### Step 17: Prototype location simulator
+
+Step 17 postpones physical campus testing without removing the real-location
+architecture. The application now selects `PrototypeLocationProvider` by default.
+When Start navigation or Next Turn is pressed, the hook obtains the session's
+expected checkpoint and passes its coordinates as request context. The simulator
+returns a fresh, accurate reading at that checkpoint, after which the unchanged
+domain verification and session state machine decide whether to advance.
+
+Request context means information supplied to a provider for one operation. The
+browser adapter deliberately ignores expected coordinates and reads the physical
+device, while the simulator uses them to create deterministic prototype data.
+Deterministic means the same route state produces the expected test outcome. The
+simulator maintains increasing timestamps even when clicks occur in the same
+millisecond, so the anti-reuse safeguard continues to work.
+
+The visible blue notice is an important safety boundary: it says demo location is
+active, the buttons simulate checkpoints, and the device location is not requested.
+Status text also uses the word “simulate.” This prevents a seated test from being
+mistaken for successful physical navigation. Routes, instructions, checkpoints,
+distances, and the 3D calibration building remain illustrative.
+
+To start future physical testing, add this root `.env.local` value and restart
+Vite:
+
+```text
+VITE_LOCATION_MODE=browser
+```
+
+The absence of this setting—or `VITE_LOCATION_MODE=prototype`—selects simulation.
+The setting is typed in `src/vite-env.d.ts`; a misspelled value is rejected by
+TypeScript when used in source. `.env.local` is intentionally ignored by Git, so
+one person's field-testing choice does not silently change everyone else's mode.
+Always confirm that the blue notice has disappeared before collecting field data.
+
+This design applies dependency inversion: high-level navigation depends on the
+`LocationProvider` contract, not either concrete source. The factory at the
+composition boundary is the only normal selection point. Automated tests cover
+the simulator directly and exercise the complete interface through arrival.
+Physical browser behavior remains covered separately with callback-based tests.
+
+Browser verification on the default configuration completed the entire route
+without a permission prompt and reported no console errors or warnings. It proves
+the prototype interface flow, not real GPS accuracy or campus route correctness.
+See the Step 17 progress entry for final check and bundle details.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -1554,6 +1603,20 @@ historical context.
   dependency, automatic rerouting, or new claim of campus-data verification.
   Browser permission prompts cannot be canceled by this API. Real-device field
   validation remains necessary before relying on these directions.
+
+### ADR-027: Default to explicit checkpoint simulation until field testing
+
+- **Status:** Accepted and implemented in Step 17.
+- **Context:** The project owner needs to test the complete navigation interface
+  from one campus location before physically visiting every checkpoint.
+- **Decision:** Default composition to a visibly labeled simulator that returns
+  the current expected checkpoint. Use `VITE_LOCATION_MODE=browser` as the only
+  normal switch to physical one-shot location.
+- **Reason:** This exercises the real UI, verification, and session transitions
+  without movement or location permission, while keeping provider replacement
+  centralized and reversible.
+- **Consequences:** Demo completion cannot validate GPS, paths, distances, or
+  safety. Field mode must be explicitly enabled and visibly confirmed later.
 
 ## Engineering principles in plain language
 
