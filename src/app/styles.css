@@ -381,6 +381,13 @@ form {
 .prototype-notice {
   color: #79420b;
 }
+
+.simulation-notice {
+  border-radius: 0.75rem;
+  background: #e8f2ff;
+  color: #173b64;
+  padding: 0.8rem 0.9rem;
+}
 .current-instruction {
   padding: 0.8rem;
   background: #edf4ee;

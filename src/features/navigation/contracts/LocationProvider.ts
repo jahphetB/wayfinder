@@ -1,5 +1,10 @@
-import type { LocationReading } from '@/domain/navigation/types'
+import type { Coordinates, LocationReading } from '@/domain/navigation/types'
+
+export interface LocationRequest {
+  readonly expectedCoordinates: Coordinates
+}
 
 export interface LocationProvider {
-  requestCurrentLocation(): Promise<LocationReading>
+  readonly mode?: 'browser' | 'prototype-simulation'
+  requestCurrentLocation(request: LocationRequest): Promise<LocationReading>
 }

@@ -34,14 +34,20 @@ export function CheckpointNavigation({
   )
   const arrived = session.status === 'arrived'
   const starting = session.status === 'awaiting-start'
+  const simulating = provider.mode === 'prototype-simulation'
   let message = starting
-    ? 'Go to your selected starting place, then start navigation to check your location.'
-    : 'When you reach the end of this walking leg, press Next Turn to check your location.'
+    ? simulating
+      ? 'Press Start navigation to simulate the selected starting checkpoint.'
+      : 'Go to your selected starting place, then start navigation to check your location.'
+    : simulating
+      ? 'Press Next Turn to simulate the next expected checkpoint.'
+      : 'When you reach the end of this walking leg, press Next Turn to check your location.'
   if (arrived)
     message = 'You have arrived. The destination location check passed.'
   else if (pending)
-    message =
-      'Checking your location… Respond to any browser permission prompt.'
+    message = simulating
+      ? 'Simulating the expected checkpoint…'
+      : 'Checking your location… Respond to any browser permission prompt.'
   else if (failure) message = failureMessages[failure]
   else if (verification?.status === 'mismatched') {
     message =
@@ -63,10 +69,17 @@ export function CheckpointNavigation({
         Prototype paths and checkpoints are illustrative and may not match
         campus walkways.
       </p>
-      <p>
-        Location is requested only when you press a navigation button. It is not
-        continuously tracked or saved by this app.
-      </p>
+      {simulating ? (
+        <p className="simulation-notice">
+          Demo location is on. Buttons simulate the expected checkpoint, so you
+          can test from anywhere. Your device location is not requested.
+        </p>
+      ) : (
+        <p>
+          Location is requested only when you press a navigation button. It is
+          not continuously tracked or saved by this app.
+        </p>
+      )}
       {!starting && !arrived && step && (
         <div className="current-instruction">
           <h3>

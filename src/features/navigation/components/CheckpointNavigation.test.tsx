@@ -5,6 +5,7 @@ import { createWalkingGraph } from '@/domain/navigation/factories'
 import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
 import type { Coordinates, LocationReading } from '@/domain/navigation/types'
 import { LocationProviderError } from '../contracts/LocationProviderError'
+import { PrototypeLocationProvider } from '../infrastructure/PrototypeLocationProvider'
 import { CheckpointNavigation } from './CheckpointNavigation'
 
 const origin = { latitude: 43.65, longitude: -116.68 }
@@ -34,6 +35,24 @@ function reading(
 }
 
 describe('CheckpointNavigation', () => {
+  it('labels simulation and can complete the route from anywhere', async () => {
+    const user = userEvent.setup()
+    render(
+      <CheckpointNavigation
+        route={route}
+        provider={new PrototypeLocationProvider()}
+      />,
+    )
+    expect(screen.getByText(/Demo location is on/)).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'simulate the selected starting checkpoint',
+    )
+    await user.click(screen.getByRole('button', { name: 'Start navigation' }))
+    await user.click(screen.getByRole('button', { name: 'Next Turn' }))
+    await user.click(screen.getByRole('button', { name: 'Next Turn' }))
+    expect(screen.getByRole('status')).toHaveTextContent('You have arrived')
+  })
+
   it('does not start navigation from an expired initial reading', async () => {
     const user = userEvent.setup()
     const requestCurrentLocation = vi.fn().mockResolvedValue({

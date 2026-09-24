@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import {
+  getExpectedNavigationCheckpoint,
   startNavigationSession,
   verifyNavigationProgress,
 } from '@/domain/navigation/navigationSession'
@@ -35,7 +36,11 @@ export function useCheckpointNavigation(
     setPending(true)
     setFailure(undefined)
     try {
-      const reading = await provider.requestCurrentLocation()
+      const checkpoint = getExpectedNavigationCheckpoint(session)
+      if (!checkpoint) return
+      const reading = await provider.requestCurrentLocation({
+        expectedCoordinates: checkpoint.coordinates,
+      })
       if (!mounted.current) return
       // A provider must not reuse one reading to confirm successive checkpoints.
       if (reading.capturedAtMilliseconds <= lastReadingTimestamp.current) {

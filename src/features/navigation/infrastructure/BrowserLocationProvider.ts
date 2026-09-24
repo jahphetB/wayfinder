@@ -1,16 +1,22 @@
 import { createLocationReading } from '@/domain/navigation/locationVerification'
 import type { LocationReading } from '@/domain/navigation/types'
-import type { LocationProvider } from '../contracts/LocationProvider'
+import type {
+  LocationProvider,
+  LocationRequest,
+} from '../contracts/LocationProvider'
 import { LocationProviderError } from '../contracts/LocationProviderError'
 
 export class BrowserLocationProvider implements LocationProvider {
+  readonly mode = 'browser' as const
+
   constructor(
     private readonly geolocation:
       Pick<Geolocation, 'getCurrentPosition'> | undefined,
     private readonly secureContext: boolean,
   ) {}
 
-  requestCurrentLocation(): Promise<LocationReading> {
+  requestCurrentLocation(request: LocationRequest): Promise<LocationReading> {
+    void request
     return new Promise((resolve, reject) => {
       if (!this.secureContext) {
         reject(new LocationProviderError('insecure-context'))
