@@ -53,6 +53,29 @@ describe('CheckpointNavigation', () => {
     expect(screen.getByRole('status')).toHaveTextContent('You have arrived')
   })
 
+  it('offers prototype outcomes and reports when changing one should reset the route', async () => {
+    const user = userEvent.setup()
+    const provider = new PrototypeLocationProvider()
+    const onPrototypeScenarioChange = vi.fn()
+    render(
+      <CheckpointNavigation
+        route={route}
+        provider={provider}
+        prototypeLocationScenarioController={provider}
+        onPrototypeScenarioChange={onPrototypeScenarioChange}
+      />,
+    )
+
+    const result = screen.getByLabelText('Demo checkpoint result')
+    await user.selectOptions(result, 'mismatched')
+
+    expect(provider.scenario).toBe('mismatched')
+    expect(onPrototypeScenarioChange).toHaveBeenCalledOnce()
+    expect(
+      screen.getByText('Changing this result restarts the route simulation.'),
+    ).toBeInTheDocument()
+  })
+
   it('does not start navigation from an expired initial reading', async () => {
     const user = userEvent.setup()
     const requestCurrentLocation = vi.fn().mockResolvedValue({

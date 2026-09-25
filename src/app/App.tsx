@@ -3,6 +3,7 @@ import { NavigationPanel } from '@/features/navigation/components/NavigationPane
 import { useRoutePlanner } from '@/features/navigation/hooks/useRoutePlanner'
 import { createLocationProvider } from '@/composition/createLocationProvider'
 import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
+import { getPrototypeLocationScenarioController } from '@/features/navigation/contracts/PrototypeLocationScenario'
 import type { NavigationSession } from '@/domain/navigation/types'
 
 const MapView = lazy(async () => {
@@ -20,6 +21,9 @@ export function App({
   const [mapMode, setMapMode] = useState<'2d' | '3d'>('3d')
   const [navigationSession, setNavigationSession] =
     useState<NavigationSession>()
+  const activeLocationProvider = locationProvider ?? defaultLocationProvider
+  const prototypeLocationScenarioController =
+    getPrototypeLocationScenarioController(activeLocationProvider)
   const currentNavigationSession =
     navigationSession?.route === planner.plannedRoute
       ? navigationSession
@@ -39,8 +43,11 @@ export function App({
       >
         <NavigationPanel
           planner={planner}
-          locationProvider={locationProvider ?? defaultLocationProvider}
+          locationProvider={activeLocationProvider}
           onNavigationSessionChange={setNavigationSession}
+          {...(prototypeLocationScenarioController
+            ? { prototypeLocationScenarioController }
+            : {})}
         />
         <Suspense
           fallback={

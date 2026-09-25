@@ -84,4 +84,36 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
     expect(screen.getByText('Walking route')).toBeInTheDocument()
   })
+
+  it('lets prototype users choose a recoverable checkpoint outcome without moving', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Preview route' }))
+    await user.selectOptions(
+      screen.getByLabelText('Demo checkpoint result'),
+      'mismatched',
+    )
+    await user.click(screen.getByRole('button', { name: 'Start navigation' }))
+
+    expect(screen.getByRole('status')).toHaveTextContent('wrong location')
+    expect(
+      screen.getByRole('button', { name: 'Try location again' }),
+    ).toBeEnabled()
+  })
+
+  it('searches the added building destinations', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const destinationInput = screen.getByRole('combobox', {
+      name: 'Destination',
+    })
+    await user.clear(destinationInput)
+    await user.type(destinationInput, 'Sterry')
+
+    expect(
+      screen.getByRole('option', { name: 'Sterry Hall' }),
+    ).toBeInTheDocument()
+  })
 })

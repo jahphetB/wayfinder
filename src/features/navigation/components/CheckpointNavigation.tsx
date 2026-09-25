@@ -2,6 +2,12 @@ import { useEffect } from 'react'
 import type { NavigationSession, Route } from '@/domain/navigation/types'
 import type { LocationProvider } from '../contracts/LocationProvider'
 import type { LocationFailure } from '../contracts/LocationProviderError'
+import {
+  isPrototypeLocationScenario,
+  prototypeLocationScenarios,
+  type PrototypeLocationScenario,
+  type PrototypeLocationScenarioController,
+} from '../contracts/PrototypeLocationScenario'
 import { useCheckpointNavigation } from '../hooks/useCheckpointNavigation'
 
 const failureMessages: Record<LocationFailure, string> = {
@@ -21,10 +27,14 @@ export function CheckpointNavigation({
   route,
   provider,
   onSessionChange,
+  prototypeLocationScenarioController,
+  onPrototypeScenarioChange,
 }: {
   readonly route: Route
   readonly provider: LocationProvider
   readonly onSessionChange?: (session: NavigationSession) => void
+  readonly prototypeLocationScenarioController?: PrototypeLocationScenarioController
+  readonly onPrototypeScenarioChange?: () => void
 }) {
   const { session, pending, failure, checkLocation, goBack } =
     useCheckpointNavigation(route, provider)
@@ -72,10 +82,38 @@ export function CheckpointNavigation({
         campus walkways.
       </p>
       {simulating ? (
-        <p className="simulation-notice">
-          Demo location is on. Buttons simulate the expected checkpoint, so you
-          can test from anywhere. Your device location is not requested.
-        </p>
+        <>
+          <p className="simulation-notice">
+            Demo location is on. Buttons simulate the selected checkpoint
+            result, so you can test from anywhere. Your device location is not
+            requested.
+          </p>
+          {prototypeLocationScenarioController && (
+            <label className="prototype-scenario-control">
+              Demo checkpoint result
+              <select
+                aria-label="Demo checkpoint result"
+                aria-describedby="prototype-scenario-help"
+                onChange={(event) => {
+                  const scenario = event.target.value
+                  if (!isPrototypeLocationScenario(scenario)) return
+                  prototypeLocationScenarioController.setScenario(scenario)
+                  onPrototypeScenarioChange?.()
+                }}
+                value={prototypeLocationScenarioController.scenario}
+              >
+                {prototypeLocationScenarios.map((scenario) => (
+                  <option key={scenario} value={scenario}>
+                    {scenarioLabels[scenario]}
+                  </option>
+                ))}
+              </select>
+              <span id="prototype-scenario-help">
+                Changing this result restarts the route simulation.
+              </span>
+            </label>
+          )}
+        </>
       ) : (
         <p>
           Location is requested only when you press a navigation button. It is
@@ -141,4 +179,12 @@ export function CheckpointNavigation({
       </div>
     </section>
   )
+}
+
+const scenarioLabels: Record<PrototypeLocationScenario, string> = {
+  expected: 'Expected checkpoint — continue',
+  'uncertain-accuracy': 'Uncertain accuracy — stay on this step',
+  mismatched: 'Wrong location — stay on this step',
+  stale: 'Stale reading — stay on this step',
+  unavailable: 'Location unavailable — stay on this step',
 }

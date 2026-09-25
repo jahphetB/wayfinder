@@ -388,6 +388,35 @@ form {
   color: #173b64;
   padding: 0.8rem 0.9rem;
 }
+.prototype-scenario-control {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.8rem 0;
+  color: #284e3c;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.prototype-scenario-control select {
+  min-height: 2.7rem;
+  padding: 0 0.7rem;
+  border: 1px solid #aac9b3;
+  border-radius: 0.65rem;
+  color: #173b64;
+  background: #f8fcff;
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.prototype-scenario-control span {
+  color: #54705f;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  line-height: 1.4;
+  text-transform: none;
+}
 .current-instruction {
   padding: 0.8rem;
   background: #edf4ee;

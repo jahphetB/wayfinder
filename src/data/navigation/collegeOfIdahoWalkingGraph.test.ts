@@ -63,16 +63,22 @@ describe('College of Idaho walking graph', () => {
         .map((location) => location.label),
     ).toEqual(['Blatchley Hall', 'Simplot Dining Hall', 'Sterry Hall'])
 
-    expect(
-      findWalkingRoute(
-        collegeOfIdahoWalkingGraph,
-        'campus-entrance',
-        'simplot-dining-hall',
-      ),
-    ).toMatchObject({
-      originLocationId: 'campus-entrance',
-      destinationLocationId: 'simplot-dining-hall',
-    })
+    for (const destinationLocationId of [
+      'blatchley-hall',
+      'simplot-dining-hall',
+      'sterry-hall',
+    ]) {
+      expect(
+        findWalkingRoute(
+          collegeOfIdahoWalkingGraph,
+          'campus-entrance',
+          destinationLocationId,
+        ),
+      ).toMatchObject({
+        originLocationId: 'campus-entrance',
+        destinationLocationId,
+      })
+    }
   })
 
   it('provides a shorter connected path to the current library', () => {
