@@ -28,6 +28,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 16. Browser checkpoint navigation  | Complete | Explicit one-shot location requests power Start navigation, Next Turn, recovery messages, and arrival without continuous tracking. |
 | 17. Prototype location simulator   | Complete | Navigation can be tested from anywhere by default; one environment setting restores physical browser-location checks later.        |
 | 18. Turn-focused map guidance      | Complete | The prototype follows mapped footways, distinguishes route legs, follows turns with the camera, and supports Back navigation.      |
+| 19. Prototype scenarios and places | Complete | Three more destinations are available, and selectable demo outcomes test recovery behavior without physical movement.              |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -77,11 +78,13 @@ and OpenStreetMap-derived public information. The walking-path topology,
 distances, closures, direction rules, and accessibility information are still
 illustrative prototype data, not official accessibility or walking directions.
 Calculated routes now retain each edge's detailed geometry and produce internal
-turn-by-turn steps. Preview a route to see **Walk the route**, then use **Start
-navigation** and **Next Turn** to simulate the expected checkpoints from
-anywhere. The default prototype does not request your device location. Physical
-browser-location mode remains available through the environment setting above;
-in that mode uncertain, mismatched, or failed readings do not advance progress.
+turn-by-turn steps. You can preview Campus Entrance routes to Cruzen-Murray
+Library, Blatchley Hall, Simplot Dining Hall, or Sterry Hall. In **Walk the
+route**, use **Demo checkpoint result** to test an expected, uncertain, wrong,
+stale, or unavailable reading from anywhere; changing the result restarts that
+route simulation. The default prototype does not request your device location.
+Physical browser-location mode remains available through the environment setting
+above; in that mode uncertain, mismatched, or failed readings do not advance progress.
 Use HTTPS for later phone testing. Paths remain illustrative: do not rely on
 this prototype for safe campus navigation.
 Read only this step in the [Step 16 handbook guide](docs/ARCHITECTURE.md#step-16-browser-location-and-checkpoint-navigation).
@@ -89,6 +92,8 @@ The [Step 17 handbook guide](docs/ARCHITECTURE.md#step-17-prototype-location-sim
 explains simulation and the future field-test switch.
 The [Step 18 handbook guide](docs/ARCHITECTURE.md#step-18-turn-focused-map-guidance)
 explains walkway alignment, route colors, camera behavior, and Back navigation.
+The [Step 19 handbook guide](docs/ARCHITECTURE.md#step-19-prototype-scenarios-and-limited-destination-expansion)
+explains scenario testing and the three-destination scope.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

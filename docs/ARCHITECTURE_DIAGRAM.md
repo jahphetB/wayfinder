@@ -21,10 +21,11 @@ flowchart TB
             PlannerHook[useRoutePlanner.ts<br/>shared planner state]
             PlannerModel[routePlanner.ts<br/>search and route outcomes]
             LocationContract[LocationProvider.ts<br/>one-shot provider contract]
+            ScenarioContract[PrototypeLocationScenario.ts<br/>optional test-result capability]
             NavigationControls[CheckpointNavigation.tsx<br/>Start navigation, Next Turn, recovery]
             CheckpointHook[useCheckpointNavigation.ts<br/>request guard and session state]
             BrowserProvider[BrowserLocationProvider.ts<br/>validated readings and typed failures]
-            PrototypeProvider[PrototypeLocationProvider.ts<br/>expected-checkpoint simulation]
+            PrototypeProvider[PrototypeLocationProvider.ts<br/>selectable checkpoint simulation]
         end
 
         subgraph NavigationDomain[Provider-independent navigation domain]
@@ -129,7 +130,10 @@ flowchart TB
     App --> CreateLocation
     CreateLocation --> PrototypeProvider
     CreateLocation --> BrowserProvider
+    App -->|optional simulator capability| Panel
     Panel --> NavigationControls --> CheckpointHook
+    NavigationControls --> ScenarioContract
+    PrototypeProvider -. implements .-> ScenarioContract
     CheckpointHook --> LocationContract
     BrowserProvider -. implements .-> LocationContract
     PrototypeProvider -. implements .-> LocationContract
@@ -169,6 +173,9 @@ flowchart TB
 - Composition selects the prototype simulator by default. It uses the expected
   checkpoint supplied through the contract; `VITE_LOCATION_MODE=browser` selects
   physical one-shot browser location for future field testing.
+- The prototype provider additionally offers a narrow scenario capability. App
+  exposes it only when present; choosing a demo outcome restarts the keyed
+  simulation but still passes its reading through normal verification.
 - The navigation component reports immutable session progress to App. App passes
   it to MapView, and the adapter converts it into completed/current/upcoming leg
   styling and a camera focused along the current travel direction.

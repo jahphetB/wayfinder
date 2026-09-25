@@ -101,6 +101,21 @@ stale.
   pattern that projects immutable domain session state into completed, current,
   and upcoming map legs without moving navigation rules into MapLibre.
 
+#### Step 19 usage record
+
+- **OPENAI / Playwright:** Used a real local browser to select Sterry Hall,
+  preview its route, inspect the scenario control, verify wrong-location
+  recovery, capture a screenshot, and confirm zero console errors or warnings.
+- **EXTERNAL / Official campus map:** Confirmed the published building labels
+  for Blatchley Hall, Simplot Dining Hall, and Sterry Hall.
+- **EXTERNAL / OpenStreetMap Overpass:** Read public building centers and nearby
+  footway shapes for those three prototype additions. This supports displayed
+  geometry only; it does not verify entrances, access, distance, or safety.
+- **YOTE / Optional prototype capability:** Developed a narrow controller that
+  exposes simulator outcomes only to prototype UI. It preserves the ordinary
+  location-provider contract and routes each synthetic reading through the same
+  domain verification as a real reading.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |

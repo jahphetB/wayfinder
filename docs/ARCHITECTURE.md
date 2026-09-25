@@ -396,14 +396,14 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                           |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes.                                  |
-| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                       |
-| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, detailed edge geometry, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code. The current path shapes remain illustrative. |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                         |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates the intended College of Idaho shortest path, confirms every searchable mock location is represented by a graph node, and verifies the graph is labeled illustrative.                                                                                                    |
-| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes.                                                                                                                                                                 |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                                                                                      |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, detailed edge geometry, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code. Step 19 adds Blatchley Hall, Simplot Dining Hall, and Sterry Hall at publicly corroborated building centers; their path shapes and building connectors remain illustrative. |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                                                                                        |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates intended shortest paths, confirms every searchable mock location is represented by a graph node, checks all three added destinations can be reached, and verifies the graph is labeled illustrative.                                                                                                                                                                                                   |
+| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                                                                               |
 
 ## The `src/features` folder
 
@@ -433,17 +433,20 @@ Contracts describe capabilities the feature may use without choosing a browser
 or service implementation. The browser adapter implements this contract without
 importing the Geolocation API into domain calculations.
 
-| File                                                         | Importance and relationship to other files                                                                                                          |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/navigation/contracts/LocationProvider.ts`      | Defines one asynchronous `requestCurrentLocation` operation returning the domain reading shape. The browser adapter constructs a validated reading. |
-| `src/features/navigation/contracts/LocationProviderError.ts` | Shares typed failure categories between the browser adapter, hook, and recovery interface.                                                          |
+| File                                                             | Importance and relationship to other files                                                                                                                                       |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/navigation/contracts/LocationProvider.ts`          | Defines one asynchronous `requestCurrentLocation` operation returning the domain reading shape. The browser adapter constructs a validated reading.                              |
+| `src/features/navigation/contracts/LocationProviderError.ts`     | Shares typed failure categories between the browser adapter, hook, and recovery interface.                                                                                       |
+| `src/features/navigation/contracts/PrototypeLocationScenario.ts` | Defines the small prototype-only scenario capability. Its type guard lets App expose the simulator control without making the browser provider pretend to support test outcomes. |
 
 ### `src/features/navigation/infrastructure`
 
 This folder isolates browser location access from route calculations and screen
 presentation. `BrowserLocationProvider.ts` converts browser results to validated
 readings; `PrototypeLocationProvider.ts` generates a reading at the expected
-checkpoint without accessing a device. Their adjacent tests verify both boundaries.
+checkpoint without accessing a device. In Step 19, it also owns the selected
+prototype result—expected, uncertain, wrong, stale, or unavailable. Their
+adjacent tests verify both boundaries.
 The [Step 16 file guide](#files-folders-and-connections) explains the physical
 adapter, and the [Step 17 guide](#step-17-prototype-location-simulator) explains
 simulation and its connections.
@@ -473,9 +476,9 @@ Components are visible building blocks rendered by React. Navigation components
 focus on what the person sees and does, delegating route logic to the hook and
 model.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                            |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/navigation/components/NavigationPanel.tsx` | Renders both location fields, suggestions, swap button, preview action, and route summary. It receives the planner object instead of constructing a second one, preserving shared state with the map. |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                         |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/features/navigation/components/NavigationPanel.tsx` | Renders both location fields, suggestions, swap button, preview action, and route summary. It receives the planner object instead of constructing a second one, preserving shared state with the map. It also remounts checkpoint navigation when a prototype scenario changes, ensuring each demo starts cleanly. |
 
 ## The map feature
 
@@ -1116,6 +1119,58 @@ both map modes without console errors. The Step 18 progress entry records the
 automated checks and bundle sizes. Visual alignment still needs the project
 owner's later on-campus review before any route can be called verified.
 
+### Step 19: Prototype scenarios and limited destination expansion
+
+Step 19 makes laptop testing more representative without pretending that a
+seated person is walking the route. The blue prototype notice now includes a
+**Demo checkpoint result** selector. It can return the expected checkpoint,
+poor accuracy, a clearly wrong position, a stale reading, or an unavailable
+location. Each choice exercises the existing verification and recovery paths;
+it does not add a second navigation state machine or bypass the domain policy.
+Changing the result restarts the current route simulation so the next reading is
+valid for the selected case. This is necessary because a stale reading must be
+older than the 30-second policy but cannot safely follow a newer reading in the
+same session.
+
+The scenario vocabulary and controller live in
+`PrototypeLocationScenario.ts`, which is a narrow capability rather than part
+of the general `LocationProvider` contract. A capability is a small optional
+ability an object can offer. App uses a type guard—runtime code that confirms a
+value has a particular capability—before passing this controller to the UI.
+Real browser location mode therefore does not display or implement synthetic
+results. `PrototypeLocationProvider.ts` remains the only stateful simulator;
+the hook continues to request one reading and the domain remains the only place
+that decides confirmed, uncertain, or mismatched progress.
+
+The editable graph now exposes three additional searchable building labels:
+Blatchley Hall, Simplot Dining Hall, and Sterry Hall. Their names are listed on
+[the official campus map](https://collegeofidaho.edu/visit/campus-map/). Their
+displayed centers and nearby footway shapes were checked against public
+[OpenStreetMap data](https://www.openstreetmap.org/). The graph connects each one using
+detailed illustrative geometry, including temporary connectors from a building
+center to the nearest mapped footway. A building center is not necessarily an
+entrance, so these paths must not be treated as approved physical directions.
+This intentionally stops at three locations; no broad campus expansion, new map
+provider, or claims of route verification are included in this step.
+
+Key connections:
+
+- `collegeOfIdahoWalkingGraphData.ts` owns the three labels, coordinates,
+  illustrated footway geometry, and their provenance.
+- `mockLocations.ts` derives autocomplete records from that dataset, so no UI
+  location list requires manual updating.
+- `PrototypeLocationProvider.ts` implements the optional scenario controller.
+- `App.tsx` detects that capability and passes it through `NavigationPanel.tsx`.
+- `CheckpointNavigation.tsx` renders the accessible selector and unchanged
+  recovery message; `NavigationPanel.tsx` restarts its keyed session after a
+  scenario choice.
+
+Focused tests cover every simulator outcome, scenario selection, reset signaling,
+the added autocomplete result, and graph reachability for all three buildings.
+Browser inspection verified a Sterry Hall preview and the wrong-location retry
+flow without browser location permission. The default map and all added walking
+directions remain illustrative prototype behavior.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -1687,6 +1742,21 @@ historical context.
 - **Consequences:** Camera and colors can change independently of navigation
   rules. Public footway alignment remains replaceable illustrative data; the
   temporary origin connector must be reviewed or replaced during field work.
+
+### ADR-029: Keep prototype outcome controls separate from location verification
+
+- **Status:** Accepted and implemented in Step 19.
+- **Context:** Seated development needs to display every checkpoint recovery
+  state, but a default simulator that always succeeds cannot demonstrate them.
+- **Decision:** Add an optional prototype-only scenario controller implemented
+  solely by `PrototypeLocationProvider`. Keep selection in the UI, reset the
+  keyed simulation after a choice, and pass generated readings through the
+  unchanged one-shot provider and domain-verification flow.
+- **Reason:** Test cases are visible and repeatable without inserting test-only
+  branches into GPS policy, navigation-session rules, or the browser provider.
+- **Consequences:** The physical browser mode cannot synthesize outcomes, and
+  each scenario reset intentionally starts a new simulated journey. The five
+  outcomes are prototype testing tools, not claims about real GPS behavior.
 
 ## Engineering principles in plain language
 

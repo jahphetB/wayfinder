@@ -309,3 +309,31 @@ Implementation commit: `d19d8cb` (`feat: add turn-focused map guidance`)
 - Production output: initial JavaScript 247.17 kB minified / 77.14 kB gzip;
   deferred map 1,547.68 / 407.40 kB. No dependency was added; the existing large
   deferred-map warning remains.
+
+## Step 19: Prototype scenarios and limited destination expansion
+
+Status: complete
+Data commit: `76fc432` (`data: add three prototype campus destinations`)
+
+- Added Blatchley Hall, Simplot Dining Hall, and Sterry Hall as the only new
+  searchable destinations in this step. The official campus map supports their
+  names; public OpenStreetMap data supports their displayed centers and nearby
+  footway shapes. Building connectors, distances, entrances, permissions,
+  accessibility, and physical route accuracy remain illustrative.
+- Added a prototype-only Demo checkpoint result selector with expected,
+  uncertain-accuracy, mismatched, stale, and unavailable outcomes. Selecting a
+  result resets the simulation, then each request still passes through the
+  established one-shot provider, verification, and recovery flow.
+- Kept real browser location separate: the scenario control appears only when
+  the injected provider exposes the optional prototype capability. No browser
+  location request, continuous tracking, dependency, or routing-policy change
+  was introduced.
+- Focused checks: 26 tests across four affected files passed, along with strict
+  type checking. Final checks: formatting, linting, strict typing, whitespace,
+  and all 66 tests across 15 files passed; the production build passed.
+- Browser checks selected Sterry Hall, previewed its route, selected the wrong-
+  location scenario, and verified its no-progress retry message. Console: zero
+  errors and zero warnings; a local screenshot is ignored by Git.
+- Production output: initial JavaScript 251.58 kB minified / 78.03 kB gzip;
+  deferred map 1,547.68 / 407.40 kB. No dependency was added. The existing
+  deferred-map chunk warning remains and is not caused by this small feature.
