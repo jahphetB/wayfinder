@@ -1,6 +1,6 @@
 # Wayfinder
 
-Wayfinder is a responsive College of Idaho navigation-map prototype. It provides
+Wayfinder is a responsive navigation-map prototype. It provides
 origin and destination search, locally calculated prototype walking routes, and
 a 2D/3D MapLibre map with an OpenStreetMap basemap. Its 3D mode now includes one
 geographically anchored, illustrative Three.js building used to validate the
@@ -16,7 +16,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 4. Interactive map                 | Complete | MapLibre renders the selected route and locations, fits the camera, and switches between 2D and 3D views.                          |
 | 5. Application states and polish   | Complete | Clear route and map states, keyboard autocomplete, accessible status messaging, and map recovery are in place.                     |
 | 6. Testing, bundling, and delivery | Complete | Campus-focused mock data, map bounds, verification, bundle review, and delivery documentation are complete.                        |
-| 7. Routing foundation              | Complete | A validated, testable College of Idaho walking graph and shortest-path logic are ready for later UI integration.                   |
+| 7. Routing foundation              | Complete | A validated, testable campus walking graph and shortest-path logic are ready for later UI integration.                             |
 | 8. Graph route integration         | Complete | The planner now converts calculated walking paths into routes that the existing map can render.                                    |
 | 9. Route constraints               | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.                        |
 | 10. Data verification workflow     | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.                                 |
@@ -70,9 +70,9 @@ campus coordinate is real, but its shape, dimensions, heading, and identity are
 illustrative. It proves that owned models can share MapLibre's geographic camera;
 it must not be interpreted as an accurate campus building.
 
-The map starts at The College of Idaho campus and limits ordinary panning to a
+The map starts on campus and limits ordinary panning to a
 campus-sized area. Current visible location data includes Cruzen-Murray Library,
-whose identity and coordinate were checked against College of Idaho, Google Maps,
+whose identity and coordinate were checked against official campus sources, Google Maps,
 and OpenStreetMap-derived public information. The walking-path topology,
 distances, closures, direction rules, and accessibility information are still
 illustrative prototype data, not official accessibility or walking directions.
