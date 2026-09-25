@@ -21,7 +21,7 @@ describe('College of Idaho walking graph', () => {
   it('labels current path data as illustrative rather than verified', () => {
     expect(collegeOfIdahoWalkingGraphRelease.provenance).toEqual({
       sourceDescription:
-        'Published location names were checked against College of Idaho sources. Cruzen-Murray Library identity and coordinate were corroborated with Google Maps and OpenStreetMap-derived public map data. Prototype path shapes were aligned to visible OpenStreetMap footways on 2026-09-24, with a temporary connector from the off-walkway campus entrance. Distances, restrictions, accessibility, entrance connections, and physical accuracy remain illustrative and are not campus-approved.',
+        'Published campus-map labels for Blatchley Hall, Simplot Dining Hall, Sterry Hall, and existing locations were checked against official campus sources. Their displayed building centers and prototype footway shapes were corroborated with OpenStreetMap-derived public map data on 2026-09-24. Temporary connectors join the off-walkway campus entrance and building centers to nearby public mapped footways. Distances, restrictions, accessibility, entrance connections, and physical accuracy remain illustrative and are not campus-approved.',
       verificationStatus: 'illustrative',
       reviewedOn: '2026-09-24',
     })
@@ -50,6 +50,29 @@ describe('College of Idaho walking graph', () => {
       coordinates: { latitude: 43.6545, longitude: -116.67654 },
     })
     expect(libraryNode?.coordinates).toEqual(libraryLocation?.coordinates)
+  })
+
+  it('makes three additional campus buildings searchable and routable', () => {
+    expect(
+      mockLocations
+        .filter((location) =>
+          ['blatchley-hall', 'simplot-dining-hall', 'sterry-hall'].includes(
+            location.id,
+          ),
+        )
+        .map((location) => location.label),
+    ).toEqual(['Blatchley Hall', 'Simplot Dining Hall', 'Sterry Hall'])
+
+    expect(
+      findWalkingRoute(
+        collegeOfIdahoWalkingGraph,
+        'campus-entrance',
+        'simplot-dining-hall',
+      ),
+    ).toMatchObject({
+      originLocationId: 'campus-entrance',
+      destinationLocationId: 'simplot-dining-hall',
+    })
   })
 
   it('provides a shorter connected path to the current library', () => {
