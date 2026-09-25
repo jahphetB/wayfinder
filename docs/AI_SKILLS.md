@@ -87,6 +87,20 @@ stale.
   reversible switch between prototype simulation and physical location. This
   keeps test behavior visible and avoids scattered code edits.
 
+#### Step 18 usage record
+
+- **OPENAI / Playwright:** Compared before-and-after map captures, verified
+  walkway alignment, route-leg colors, Back behavior, and camera changes in 2D
+  and 3D, and confirmed a clean browser console.
+- **EXTERNAL / Context7:** Used current MapLibre documentation for data-driven
+  GeoJSON line styling and camera animation options.
+- **EXTERNAL / OpenStreetMap Overpass:** Read current public footway geometry
+  corresponding to the dotted basemap paths. It informs illustrative prototype
+  shapes only and is not campus approval or a safety/accessibility source.
+- **YOTE / Navigation presentation projection:** Developed a project-specific
+  pattern that projects immutable domain session state into completed, current,
+  and upcoming map legs without moving navigation rules into MapLibre.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |

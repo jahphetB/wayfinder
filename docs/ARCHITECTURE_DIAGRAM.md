@@ -85,6 +85,8 @@ flowchart TB
     User --> Index --> Main --> App
     App --> Panel
     App --> MapView
+    NavigationControls --> App
+    App -->|navigation session| MapView
     Panel --> PlannerHook --> PlannerModel --> WalkingRoutes
     PlannerHook --> GraphLoader
     PlannerHook --> Locations
@@ -105,6 +107,7 @@ flowchart TB
     WalkingRoutes --> MapView
 
     MapView --> MapContract --> CreateAdapter --> Adapter
+    Adapter -->|leg colors and turn camera| MapLibre
     Campus --> MapView
     Scene --> CreateAdapter
     BuildingContract --> BuildingLayer
@@ -166,6 +169,9 @@ flowchart TB
 - Composition selects the prototype simulator by default. It uses the expected
   checkpoint supplied through the contract; `VITE_LOCATION_MODE=browser` selects
   physical one-shot browser location for future field testing.
+- The navigation component reports immutable session progress to App. App passes
+  it to MapView, and the adapter converts it into completed/current/upcoming leg
+  styling and a camera focused along the current travel direction.
 - MapLibre and Three.js share the browser's WebGL graphics context. MapLibre owns
   the camera and geographic projection; Three.js draws the owned 3D geometry.
 - Gray nodes describe the approved next architecture, not current behavior.

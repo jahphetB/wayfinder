@@ -27,6 +27,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 15. Location verification domain   | Complete | One-shot location readings can be conservatively classified, and tested session logic advances only after confirmed checks.        |
 | 16. Browser checkpoint navigation  | Complete | Explicit one-shot location requests power Start navigation, Next Turn, recovery messages, and arrival without continuous tracking. |
 | 17. Prototype location simulator   | Complete | Navigation can be tested from anywhere by default; one environment setting restores physical browser-location checks later.        |
+| 18. Turn-focused map guidance      | Complete | The prototype follows mapped footways, distinguishes route legs, follows turns with the camera, and supports Back navigation.      |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -86,6 +87,8 @@ this prototype for safe campus navigation.
 Read only this step in the [Step 16 handbook guide](docs/ARCHITECTURE.md#step-16-browser-location-and-checkpoint-navigation).
 The [Step 17 handbook guide](docs/ARCHITECTURE.md#step-17-prototype-location-simulator)
 explains simulation and the future field-test switch.
+The [Step 18 handbook guide](docs/ARCHITECTURE.md#step-18-turn-focused-map-guidance)
+explains walkway alignment, route colors, camera behavior, and Back navigation.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

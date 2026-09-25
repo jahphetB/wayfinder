@@ -1060,6 +1060,62 @@ without a permission prompt and reported no console errors or warnings. It prove
 the prototype interface flow, not real GPS accuracy or campus route correctness.
 See the Step 17 progress entry for final check and bundle details.
 
+### Step 18: Turn-focused map guidance
+
+Step 18 makes prototype navigation state visible on the map. The route preview
+still shows the full path. After navigation starts, each route step is emitted as
+its own GeoJSON feature with a presentation state: completed, current, or
+upcoming. GeoJSON is a standard structure for geographic shapes and their
+properties. MapLibre uses those properties to draw completed legs gray, the
+current leg wider and green, and upcoming legs orange. A white casing behind all
+legs keeps them visible over the dotted red basemap paths.
+
+The College of Idaho dataset no longer draws a straight line across the athletic
+field. Its Campus Entrance coordinate remains off the dotted footway, so the
+first segment is an explicit temporary connector to the nearest public mapped
+footway. The remaining detailed geometry follows OpenStreetMap footway shapes
+visible on the prototype basemap. This is an alignment improvement, not campus
+verification: surface condition, legal access, closures, entrances, distances,
+and accessibility remain illustrative and require field review.
+
+Navigation session state now travels from `CheckpointNavigation.tsx` through
+`NavigationPanel.tsx` to `App.tsx`, then into `MapView.tsx` and the provider-
+neutral `MapContent`. This is a projection: the map receives enough domain state
+to present progress but does not decide whether a checkpoint is confirmed. The
+MapLibre adapter alone translates that state into provider-specific layers and
+camera commands, preserving the existing dependency boundary.
+
+At navigation start, the camera centers near the route origin, zooms to 18, and
+uses the first leg's geographic bearing. Bearing is the compass direction from
+one coordinate to another. After each confirmed turn, it moves to the beginning
+of the new leg and rotates toward that leg. In 3D the pitch is 60 degrees; in 2D
+it remains flat. An offset places the checkpoint slightly below center so more
+of the path ahead remains visible. Arrival focuses the destination.
+
+`moveNavigationBack` is provider-independent domain behavior. From an active
+leg it selects the preceding leg; from arrival it returns to the final leg; from
+the first leg it returns to pre-start state. It does not request location. The
+component clears transient failures and reports the replaced immutable session,
+which causes both instructions and camera presentation to update together.
+
+Key connections:
+
+- `collegeOfIdahoWalkingGraphData.ts` owns editable illustrative footway shapes
+  and the temporary off-walkway connector.
+- `navigationSession.ts` owns forward verification and backward transitions.
+- `CheckpointNavigation.tsx` owns instructions, Back/Next controls, and the
+  accessible leg-color legend.
+- `App.tsx` shares one session between the navigation panel and map.
+- `MapView.tsx` sends route and session content through the map contract.
+- `MapLibreMapAdapter.ts` owns GeoJSON leg features, data-driven styling, bearing
+  calculation, and camera animation.
+
+Browser checks showed the updated route over the dotted footways, distinct leg
+colors, Back returning to the prior instruction/camera, and camera changes in
+both map modes without console errors. The Step 18 progress entry records the
+automated checks and bundle sizes. Visual alignment still needs the project
+owner's later on-campus review before any route can be called verified.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -1617,6 +1673,20 @@ historical context.
   centralized and reversible.
 - **Consequences:** Demo completion cannot validate GPS, paths, distances, or
   safety. Field mode must be explicitly enabled and visibly confirmed later.
+
+### ADR-028: Project navigation progress into map presentation
+
+- **Status:** Accepted and implemented in Step 18.
+- **Context:** The map must distinguish previous/current/future legs and follow
+  turns without moving checkpoint decisions into provider-specific code.
+- **Decision:** Keep immutable session transitions in the domain, share the
+  session at App composition, and let the MapLibre adapter project each route
+  step into styled GeoJSON plus a bearing-aware camera.
+- **Reason:** Text instructions and the map remain synchronized while routing,
+  verification, React, and MapLibre retain separate responsibilities.
+- **Consequences:** Camera and colors can change independently of navigation
+  rules. Public footway alignment remains replaceable illustrative data; the
+  temporary origin connector must be reviewed or replaced during field work.
 
 ## Engineering principles in plain language
 

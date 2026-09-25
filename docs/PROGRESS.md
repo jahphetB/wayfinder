@@ -280,3 +280,32 @@ Implementation commit: `6dc58ba` (`feat: add prototype checkpoint simulation`)
 - Production sizes remain effectively unchanged: initial JavaScript 244.86 kB
   minified / 76.57 kB gzip; deferred map 1,545.66 / 406.75 kB. The existing map
   chunk warning remains.
+
+## Step 18: Turn-focused map guidance
+
+Status: complete
+Data commit: `a82958f` (`data: align prototype route with campus footways`)
+Implementation commit: `d19d8cb` (`feat: add turn-focused map guidance`)
+
+- Replaced the straight field-crossing prototype geometry with a temporary
+  connector from Campus Entrance to the nearest mapped footway, followed by
+  public OpenStreetMap footway shapes. All operational facts remain illustrative.
+- Split the visible route into step features. Completed legs are gray, the
+  current leg is green and wider, and upcoming legs are orange; a white casing
+  preserves contrast over the basemap. Added an accessible color legend.
+- Shared the immutable navigation session with the map through App composition,
+  leaving provider-specific drawing inside the MapLibre adapter.
+- Added a turn-focused camera: 18 zoom, travel-direction bearing, 60-degree pitch
+  in 3D (zero in 2D), and a small forward-looking screen offset. Each confirmed
+  turn and Back transition updates the view; preview still fits the whole route.
+- Added Back behavior from active legs and arrival. It changes session state
+  without requesting location and returns from the first leg to pre-start state.
+- Added domain, component, application-composition, graph, and adapter tests.
+  All 61 tests across 15 files passed, as did linting, formatting, strict type-
+  checking, whitespace checks, and the production build.
+- Browser checks covered aligned preview geometry, simulated progression, Back,
+  route colors, 2D/3D turn cameras, and console output. Console: zero errors and
+  zero warnings. These checks do not verify physical paths or GPS accuracy.
+- Production output: initial JavaScript 247.17 kB minified / 77.14 kB gzip;
+  deferred map 1,547.68 / 407.40 kB. No dependency was added; the existing large
+  deferred-map warning remains.
