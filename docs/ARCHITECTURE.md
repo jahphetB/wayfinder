@@ -1161,15 +1161,92 @@ Key connections:
   location list requires manual updating.
 - `PrototypeLocationProvider.ts` implements the optional scenario controller.
 - `App.tsx` detects that capability and passes it through `NavigationPanel.tsx`.
-- `CheckpointNavigation.tsx` renders the accessible selector and unchanged
-  recovery message; `NavigationPanel.tsx` restarts its keyed session after a
-  scenario choice.
+- `CheckpointNavigation.tsx` renders the accessible selector and recovery
+  message. As refined in Step 20, its hook resets the session after a scenario
+  choice without replacing the focused selector; `NavigationPanel.tsx` still
+  starts a new session when the planned route changes.
 
 Focused tests cover every simulator outcome, scenario selection, reset signaling,
 the added autocomplete result, and graph reachability for all three buildings.
 Browser inspection verified a Sterry Hall preview and the wrong-location retry
 flow without browser location permission. The default map and all added walking
 directions remain illustrative prototype behavior.
+
+### Step 20: Mobile navigation and demo usability
+
+This step makes the existing route experience easier to test on a phone without
+adding destinations or changing route calculation. Previously, every progress
+update sent the mobile viewport down to the map. The map camera moved to the
+new leg, but the new written instruction and Next/Back controls were above the
+screen. `MapView.tsx` now has two separate effects: map content still refreshes
+whenever the navigation session changes, while automatic scrolling runs only
+when a new route is previewed. A user who advances a turn therefore keeps the
+instruction in view. The initial preview still brings the map into view, and
+that movement honors the operating system's reduced-motion preference.
+
+Changing a demo checkpoint outcome formerly removed and recreated the entire
+navigation component. This reset progress, but it also removed keyboard focus
+from the selector. `useCheckpointNavigation.ts` now exposes a small explicit
+reset operation for this testing action. `CheckpointNavigation.tsx` changes the
+simulator outcome and invokes the reset; `NavigationPanel.tsx` retains only the
+route revision as the component key. A component key tells React when a
+component represents a genuinely new route and should start fresh. The outcome
+selector remains mounted and focused, while a different route still gets a
+new session. The selector is disabled during a pending one-shot request so an
+in-flight reading cannot silently belong to a newly selected scenario.
+
+The prototype recovery text now tells a seated tester how to continue the demo
+after wrong, uncertain, stale, or unavailable synthetic readings. The real
+browser-location messages remain separate and unchanged. At a 320 CSS-pixel
+viewport, the scenario selector and panel no longer overflow horizontally;
+the touch controls have at least a 44-pixel intended hit area, and keyboard
+focus remains visibly outlined. These are usability improvements, not evidence
+that any walkway or entrance is physically accurate.
+
+Key files and connections:
+
+- `src/features/map/components/MapView.tsx` sends the current immutable route
+  and session to the provider adapter while controlling only when the browser
+  scrolls to the map. Map drawing remains inside `MapLibreMapAdapter.ts`.
+- `src/features/navigation/hooks/useCheckpointNavigation.ts` owns the session
+  reset and pending-request guard. The visual component calls it but does not
+  implement checkpoint rules.
+- `src/features/navigation/components/CheckpointNavigation.tsx` owns the
+  outcome selector and demo-specific explanatory text; the hook and the
+  injected provider still decide actual progress.
+- `src/features/navigation/components/NavigationPanel.tsx` remounts the
+  navigation session only when `routeRevision` changes. `src/app/styles.css`
+  handles narrow layout, target size, and visible focus without routing logic.
+- The corresponding component tests in `src/app/App.test.tsx` and
+  `CheckpointNavigation.test.tsx` protect route/session reset behavior.
+
+#### Preparing accurate campus geometry later
+
+The best input is a campus-authorized, georeferenced facilities plan or GIS/CAD
+export with permission to use it. Ask for building footprint polygons and
+measured heights, walkway centerlines and widths, entrance and intersection
+points, steps/ramps and access restrictions, a coordinate reference system,
+survey date, and known accuracy. GeoJSON or GeoPackage is easiest to ingest;
+DWG/DXF or a georeferenced PDF is workable if that is what the campus has.
+Georeferenced means that points in the drawing are tied to real-world
+coordinates rather than positioned only by eye.
+
+If those records are unavailable, provide an annotated map for the four current
+destinations only, with numbered walkway junctions and entrances, photographs
+of each junction and building face, and measured building lengths/widths,
+walkway widths, and known reference distances. A short spreadsheet should
+record each item's ID, type, coordinates if known, measurement and units,
+source, observation date, confidence, and access notes. We can then align
+permitted imagery with those measured reference points and keep uncertain
+segments illustrative until you field-check them. Phone GPS can roughly anchor
+observations, but [GPS.gov notes](https://www.gps.gov/gps-accuracy) that phone
+accuracy varies and worsens near buildings; it should not be treated as a
+precise entrance or width survey. Building appearance can be reconstructed
+from permitted photographs later, but a visual model cannot establish a safe
+walking connection. The source routing records stay in
+`collegeOfIdahoWalkingGraphData.ts`; building geometry belongs in the separate
+3D scene data. The [official campus map](https://collegeofidaho.edu/visit/campus-map/)
+is useful for names and orientation, not a substitute for measured geometry.
 
 ## Safe change recipes
 
@@ -1750,13 +1827,28 @@ historical context.
   state, but a default simulator that always succeeds cannot demonstrate them.
 - **Decision:** Add an optional prototype-only scenario controller implemented
   solely by `PrototypeLocationProvider`. Keep selection in the UI, reset the
-  keyed simulation after a choice, and pass generated readings through the
-  unchanged one-shot provider and domain-verification flow.
+  simulation after a choice, and pass generated readings through the unchanged
+  one-shot provider and domain-verification flow. Step 20 performs this reset
+  in the navigation hook so the selector keeps keyboard focus.
 - **Reason:** Test cases are visible and repeatable without inserting test-only
   branches into GPS policy, navigation-session rules, or the browser provider.
 - **Consequences:** The physical browser mode cannot synthesize outcomes, and
   each scenario reset intentionally starts a new simulated journey. The five
   outcomes are prototype testing tools, not claims about real GPS behavior.
+
+### ADR-030: Keep written turn guidance visible while the map updates
+
+- **Status:** Accepted and implemented in Step 20.
+- **Context:** On a phone, automatically scrolling to the map after every
+  session update hid the new turn instruction and controls.
+- **Decision:** Update map content on every relevant route/session change, but
+  scroll to the map only when a newly previewed route appears. Respect reduced
+  motion when scrolling.
+- **Reason:** The camera and colored legs remain current without displacing the
+  instruction needed for the next user action.
+- **Consequences:** Preview still reveals the map; progressing or going Back
+  keeps the text controls in view. Narrow-width layout and focus behavior are
+  separately verified in browser and component checks.
 
 ## Engineering principles in plain language
 

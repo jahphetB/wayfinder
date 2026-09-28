@@ -116,6 +116,21 @@ stale.
   location-provider contract and routes each synthetic reading through the same
   domain verification as a real reading.
 
+#### Step 20 usage record
+
+- **OPENAI / Playwright:** Inspected phone-sized screenshots, console output,
+  the turn-advance viewport, and a keyboard-focused scenario change in a real
+  local browser. This exposed the unwanted turn-update scroll and narrow
+  selector overflow that component tests alone did not show.
+- **OPENAI / OpenAI Docs:** Checked current official model-selection guidance
+  before recommending the next step's efficient and stronger model options.
+- **EXTERNAL / GPS.gov:** Used official consumer GPS accuracy guidance to keep
+  phone waypoint observations separate from measured footprints, entrance
+  positions, and walkway widths.
+- **YOTE / Preserve instruction focus:** Developed a project-specific rule:
+  update map presentation on every turn, but scroll only for a new route. Reset
+  demo navigation within the hook rather than remounting the focused control.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |

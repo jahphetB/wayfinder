@@ -174,11 +174,14 @@ flowchart TB
   checkpoint supplied through the contract; `VITE_LOCATION_MODE=browser` selects
   physical one-shot browser location for future field testing.
 - The prototype provider additionally offers a narrow scenario capability. App
-  exposes it only when present; choosing a demo outcome restarts the keyed
-  simulation but still passes its reading through normal verification.
+  exposes it only when present; choosing a demo outcome resets the existing
+  session (preserving selector focus) and still passes its reading through
+  normal verification. A changed route starts a fresh component session.
 - The navigation component reports immutable session progress to App. App passes
   it to MapView, and the adapter converts it into completed/current/upcoming leg
-  styling and a camera focused along the current travel direction.
+  styling and a camera focused along the current travel direction. On a narrow
+  screen, route preview scrolls to the map, but turn updates do not displace
+  written instructions.
 - MapLibre and Three.js share the browser's WebGL graphics context. MapLibre owns
   the camera and geographic projection; Three.js draws the owned 3D geometry.
 - Gray nodes describe the approved next architecture, not current behavior.

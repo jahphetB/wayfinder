@@ -29,6 +29,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 17. Prototype location simulator   | Complete | Navigation can be tested from anywhere by default; one environment setting restores physical browser-location checks later.        |
 | 18. Turn-focused map guidance      | Complete | The prototype follows mapped footways, distinguishes route legs, follows turns with the camera, and supports Back navigation.      |
 | 19. Prototype scenarios and places | Complete | Three more destinations are available, and selectable demo outcomes test recovery behavior without physical movement.              |
+| 20. Mobile navigation refinement   | Complete | Turn instructions stay in view on phones, compact layouts fit narrow screens, and demo controls preserve keyboard focus.           |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -94,6 +95,8 @@ The [Step 18 handbook guide](docs/ARCHITECTURE.md#step-18-turn-focused-map-guida
 explains walkway alignment, route colors, camera behavior, and Back navigation.
 The [Step 19 handbook guide](docs/ARCHITECTURE.md#step-19-prototype-scenarios-and-limited-destination-expansion)
 explains scenario testing and the three-destination scope.
+The [Step 20 handbook guide](docs/ARCHITECTURE.md#step-20-mobile-navigation-and-demo-usability)
+explains phone-sized layout, visible turn instructions, and keyboard behavior.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

@@ -337,3 +337,34 @@ Data commit: `76fc432` (`data: add three prototype campus destinations`)
 - Production output: initial JavaScript 251.58 kB minified / 78.03 kB gzip;
   deferred map 1,547.68 / 407.40 kB. No dependency was added. The existing
   deferred-map chunk warning remains and is not caused by this small feature.
+
+## Step 20: Mobile navigation and demo usability
+
+Status: complete; local commits recorded in Git history (remote push awaits
+explicit approval).
+
+- Separated map-content refresh from phone scrolling. Previewing a new route
+  still reveals the map, while Start, Next Turn, and Back keep the current
+  written instruction and controls visible. The preview scroll respects the
+  reduced-motion preference.
+- Replaced a scenario-change remount with an explicit navigation-hook reset,
+  preserving keyboard focus on the selector. The selector cannot change while
+  a one-shot location request is pending; a changed route still gets a fresh
+  session.
+- Made synthetic error and uncertain-result messages explain how to continue
+  the demo, while retaining separate physical-location guidance.
+- Refined 320-pixel layout, wrapping, focus styling, and 44-pixel touch targets
+  for key navigation controls. No additional route, destination, dependency,
+  or verification claim was introduced.
+- Browser inspection at 390 and 320 CSS pixels confirmed that the active turn
+  stays in view, the scenario selector fits the panel, keyboard focus remains,
+  and the page has no horizontal overflow. Console: zero errors and zero
+  warnings. All 66 tests across 15 files, lint, type-check, formatting,
+  whitespace checks, and the production build pass.
+- Production output: initial JavaScript 251.98 kB minified / 78.07 kB gzip;
+  deferred map 1,547.78 / 407.43 kB. No dependency was added. The existing
+  deferred-map chunk warning remains.
+- Added the Step 20 handbook guide, ADR-030, and a practical intake outline
+  for future measured building and walkway data. Current geometry remains
+  illustrative until source rights, dimensions, access facts, and field review
+  are established.
