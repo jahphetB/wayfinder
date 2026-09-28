@@ -30,6 +30,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 18. Turn-focused map guidance      | Complete | The prototype follows mapped footways, distinguishes route legs, follows turns with the camera, and supports Back navigation.      |
 | 19. Prototype scenarios and places | Complete | Three more destinations are available, and selectable demo outcomes test recovery behavior without physical movement.              |
 | 20. Mobile navigation refinement   | Complete | Turn instructions stay in view on phones, compact layouts fit narrow screens, and demo controls preserve keyboard focus.           |
+| 21. Campus data collection packet  | Complete | A reusable source request, measurement template, and review checklist cover the current map points and destinations.               |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -97,6 +98,9 @@ The [Step 19 handbook guide](docs/ARCHITECTURE.md#step-19-prototype-scenarios-an
 explains scenario testing and the three-destination scope.
 The [Step 20 handbook guide](docs/ARCHITECTURE.md#step-20-mobile-navigation-and-demo-usability)
 explains phone-sized layout, visible turn instructions, and keyboard behavior.
+The [campus geometry collection packet](docs/CAMPUS_DATA_COLLECTION.md)
+explains what source files, measurements, photographs, and review details to
+provide before replacing illustrative geometry.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

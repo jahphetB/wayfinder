@@ -403,7 +403,13 @@ provided identifiers and coordinates remain consistent.
 | `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, detailed edge geometry, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code. Step 19 adds Blatchley Hall, Simplot Dining Hall, and Sterry Hall at publicly corroborated building centers; their path shapes and building connectors remain illustrative. |
 | `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                                                                                        |
 | `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates intended shortest paths, confirms every searchable mock location is represented by a graph node, checks all three added destinations can be reached, and verifies the graph is labeled illustrative.                                                                                                                                                                                                   |
-| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                                                                               |
+
+The source preparation guide is [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md).
+It specifies authorized source formats, required measurement metadata, field
+observation templates, and review checks. Use it before editing the graph or
+3D scene data so that the source and confidence of each new measurement remain
+traceable.
+| `src/data/navigation/mockLocations.ts` | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken. |
 
 ## The `src/features` folder
 
@@ -1222,31 +1228,37 @@ Key files and connections:
 
 #### Preparing accurate campus geometry later
 
-The best input is a campus-authorized, georeferenced facilities plan or GIS/CAD
-export with permission to use it. Ask for building footprint polygons and
-measured heights, walkway centerlines and widths, entrance and intersection
-points, steps/ramps and access restrictions, a coordinate reference system,
-survey date, and known accuracy. GeoJSON or GeoPackage is easiest to ingest;
-DWG/DXF or a georeferenced PDF is workable if that is what the campus has.
-Georeferenced means that points in the drawing are tied to real-world
-coordinates rather than positioned only by eye.
+The [campus geometry collection packet](CAMPUS_DATA_COLLECTION.md) gives a
+repeatable way to provide authorized plans, measurements, coordinates, and
+photos for Campus Entrance and the four currently available destinations. It
+includes field and spreadsheet templates, a source review checklist, and the
+places where approved route and building data belong. It deliberately limits
+the request to this small prototype area.
 
-If those records are unavailable, provide an annotated map for the four current
-destinations only, with numbered walkway junctions and entrances, photographs
-of each junction and building face, and measured building lengths/widths,
-walkway widths, and known reference distances. A short spreadsheet should
-record each item's ID, type, coordinates if known, measurement and units,
-source, observation date, confidence, and access notes. We can then align
-permitted imagery with those measured reference points and keep uncertain
-segments illustrative until you field-check them. Phone GPS can roughly anchor
-observations, but [GPS.gov notes](https://www.gps.gov/gps-accuracy) that phone
-accuracy varies and worsens near buildings; it should not be treated as a
-precise entrance or width survey. Building appearance can be reconstructed
-from permitted photographs later, but a visual model cannot establish a safe
-walking connection. The source routing records stay in
-`collegeOfIdahoWalkingGraphData.ts`; building geometry belongs in the separate
-3D scene data. The [official campus map](https://collegeofidaho.edu/visit/campus-map/)
-is useful for names and orientation, not a substitute for measured geometry.
+Phone GPS can roughly anchor observations, but [GPS.gov notes](https://www.gps.gov/gps-accuracy)
+that phone accuracy varies and worsens near buildings; it should not establish
+a precise entrance or walkway width on its own. Building photographs can help
+with appearance, but visual models do not establish a safe walking connection.
+The [official campus map](https://collegeofidaho.edu/visit/campus-map/) helps
+with place names and orientation, not measured geometry.
+
+### Step 21: Campus geometry collection packet
+
+Step 21 prepares for data replacement; it does not change the application map
+or its route data. [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md)
+is the handoff sheet to use with authorized facilities records or, if they are
+unavailable, a small user-collected survey for the current Campus Entrance,
+library, and three halls. It explains which outlines, dimensions, pathway
+centerlines, widths, junctions, entrance points, access notes, coordinates,
+dates, and source permissions matter. A coordinate reference system describes
+how mapped positions correspond to real places; it must accompany any numeric
+coordinates received from a plan.
+
+The packet also includes a spreadsheet-style observation template and a
+review sequence. Unknown details remain unverified. Once the user provides a
+batch, the graph dataset remains the source for walking connectivity and
+provenance; separate map scene data remains the source for building geometry.
+This keeps visual modeling from silently introducing entrances or paths.
 
 ## Safe change recipes
 

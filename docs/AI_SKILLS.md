@@ -131,6 +131,16 @@ stale.
   update map presentation on every turn, but scroll only for a new route. Reset
   demo navigation within the hook rather than remounting the focused control.
 
+#### Step 21 usage record
+
+- **YOTE / Measurement-first campus data intake:** Created a compact request and
+  review packet that distinguishes building outlines and dimensions from
+  routable walkway centerlines, entrances, and access observations. It records
+  source, permission, date, units, coordinate reference, confidence, and photo
+  references so future replacements can be reviewed and traced.
+- **EXTERNAL / GPS.gov:** Retained the accuracy caveat for phone-based location
+  observations when preparing the intake template.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |

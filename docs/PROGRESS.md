@@ -340,8 +340,7 @@ Data commit: `76fc432` (`data: add three prototype campus destinations`)
 
 ## Step 20: Mobile navigation and demo usability
 
-Status: complete; local commits recorded in Git history (remote push awaits
-explicit approval).
+Status: complete; implementation and documentation commits pushed to `origin/main`.
 
 - Separated map-content refresh from phone scrolling. Previewing a new route
   still reveals the map, while Start, Next Turn, and Back keep the current
@@ -368,3 +367,20 @@ explicit approval).
   for future measured building and walkway data. Current geometry remains
   illustrative until source rights, dimensions, access facts, and field review
   are established.
+
+## Step 21: Campus geometry collection packet
+
+Status: complete; local documentation commit awaits explicit push approval.
+
+- Added `docs/CAMPUS_DATA_COLLECTION.md` with an authorized records request and
+  a field-survey fallback for Campus Entrance, Cruzen-Murray Library, Blatchley
+  Hall, Simplot Dining Hall, and Sterry Hall only.
+- Specified building footprints/dimensions, entrances, walkway centerlines and
+  widths, junctions, ramps/steps, access constraints, coordinate reference,
+  units, source permission, survey date, accuracy, and confidence.
+- Added a spreadsheet observation template, photo naming guidance, and a
+  source/geometry review checklist. The packet asks for unknown values to
+  remain blank rather than guessed.
+- Updated README and architecture handbook links, file relationships, and the
+  AI skills record. No app code, coordinates, map features, or destination
+  scope changed.
