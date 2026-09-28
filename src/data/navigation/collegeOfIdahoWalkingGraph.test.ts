@@ -20,11 +20,13 @@ describe('College of Idaho walking graph', () => {
 
   it('labels current path data as illustrative rather than verified', () => {
     expect(collegeOfIdahoWalkingGraphRelease.provenance).toEqual({
-      sourceDescription:
-        'Published campus-map labels for Blatchley Hall, Simplot Dining Hall, Sterry Hall, and existing locations were checked against official campus sources. Their displayed building centers and prototype footway shapes were corroborated with OpenStreetMap-derived public map data on 2026-09-24. Temporary connectors join the off-walkway campus entrance and building centers to nearby public mapped footways. Distances, restrictions, accessibility, entrance connections, and physical accuracy remain illustrative and are not campus-approved.',
+      sourceDescription: expect.stringContaining('not campus-approved'),
       verificationStatus: 'illustrative',
-      reviewedOn: '2026-09-24',
+      reviewedOn: '2026-09-28',
     })
+    expect(
+      collegeOfIdahoWalkingGraphRelease.provenance.sourceDescription,
+    ).toContain('entrance node 14229217297')
   })
 
   it('represents each searchable mock location as a graph node', () => {
@@ -79,6 +81,29 @@ describe('College of Idaho walking graph', () => {
         destinationLocationId,
       })
     }
+  })
+
+  it('previews Blatchley Hall at the mapped main entrance with a short connector', () => {
+    const entrance = { latitude: 43.652507, longitude: -116.675338 }
+    const blatchleyNode = collegeOfIdahoWalkingGraph.nodes.find(
+      (node) => node.id === 'blatchley-hall',
+    )
+    const route = findWalkingRoute(
+      collegeOfIdahoWalkingGraph,
+      'campus-entrance',
+      'blatchley-hall',
+    )
+
+    expect(blatchleyNode?.coordinates).toEqual(entrance)
+    expect(route?.coordinates.at(-2)).toEqual({
+      latitude: 43.6525363,
+      longitude: -116.6753107,
+    })
+    expect(route?.coordinates.at(-1)).toEqual(entrance)
+    expect(route?.steps.at(-1)?.distanceMeters).toBe(275)
+    expect(
+      collegeOfIdahoWalkingGraphRelease.provenance.verificationStatus,
+    ).toBe('illustrative')
   })
 
   it('provides a shorter connected path to the current library', () => {

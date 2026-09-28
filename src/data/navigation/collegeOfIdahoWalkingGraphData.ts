@@ -40,7 +40,7 @@ export const collegeOfIdahoWalkingGraphData = {
       },
       {
         id: 'blatchley-hall',
-        coordinates: { latitude: 43.6523542, longitude: -116.6753205 },
+        coordinates: { latitude: 43.652507, longitude: -116.675338 },
       },
       {
         id: 'simplot-dining-hall',
@@ -133,7 +133,7 @@ export const collegeOfIdahoWalkingGraphData = {
         id: 'central-walkway-to-blatchley-hall',
         fromNodeId: 'central-walkway',
         toNodeId: 'blatchley-hall',
-        distanceMeters: 290,
+        distanceMeters: 275,
         geometry: [
           { latitude: 43.6523682, longitude: -116.6777374 },
           { latitude: 43.6524034, longitude: -116.6776941 },
@@ -147,7 +147,7 @@ export const collegeOfIdahoWalkingGraphData = {
           { latitude: 43.6528687, longitude: -116.6758026 },
           { latitude: 43.6526804, longitude: -116.6755236 },
           { latitude: 43.6525363, longitude: -116.6753107 },
-          { latitude: 43.6523542, longitude: -116.6753205 },
+          { latitude: 43.652507, longitude: -116.675338 },
         ],
         direction: 'bidirectional',
         availability: 'available',
@@ -202,8 +202,8 @@ export const collegeOfIdahoWalkingGraphData = {
   },
   provenance: {
     sourceDescription:
-      'Published campus-map labels for Blatchley Hall, Simplot Dining Hall, Sterry Hall, and existing locations were checked against official campus sources. Their displayed building centers and prototype footway shapes were corroborated with OpenStreetMap-derived public map data on 2026-09-24. Temporary connectors join the off-walkway campus entrance and building centers to nearby public mapped footways. Distances, restrictions, accessibility, entrance connections, and physical accuracy remain illustrative and are not campus-approved.',
+      'Official campus sources support the published place labels. The user-supplied OpenStreetMap XML export of 2026-09-28 supplies Blatchley Hall main entrance node 14229217297 on building way 492831905; a short illustrative connector joins it to mapped footway way 603518401. Other destination centers and prototype footway shapes were corroborated with public OpenStreetMap data. Distances, restrictions, accessibility, entrance connections, and physical route accuracy remain illustrative and are not campus-approved. OpenStreetMap data is licensed under ODbL; see https://www.openstreetmap.org/copyright.',
     verificationStatus: 'illustrative',
-    reviewedOn: '2026-09-24',
+    reviewedOn: '2026-09-28',
   },
 } satisfies CollegeOfIdahoWalkingGraphData
