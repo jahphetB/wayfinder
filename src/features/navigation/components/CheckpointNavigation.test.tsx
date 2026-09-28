@@ -53,24 +53,25 @@ describe('CheckpointNavigation', () => {
     expect(screen.getByRole('status')).toHaveTextContent('You have arrived')
   })
 
-  it('offers prototype outcomes and reports when changing one should reset the route', async () => {
+  it('resets the prototype route when changing outcomes while keeping focus', async () => {
     const user = userEvent.setup()
     const provider = new PrototypeLocationProvider()
-    const onPrototypeScenarioChange = vi.fn()
     render(
       <CheckpointNavigation
         route={route}
         provider={provider}
         prototypeLocationScenarioController={provider}
-        onPrototypeScenarioChange={onPrototypeScenarioChange}
       />,
     )
 
     const result = screen.getByLabelText('Demo checkpoint result')
+    await user.click(screen.getByRole('button', { name: 'Start navigation' }))
+    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
     await user.selectOptions(result, 'mismatched')
 
     expect(provider.scenario).toBe('mismatched')
-    expect(onPrototypeScenarioChange).toHaveBeenCalledOnce()
+    expect(result).toHaveFocus()
+    expect(screen.queryByText('Step 1 of 2')).not.toBeInTheDocument()
     expect(
       screen.getByText('Changing this result restarts the route simulation.'),
     ).toBeInTheDocument()

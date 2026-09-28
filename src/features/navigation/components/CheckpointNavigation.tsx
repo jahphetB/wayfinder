@@ -28,15 +28,13 @@ export function CheckpointNavigation({
   provider,
   onSessionChange,
   prototypeLocationScenarioController,
-  onPrototypeScenarioChange,
 }: {
   readonly route: Route
   readonly provider: LocationProvider
   readonly onSessionChange?: (session: NavigationSession) => void
   readonly prototypeLocationScenarioController?: PrototypeLocationScenarioController
-  readonly onPrototypeScenarioChange?: () => void
 }) {
-  const { session, pending, failure, checkLocation, goBack } =
+  const { session, pending, failure, checkLocation, goBack, resetNavigation } =
     useCheckpointNavigation(route, provider)
   useEffect(() => onSessionChange?.(session), [onSessionChange, session])
   const step = route.steps[session.currentStepIndex]
@@ -60,15 +58,23 @@ export function CheckpointNavigation({
     message = simulating
       ? 'Simulating the expected checkpoint…'
       : 'Checking your location… Respond to any browser permission prompt.'
-  else if (failure) message = failureMessages[failure]
+  else if (failure)
+    message = simulating
+      ? 'The demo location is unavailable. Choose Expected checkpoint to continue testing.'
+      : failureMessages[failure]
   else if (verification?.status === 'mismatched') {
-    message =
-      'You may be at the wrong location. Check the route and try again; your progress has not advanced.'
+    message = simulating
+      ? 'The demo reading is at the wrong location. Progress has not advanced. Choose Expected checkpoint to continue testing.'
+      : 'You may be at the wrong location. Check the route and try again; your progress has not advanced.'
   } else if (verification?.status === 'uncertain') {
     message =
       verification.reason === 'accuracy-overlaps-checkpoint'
-        ? 'Your location is not accurate enough to confirm this checkpoint. Wait for a clearer signal and try again.'
-        : 'The location reading is not fresh enough to confirm this checkpoint. Try again.'
+        ? simulating
+          ? 'The demo reading is not accurate enough to confirm this checkpoint. Choose Expected checkpoint to continue testing.'
+          : 'Your location is not accurate enough to confirm this checkpoint. Wait for a clearer signal and try again.'
+        : simulating
+          ? 'The demo reading is stale. Choose Expected checkpoint to continue testing.'
+          : 'The location reading is not fresh enough to confirm this checkpoint. Try again.'
   }
 
   return (
@@ -98,8 +104,9 @@ export function CheckpointNavigation({
                   const scenario = event.target.value
                   if (!isPrototypeLocationScenario(scenario)) return
                   prototypeLocationScenarioController.setScenario(scenario)
-                  onPrototypeScenarioChange?.()
+                  resetNavigation()
                 }}
+                disabled={pending}
                 value={prototypeLocationScenarioController.scenario}
               >
                 {prototypeLocationScenarios.map((scenario) => (

@@ -80,13 +80,18 @@ export function MapView({
       route,
       navigationSession,
     })
+  }, [origin, destination, route, navigationSession, retryVersion])
+
+  useEffect(() => {
     if (route && window.matchMedia('(max-width: 760px)').matches) {
       containerRef.current?.scrollIntoView({
-        behavior: 'smooth',
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'auto'
+          : 'smooth',
         block: 'start',
       })
     }
-  }, [origin, destination, route, navigationSession, retryVersion])
+  }, [route])
   useEffect(() => {
     adapterRef.current?.setMode(mode)
   }, [mode, retryVersion])

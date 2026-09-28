@@ -100,6 +100,12 @@ describe('App', () => {
     expect(
       screen.getByRole('button', { name: 'Try location again' }),
     ).toBeEnabled()
+    await user.selectOptions(
+      screen.getByLabelText('Demo checkpoint result'),
+      'expected',
+    )
+    await user.click(screen.getByRole('button', { name: 'Start navigation' }))
+    expect(screen.getByText('Step 1 of 3')).toBeInTheDocument()
   })
 
   it('searches the added building destinations', async () => {

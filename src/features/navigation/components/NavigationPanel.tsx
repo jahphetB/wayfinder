@@ -176,7 +176,6 @@ export function NavigationPanel({
   readonly onNavigationSessionChange: (session: NavigationSession) => void
   readonly prototypeLocationScenarioController?: PrototypeLocationScenarioController
 }) {
-  const [prototypeScenarioRevision, setPrototypeScenarioRevision] = useState(0)
   return (
     <section className="navigation-panel">
       <p className="eyebrow">Route planner</p>
@@ -225,17 +224,12 @@ export function NavigationPanel({
       />
       {planner.plannedRoute && (
         <CheckpointNavigation
-          key={`${planner.routeRevision}-${prototypeScenarioRevision}`}
+          key={planner.routeRevision}
           route={planner.plannedRoute}
           provider={locationProvider}
           onSessionChange={onNavigationSessionChange}
           {...(prototypeLocationScenarioController
-            ? {
-                prototypeLocationScenarioController,
-                onPrototypeScenarioChange: () => {
-                  setPrototypeScenarioRevision((revision) => revision + 1)
-                },
-              }
+            ? { prototypeLocationScenarioController }
             : {})}
         />
       )}
