@@ -370,7 +370,7 @@ Status: complete; implementation and documentation commits pushed to `origin/mai
 
 ## Step 21: Campus geometry collection packet
 
-Status: complete; local documentation commit awaits explicit push approval.
+Status: complete; documentation commit pushed to `origin/main`.
 
 - Added `docs/CAMPUS_DATA_COLLECTION.md` with an authorized records request and
   a field-survey fallback for Campus Entrance, Cruzen-Murray Library, Blatchley
@@ -384,3 +384,23 @@ Status: complete; local documentation commit awaits explicit push approval.
 - Updated README and architecture handbook links, file relationships, and the
   AI skills record. No app code, coordinates, map features, or destination
   scope changed.
+
+## Step 22: OSM export audit and Blatchley entrance
+
+Status: complete; implementation and documentation commits pushed to
+`origin/main`.
+
+- Parsed the user-supplied 2026-09-28 `map.osm` export and recorded a SHA-256
+  digest, object counts, target building and entrance IDs, path-tag coverage,
+  and missing accuracy details in `docs/OSM_EXPORT_REVIEW.md`.
+- Moved Blatchley Hall's route endpoint from its mapped building center to its
+  OSM-tagged main entrance. Its final approximately 3.9 m connector remains
+  illustrative because the entrance and nearby footway do not share a mapped
+  path node. Recalculated the affected route leg to 275 m.
+- Retained the graph's illustrative status, recorded the OSM source and ODbL
+  link in provenance, and kept the other destination endpoints unchanged.
+- Updated the focused graph test, README, handbook, diagram guidance, and AI
+  skills record. No new destination, map renderer, or dependency was added.
+- The affected graph file passed all 8 tests. Lint, strict type-checking,
+  formatting, whitespace checks, and production build passed. The existing
+  deferred-map bundle warning remains unrelated to this data change.

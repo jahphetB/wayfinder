@@ -396,20 +396,23 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                          |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes.                                                                                                                                                                 |
-| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                                                                                      |
-| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, detailed edge geometry, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code. Step 19 adds Blatchley Hall, Simplot Dining Hall, and Sterry Hall at publicly corroborated building centers; their path shapes and building connectors remain illustrative. |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                                                                                        |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates intended shortest paths, confirms every searchable mock location is represented by a graph node, checks all three added destinations can be reached, and verifies the graph is labeled illustrative.                                                                                                                                                                                                   |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes.                                                                                                                               |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                                                    |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, detailed edge geometry, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code. Step 22 moves Blatchley Hall's prototype endpoint to its mapped main entrance; path connectors and operational facts remain illustrative. |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                                                      |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates intended shortest paths, confirms every searchable mock location is represented by a graph node, checks all three added destinations can be reached, and verifies the graph is labeled illustrative.                                                                                                                                                                 |
+| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                                             |
 
 The source preparation guide is [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md).
 It specifies authorized source formats, required measurement metadata, field
 observation templates, and review checks. Use it before editing the graph or
 3D scene data so that the source and confidence of each new measurement remain
 traceable.
-| `src/data/navigation/mockLocations.ts` | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken. |
+
+The [2026-09-28 OSM export review](OSM_EXPORT_REVIEW.md) records the first
+source-specific geometry audit and its limited Blatchley entrance update.
 
 ## The `src/features` folder
 
@@ -1259,6 +1262,32 @@ review sequence. Unknown details remain unverified. Once the user provides a
 batch, the graph dataset remains the source for walking connectivity and
 provenance; separate map scene data remains the source for building geometry.
 This keeps visual modeling from silently introducing entrances or paths.
+
+### Step 22: OSM export audit and Blatchley entrance
+
+The user supplied an OpenStreetMap XML export after Step 21. The
+[export review](OSM_EXPORT_REVIEW.md) records the exact snapshot digest, object
+counts, the four current building outlines, their tagged entrances, pedestrian
+path coverage, and missing facts. XML here is a text format for map records:
+point nodes, ordered path or outline ways, and named tags. It is source data,
+not instructions for the project.
+
+The first data batch moves only Blatchley Hall's searchable and routable graph
+node to its mapped `entrance=main` node. The existing route already reaches a
+footway vertex about 3.9 metres away; its final connector now ends at the
+entrance rather than running through the building center. The rounded route
+leg length changes from 290 to 275 metres. The XML does not connect that
+entrance node to a pedestrian way, so the connector, distance, and access
+assumptions remain illustrative. The other destinations and the 3D
+calibration building are unchanged.
+
+`collegeOfIdahoWalkingGraphData.ts` contains the new endpoint, leg length,
+OSM object IDs, review date, and illustrative provenance. Its validated loader
+and `mockLocations.ts` pass the same node into routing and search results; the
+map receives the resulting route through the existing adapter. The focused
+graph test checks the endpoint, length, and status. No map-provider code or
+new runtime dependency was required. The app already displays OpenStreetMap
+attribution for its basemap, and the export review links the ODbL source terms.
 
 ## Safe change recipes
 

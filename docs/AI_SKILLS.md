@@ -141,6 +141,19 @@ stale.
 - **EXTERNAL / GPS.gov:** Retained the accuracy caveat for phone-based location
   observations when preparing the intake template.
 
+#### Step 22 usage record
+
+- **EXTERNAL / OpenStreetMap XML:** Inspected the user's export for complete
+  building outlines, entrance points, pedestrian ways, source timestamps, and
+  missing width or access tags. Recorded exact object IDs and the snapshot
+  digest so an update can be reviewed later.
+- **EXTERNAL / OpenStreetMap copyright and footway guidance:** Checked current
+  attribution and walking-way connectivity guidance before using an OSM-tagged
+  entrance as a prototype route endpoint.
+- **YOTE / Small-batch source replacement:** Updated one existing destination
+  point and its route leg while retaining the separate illustrative provenance
+  and route validation boundary.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |

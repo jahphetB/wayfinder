@@ -31,6 +31,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 19. Prototype scenarios and places | Complete | Three more destinations are available, and selectable demo outcomes test recovery behavior without physical movement.              |
 | 20. Mobile navigation refinement   | Complete | Turn instructions stay in view on phones, compact layouts fit narrow screens, and demo controls preserve keyboard focus.           |
 | 21. Campus data collection packet  | Complete | A reusable source request, measurement template, and review checklist cover the current map points and destinations.               |
+| 22. OSM export review and entrance | Complete | Reviewed the supplied export and moved the Blatchley prototype destination to its mapped main entrance.                            |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -89,6 +90,11 @@ Physical browser-location mode remains available through the environment setting
 above; in that mode uncertain, mismatched, or failed readings do not advance progress.
 Use HTTPS for later phone testing. Paths remain illustrative: do not rely on
 this prototype for safe campus navigation.
+The supplied OpenStreetMap export places Blatchley Hall's prototype endpoint at
+a tagged main entrance. Its short link to the footway remains illustrative.
+See the [export review](docs/OSM_EXPORT_REVIEW.md) for source coverage, gaps,
+and the next measurements needed. OpenStreetMap data is available under the
+[Open Database License](https://www.openstreetmap.org/copyright).
 Read only this step in the [Step 16 handbook guide](docs/ARCHITECTURE.md#step-16-browser-location-and-checkpoint-navigation).
 The [Step 17 handbook guide](docs/ARCHITECTURE.md#step-17-prototype-location-simulator)
 explains simulation and the future field-test switch.
@@ -101,6 +107,8 @@ explains phone-sized layout, visible turn instructions, and keyboard behavior.
 The [campus geometry collection packet](docs/CAMPUS_DATA_COLLECTION.md)
 explains what source files, measurements, photographs, and review details to
 provide before replacing illustrative geometry.
+The [Step 22 handbook guide](docs/ARCHITECTURE.md#step-22-osm-export-audit-and-blatchley-entrance)
+explains this export's first route update and its remaining uncertainty.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

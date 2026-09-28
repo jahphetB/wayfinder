@@ -75,6 +75,7 @@ flowchart TB
         Tests[Vitest and Testing Library<br/>focused automated tests]
         Tooling[TypeScript, ESLint, Prettier, Vite<br/>strict checks and bundling]
         Handbook[README and docs<br/>architecture, progress, skills, decisions]
+        OSMExport[User-supplied OSM XML snapshot<br/>reviewed source geometry]
         Context7[Context7 MCP<br/>current library documentation]
         AgentRules[AGENTS.md<br/>approval and engineering rules]
     end
@@ -119,6 +120,8 @@ flowchart TB
     MapLibre --> GPU
     Three --> GPU
     OSM --> MapLibre
+    OSMExport -. reviewed entrance coordinate .-> GraphData
+    OSMExport -. counts and gaps .-> Handbook
 
     Tests -. verify .-> NavigationDomain
     Tests -. verify .-> MapFeature
@@ -149,7 +152,7 @@ flowchart TB
 
     class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,BuildingContract,GraphData,GraphLoader,Locations,Campus,Scene implemented
     class CreateAdapter,Adapter,BuildingLayer,MapLibre,Three,GPU integration
-    class OSM,Tests,Tooling,Handbook,Context7,AgentRules external
+    class OSM,OSMExport,Tests,Tooling,Handbook,Context7,AgentRules external
     class NavigationControls,CheckpointHook implemented
     class CreateLocation,BrowserProvider,PrototypeProvider integration
     class BrowserGPS external
@@ -164,6 +167,9 @@ flowchart TB
   MapLibre and the Three.js building layer at the application edge.
 - The walking graph is the routing authority. The 3D scene is visual content and
   cannot define an entrance or a safe walking path by itself.
+- The user-supplied OSM XML is a reviewed source snapshot, not a runtime map
+  service. One tagged Blatchley entrance coordinate has been added to the
+  graph; its connector and other route facts remain illustrative.
 - `routeSteps.ts` is implemented domain logic. It converts selected edge
   geometry into maneuvers and checkpoints. The implemented navigation session
   consumes those checkpoints without depending on a browser location API.
