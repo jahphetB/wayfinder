@@ -396,14 +396,14 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                        |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its values deliberately remain separate from individual locations and routes.                                                                                                                               |
-| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                                                    |
-| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, detailed edge geometry, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code. Step 22 moves Blatchley Hall's prototype endpoint to its mapped main entrance; path connectors and operational facts remain illustrative. |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                                                      |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates intended shortest paths, confirms every searchable mock location is represented by a graph node, checks all three added destinations can be reached, and verifies the graph is labeled illustrative.                                                                                                                                                                 |
-| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                                             |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                                                   |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its north-south boundary now allows a tall map panel to zoom out enough to fit the current east-west routes. These values remain separate from individual locations and routes.                                                                                        |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                                                                                                               |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, detailed edge geometry, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code. Step 23 traces the limited route network from the supplied pedestrian ways and separates Simplot's cafeteria and residence entrances. Unmapped connectors and operational facts remain illustrative. |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                                                                                                                 |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates intended shortest paths, confirms every searchable location has a graph node, checks that both Simplot entrances and the other current buildings are routable, compares drawn length with edge distance, and verifies the graph remains illustrative.                                                                                                                                                                           |
+| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                                                                                                        |
 
 The source preparation guide is [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md).
 It specifies authorized source formats, required measurement metadata, field
@@ -411,8 +411,10 @@ observation templates, and review checks. Use it before editing the graph or
 3D scene data so that the source and confidence of each new measurement remain
 traceable.
 
-The [2026-09-28 OSM export review](OSM_EXPORT_REVIEW.md) records the first
-source-specific geometry audit and its limited Blatchley entrance update.
+The [2026-09-28 OSM export review](OSM_EXPORT_REVIEW.md) records the source
+snapshot, the first Blatchley update, and the later limited 2D route-network
+batch. The XML is not loaded by the browser; reviewed coordinates were copied
+into the editable graph and continue through the normal validation boundary.
 
 ## The `src/features` folder
 
@@ -1289,6 +1291,50 @@ graph test checks the endpoint, length, and status. No map-provider code or
 new runtime dependency was required. The app already displays OpenStreetMap
 attribution for its basemap, and the export review links the ODbL source terms.
 
+### Step 23: OSM-based 2D walking routes
+
+The user clarified that accurate 2D walking routes take priority over widths,
+building heights, accessibility, slopes, and further 3D work. Their OSM edits
+were made from firsthand campus observation. We therefore used the supplied
+export's ordered pedestrian-way points to replace the limited graph's old
+straight route drawings. A graph is the application's connected list of places
+and walkable links; a way in OSM is an ordered series of mapped points. We
+kept the graph small: it covers only the existing nearby destinations and now
+has junctions that make the mapped alternatives and turns explicit.
+
+Simplot is one connected building with two separately selectable destinations.
+The mapped main entrance near Blatchley is labeled **Simplot Dining Hall** for
+the cafeteria; the other mapped main entrance is **Simplot Residence Hall**.
+The library and Sterry destinations also end at their mapped entrance nodes.
+The old Campus Entrance point is not on an exported pedestrian way, so its
+first line still goes straight to the nearest mapped footway. Entrance nodes
+are near, but not directly joined to, the footway network in the XML; their
+short final segments are illustrative too. This is not a claim that those gaps
+are safe, accessible, or physically open. The graph's provenance stays
+`illustrative`, and accessibility stays `unverified`.
+
+`collegeOfIdahoWalkingGraphData.ts` is the only route-geometry edit point.
+`collegeOfIdahoWalkingGraph.ts` validates it, `mockLocations.ts` derives search
+choices, and `walkingRoutes.ts` selects connected edges. `routeSteps.ts`
+turns those edges into instructions and checkpoints; `MapView.tsx` forwards the
+same route to `MapLibreMapAdapter.ts` to draw it. Thus one data correction
+changes search, route distance, instructions, and the visible line together.
+The focused graph test checks key entrance points, the chosen library path,
+and consistency between drawn lengths and routing distances.
+
+The app opens in 2D while this work is being reviewed. Existing 3D rendering
+remains available but was not developed further. In browser testing, the
+east-west residence route was clipped even though `fitBounds` centered it.
+MapLibre's configured maximum pan boundary also imposes a minimum zoom: on
+the tall, narrow desktop canvas, the old boundary prevented enough zoom-out.
+`collegeOfIdahoCampus.ts` now provides a slightly taller campus-local boundary
+so both route endpoints can fit. This is a camera configuration change, not a
+change in any building or walkway coordinate. Test the current 2D routes in
+the browser and tell us where the line leaves a real walkway before treating
+them as field-ready directions. The adapter also re-fits a preview when MapLibre
+reports a canvas resize, so a browser-width change or phone rotation does not
+leave an already previewed route cut off.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -1472,6 +1518,23 @@ boundary and should be moved back behind the contract.
 The September 2026 invisible-map failure was caused by a zero-height map host:
 MapLibre vendor CSS overrode application positioning. A second usability issue
 came from a demonstration style that showed little street detail at campus zoom.
+
+### A route preview is cut off at the edge
+
+1. Confirm that the first and last route coordinates in
+   `collegeOfIdahoWalkingGraphData.ts` match the chosen locations.
+2. Check whether the route itself extends outside the configured
+   `collegeOfIdahoCampus.bounds`. The map's maximum pan boundary can also
+   force a minimum zoom; this matters most on a tall, narrow map panel.
+3. Check `MapLibreMapAdapter.syncContent`: it sends the entire route's
+   coordinate bounds to `fitBounds` with padding. A centered route with clipped
+   endpoints can indicate a camera constraint rather than missing geometry.
+4. Verify on both a desktop and a phone-sized browser before widening bounds.
+   Keep the view campus-local and do not alter route coordinates merely to
+   compensate for a camera problem.
+5. If clipping appears only after resizing, confirm the adapter's `resize`
+   event re-fits the current preview rather than requiring a second click on
+   **Preview route**.
 
 ### The map works but the 3D building is missing
 
@@ -1890,6 +1953,24 @@ historical context.
 - **Consequences:** Preview still reveals the map; progressing or going Back
   keeps the text controls in view. Narrow-width layout and focus behavior are
   separately verified in browser and component checks.
+
+### ADR-031: Make observed 2D path geometry the current routing source
+
+- **Status:** Accepted and implemented in Step 23 for the limited prototype
+  network, pending field review.
+- **Context:** The original hand-drawn legs diverged from the user-observed
+  pedestrian ways. Simplot has two main entrances serving different purposes.
+- **Decision:** Store ordered OSM-export pedestrian-way coordinates and the
+  user's entrance interpretation in the existing graph data file. Begin in 2D,
+  retain 3D as an experimental view, and defer widths, heights, slopes, and
+  accessibility claims. Mark unmatched entrance and origin links illustrative.
+- **Reason:** Routing, step instructions, and the map now share the same small,
+  reviewable walking network without introducing an OSM runtime dependency.
+- **Consequences:** The visible line is better grounded in firsthand-edited
+  map data, but is not yet a certified walking or accessible route. Later OSM
+  exports and on-site corrections can replace coordinates in one file. The
+  map's camera boundary must allow the widest current route to fit on narrow
+  desktop map panels.
 
 ## Engineering principles in plain language
 

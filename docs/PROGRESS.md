@@ -404,3 +404,32 @@ Status: complete; implementation and documentation commits pushed to
 - The affected graph file passed all 8 tests. Lint, strict type-checking,
   formatting, whitespace checks, and production build passed. The existing
   deferred-map bundle warning remains unrelated to this data change.
+
+## Step 23: OSM-based 2D walking routes
+
+Status: implementation complete; local commits pending push approval.
+
+- Replaced the limited graph's old drawn legs with ordered pedestrian-way
+  coordinates from the supplied OSM snapshot. The route still connects the
+  off-walkway Campus Entrance to its nearest mapped footway with one explicitly
+  illustrative straight segment. Short final entrance gaps are also illustrative.
+- Added a distinct Simplot Residence Hall destination in the existing building.
+  The user identified the entrance near Blatchley as the cafeteria entrance
+  and the other mapped main entrance as the residence entrance. Library,
+  Blatchley, and Sterry endpoints now use their mapped entrance points too.
+- Added walkway junctions so route distances, preview shapes, and checkpoint
+  legs use the same connected geometry. Retained `illustrative` provenance and
+  `unverified` accessibility; no width, slope, building-height, or new 3D data
+  was inferred.
+- Made 2D the initial map view. In a real browser, the residence route exposed
+  a camera clipping issue: the original north-south pan boundary forced a
+  minimum zoom on the tall desktop map. Widened the latitude boundary just
+  enough to let route fitting show both endpoints while keeping campus focus.
+- Re-fit an existing route when MapLibre reports a canvas resize; this covers
+  phone rotation and desktop window changes after previewing a route.
+- Updated domain, app, and adapter assertions for the new destinations and
+  route-leg count. Browser-tested the library, cafeteria, and residence previews
+  at desktop and phone sizes, including resizing an active route; the console
+  had zero errors or warnings. Full suite: 70 tests in 15 files. Lint, strict
+  type-checking, formatting, whitespace checks, and production build passed.
+  The existing deferred-map chunk-size warning remains; no dependency was added.

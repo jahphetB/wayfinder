@@ -154,6 +154,20 @@ stale.
   point and its route leg while retaining the separate illustrative provenance
   and route validation boundary.
 
+#### Step 23 usage record
+
+- **EXTERNAL / OpenStreetMap XML:** Used the user-supplied, firsthand-observed
+  pedestrian ways and tagged entrance nodes as source geometry. Kept unmapped
+  gaps and access claims explicitly illustrative rather than treating a nearby
+  point as a proven walking connection.
+- **OPENAI / Playwright skill:** Tested the actual browser previews and console.
+  Measuring route endpoint positions on the live map exposed a camera-boundary
+  constraint that isolated domain tests could not reveal.
+- **YOTE / Traceable 2D graph editing:** Kept editable source coordinates in
+  one data file, derived routing/search/map output through existing contracts,
+  and checked drawn polyline lengths against edge distances. This is a project
+  practice developed here, not an external skill package.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |

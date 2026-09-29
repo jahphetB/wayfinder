@@ -1,9 +1,17 @@
 # Campus Geometry Collection Packet
 
 This packet is for replacing illustrative map geometry in small, reviewable
-batches. It currently covers the existing origin and four destinations only:
+batches. It currently covers the existing origin and five destinations only:
 Campus Entrance, Cruzen-Murray Library, Blatchley Hall, Simplot Dining Hall,
-and Sterry Hall. Do not collect or add other buildings as part of this packet.
+Simplot Residence Hall, and Sterry Hall. The two Simplot destinations are
+different entrances of one connected building. Do not collect or add other
+buildings as part of this packet.
+
+For the current 2D phase, the highest-value feedback is a correction to a
+drawn walkway, junction, entrance connection, or the temporary Campus Entrance
+link. Building heights, walkway widths, slopes, and accessibility details can
+wait until the basic 2D routes have been reviewed. Leave those fields unknown;
+do not guess values to make the map appear complete.
 
 ## Best source to request
 
@@ -29,7 +37,7 @@ known coordinates or measured reference points to place it accurately.
 
 ## If official measured records are unavailable
 
-Use the form below for the same five named places and the walkways that connect
+Use the form below for the same six named places and the walkways that connect
 them. You do not need to survey every part of campus. Give each observation a
 stable ID so a photo, measurement, and map point can be matched later.
 
@@ -37,7 +45,7 @@ stable ID so a photo, measurement, and map point can be matched later.
 | ---------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `bldg-library`   | Cruzen-Murray Library           | Ground outline; length and width; height or floor count if known; actual pedestrian entrance point(s).       |
 | `bldg-blatchley` | Blatchley Hall                  | Same building details.                                                                                       |
-| `bldg-simplot`   | Simplot Dining Hall             | Same building details.                                                                                       |
+| `bldg-simplot`   | Simplot Dining/Residence        | One building outline; mark the cafeteria door near Blatchley and the separate residence door.                |
 | `bldg-sterry`    | Sterry Hall                     | Same building details.                                                                                       |
 | `node-entrance`  | Campus Entrance                 | Exact point where the route begins and the closest walkway connection.                                       |
 | `walk-*`         | Each connecting walkway section | Centerline shape, measured width, endpoints/junction IDs, surface, stairs/ramps, crossing, and access notes. |

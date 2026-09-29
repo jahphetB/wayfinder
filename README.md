@@ -32,6 +32,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 20. Mobile navigation refinement   | Complete | Turn instructions stay in view on phones, compact layouts fit narrow screens, and demo controls preserve keyboard focus.           |
 | 21. Campus data collection packet  | Complete | A reusable source request, measurement template, and review checklist cover the current map points and destinations.               |
 | 22. OSM export review and entrance | Complete | Reviewed the supplied export and moved the Blatchley prototype destination to its mapped main entrance.                            |
+| 23. OSM-based 2D routes            | Complete | Traced limited destination routes along exported pedestrian ways, separated the two Simplot entrances, and fixed route camera fit. |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -82,7 +83,7 @@ distances, closures, direction rules, and accessibility information are still
 illustrative prototype data, not official accessibility or walking directions.
 Calculated routes now retain each edge's detailed geometry and produce internal
 turn-by-turn steps. You can preview Campus Entrance routes to Cruzen-Murray
-Library, Blatchley Hall, Simplot Dining Hall, or Sterry Hall. In **Walk the
+Library, Blatchley Hall, Simplot Dining Hall, Simplot Residence Hall, or Sterry Hall. The map starts in **2D**; the existing experimental 3D view remains optional. In **Walk the
 route**, use **Demo checkpoint result** to test an expected, uncertain, wrong,
 stale, or unavailable reading from anywhere; changing the result restarts that
 route simulation. The default prototype does not request your device location.
@@ -90,8 +91,12 @@ Physical browser-location mode remains available through the environment setting
 above; in that mode uncertain, mismatched, or failed readings do not advance progress.
 Use HTTPS for later phone testing. Paths remain illustrative: do not rely on
 this prototype for safe campus navigation.
-The supplied OpenStreetMap export places Blatchley Hall's prototype endpoint at
-a tagged main entrance. Its short link to the footway remains illustrative.
+The supplied OpenStreetMap export now supplies centerlines for the current
+pedestrian routes and destination entrance coordinates. The Simplot entrance
+near Blatchley serves the cafeteria; its other entrance serves the connected
+residence hall. Short unmapped entrance links and the off-walkway Campus Entrance
+link remain illustrative. This drawing is ready for visual testing, not yet
+verified for safe physical navigation.
 See the [export review](docs/OSM_EXPORT_REVIEW.md) for source coverage, gaps,
 and the next measurements needed. OpenStreetMap data is available under the
 [Open Database License](https://www.openstreetmap.org/copyright).
@@ -109,6 +114,8 @@ explains what source files, measurements, photographs, and review details to
 provide before replacing illustrative geometry.
 The [Step 22 handbook guide](docs/ARCHITECTURE.md#step-22-osm-export-audit-and-blatchley-entrance)
 explains this export's first route update and its remaining uncertainty.
+The [Step 23 handbook guide](docs/ARCHITECTURE.md#step-23-osm-based-2d-walking-routes)
+explains the current 2D route network, Simplot entrance split, and camera fit.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

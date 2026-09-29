@@ -59,10 +59,10 @@ flowchart TB
     end
 
     subgraph OwnedData[Project-owned data]
-        GraphData[collegeOfIdahoWalkingGraphData.ts<br/>editable graph and provenance]
+        GraphData[collegeOfIdahoWalkingGraphData.ts<br/>observed 2D ways, two Simplot entrances,<br/>illustrative connectors and provenance]
         GraphLoader[collegeOfIdahoWalkingGraph.ts<br/>validated runtime release]
         Locations[mockLocations.ts<br/>searchable locations derived from graph]
-        Campus[collegeOfIdahoCampus.ts<br/>center, bounds, initial zoom]
+        Campus[collegeOfIdahoCampus.ts<br/>campus camera center and fit boundary]
         Scene[collegeOfIdahoScene.ts<br/>illustrative 3D calibration building]
     end
 
@@ -120,7 +120,7 @@ flowchart TB
     MapLibre --> GPU
     Three --> GPU
     OSM --> MapLibre
-    OSMExport -. reviewed entrance coordinate .-> GraphData
+    OSMExport -. reviewed pedestrian ways and entrances .-> GraphData
     OSMExport -. counts and gaps .-> Handbook
 
     Tests -. verify .-> NavigationDomain
@@ -168,8 +168,13 @@ flowchart TB
 - The walking graph is the routing authority. The 3D scene is visual content and
   cannot define an entrance or a safe walking path by itself.
 - The user-supplied OSM XML is a reviewed source snapshot, not a runtime map
-  service. One tagged Blatchley entrance coordinate has been added to the
-  graph; its connector and other route facts remain illustrative.
+  service. Current 2D graph edges follow its observed pedestrian-way points,
+  and the five destination endpoints use mapped entrances. The user identified
+  which of Simplot's two doors serves the cafeteria and residence. Unmapped
+  origin/entrance connectors and access facts remain illustrative.
+- The app opens in 2D for path review. Campus camera bounds allow even the
+  widest current route to fit in a tall map panel; the existing 3D calibration
+  view is available but is not the current data-development priority.
 - `routeSteps.ts` is implemented domain logic. It converts selected edge
   geometry into maneuvers and checkpoints. The implemented navigation session
   consumes those checkpoints without depending on a browser location API.
