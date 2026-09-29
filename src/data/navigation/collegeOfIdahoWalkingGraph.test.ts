@@ -5,6 +5,7 @@ import {
 import { collegeOfIdahoWalkingGraphData } from './collegeOfIdahoWalkingGraphData'
 import { findShortestWalkingPath } from '@/domain/navigation/pathfinding'
 import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
+import { calculateDistanceMeters } from '@/domain/navigation/locationVerification'
 import { mockLocations } from './mockLocations'
 
 describe('College of Idaho walking graph', () => {
@@ -20,13 +21,17 @@ describe('College of Idaho walking graph', () => {
 
   it('labels current path data as illustrative rather than verified', () => {
     expect(collegeOfIdahoWalkingGraphRelease.provenance).toEqual({
-      sourceDescription: expect.stringContaining('not campus-approved'),
+      sourceDescription:
+        collegeOfIdahoWalkingGraphData.provenance.sourceDescription,
       verificationStatus: 'illustrative',
       reviewedOn: '2026-09-28',
     })
     expect(
       collegeOfIdahoWalkingGraphRelease.provenance.sourceDescription,
-    ).toContain('entrance node 14229217297')
+    ).toContain('not been campus-approved')
+    expect(
+      collegeOfIdahoWalkingGraphRelease.provenance.sourceDescription,
+    ).toContain('node 14229218101')
   })
 
   it('represents each searchable mock location as a graph node', () => {
@@ -39,7 +44,7 @@ describe('College of Idaho walking graph', () => {
     ).toBe(true)
   })
 
-  it('keeps the publicly corroborated current-library coordinate consistent', () => {
+  it('uses the mapped library entrance as the searchable destination', () => {
     const libraryLocation = mockLocations.find(
       (location) => location.id === 'cruzen-murray-library',
     )
@@ -49,25 +54,34 @@ describe('College of Idaho walking graph', () => {
 
     expect(libraryLocation).toMatchObject({
       label: 'Cruzen-Murray Library',
-      coordinates: { latitude: 43.6545, longitude: -116.67654 },
+      coordinates: { latitude: 43.6544341, longitude: -116.6768005 },
     })
     expect(libraryNode?.coordinates).toEqual(libraryLocation?.coordinates)
   })
 
-  it('makes three additional campus buildings searchable and routable', () => {
+  it('makes both Simplot entrances and the other current buildings routable', () => {
     expect(
       mockLocations
         .filter((location) =>
-          ['blatchley-hall', 'simplot-dining-hall', 'sterry-hall'].includes(
-            location.id,
-          ),
+          [
+            'blatchley-hall',
+            'simplot-dining-hall',
+            'simplot-residence-hall',
+            'sterry-hall',
+          ].includes(location.id),
         )
         .map((location) => location.label),
-    ).toEqual(['Blatchley Hall', 'Simplot Dining Hall', 'Sterry Hall'])
+    ).toEqual([
+      'Blatchley Hall',
+      'Simplot Dining Hall',
+      'Simplot Residence Hall',
+      'Sterry Hall',
+    ])
 
     for (const destinationLocationId of [
       'blatchley-hall',
       'simplot-dining-hall',
+      'simplot-residence-hall',
       'sterry-hall',
     ]) {
       expect(
@@ -100,13 +114,35 @@ describe('College of Idaho walking graph', () => {
       longitude: -116.6753107,
     })
     expect(route?.coordinates.at(-1)).toEqual(entrance)
-    expect(route?.steps.at(-1)?.distanceMeters).toBe(275)
+    expect(route?.steps.at(-1)?.distanceMeters).toBe(61)
     expect(
       collegeOfIdahoWalkingGraphRelease.provenance.verificationStatus,
     ).toBe('illustrative')
   })
 
-  it('provides a shorter connected path to the current library', () => {
+  it('keeps the two user-identified Simplot destinations at distinct entrances', () => {
+    const cafeteria = findWalkingRoute(
+      collegeOfIdahoWalkingGraph,
+      'campus-entrance',
+      'simplot-dining-hall',
+    )
+    const residence = findWalkingRoute(
+      collegeOfIdahoWalkingGraph,
+      'campus-entrance',
+      'simplot-residence-hall',
+    )
+
+    expect(cafeteria?.coordinates.at(-1)).toEqual({
+      latitude: 43.6528175,
+      longitude: -116.6753616,
+    })
+    expect(residence?.coordinates.at(-1)).toEqual({
+      latitude: 43.6533194,
+      longitude: -116.6747409,
+    })
+  })
+
+  it('selects the shorter connected footway route to the library', () => {
     expect(
       findShortestWalkingPath(
         collegeOfIdahoWalkingGraph,
@@ -117,28 +153,33 @@ describe('College of Idaho walking graph', () => {
       nodeIds: [
         'campus-entrance',
         'central-walkway',
-        'morrison-quadrangle',
+        'morrison-split',
+        'east-fork',
+        'north-junction',
         'cruzen-murray-library',
       ],
       edgeIds: [
         'campus-entrance-to-central-walkway',
-        'central-walkway-to-morrison-quadrangle',
-        'morrison-quadrangle-to-cruzen-murray-library',
+        'central-walkway-to-morrison-split',
+        'morrison-split-to-east-fork',
+        'east-fork-to-north-junction',
+        'north-junction-to-cruzen-murray-library',
       ],
-      distanceMeters: 490,
+      distanceMeters: 535,
     })
   })
 
-  it('preserves illustrative edge geometry and creates checkpoint steps', () => {
+  it('derives checkpoint steps from the mapped footway geometry', () => {
     const route = findWalkingRoute(
       collegeOfIdahoWalkingGraph,
       'campus-entrance',
       'cruzen-murray-library',
     )
 
-    expect(route?.coordinates).toHaveLength(27)
-    expect(route?.steps).toHaveLength(3)
+    expect(route?.steps).toHaveLength(5)
     expect(route?.steps.map((step) => step.checkpoint.kind)).toEqual([
+      'turn',
+      'turn',
       'turn',
       'turn',
       'destination',
@@ -148,12 +189,28 @@ describe('College of Idaho walking graph', () => {
       longitude: -116.6799,
     })
     expect(route?.coordinates[1]).toEqual({
-      latitude: 43.6526291,
-      longitude: -116.6786006,
+      latitude: 43.652754,
+      longitude: -116.6787884,
     })
     expect(route?.coordinates.at(-1)).toEqual({
-      latitude: 43.6545,
-      longitude: -116.67654,
+      latitude: 43.6544341,
+      longitude: -116.6768005,
     })
+  })
+
+  it('keeps each walking-edge distance consistent with its drawn geometry', () => {
+    for (const edge of collegeOfIdahoWalkingGraph.edges) {
+      const drawnMeters = edge.geometry
+        .slice(1)
+        .reduce((distance, point, index) => {
+          const previous = edge.geometry[index]
+          if (!previous) throw new Error(`Missing coordinate in ${edge.id}`)
+          return distance + calculateDistanceMeters(previous, point)
+        }, 0)
+
+      expect(Math.abs(edge.distanceMeters - drawnMeters), edge.id).toBeLessThan(
+        1,
+      )
+    }
   })
 })

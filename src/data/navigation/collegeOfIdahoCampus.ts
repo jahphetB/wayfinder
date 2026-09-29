@@ -5,8 +5,8 @@ export const collegeOfIdahoCampus = Object.freeze({
   address: '2112 Cleveland Blvd, Caldwell, ID 83605',
   center: createCoordinates({ latitude: 43.6526, longitude: -116.676 }),
   bounds: Object.freeze({
-    southwest: createCoordinates({ latitude: 43.6495, longitude: -116.682 }),
-    northeast: createCoordinates({ latitude: 43.6575, longitude: -116.6705 }),
+    southwest: createCoordinates({ latitude: 43.6475, longitude: -116.682 }),
+    northeast: createCoordinates({ latitude: 43.6595, longitude: -116.6705 }),
   }),
   initialZoom: 17.2,
 })

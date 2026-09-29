@@ -217,7 +217,11 @@ describe('MapLibreMapAdapter', () => {
     }
     expect(
       latestRouteData.features.map(({ properties }) => properties.state),
-    ).toEqual(['completed', 'current', 'upcoming'])
+    ).toEqual([
+      'completed',
+      'current',
+      ...Array.from({ length: route.steps.length - 2 }, () => 'upcoming'),
+    ])
     const addedLayers = addLayer.mock.calls as unknown as Array<
       [{ id: string; paint?: Record<string, unknown> }]
     >
@@ -246,6 +250,67 @@ describe('MapLibreMapAdapter', () => {
     adapter.setMode('2d')
     expect(easeTo).toHaveBeenLastCalledWith(
       expect.objectContaining({ pitch: 0, duration: 450 }),
+    )
+  })
+
+  it('fits a preview again when the map canvas is resized', () => {
+    const on = vi.fn()
+    const fitBounds = vi.fn()
+    const mapInstance: MapLibreMapInstance = {
+      easeTo: vi.fn(),
+      on,
+      addSource: vi.fn(),
+      getSource: vi.fn(),
+      addLayer: vi.fn(),
+      getLayer: vi.fn(),
+      fitBounds,
+      remove: vi.fn(),
+    }
+    const adapter = new MapLibreMapAdapter({
+      style: 'https://example.test/style.json',
+      createMap: vi.fn(() => mapInstance),
+    })
+    const route = findWalkingRoute(
+      collegeOfIdahoWalkingGraph,
+      'campus-entrance',
+      'simplot-residence-hall',
+    )
+    if (!route) throw new Error('Expected residence route fixture')
+
+    adapter.initialize(document.createElement('div'), {
+      center: { latitude: 43.6526, longitude: -116.676 },
+      zoom: 17,
+      mode: '2d',
+    })
+    const loadListener = on.mock.calls.find(
+      ([event]) => event === 'load',
+    )?.[1] as () => void
+    const resizeListener = on.mock.calls.find(
+      ([event]) => event === 'resize',
+    )?.[1] as () => void
+    loadListener()
+    adapter.setContent({
+      origin: undefined,
+      destination: undefined,
+      route,
+      navigationSession: undefined,
+    })
+
+    expect(fitBounds).toHaveBeenCalledTimes(1)
+    resizeListener()
+    expect(fitBounds).toHaveBeenCalledTimes(2)
+    expect(fitBounds).toHaveBeenLastCalledWith(
+      [
+        [
+          Math.min(...route.coordinates.map((point) => point.longitude)),
+          Math.min(...route.coordinates.map((point) => point.latitude)),
+        ],
+        [
+          Math.max(...route.coordinates.map((point) => point.longitude)),
+          Math.max(...route.coordinates.map((point) => point.latitude)),
+        ],
+      ],
+      { padding: 80, maxZoom: 16, duration: 700 },
     )
   })
 })

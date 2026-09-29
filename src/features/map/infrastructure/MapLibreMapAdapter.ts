@@ -19,6 +19,7 @@ import type {
 export interface MapLibreMapInstance {
   easeTo(options: EaseToOptions): unknown
   on(event: 'load', listener: () => void): unknown
+  on(event: 'resize', listener: () => void): unknown
   on(event: 'error', listener: (event: { error?: Error }) => void): unknown
   addSource(id: string, source: object): unknown
   getSource(id: string): unknown
@@ -100,6 +101,11 @@ export class MapLibreMapAdapter implements MapAdapter {
       callbacks?.onError?.(
         event.error ?? new Error('MapLibre could not load the map.'),
       )
+    })
+    this.map.on('resize', () => {
+      if (!this.isReady || !this.content.route) return
+      this.cameraStateKey = undefined
+      this.syncContent()
     })
   }
 

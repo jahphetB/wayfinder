@@ -6,11 +6,14 @@ import type { NavigationSession } from '@/domain/navigation/types'
 vi.mock('@/features/map/components/MapView', () => ({
   MapView: ({
     navigationSession,
+    mode,
   }: {
     navigationSession: NavigationSession | undefined
+    mode: '2d' | '3d'
   }) => (
     <section
       aria-label="Interactive map"
+      data-map-mode={mode}
       data-navigation-step={navigationSession?.currentStepIndex}
     />
   ),
@@ -33,7 +36,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
     expect(requestCurrentLocation).not.toHaveBeenCalled()
     await user.click(screen.getByRole('button', { name: 'Start navigation' }))
-    expect(screen.getByText('Step 1 of 3')).toBeInTheDocument()
+    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument()
     expect(
       screen.getByRole('region', { name: 'Interactive map' }),
     ).toHaveAttribute('data-navigation-step', '0')
@@ -55,6 +58,9 @@ describe('App', () => {
     expect(
       screen.getByRole('region', { name: 'Interactive map' }),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('region', { name: 'Interactive map' }),
+    ).toHaveAttribute('data-map-mode', '2d')
   })
 
   it('shows a clear invalid-location state after a typed value is not selected', async () => {
@@ -105,7 +111,7 @@ describe('App', () => {
       'expected',
     )
     await user.click(screen.getByRole('button', { name: 'Start navigation' }))
-    expect(screen.getByText('Step 1 of 3')).toBeInTheDocument()
+    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument()
   })
 
   it('searches the added building destinations', async () => {
