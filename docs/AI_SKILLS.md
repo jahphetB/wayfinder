@@ -163,6 +163,8 @@ stale.
 - **OPENAI / Playwright skill:** Tested the actual browser previews and console.
   Measuring route endpoint positions on the live map exposed a camera-boundary
   constraint that isolated domain tests could not reveal.
+- **OPENAI / OpenAI Docs skill:** Checked current official model-selection
+  guidance before recommending an efficient agent for the next 2D review step.
 - **YOTE / Traceable 2D graph editing:** Kept editable source coordinates in
   one data file, derived routing/search/map output through existing contracts,
   and checked drawn polyline lengths against edge distances. This is a project
