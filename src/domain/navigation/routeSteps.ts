@@ -16,45 +16,60 @@ export function createRouteSteps(
   routeId: string,
 ): readonly RouteStep[] {
   const edgesById = new Map(graph.edges.map((edge) => [edge.id, edge]))
+  const legs: {
+    edgeId: string
+    maneuver: RouteManeuver
+    coordinates: Coordinates[]
+    distanceMeters: number
+  }[] = []
+  let previousCoordinates: readonly Coordinates[] | undefined
 
-  return Object.freeze(
-    path.edgeIds.map((edgeId, index): RouteStep => {
-      const edge = edgesById.get(edgeId)
-      const startNodeId = path.nodeIds[index]
+  path.edgeIds.forEach((edgeId, index) => {
+    const edge = edgesById.get(edgeId)
+    const startNodeId = path.nodeIds[index]
+    if (!edge || !startNodeId) {
+      throw new Error(`Walking path references unknown edge: ${edgeId}`)
+    }
 
-      if (!edge || !startNodeId) {
-        throw new Error(`Walking path references unknown edge: ${edgeId}`)
-      }
-
-      const coordinates = orientEdgeGeometry(edge, startNodeId)
-      const previousCoordinates =
-        index === 0
-          ? undefined
-          : orientEdgeGeometry(
-              requireEdge(edgesById, path.edgeIds[index - 1]),
-              path.nodeIds[index - 1],
-            )
-      const maneuver = previousCoordinates
-        ? determineManeuver(previousCoordinates, coordinates)
-        : 'depart'
-      const isFinalStep = index === path.edgeIds.length - 1
-      const checkpointCoordinates = coordinates.at(-1)
-
-      if (!checkpointCoordinates) {
-        throw new Error(`Walking edge ${edge.id} has no checkpoint coordinate`)
-      }
-
-      return Object.freeze({
-        id: `${routeId}-step-${index + 1}`,
+    const coordinates = orientEdgeGeometry(edge, startNodeId)
+    const maneuver = previousCoordinates
+      ? determineManeuver(previousCoordinates, coordinates)
+      : 'depart'
+    const currentLeg = legs.at(-1)
+    if (maneuver === 'continue' && currentLeg) {
+      currentLeg.coordinates.push(...coordinates.slice(1))
+      currentLeg.distanceMeters += edge.distanceMeters
+    } else {
+      legs.push({
         edgeId,
         maneuver,
+        coordinates: [...coordinates],
+        distanceMeters: edge.distanceMeters,
+      })
+    }
+    previousCoordinates = coordinates
+  })
+
+  return Object.freeze(
+    legs.map((leg, index): RouteStep => {
+      const checkpointCoordinates = leg.coordinates.at(-1)
+      if (!checkpointCoordinates) {
+        throw new Error(
+          `Walking leg ${leg.edgeId} has no checkpoint coordinate`,
+        )
+      }
+      const isFinalStep = index === legs.length - 1
+      return Object.freeze({
+        id: `${routeId}-step-${index + 1}`,
+        edgeId: leg.edgeId,
+        maneuver: leg.maneuver,
         instruction: createInstruction(
-          maneuver,
-          edge.distanceMeters,
+          leg.maneuver,
+          leg.distanceMeters,
           isFinalStep,
         ),
-        coordinates,
-        distanceMeters: edge.distanceMeters,
+        coordinates: Object.freeze(leg.coordinates),
+        distanceMeters: leg.distanceMeters,
         checkpoint: Object.freeze({
           id: `${routeId}-checkpoint-${index + 1}`,
           kind: isFinalStep ? ('destination' as const) : ('turn' as const),
@@ -63,18 +78,6 @@ export function createRouteSteps(
       })
     }),
   )
-}
-
-function requireEdge(
-  edgesById: ReadonlyMap<string, WalkingGraphEdge>,
-  edgeId: string | undefined,
-): WalkingGraphEdge {
-  const edge = edgeId ? edgesById.get(edgeId) : undefined
-  if (!edge) {
-    throw new Error(`Walking path references unknown edge: ${edgeId ?? ''}`)
-  }
-
-  return edge
 }
 
 function orientEdgeGeometry(

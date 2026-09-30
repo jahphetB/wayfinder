@@ -2,6 +2,7 @@ import type { WalkingGraph, WalkingGraphEdge, WalkingPath } from './types'
 
 interface QueueEntry {
   readonly nodeId: string
+  readonly costMeters: number
   readonly distanceMeters: number
 }
 
@@ -29,15 +30,17 @@ export function findShortestWalkingPath(
     })
   }
 
-  const distances = new Map<string, number>([[originNodeId, 0]])
+  const costs = new Map<string, number>([[originNodeId, 0]])
   const previousSteps = new Map<string, PreviousStep>()
-  const queue: QueueEntry[] = [{ nodeId: originNodeId, distanceMeters: 0 }]
+  const queue: QueueEntry[] = [
+    { nodeId: originNodeId, costMeters: 0, distanceMeters: 0 },
+  ]
 
   while (queue.length > 0) {
-    queue.sort((first, second) => first.distanceMeters - second.distanceMeters)
+    queue.sort((first, second) => first.costMeters - second.costMeters)
     const current = queue.shift()
 
-    if (!current || current.distanceMeters !== distances.get(current.nodeId)) {
+    if (!current || current.costMeters !== costs.get(current.nodeId)) {
       continue
     }
 
@@ -52,22 +55,31 @@ export function findShortestWalkingPath(
 
     for (const edge of connectedEdges(graph.edges, current.nodeId)) {
       const neighborNodeId = otherNodeId(edge, current.nodeId)
+      const nextCost = current.costMeters + walkingCost(edge)
       const nextDistance = current.distanceMeters + edge.distanceMeters
 
-      if (nextDistance >= (distances.get(neighborNodeId) ?? Infinity)) {
+      if (nextCost >= (costs.get(neighborNodeId) ?? Infinity)) {
         continue
       }
 
-      distances.set(neighborNodeId, nextDistance)
+      costs.set(neighborNodeId, nextCost)
       previousSteps.set(neighborNodeId, {
         nodeId: current.nodeId,
         edgeId: edge.id,
       })
-      queue.push({ nodeId: neighborNodeId, distanceMeters: nextDistance })
+      queue.push({
+        nodeId: neighborNodeId,
+        costMeters: nextCost,
+        distanceMeters: nextDistance,
+      })
     }
   }
 
   return undefined
+}
+
+function walkingCost(edge: WalkingGraphEdge): number {
+  return edge.distanceMeters * (edge.pathKind === 'informal' ? 1.12 : 1)
 }
 
 function connectedEdges(

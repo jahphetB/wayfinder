@@ -127,4 +127,43 @@ describe('findShortestWalkingPath', () => {
       findShortestWalkingPath(graphWithOneWayEdge, 'end', 'start'),
     ).toBeUndefined()
   })
+
+  it('prefers a nearby formal walkway but uses a materially shorter informal path', () => {
+    const nodes = [
+      { id: 'start', coordinates: { latitude: 43.65, longitude: -116.68 } },
+      { id: 'end', coordinates: { latitude: 43.651, longitude: -116.679 } },
+    ]
+    const formalEdge = {
+      id: 'formal',
+      fromNodeId: 'start',
+      toNodeId: 'end',
+      distanceMeters: 110,
+      pathKind: 'formal' as const,
+    }
+    const informalEdge = {
+      id: 'informal',
+      fromNodeId: 'start',
+      toNodeId: 'end',
+      distanceMeters: 100,
+      pathKind: 'informal' as const,
+    }
+
+    expect(
+      findShortestWalkingPath(
+        createWalkingGraph({ nodes, edges: [formalEdge, informalEdge] }),
+        'start',
+        'end',
+      )?.edgeIds,
+    ).toEqual(['formal'])
+    expect(
+      findShortestWalkingPath(
+        createWalkingGraph({
+          nodes,
+          edges: [formalEdge, { ...informalEdge, distanceMeters: 80 }],
+        }),
+        'start',
+        'end',
+      ),
+    ).toMatchObject({ edgeIds: ['informal'], distanceMeters: 80 })
+  })
 })

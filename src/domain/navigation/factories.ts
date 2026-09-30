@@ -15,6 +15,7 @@ import type {
   WalkingGraphNode,
   WalkingGraphProvenance,
   WalkingGraphRelease,
+  WalkingPathKind,
 } from './types'
 
 interface CoordinatesInput {
@@ -70,6 +71,7 @@ interface WalkingGraphEdgeInput {
   readonly direction?: WalkingEdgeDirection
   readonly availability?: WalkingEdgeAvailability
   readonly accessibility?: WalkingEdgeAccessibility
+  readonly pathKind?: WalkingPathKind
 }
 
 interface WalkingGraphInput {
@@ -269,6 +271,13 @@ function createWalkingGraphEdge(
     ['unverified', 'step-free', 'stairs'],
     'Walking graph edge accessibility',
   )
+  if (input.pathKind) {
+    assertOneOf(
+      input.pathKind,
+      ['formal', 'informal', 'connector'],
+      'Walking path kind',
+    )
+  }
 
   if (input.fromNodeId === input.toNodeId) {
     throw new NavigationValidationError(
@@ -312,6 +321,7 @@ function createWalkingGraphEdge(
     direction,
     availability,
     accessibility,
+    ...(input.pathKind ? { pathKind: input.pathKind } : {}),
   })
 }
 

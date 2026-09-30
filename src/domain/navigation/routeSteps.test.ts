@@ -74,4 +74,33 @@ describe('createRouteSteps', () => {
       coordinates: { latitude: 43.65, longitude: -116.68 },
     })
   })
+
+  it('joins consecutive straight path segments into one checkpoint leg', () => {
+    const straightGraph = createWalkingGraph({
+      nodes: [
+        { id: 'a', coordinates: { latitude: 43.65, longitude: -116.68 } },
+        { id: 'b', coordinates: { latitude: 43.65, longitude: -116.679 } },
+        { id: 'c', coordinates: { latitude: 43.65, longitude: -116.678 } },
+      ],
+      edges: [
+        { id: 'ab', fromNodeId: 'a', toNodeId: 'b', distanceMeters: 80 },
+        { id: 'bc', fromNodeId: 'b', toNodeId: 'c', distanceMeters: 80 },
+      ],
+    })
+    const path = findShortestWalkingPath(straightGraph, 'a', 'c')
+    if (!path) throw new Error('Expected straight route')
+
+    expect(createRouteSteps(straightGraph, path, 'a-to-c')).toMatchObject([
+      {
+        maneuver: 'depart',
+        distanceMeters: 160,
+        coordinates: [
+          { latitude: 43.65, longitude: -116.68 },
+          { latitude: 43.65, longitude: -116.679 },
+          { latitude: 43.65, longitude: -116.678 },
+        ],
+        checkpoint: { kind: 'destination' },
+      },
+    ])
+  })
 })

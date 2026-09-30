@@ -105,6 +105,8 @@ export type WalkingEdgeAvailability = 'available' | 'closed'
 
 export type WalkingEdgeAccessibility = 'unverified' | 'step-free' | 'stairs'
 
+export type WalkingPathKind = 'formal' | 'informal' | 'connector'
+
 export interface WalkingGraphEdge {
   readonly id: string
   readonly fromNodeId: string
@@ -114,6 +116,7 @@ export interface WalkingGraphEdge {
   readonly direction: WalkingEdgeDirection
   readonly availability: WalkingEdgeAvailability
   readonly accessibility: WalkingEdgeAccessibility
+  readonly pathKind?: WalkingPathKind
 }
 
 export interface WalkingGraph {
