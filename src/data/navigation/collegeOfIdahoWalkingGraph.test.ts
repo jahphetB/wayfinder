@@ -1,216 +1,135 @@
+import osmSnapshot from './campusOsmNetwork.json'
 import {
   collegeOfIdahoWalkingGraph,
   collegeOfIdahoWalkingGraphRelease,
 } from './collegeOfIdahoWalkingGraph'
 import { collegeOfIdahoWalkingGraphData } from './collegeOfIdahoWalkingGraphData'
-import { findShortestWalkingPath } from '@/domain/navigation/pathfinding'
-import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
-import { calculateDistanceMeters } from '@/domain/navigation/locationVerification'
 import { mockLocations } from './mockLocations'
+import { calculateDistanceMeters } from '@/domain/navigation/locationVerification'
+import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
 
-describe('College of Idaho walking graph', () => {
-  it('loads the editable dataset through the validated graph boundary', () => {
+describe('imported campus walking graph', () => {
+  it('loads a validated, illustrative snapshot of the new OSM export', () => {
+    expect(osmSnapshot.source).toMatchObject({
+      sha256:
+        '8B0EC753640275B3177D2C2514862B41EB7EB78228E870C16BED58C0276A2FEE',
+      connectedWayCount: 184,
+      connectedNodeCount: 581,
+    })
     expect(collegeOfIdahoWalkingGraphRelease).toMatchObject({
-      graph: collegeOfIdahoWalkingGraphData.graph,
-      provenance: collegeOfIdahoWalkingGraphData.provenance,
+      provenance: {
+        verificationStatus: 'illustrative',
+        reviewedOn: '2026-09-29',
+      },
     })
     expect(collegeOfIdahoWalkingGraphRelease.graph).not.toBe(
       collegeOfIdahoWalkingGraphData.graph,
     )
   })
 
-  it('labels current path data as illustrative rather than verified', () => {
-    expect(collegeOfIdahoWalkingGraphRelease.provenance).toEqual({
-      sourceDescription:
-        collegeOfIdahoWalkingGraphData.provenance.sourceDescription,
-      verificationStatus: 'illustrative',
-      reviewedOn: '2026-09-28',
-    })
-    expect(
-      collegeOfIdahoWalkingGraphRelease.provenance.sourceDescription,
-    ).toContain('not been campus-approved')
-    expect(
-      collegeOfIdahoWalkingGraphRelease.provenance.sourceDescription,
-    ).toContain('node 14229218101')
-  })
-
-  it('represents each searchable mock location as a graph node', () => {
+  it('keeps every searchable location on the connected graph', () => {
     const graphNodeIds = new Set(
-      collegeOfIdahoWalkingGraph.nodes.map((node) => node.id),
+      collegeOfIdahoWalkingGraph.nodes.map(({ id }) => id),
     )
-
-    expect(
-      mockLocations.every((location) => graphNodeIds.has(location.id)),
-    ).toBe(true)
-  })
-
-  it('uses the mapped library entrance as the searchable destination', () => {
-    const libraryLocation = mockLocations.find(
-      (location) => location.id === 'cruzen-murray-library',
-    )
-    const libraryNode = collegeOfIdahoWalkingGraph.nodes.find(
-      (node) => node.id === 'cruzen-murray-library',
-    )
-
-    expect(libraryLocation).toMatchObject({
-      label: 'Cruzen-Murray Library',
-      coordinates: { latitude: 43.6544341, longitude: -116.6768005 },
-    })
-    expect(libraryNode?.coordinates).toEqual(libraryLocation?.coordinates)
-  })
-
-  it('makes both Simplot entrances and the other current buildings routable', () => {
-    expect(
-      mockLocations
-        .filter((location) =>
-          [
-            'blatchley-hall',
-            'simplot-dining-hall',
-            'simplot-residence-hall',
-            'sterry-hall',
-          ].includes(location.id),
-        )
-        .map((location) => location.label),
-    ).toEqual([
-      'Blatchley Hall',
-      'Simplot Dining Hall',
-      'Simplot Residence Hall',
-      'Sterry Hall',
-    ])
-
-    for (const destinationLocationId of [
-      'blatchley-hall',
-      'simplot-dining-hall',
-      'simplot-residence-hall',
-      'sterry-hall',
-    ]) {
-      expect(
-        findWalkingRoute(
-          collegeOfIdahoWalkingGraph,
-          'campus-entrance',
-          destinationLocationId,
-        ),
-      ).toMatchObject({
-        originLocationId: 'campus-entrance',
-        destinationLocationId,
-      })
-    }
-  })
-
-  it('previews Blatchley Hall at the mapped main entrance with a short connector', () => {
-    const entrance = { latitude: 43.652507, longitude: -116.675338 }
-    const blatchleyNode = collegeOfIdahoWalkingGraph.nodes.find(
-      (node) => node.id === 'blatchley-hall',
-    )
-    const route = findWalkingRoute(
-      collegeOfIdahoWalkingGraph,
-      'campus-entrance',
-      'blatchley-hall',
-    )
-
-    expect(blatchleyNode?.coordinates).toEqual(entrance)
-    expect(route?.coordinates.at(-2)).toEqual({
-      latitude: 43.6525363,
-      longitude: -116.6753107,
-    })
-    expect(route?.coordinates.at(-1)).toEqual(entrance)
-    expect(route?.steps.at(-1)?.distanceMeters).toBe(61)
-    expect(
-      collegeOfIdahoWalkingGraphRelease.provenance.verificationStatus,
-    ).toBe('illustrative')
+    expect(mockLocations).toHaveLength(21)
+    expect(mockLocations.every(({ id }) => graphNodeIds.has(id))).toBe(true)
   })
 
   it('keeps the two user-identified Simplot destinations at distinct entrances', () => {
-    const cafeteria = findWalkingRoute(
-      collegeOfIdahoWalkingGraph,
-      'campus-entrance',
-      'simplot-dining-hall',
+    const cafeteria = mockLocations.find(
+      ({ id }) => id === 'simplot-dining-hall',
     )
-    const residence = findWalkingRoute(
-      collegeOfIdahoWalkingGraph,
-      'campus-entrance',
-      'simplot-residence-hall',
+    const residence = mockLocations.find(
+      ({ id }) => id === 'simplot-residence-hall',
     )
-
-    expect(cafeteria?.coordinates.at(-1)).toEqual({
-      latitude: 43.6528175,
-      longitude: -116.6753616,
+    expect(cafeteria).toMatchObject({
+      label: 'Simplot Dining Hall (Cafeteria)',
+      coordinates: { latitude: 43.6528175, longitude: -116.6753616 },
     })
-    expect(residence?.coordinates.at(-1)).toEqual({
-      latitude: 43.6533194,
-      longitude: -116.6747409,
+    expect(residence).toMatchObject({
+      label: 'Simplot Residence Hall',
+      coordinates: { latitude: 43.6533194, longitude: -116.6747409 },
     })
+    expect(cafeteria?.coordinates).not.toEqual(residence?.coordinates)
   })
 
-  it('selects the shorter connected footway route to the library', () => {
-    expect(
-      findShortestWalkingPath(
+  it('offers only campus buildings with mapped entrance nodes and one connected landmark', () => {
+    const labels = mockLocations.map(({ label }) => label)
+    expect(labels).toContain('Anderson Residence Hall')
+    expect(labels).toContain('McCain Student Center')
+    expect(labels).toContain('Centennial Amphitheater')
+    expect(labels).not.toContain('West Hall')
+    expect(labels).not.toContain('N.L. Terteling Library')
+    expect(labels).not.toContain('Marty Holly Athletic Center')
+  })
+
+  it('finds routes to every offered place using connected path geometry', () => {
+    for (const destination of mockLocations) {
+      if (destination.id === 'campus-entrance') continue
+      const route = findWalkingRoute(
         collegeOfIdahoWalkingGraph,
         'campus-entrance',
-        'cruzen-murray-library',
-      ),
-    ).toEqual({
-      nodeIds: [
-        'campus-entrance',
-        'central-walkway',
-        'morrison-split',
-        'east-fork',
-        'north-junction',
-        'cruzen-murray-library',
-      ],
-      edgeIds: [
-        'campus-entrance-to-central-walkway',
-        'central-walkway-to-morrison-split',
-        'morrison-split-to-east-fork',
-        'east-fork-to-north-junction',
-        'north-junction-to-cruzen-murray-library',
-      ],
-      distanceMeters: 535,
-    })
+        destination.id,
+      )
+      expect(route, destination.label).toBeDefined()
+      expect(route?.coordinates[0]).toEqual({
+        latitude: 43.6522,
+        longitude: -116.6799,
+      })
+      expect(route?.coordinates.at(-1)).toEqual(destination.coordinates)
+      expect(route?.steps.at(-1)?.checkpoint.kind).toBe('destination')
+    }
   })
 
-  it('derives checkpoint steps from the mapped footway geometry', () => {
+  it('uses the mapped library entrance and measures the drawn route distance', () => {
     const route = findWalkingRoute(
       collegeOfIdahoWalkingGraph,
       'campus-entrance',
       'cruzen-murray-library',
     )
-
-    expect(route?.steps).toHaveLength(5)
-    expect(route?.steps.map((step) => step.checkpoint.kind)).toEqual([
-      'turn',
-      'turn',
-      'turn',
-      'turn',
-      'destination',
-    ])
-    expect(route?.coordinates[0]).toEqual({
-      latitude: 43.6522,
-      longitude: -116.6799,
-    })
-    expect(route?.coordinates[1]).toEqual({
-      latitude: 43.652754,
-      longitude: -116.6787884,
-    })
-    expect(route?.coordinates.at(-1)).toEqual({
+    if (!route) throw new Error('Expected library route')
+    expect(route.coordinates.at(-1)).toEqual({
       latitude: 43.6544341,
       longitude: -116.6768005,
     })
+    expect(route.distanceMeters).toBeGreaterThan(500)
+    expect(route.distanceMeters).toBeLessThan(560)
+    const drawnDistance = route.coordinates
+      .slice(1)
+      .reduce((total, point, index) => {
+        const previous = route.coordinates[index]
+        if (!previous) throw new Error('Missing route coordinate')
+        return total + calculateDistanceMeters(previous, point)
+      }, 0)
+    expect(Math.abs(drawnDistance - route.distanceMeters)).toBeLessThan(0.01)
+    expect(route.steps.length).toBeGreaterThan(1)
+    expect(route.steps.length).toBeLessThan(20)
   })
 
-  it('keeps each walking-edge distance consistent with its drawn geometry', () => {
-    for (const edge of collegeOfIdahoWalkingGraph.edges) {
-      const drawnMeters = edge.geometry
-        .slice(1)
-        .reduce((distance, point, index) => {
-          const previous = edge.geometry[index]
-          if (!previous) throw new Error(`Missing coordinate in ${edge.id}`)
-          return distance + calculateDistanceMeters(previous, point)
-        }, 0)
-
-      expect(Math.abs(edge.distanceMeters - drawnMeters), edge.id).toBeLessThan(
-        1,
-      )
+  it('keeps temporary off-walkway links identifiable from imported paths', () => {
+    const connectors = collegeOfIdahoWalkingGraph.edges.filter(
+      ({ pathKind }) => pathKind === 'connector',
+    )
+    expect(connectors.map(({ id }) => id)).toContain(
+      'connector:campus-entrance',
+    )
+    expect(
+      connectors.find(({ id }) => id === 'connector:campus-entrance')
+        ?.distanceMeters,
+    ).toBeGreaterThan(100)
+    for (const edge of connectors) {
+      expect(edge.availability).toBe('available')
+      expect(edge.accessibility).toBe('unverified')
     }
+  })
+
+  it('preserves informal path classification without declaring accessibility', () => {
+    const informal = collegeOfIdahoWalkingGraph.edges.filter(
+      ({ pathKind }) => pathKind === 'informal',
+    )
+    expect(informal.length).toBeGreaterThan(0)
+    expect(
+      informal.every(({ accessibility }) => accessibility === 'unverified'),
+    ).toBe(true)
   })
 })

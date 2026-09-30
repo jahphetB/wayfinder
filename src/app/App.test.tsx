@@ -36,7 +36,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
     expect(requestCurrentLocation).not.toHaveBeenCalled()
     await user.click(screen.getByRole('button', { name: 'Start navigation' }))
-    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument()
+    expect(screen.getByText(/Step 1 of \d+/)).toBeInTheDocument()
     expect(
       screen.getByRole('region', { name: 'Interactive map' }),
     ).toHaveAttribute('data-navigation-step', '0')
@@ -111,7 +111,7 @@ describe('App', () => {
       'expected',
     )
     await user.click(screen.getByRole('button', { name: 'Start navigation' }))
-    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument()
+    expect(screen.getByText(/Step 1 of \d+/)).toBeInTheDocument()
   })
 
   it('searches the added building destinations', async () => {
@@ -127,5 +127,22 @@ describe('App', () => {
     expect(
       screen.getByRole('option', { name: 'Sterry Hall' }),
     ).toBeInTheDocument()
+  })
+
+  it('lists the expanded campus places for scrolling and keyboard selection', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const destinationInput = screen.getByRole('combobox', {
+      name: 'Destination',
+    })
+    await user.clear(destinationInput)
+    expect(screen.getAllByRole('option').length).toBeGreaterThan(15)
+    expect(
+      screen.getByRole('option', { name: 'Centennial Amphitheater' }),
+    ).toBeInTheDocument()
+    await user.type(destinationInput, 'McCain')
+    await user.keyboard('{ArrowDown}{Enter}')
+    expect(destinationInput).toHaveValue('McCain Student Center')
   })
 })

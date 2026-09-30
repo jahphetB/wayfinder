@@ -17,7 +17,7 @@ describe('navigation session', () => {
       { id: 'turn', coordinates: { latitude: 43.651, longitude: -116.679 } },
       {
         id: 'destination',
-        coordinates: { latitude: 43.652, longitude: -116.678 },
+        coordinates: { latitude: 43.652, longitude: -116.679 },
       },
     ],
     edges: [

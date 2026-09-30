@@ -6,7 +6,7 @@ describe('findWalkingRoute', () => {
     nodes: [
       { id: 'entrance', coordinates: { latitude: 43.65, longitude: -116.68 } },
       { id: 'quad', coordinates: { latitude: 43.651, longitude: -116.679 } },
-      { id: 'library', coordinates: { latitude: 43.652, longitude: -116.678 } },
+      { id: 'library', coordinates: { latitude: 43.652, longitude: -116.679 } },
     ],
     edges: [
       {
@@ -37,7 +37,7 @@ describe('findWalkingRoute', () => {
     expect(route?.coordinates).toEqual([
       { latitude: 43.65, longitude: -116.68 },
       { latitude: 43.651, longitude: -116.679 },
-      { latitude: 43.652, longitude: -116.678 },
+      { latitude: 43.652, longitude: -116.679 },
     ])
     expect(route?.steps).toHaveLength(2)
     expect(route?.steps.map((step) => step.checkpoint.kind)).toEqual([
