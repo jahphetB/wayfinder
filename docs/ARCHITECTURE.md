@@ -19,6 +19,7 @@ work together, that decision should be recorded here.
 5. [Project folder map](#project-folder-map)
 6. [Root files](#root-files)
 7. [The `docs` folder](#the-docs-folder)
+   7a. [The `scripts` folder](#the-scripts-folder)
 8. [The `public` folder](#the-public-folder)
 9. [The `src` folder](#the-src-folder)
 10. [The `src/app` folder](#the-srcapp-folder)
@@ -73,15 +74,14 @@ location checks, instructions, retry messages, and arrival. See the
 complete browser-location flow and its prototype limitations.
 
 The current version is focused on The College of Idaho in Caldwell, Idaho. It
-uses three campus-named sample locations and a small walking graph. The location
-and graph data live inside the project, so no routing server is required.
-Searching filters those known locations. Pressing **Preview route** calculates a
-shortest graph path, converts it to a route, and sends it to the map. The
-locations, route lines, and
-campus boundary are illustrative prototype data: they are not official walking,
-accessibility, or emergency directions.
+offers 21 searchable places on a local walking graph imported from the user's
+newer OSM export. No routing server is required. Searching filters those known
+locations. Pressing **Preview route** calculates a path and sends it to the map.
+The observed geometry improves the drawing, but connections, permissions,
+accessibility, and safe physical use are not campus-approved. The graph release
+remains illustrative, not official walking or emergency directions.
 
-The College of Idaho walking graph and shortest-path calculation are now
+The campus walking graph and route calculation are
 connected to the route-preview feature. The map receives the same provider-
 independent `Route` shape as before, so this change does not alter MapLibre
 integration.
@@ -183,6 +183,7 @@ the shared state in the hook and `App.tsx`.
 YoteWayfinder/
 ├── .codex/                       Project-scoped agent integrations
 ├── docs/                         Human-readable project records
+├── scripts/                      Reproducible source-data imports
 ├── public/                       Static browser assets; currently empty
 ├── src/                          Application source code
 │   ├── app/                      Screen assembly and global presentation
@@ -262,12 +263,30 @@ Documentation must stay connected to reality. When implementation changes make
 a statement here incorrect, updating the relevant document is part of the code
 change, not a later optional task.
 
-| File                           | Importance and relationship to other files                                                                                                                                                                                  |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `docs/ARCHITECTURE.md`         | This living handbook. It explains folders, files, data flow, change recipes, failure diagnosis, principles, and architectural decisions. Update it whenever a change alters boundaries or introduces an important new file. |
-| `docs/ARCHITECTURE_DIAGRAM.md` | The comprehensive Mermaid dependency and data-flow diagram. It distinguishes implemented components from approved future components and must change with major architecture boundaries.                                     |
-| `docs/PROGRESS.md`             | A chronological record of completed project steps and verified fixes. It answers “what has been accomplished?” while this handbook answers “how is it organized and why?”                                                   |
-| `docs/AI_SKILLS.md`            | A branded inventory of AI capabilities, external technologies, and project-specific practices used during development. It makes AI-assisted work visible and auditable.                                                     |
+| File                             | Importance and relationship to other files                                                                                                                                                                                  |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/ARCHITECTURE.md`           | This living handbook. It explains folders, files, data flow, change recipes, failure diagnosis, principles, and architectural decisions. Update it whenever a change alters boundaries or introduces an important new file. |
+| `docs/ARCHITECTURE_DIAGRAM.md`   | The comprehensive Mermaid dependency and data-flow diagram. It distinguishes implemented components from approved future components and must change with major architecture boundaries.                                     |
+| `docs/PROGRESS.md`               | A chronological record of completed project steps and verified fixes. It answers “what has been accomplished?” while this handbook answers “how is it organized and why?”                                                   |
+| `docs/AI_SKILLS.md`              | A branded inventory of AI capabilities, external technologies, and project-specific practices used during development. It makes AI-assisted work visible and auditable.                                                     |
+| `docs/OSM_EXPORT_REVIEW.md`      | Records source digests, coverage, omissions, and attribution for old and current OSM exports. It separates observed geometry from verified access.                                                                          |
+| `docs/CAMPUS_DATA_COLLECTION.md` | Guides future field correction and measured-data intake. It is not the runtime route dataset.                                                                                                                               |
+| `docs/PROJECT_MEMORY.md`         | Durable resume context: current source, major decisions, limitations, verification commands, and next approval boundary. Read it when resuming an interrupted step.                                                         |
+
+## The `scripts` folder
+
+This folder contains repeatable preparation tools, not code that runs on a
+visitor's phone. `import_campus_osm.py` reads a user-approved OSM XML export,
+selects the usable connected walking network, and writes
+`src/data/navigation/campusOsmNetwork.json`. It uses Python's standard library
+only. The source stays outside the website; the compact result is committed
+and can be reviewed as a normal data change.
+
+Do not edit the output JSON by hand. Preserve the source export, review its
+fingerprint and changed objects, run the script, then check graph tests and
+visible routes. The separate builder in `src/data/navigation` interprets the
+JSON for the application. Keeping import and runtime graph-building apart
+means future source changes do not require a rewrite of the map renderer.
 
 ## The `public` folder
 
@@ -396,14 +415,17 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                                                   |
-| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its north-south boundary now allows a tall map panel to zoom out enough to fit the current east-west routes. These values remain separate from individual locations and routes.                                                                                        |
-| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                                                                                                               |
-| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | The one editable campus dataset. It keeps searchable labels, nodes, edges, detailed edge geometry, and source/review information together so a future verified-data provider changes one clear file instead of route, UI, and map code. Step 23 traces the limited route network from the supplied pedestrian ways and separates Simplot's cafeteria and residence entrances. Unmapped connectors and operational facts remain illustrative. |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                                                                                                                 |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates intended shortest paths, confirms every searchable location has a graph node, checks that both Simplot entrances and the other current buildings are routable, compares drawn length with edge distance, and verifies the graph remains illustrative.                                                                                                                                                                           |
-| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                                                                                                        |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                                                            |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its north-south boundary now allows a tall map panel to zoom out enough to fit the current east-west routes. These values remain separate from individual locations and routes. |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                        |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | Curates the 21 searchable places, maps each destination to an imported entrance, path node, or point of interest, and records provenance. It no longer hand-copies all walkway geometry. The Campus Entrance and short unmapped door links remain illustrative.                                                                                       |
+| `src/data/navigation/campusOsmNetwork.json`              | Generated, compact snapshot of the newer OSM export's connected walking network, building outlines, entrances, and points of interest. It is committed so local builds do not need the user's Downloads folder or a live OSM connection. Do not hand-edit it: rerun the importer and review the diff.                                                 |
+| `src/data/navigation/buildCampusWalkingGraph.ts`         | Converts imported path segments and curated locations into the existing graph contract. It validates referenced entrance and building IDs, attaches nearby entrance gaps as identifiable connectors, and keeps map-provider code out of route construction.                                                                                           |
+| `src/data/navigation/buildCampusWalkingGraph.test.ts`    | Checks source-reference failures, projected connector behavior, and routing-network construction at the import boundary.                                                                                                                                                                                                                              |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                          |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates intended shortest paths, confirms every searchable location has a graph node, checks that both Simplot entrances and the other current buildings are routable, compares drawn length with edge distance, and verifies the graph remains illustrative.                                                                                    |
+| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                 |
 
 The source preparation guide is [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md).
 It specifies authorized source formats, required measurement metadata, field
@@ -411,10 +433,11 @@ observation templates, and review checks. Use it before editing the graph or
 3D scene data so that the source and confidence of each new measurement remain
 traceable.
 
-The [2026-09-28 OSM export review](OSM_EXPORT_REVIEW.md) records the source
-snapshot, the first Blatchley update, and the later limited 2D route-network
-batch. The XML is not loaded by the browser; reviewed coordinates were copied
-into the editable graph and continue through the normal validation boundary.
+The [OSM export review](OSM_EXPORT_REVIEW.md) preserves both historical and
+current source digests. The XML is not loaded by the browser. The current
+importer converts its walkable connected component to a compact committed
+JSON snapshot; the builder combines that with curated location references
+and passes the result through the normal validation boundary.
 
 ## The `src/features` folder
 
@@ -1313,7 +1336,7 @@ short final segments are illustrative too. This is not a claim that those gaps
 are safe, accessible, or physically open. The graph's provenance stays
 `illustrative`, and accessibility stays `unverified`.
 
-`collegeOfIdahoWalkingGraphData.ts` is the only route-geometry edit point.
+At Step 23, `collegeOfIdahoWalkingGraphData.ts` was the only route-geometry edit point.
 `collegeOfIdahoWalkingGraph.ts` validates it, `mockLocations.ts` derives search
 choices, and `walkingRoutes.ts` selects connected edges. `routeSteps.ts`
 turns those edges into instructions and checkpoints; `MapView.tsx` forwards the
@@ -1335,6 +1358,54 @@ them as field-ready directions. The adapter also re-fits a preview when MapLibre
 reports a canvas resize, so a browser-width change or phone rotation does not
 leave an already previewed route cut off.
 
+### Step 24: Expanded OSM network and search
+
+The user supplied a newer OSM export based on firsthand observations. It has
+2,965 point nodes, 585 ways, and 5 relations. We imported the main connected
+pedestrian component rather than hand-transcribing hundreds of path points.
+The source file stays in the user's Downloads folder; the committed
+`campusOsmNetwork.json` is a compact, reviewable derivative. The source SHA-256
+digest and counts are in [the export review](OSM_EXPORT_REVIEW.md). A SHA-256
+digest is a fingerprint: a changed source file gets a different digest.
+
+The import script, `scripts/import_campus_osm.py`, filters for walkable linear
+ways and records building outlines, entrance nodes, and points of interest.
+It excludes explicitly private/no-access paths and area polygons from routing.
+The graph builder then turns adjacent path points into graph edges, checks that
+each curated building entrance belongs to its stated building, and joins
+nearby off-path entrances with short, labeled prototype connectors. The
+off-path Campus Entrance retains its longer illustrative connector. A
+connector means a drawn link for which the source does not establish a usable
+walkway; it is not evidence of safe access. If a destination is too far from
+the path network, construction fails instead of silently inventing a route.
+
+`collegeOfIdahoWalkingGraphData.ts` now curates 21 places using OSM object IDs
+and a descriptive label. `buildCampusWalkingGraph.ts` supplies their graph
+nodes and edges; `collegeOfIdahoWalkingGraph.ts` validates the release;
+`mockLocations.ts` derives search results. All later route calculation and map
+rendering still use the established provider-independent contracts. This is a
+practical separation of concerns: source import, human curation, routing,
+and drawing each have one job. A new export may change or remove OSM IDs, so
+import, review its diff, update curated references, and rerun tests together.
+
+`pathfinding.ts` uses the physical length of formal paths as route cost and a
+1.12 multiplier for informal paths. This modest penalty makes a formal path
+win when two routes are similar, but an informal route still wins when it is
+materially shorter. The route summary displays unpenalized physical distance,
+not the preference score. This is a deliberate compromise between the user's
+request for short routes and a general preference for established walkways;
+it is not a safety or legal-access guarantee. `routeSteps.ts` joins successive
+straight graph segments so every OSM vertex does not become a new turn.
+
+The destination list can exceed a phone's screen. `styles.css` limits the
+suggestions box height and makes it vertically scrollable;
+`NavigationPanel.tsx` brings the active keyboard suggestion into view. The
+underlying search and selection logic is unchanged. Browser testing verified
+all 21 entries, keyboard scrolling, route previews, phone layout, and a clean
+console. Review new paths visually and send corrections before physical
+navigation use. Heights, widths, slopes, accessibility, and detailed 3D work
+remain deferred as requested.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -1342,30 +1413,32 @@ afterward and inspect the browser for visual changes.
 
 ### Add a location
 
-1. Open `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`.
-2. Add a searchable location label with a unique, machine-friendly ID, such as
-   `science-building`.
-3. Add a graph node with that same ID and its latitude and longitude.
-4. `mockLocations.ts` will derive the validated searchable location from those
-   records; do not add a second copy there.
-5. Add verified connecting edges, including ordered walking geometry from the
-   start node to the end node, if the location should have a calculated route.
-6. Run checks and confirm the suggestion appears in both fields.
+1. Check that the new place has a mapped entrance on its building outline, a
+   path node, or a point-of-interest node in the current OSM snapshot. Confirm
+   its name and physical location with the user. If not, obtain better source
+   geometry before adding it.
+2. Open `src/data/navigation/collegeOfIdahoWalkingGraphData.ts` and add a
+   unique ID, label, source kind, and matching OSM object IDs.
+3. `buildCampusWalkingGraph.ts` connects the record to the imported network;
+   `mockLocations.ts` derives search choices. Do not duplicate coordinates or
+   search records in React components.
+4. Run tests and inspect the suggestion, route, connector, and entrance in 2D.
 
 The factory rejects empty text or coordinates outside valid world ranges. Do
 not bypass it by placing unvalidated plain objects into the application.
 
 ### Change the walking graph
 
-1. Open `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`.
-2. Add or adjust nodes and edges in that dataset; the loader will validate them
-   through `createWalkingGraph`.
-3. Keep every edge endpoint ID equal to an existing node ID.
-4. Keep the first geometry coordinate equal to the `fromNode` coordinate and the
-   last equal to the `toNode` coordinate. Add intermediate points in walking
-   order when the path bends.
-5. Set `availability`, `direction`, and `accessibility` deliberately for every
-   edge; use `unverified` when campus accessibility information is unknown.
+1. Correct the observed path or entrance in an OSM export you have permission
+   to use, preserving a copy and its date.
+2. Run `python scripts/import_campus_osm.py path/to/map.osm`, then review the
+   generated JSON diff and source digest in the export review.
+3. Update curated OSM IDs in `collegeOfIdahoWalkingGraphData.ts` if the source
+   changed. The loader validates the resulting graph through `createWalkingGraph`.
+4. Let the importer and builder preserve OSM point order and matching edge
+   endpoints. Their tests reject invalid references and geometry.
+5. Keep unknown access and accessibility unverified. Do not infer a safe
+   passage or one-way restriction from a drawn line alone.
 6. Update the graph test with the route, geometry, checkpoints, and distance that
    should result.
 7. Add a restriction test when using a closure or a forward-only edge.
@@ -1971,6 +2044,21 @@ historical context.
   exports and on-site corrections can replace coordinates in one file. The
   map's camera boundary must allow the widest current route to fit on narrow
   desktop map panels.
+
+### ADR-032: Generate the 2D graph from a reviewed OSM snapshot
+
+- **Status:** Accepted for the Step 24 prototype.
+- **Decision:** Keep the user-supplied XML outside the runtime. Import its main
+  connected walking component into committed JSON with a small standard-library
+  script. Curate searchable entrances separately and validate their OSM IDs at
+  graph construction. Prefer formal ways with a modest 12% informal-way cost
+  penalty, while reporting physical distance.
+- **Reason:** Re-entering hundreds of points by hand is hard to audit and easy
+  to misalign. Source IDs and a digest make later corrections traceable. A
+  small preference meets the request for generally formal but short routes.
+- **Consequence:** New exports must be reviewed, regenerated, tested, and
+  visually checked as a unit. An apparent link or mapped entrance is not proof
+  of actual access. The entire route release remains illustrative.
 
 ## Engineering principles in plain language
 

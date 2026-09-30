@@ -170,6 +170,29 @@ stale.
   and checked drawn polyline lengths against edge distances. This is a project
   practice developed here, not an external skill package.
 
+#### Step 24 usage record
+
+- **EXTERNAL / OpenStreetMap XML and ODbL:** Audited a newer export's paths,
+  entrances, buildings, informal links, connectivity, source digest, and
+  attribution. OSM geometry was treated as observed map data, not proof of
+  physical access or accessibility.
+- **OPENAI / Playwright skill:** Used a real browser to inspect desktop and
+  phone route previews, suggestion-list dimensions, keyboard scrolling, and
+  the JavaScript console. The skill guides runtime verification; it does not
+  provide campus facts.
+- **OPENAI / OpenAI Docs skill:** Checked the current official model-selection
+  guidance before recommending an efficient model for the next review step.
+- **YOTE / Reproducible OSM import:** Developed a dependency-free importer that
+  keeps source XML outside the app and commits a compact, traceable walking
+  snapshot. A separate builder validates curated destination references.
+- **YOTE / Preference-aware local routing:** Kept pathfinding local, applied a
+  small informal-way selection penalty, reported physical distance, and
+  combined straight source segments into useful turns. Focused tests protect
+  the distinction between route score and shown length.
+- **YOTE / Durable step memory:** Added `docs/PROJECT_MEMORY.md` so source
+  identity, decisions, limitations, commands, and the next approval boundary
+  survive context resets without copying the entire handbook.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |

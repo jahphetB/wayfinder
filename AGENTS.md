@@ -8,6 +8,8 @@
 - Use two clearly labeled report parts: the completed-step report, then a brief
   next-step preview with its goal, plan, and model recommendation.
 - Update `README.md`, `docs/PROGRESS.md`, and `docs/AI_SKILLS.md` with meaningful progress.
+- Update `docs/PROJECT_MEMORY.md` with the current source, decisions, limitations,
+  and approval boundary after each meaningful step so interrupted work can resume.
 - Keep `docs/ARCHITECTURE.md` synchronized when a change affects project
   structure, cross-file data flow, troubleshooting, or an architectural decision.
 

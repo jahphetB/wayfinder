@@ -59,7 +59,9 @@ flowchart TB
     end
 
     subgraph OwnedData[Project-owned data]
-        GraphData[collegeOfIdahoWalkingGraphData.ts<br/>observed 2D ways, two Simplot entrances,<br/>illustrative connectors and provenance]
+        GraphData[collegeOfIdahoWalkingGraphData.ts<br/>21 curated destinations, entrance IDs,<br/>illustrative provenance]
+        Snapshot[campusOsmNetwork.json<br/>committed connected walking geometry]
+        GraphBuilder[buildCampusWalkingGraph.ts<br/>validates IDs, projects entrance connectors]
         GraphLoader[collegeOfIdahoWalkingGraph.ts<br/>validated runtime release]
         Locations[mockLocations.ts<br/>searchable locations derived from graph]
         Campus[collegeOfIdahoCampus.ts<br/>campus camera center and fit boundary]
@@ -76,6 +78,7 @@ flowchart TB
         Tooling[TypeScript, ESLint, Prettier, Vite<br/>strict checks and bundling]
         Handbook[README and docs<br/>architecture, progress, skills, decisions]
         OSMExport[User-supplied OSM XML snapshot<br/>reviewed source geometry]
+        Importer[scripts/import_campus_osm.py<br/>filtered, reproducible source import]
         Context7[Context7 MCP<br/>current library documentation]
         AgentRules[AGENTS.md<br/>approval and engineering rules]
     end
@@ -103,6 +106,8 @@ flowchart TB
     Pathfinder --> DomainTypes
     Factories --> DomainTypes
     GraphLoader --> GraphData
+    GraphData --> GraphBuilder
+    GraphBuilder --> Snapshot
     GraphLoader --> Factories
     Locations --> GraphData
     Locations --> Factories
@@ -120,7 +125,7 @@ flowchart TB
     MapLibre --> GPU
     Three --> GPU
     OSM --> MapLibre
-    OSMExport -. reviewed pedestrian ways and entrances .-> GraphData
+    OSMExport --> Importer --> Snapshot
     OSMExport -. counts and gaps .-> Handbook
 
     Tests -. verify .-> NavigationDomain
@@ -150,9 +155,9 @@ flowchart TB
     classDef external fill:#e9f0ff,stroke:#315da8,color:#172f58,stroke-width:2px
     classDef future fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
 
-    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,BuildingContract,GraphData,GraphLoader,Locations,Campus,Scene implemented
+    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,BuildingContract,GraphData,GraphBuilder,Snapshot,GraphLoader,Locations,Campus,Scene implemented
     class CreateAdapter,Adapter,BuildingLayer,MapLibre,Three,GPU integration
-    class OSM,OSMExport,Tests,Tooling,Handbook,Context7,AgentRules external
+    class OSM,OSMExport,Importer,Tests,Tooling,Handbook,Context7,AgentRules external
     class NavigationControls,CheckpointHook implemented
     class CreateLocation,BrowserProvider,PrototypeProvider integration
     class BrowserGPS external
@@ -167,10 +172,10 @@ flowchart TB
   MapLibre and the Three.js building layer at the application edge.
 - The walking graph is the routing authority. The 3D scene is visual content and
   cannot define an entrance or a safe walking path by itself.
-- The user-supplied OSM XML is a reviewed source snapshot, not a runtime map
-  service. Current 2D graph edges follow its observed pedestrian-way points,
-  and the five destination endpoints use mapped entrances. The user identified
-  which of Simplot's two doors serves the cafeteria and residence. Unmapped
+- The user-supplied OSM XML is a reviewed source, not a runtime map service.
+  The import script creates committed connected walking geometry; the graph
+  builder combines it with 21 curated places. The user identified which of
+  Simplot's two doors serves the cafeteria and residence. Unmapped
   origin/entrance connectors and access facts remain illustrative.
 - The app opens in 2D for path review. Campus camera bounds allow even the
   widest current route to fit in a tall map panel; the existing 3D calibration

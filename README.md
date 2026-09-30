@@ -8,36 +8,38 @@ future owned-campus-model architecture without requiring a routing backend.
 
 ## Current progress
 
-| Step                               | Status   | Outcome                                                                                                                            |
-| ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Project foundation              | Complete | React, TypeScript, quality checks, test tooling, and production builds are configured.                                             |
-| 2. Domain and map abstraction      | Complete | Provider-independent models, validated mock data, and a tested MapLibre boundary are in place.                                     |
-| 3. Navigation interface            | Complete | Responsive location inputs, autocomplete, swapping, route preview, and a visual map placeholder are ready.                         |
-| 4. Interactive map                 | Complete | MapLibre renders the selected route and locations, fits the camera, and switches between 2D and 3D views.                          |
-| 5. Application states and polish   | Complete | Clear route and map states, keyboard autocomplete, accessible status messaging, and map recovery are in place.                     |
-| 6. Testing, bundling, and delivery | Complete | Campus-focused mock data, map bounds, verification, bundle review, and delivery documentation are complete.                        |
-| 7. Routing foundation              | Complete | A validated, testable campus walking graph and shortest-path logic are ready for later UI integration.                             |
-| 8. Graph route integration         | Complete | The planner now converts calculated walking paths into routes that the existing map can render.                                    |
-| 9. Route constraints               | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.                        |
-| 10. Data verification workflow     | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.                                 |
-| 11. Public-source corroboration    | Complete | Official campus naming and one independently mapped coordinate are recorded while operational route data remains illustrative.     |
-| 12. Validated data replacement     | Complete | Current-library data is corrected and isolated as the single source of truth for future verified-data replacement.                 |
-| 13. Georeferenced 3D spike         | Complete | MapLibre and Three.js share one map camera to render a tested, geographically anchored calibration building in 3D mode.            |
-| 14. Route steps and checkpoints    | Complete | Graph edges now carry detailed geometry, and calculated routes contain validated turn instructions and expected checkpoints.       |
-| 15. Location verification domain   | Complete | One-shot location readings can be conservatively classified, and tested session logic advances only after confirmed checks.        |
-| 16. Browser checkpoint navigation  | Complete | Explicit one-shot location requests power Start navigation, Next Turn, recovery messages, and arrival without continuous tracking. |
-| 17. Prototype location simulator   | Complete | Navigation can be tested from anywhere by default; one environment setting restores physical browser-location checks later.        |
-| 18. Turn-focused map guidance      | Complete | The prototype follows mapped footways, distinguishes route legs, follows turns with the camera, and supports Back navigation.      |
-| 19. Prototype scenarios and places | Complete | Three more destinations are available, and selectable demo outcomes test recovery behavior without physical movement.              |
-| 20. Mobile navigation refinement   | Complete | Turn instructions stay in view on phones, compact layouts fit narrow screens, and demo controls preserve keyboard focus.           |
-| 21. Campus data collection packet  | Complete | A reusable source request, measurement template, and review checklist cover the current map points and destinations.               |
-| 22. OSM export review and entrance | Complete | Reviewed the supplied export and moved the Blatchley prototype destination to its mapped main entrance.                            |
-| 23. OSM-based 2D routes            | Complete | Traced limited destination routes along exported pedestrian ways, separated the two Simplot entrances, and fixed route camera fit. |
+| Step                               | Status   | Outcome                                                                                                                                                   |
+| ---------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Project foundation              | Complete | React, TypeScript, quality checks, test tooling, and production builds are configured.                                                                    |
+| 2. Domain and map abstraction      | Complete | Provider-independent models, validated mock data, and a tested MapLibre boundary are in place.                                                            |
+| 3. Navigation interface            | Complete | Responsive location inputs, autocomplete, swapping, route preview, and a visual map placeholder are ready.                                                |
+| 4. Interactive map                 | Complete | MapLibre renders the selected route and locations, fits the camera, and switches between 2D and 3D views.                                                 |
+| 5. Application states and polish   | Complete | Clear route and map states, keyboard autocomplete, accessible status messaging, and map recovery are in place.                                            |
+| 6. Testing, bundling, and delivery | Complete | Campus-focused mock data, map bounds, verification, bundle review, and delivery documentation are complete.                                               |
+| 7. Routing foundation              | Complete | A validated, testable campus walking graph and shortest-path logic are ready for later UI integration.                                                    |
+| 8. Graph route integration         | Complete | The planner now converts calculated walking paths into routes that the existing map can render.                                                           |
+| 9. Route constraints               | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.                                               |
+| 10. Data verification workflow     | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.                                                        |
+| 11. Public-source corroboration    | Complete | Official campus naming and one independently mapped coordinate are recorded while operational route data remains illustrative.                            |
+| 12. Validated data replacement     | Complete | Current-library data is corrected and isolated as the single source of truth for future verified-data replacement.                                        |
+| 13. Georeferenced 3D spike         | Complete | MapLibre and Three.js share one map camera to render a tested, geographically anchored calibration building in 3D mode.                                   |
+| 14. Route steps and checkpoints    | Complete | Graph edges now carry detailed geometry, and calculated routes contain validated turn instructions and expected checkpoints.                              |
+| 15. Location verification domain   | Complete | One-shot location readings can be conservatively classified, and tested session logic advances only after confirmed checks.                               |
+| 16. Browser checkpoint navigation  | Complete | Explicit one-shot location requests power Start navigation, Next Turn, recovery messages, and arrival without continuous tracking.                        |
+| 17. Prototype location simulator   | Complete | Navigation can be tested from anywhere by default; one environment setting restores physical browser-location checks later.                               |
+| 18. Turn-focused map guidance      | Complete | The prototype follows mapped footways, distinguishes route legs, follows turns with the camera, and supports Back navigation.                             |
+| 19. Prototype scenarios and places | Complete | Three more destinations are available, and selectable demo outcomes test recovery behavior without physical movement.                                     |
+| 20. Mobile navigation refinement   | Complete | Turn instructions stay in view on phones, compact layouts fit narrow screens, and demo controls preserve keyboard focus.                                  |
+| 21. Campus data collection packet  | Complete | A reusable source request, measurement template, and review checklist cover the current map points and destinations.                                      |
+| 22. OSM export review and entrance | Complete | Reviewed the supplied export and moved the Blatchley prototype destination to its mapped main entrance.                                                   |
+| 23. OSM-based 2D routes            | Complete | Traced limited destination routes along exported pedestrian ways, separated the two Simplot entrances, and fixed route camera fit.                        |
+| 24. Expanded OSM network           | Complete | Imported the newer observed walkway export, added 21 searchable places, favored formal paths when routes are close, and made long suggestions scrollable. |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
 [detailed progress log](docs/PROGRESS.md), and
-[AI skills inventory](docs/AI_SKILLS.md).
+[AI skills inventory](docs/AI_SKILLS.md). The [project memory](docs/PROJECT_MEMORY.md)
+records the latest source, decisions, limitations, and resume checklist.
 
 ## Local development
 
@@ -82,8 +84,9 @@ and OpenStreetMap-derived public information. The walking-path topology,
 distances, closures, direction rules, and accessibility information are still
 illustrative prototype data, not official accessibility or walking directions.
 Calculated routes now retain each edge's detailed geometry and produce internal
-turn-by-turn steps. You can preview Campus Entrance routes to Cruzen-Murray
-Library, Blatchley Hall, Simplot Dining Hall, Simplot Residence Hall, or Sterry Hall. The map starts in **2D**; the existing experimental 3D view remains optional. In **Walk the
+turn-by-turn steps. You can preview routes among 21 searchable campus places,
+including mapped building entrances and a point of interest. The map starts in
+**2D**; the existing experimental 3D view remains optional. In **Walk the
 route**, use **Demo checkpoint result** to test an expected, uncertain, wrong,
 stale, or unavailable reading from anywhere; changing the result restarts that
 route simulation. The default prototype does not request your device location.
@@ -91,7 +94,7 @@ Physical browser-location mode remains available through the environment setting
 above; in that mode uncertain, mismatched, or failed readings do not advance progress.
 Use HTTPS for later phone testing. Paths remain illustrative: do not rely on
 this prototype for safe campus navigation.
-The supplied OpenStreetMap export now supplies centerlines for the current
+The newer OpenStreetMap export now supplies centerlines for the current
 pedestrian routes and destination entrance coordinates. The Simplot entrance
 near Blatchley serves the cafeteria; its other entrance serves the connected
 residence hall. Short unmapped entrance links and the off-walkway Campus Entrance
@@ -100,6 +103,13 @@ verified for safe physical navigation.
 See the [export review](docs/OSM_EXPORT_REVIEW.md) for source coverage, gaps,
 and the next measurements needed. OpenStreetMap data is available under the
 [Open Database License](https://www.openstreetmap.org/copyright).
+To update the route network after reviewing a newer export, run
+`python scripts/import_campus_osm.py path/to/map.osm` and inspect the generated
+`src/data/navigation/campusOsmNetwork.json` diff. Curated searchable places
+and entrance references live in `collegeOfIdahoWalkingGraphData.ts`; the
+graph builder connects them to imported paths. Formal paths get a small
+preference only when competing routes are close; the displayed distance is
+the actual drawn length. Search suggestions scroll when the list is long.
 Read only this step in the [Step 16 handbook guide](docs/ARCHITECTURE.md#step-16-browser-location-and-checkpoint-navigation).
 The [Step 17 handbook guide](docs/ARCHITECTURE.md#step-17-prototype-location-simulator)
 explains simulation and the future field-test switch.
@@ -116,6 +126,8 @@ The [Step 22 handbook guide](docs/ARCHITECTURE.md#step-22-osm-export-audit-and-b
 explains this export's first route update and its remaining uncertainty.
 The [Step 23 handbook guide](docs/ARCHITECTURE.md#step-23-osm-based-2d-walking-routes)
 explains the current 2D route network, Simplot entrance split, and camera fit.
+The [Step 24 handbook guide](docs/ARCHITECTURE.md#step-24-expanded-osm-network-and-search)
+explains the import, routing policy, additional places, and remaining gaps.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 

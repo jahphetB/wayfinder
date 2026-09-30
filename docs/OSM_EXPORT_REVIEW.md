@@ -109,3 +109,38 @@ OpenStreetMap also asks contributors not to copy from Google Maps or other
 copyrighted sources without permission. User edits based on firsthand campus
 observation or permitted source material are the strongest input for this
 review.
+
+## Third application batch: newer observed export (Step 24)
+
+The user supplied `map_moreinfo.osm` from firsthand mapping observations.
+Its SHA-256 digest is
+`8B0EC753640275B3177D2C2514862B41EB7EB78228E870C16BED58C0276A2FEE`.
+It contains 2,965 point nodes, 585 ways, and 5 relations. Compared with the
+previous export, 204 ways are new and 30 existing ways have changed point
+sequences. This is a new snapshot, not a claim that every path is field-safe.
+
+The importer selects 190 usable pedestrian ways after excluding private or
+no-access ways and area polygons. The largest connected walking component has
+581 nodes and 184 ways; disconnected features are not silently linked.
+The export contains 44 entrance nodes, 20 named `building=college` outlines,
+and four named point-of-interest nodes. Three informal paths fall in the main
+connected component. For runtime use, the importer commits a compact
+`campusOsmNetwork.json`; the original XML remains outside the repository.
+
+The current curation exposes 21 places: one illustrative Campus Entrance,
+Morrison Quadrangle, 18 building destinations (the two Simplot labels use
+separate entrances in one building), and Centennial Amphitheater. Named
+buildings without suitable tagged entrances, including West Hall, the
+former N.L. Terteling Library, and Marty Holly Athletic Center, were not
+invented as destinations. For exact curated source IDs see
+`src/data/navigation/collegeOfIdahoWalkingGraphData.ts`.
+
+Routing follows imported ordered path points. Informal paths carry a 12%
+_selection-cost_ penalty, so formal paths usually win close comparisons while
+a substantially shorter informal route can still win. Distances shown to
+users are physical polyline lengths, not penalized scores. Off-path door
+connections and the long Campus Entrance link remain labeled illustrative.
+Mapped proximity does not prove an open, safe, accessible, or legal passage.
+The entire graph retains `illustrative` verification status. Ask the user to
+visually review any incorrect path, junction, entrance, or connector before
+trying physical route navigation.

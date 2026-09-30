@@ -407,7 +407,7 @@ Status: complete; implementation and documentation commits pushed to
 
 ## Step 23: OSM-based 2D walking routes
 
-Status: implementation complete; local commits pending push approval.
+Status: complete; commits pushed to `origin/main` in Step 24.
 
 - Replaced the limited graph's old drawn legs with ordered pedestrian-way
   coordinates from the supplied OSM snapshot. The route still connects the
@@ -433,3 +433,33 @@ Status: implementation complete; local commits pending push approval.
   had zero errors or warnings. Full suite: 70 tests in 15 files. Lint, strict
   type-checking, formatting, whitespace checks, and production build passed.
   The existing deferred-map chunk-size warning remains; no dependency was added.
+
+## Step 24: Newer OSM network, additional places, and scrollable search
+
+Status: implementation and documentation complete; commits pushed to
+`origin/main` after verification.
+
+- Pushed the three approved Step 23 commits before starting this batch.
+- Audited the user's newer `map_moreinfo.osm` by SHA-256 digest, source counts,
+  walkable connected component, entrances, named buildings, informal paths,
+  and differences from the previous export. The exact source remains outside
+  the repository; `docs/OSM_EXPORT_REVIEW.md` records the findings and gaps.
+- Added a Python standard-library importer and committed compact JSON snapshot
+  of the connected walking network. Runtime graph construction now validates
+  curated entrance/building IDs and creates explicitly illustrative connectors
+  only for nearby off-path destinations.
+- Expanded the searchable catalogue to 21 places. Omitted buildings lacking a
+  suitable mapped entrance instead of inventing one. Formal ways receive a
+  modest 12% route-selection advantage over informal ways; user-visible
+  distance remains physical length. Consecutive straight OSM segments are
+  merged into practical turn steps.
+- Made long suggestion lists scrollable and kept the active keyboard result
+  visible. Browser-tested 21 suggestions, keyboard scrolling, desktop and
+  390-pixel route previews, and console (zero errors/warnings).
+- Updated README, handbook, diagram, source audit, collection packet, AI skills
+  record, and durable project memory. All access, accessibility, and unmapped
+  connector claims remain illustrative; 3D details remain deferred.
+- Verification: 74 tests in 16 files, formatting, lint, strict type-checking,
+  production build, and Git whitespace checks passed. Initial JavaScript is
+  about 300.36 kB minified / 90.68 kB gzip; the deferred map remains about
+  1,548 kB / 407 kB gzip. The known map-chunk size warning remains.

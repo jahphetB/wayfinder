@@ -1,11 +1,12 @@
 # Campus Geometry Collection Packet
 
 This packet is for replacing illustrative map geometry in small, reviewable
-batches. It currently covers the existing origin and five destinations only:
-Campus Entrance, Cruzen-Murray Library, Blatchley Hall, Simplot Dining Hall,
-Simplot Residence Hall, and Sterry Hall. The two Simplot destinations are
-different entrances of one connected building. Do not collect or add other
-buildings as part of this packet.
+batches. Its initial example forms cover Campus Entrance, Cruzen-Murray Library,
+Blatchley Hall, Simplot Dining Hall, Simplot Residence Hall, and Sterry Hall.
+The application now lists 21 places from a newer user-observed OSM export; use
+the same form for any of them, starting with paths or entrances the user sees
+as inaccurate. The two Simplot destinations are different entrances of one
+connected building. Do not assume an imported point proves usable access.
 
 For the current 2D phase, the highest-value feedback is a correction to a
 drawn walkway, junction, entrance connection, or the temporary Campus Entrance
@@ -37,7 +38,7 @@ known coordinates or measured reference points to place it accurately.
 
 ## If official measured records are unavailable
 
-Use the form below for the same six named places and the walkways that connect
+Use the form below for a small batch of named places and the walkways that connect
 them. You do not need to survey every part of campus. Give each observation a
 stable ID so a photo, measurement, and map point can be matched later.
 
