@@ -1,4 +1,4 @@
-import { useId, useState, type KeyboardEvent } from 'react'
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import type {
   Location,
   LocationSearchResult,
@@ -27,6 +27,14 @@ function LocationField({
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
   const listboxId = useId()
+  const listboxRef = useRef<HTMLUListElement>(null)
+
+  useEffect(() => {
+    if (!open || activeIndex < 0) return
+    listboxRef.current?.children
+      .item(activeIndex)
+      ?.scrollIntoView?.({ block: 'nearest' })
+  }, [activeIndex, open])
 
   function selectSuggestion(location: Location): void {
     onSelect(location)
@@ -100,6 +108,7 @@ function LocationField({
           aria-label={`${label} suggestions`}
           className="suggestions"
           id={listboxId}
+          ref={listboxRef}
           role="listbox"
         >
           {suggestions.map(({ location }, index) => (

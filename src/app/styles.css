@@ -126,6 +126,9 @@ form {
   right: 0;
   left: 0;
   display: grid;
+  max-height: min(19rem, 42vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   gap: 0.15rem;
   padding: 0.4rem;
   border: 1px solid #dbe6dd;
