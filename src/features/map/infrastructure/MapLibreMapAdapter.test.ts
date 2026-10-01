@@ -186,8 +186,8 @@ describe('MapLibreMapAdapter', () => {
     })
     const route = findWalkingRoute(
       collegeOfIdahoWalkingGraph,
-      'campus-entrance',
       'cruzen-murray-library',
+      'simplot-dining-hall',
     )
     if (!route) throw new Error('Expected campus route fixture')
     const navigationSession = {
@@ -272,7 +272,7 @@ describe('MapLibreMapAdapter', () => {
     })
     const route = findWalkingRoute(
       collegeOfIdahoWalkingGraph,
-      'campus-entrance',
+      'cruzen-murray-library',
       'simplot-residence-hall',
     )
     if (!route) throw new Error('Expected residence route fixture')

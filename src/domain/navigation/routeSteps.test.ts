@@ -103,4 +103,51 @@ describe('createRouteSteps', () => {
       },
     ])
   })
+
+  it('combines two nearby turns into one explicit instruction and checkpoint', () => {
+    const closeGraph = createWalkingGraph({
+      nodes: [
+        { id: 'a', coordinates: { latitude: 43.65, longitude: -116.68 } },
+        { id: 'b', coordinates: { latitude: 43.65, longitude: -116.679 } },
+        { id: 'c', coordinates: { latitude: 43.65005, longitude: -116.679 } },
+        { id: 'd', coordinates: { latitude: 43.65005, longitude: -116.678 } },
+      ],
+      edges: [
+        { id: 'ab', fromNodeId: 'a', toNodeId: 'b', distanceMeters: 80 },
+        { id: 'bc', fromNodeId: 'b', toNodeId: 'c', distanceMeters: 6 },
+        { id: 'cd', fromNodeId: 'c', toNodeId: 'd', distanceMeters: 80 },
+      ],
+    })
+    const path = findShortestWalkingPath(closeGraph, 'a', 'd')
+    if (!path) throw new Error('Expected connected close-turn route')
+    const steps = createRouteSteps(closeGraph, path, 'close-turns')
+    expect(steps).toHaveLength(2)
+    expect(steps[1]?.instruction).toBe(
+      'Turn left, then turn right after 6 m and continue for 80 m to reach your destination.',
+    )
+    expect(steps[1]?.coordinates).toHaveLength(3)
+    expect(steps[1]?.checkpoint.kind).toBe('destination')
+
+    const distantGraph = createWalkingGraph({
+      nodes: closeGraph.nodes.map((node) =>
+        node.id === 'c' || node.id === 'd'
+          ? {
+              ...node,
+              coordinates: {
+                ...node.coordinates,
+                latitude: 43.6503,
+              },
+            }
+          : node,
+      ),
+      edges: [
+        { id: 'ab', fromNodeId: 'a', toNodeId: 'b', distanceMeters: 80 },
+        { id: 'bc', fromNodeId: 'b', toNodeId: 'c', distanceMeters: 33 },
+        { id: 'cd', fromNodeId: 'c', toNodeId: 'd', distanceMeters: 80 },
+      ],
+    })
+    expect(createRouteSteps(distantGraph, path, 'separate-turns')).toHaveLength(
+      3,
+    )
+  })
 })

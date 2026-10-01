@@ -17,9 +17,18 @@ interface OsmSnapshot {
   readonly ways: readonly OsmWay[]
   readonly buildings: readonly {
     readonly id: string
+    readonly nodeIds: readonly string[]
     readonly entranceIds: readonly string[]
   }[]
+  readonly areas: readonly {
+    readonly id: string
+    readonly nodeIds: readonly string[]
+  }[]
   readonly places: readonly { readonly id: string }[]
+  readonly entrances: readonly {
+    readonly id: string
+    readonly description: string
+  }[]
 }
 
 export type CampusLocationSource =
@@ -30,6 +39,13 @@ export type CampusLocationSource =
     }
   | { readonly kind: 'point-of-interest'; readonly nodeId: string }
   | { readonly kind: 'walkway-point'; readonly nodeId: string }
+  | {
+      readonly kind: 'described-entrance'
+      readonly nodeId: string
+      readonly descriptionIncludes: string
+    }
+  | { readonly kind: 'building-outline'; readonly buildingId: string }
+  | { readonly kind: 'mapped-area'; readonly areaId: string }
   | { readonly kind: 'illustrative'; readonly coordinates: Coordinates }
 
 export interface CampusLocationSpec {
@@ -48,7 +64,7 @@ interface MutableEdge {
   direction: 'bidirectional'
   availability: 'available'
   accessibility: 'unverified'
-  pathKind: 'formal' | 'informal' | 'connector'
+  pathKind: 'main' | 'formal' | 'informal' | 'connector'
 }
 
 export function buildCampusWalkingGraph(
@@ -66,11 +82,21 @@ export function buildCampusWalkingGraph(
   const aliases = new Map<string, string>()
   for (const location of locationCoordinates) {
     const source = location.source
-    if (source.kind !== 'illustrative' && walkingNodeIds.has(source.nodeId)) {
-      if (aliases.has(source.nodeId)) {
-        throw new Error(`Multiple destinations use OSM node ${source.nodeId}`)
+    const nodeId =
+      'nodeId' in source
+        ? source.nodeId
+        : [...walkingNodeIds].find((candidate) => {
+            const point = osmCoordinates(snapshot, candidate)
+            return (
+              point.latitude === location.coordinates.latitude &&
+              point.longitude === location.coordinates.longitude
+            )
+          })
+    if (nodeId && walkingNodeIds.has(nodeId)) {
+      if (aliases.has(nodeId)) {
+        throw new Error(`Multiple destinations use OSM node ${nodeId}`)
       }
-      aliases.set(source.nodeId, location.id)
+      aliases.set(nodeId, location.id)
     }
   }
 
@@ -82,7 +108,11 @@ export function buildCampusWalkingGraph(
 
   const edges: MutableEdge[] = []
   for (const way of snapshot.ways) {
-    if (way.kind !== 'formal' && way.kind !== 'informal') {
+    if (
+      way.kind !== 'main' &&
+      way.kind !== 'formal' &&
+      way.kind !== 'informal'
+    ) {
       throw new Error(`Unknown walking-way kind in OSM way ${way.id}`)
     }
     const pathKind = way.kind
@@ -137,6 +167,19 @@ function resolveLocation(
 ): Coordinates {
   const source = location.source
   if (source.kind === 'illustrative') return source.coordinates
+  if (source.kind === 'building-outline') {
+    const building = snapshot.buildings.find(
+      ({ id }) => id === source.buildingId,
+    )
+    if (!building)
+      throw new Error(`${location.label} building is absent from OSM`)
+    return nearestOutlinePoint(snapshot, building.nodeIds)
+  }
+  if (source.kind === 'mapped-area') {
+    const area = snapshot.areas.find(({ id }) => id === source.areaId)
+    if (!area) throw new Error(`${location.label} area is absent from OSM`)
+    return nearestOutlinePoint(snapshot, area.nodeIds)
+  }
   if (source.kind === 'building-entrance') {
     const building = snapshot.buildings.find(
       ({ id }) => id === source.buildingId,
@@ -144,6 +187,17 @@ function resolveLocation(
     if (!building?.entranceIds.includes(source.nodeId)) {
       throw new Error(
         `${location.label} entrance is absent from its OSM building`,
+      )
+    }
+  } else if (source.kind === 'described-entrance') {
+    const entrance = snapshot.entrances.find(({ id }) => id === source.nodeId)
+    if (
+      !entrance?.description
+        .toLowerCase()
+        .includes(source.descriptionIncludes.toLowerCase())
+    ) {
+      throw new Error(
+        `${location.label} entrance description does not match OSM`,
       )
     }
   } else if (
@@ -160,6 +214,34 @@ function resolveLocation(
     )
   }
   return osmCoordinates(snapshot, source.nodeId)
+}
+
+function nearestOutlinePoint(
+  snapshot: OsmSnapshot,
+  outlineIds: readonly string[],
+): Coordinates {
+  const segments = snapshot.ways.flatMap((way) =>
+    way.nodeIds.slice(1).map((endId, index) => ({
+      start: osmCoordinates(snapshot, way.nodeIds[index]!),
+      end: osmCoordinates(snapshot, endId),
+    })),
+  )
+  let nearest: { point: Coordinates; distanceMeters: number } | undefined
+  for (const nodeId of new Set(outlineIds)) {
+    const point = osmCoordinates(snapshot, nodeId)
+    for (const segment of segments) {
+      const distanceMeters = projectOntoSegment(
+        point,
+        segment.start,
+        segment.end,
+      ).distanceMeters
+      if (!nearest || distanceMeters < nearest.distanceMeters) {
+        nearest = { point, distanceMeters }
+      }
+    }
+  }
+  if (!nearest) throw new Error('Mapped area has no usable outline point')
+  return nearest.point
 }
 
 function osmCoordinates(snapshot: OsmSnapshot, nodeId: string): Coordinates {
@@ -270,8 +352,18 @@ function projectOntoEdge(
   readonly point: Coordinates
   readonly distanceMeters: number
 } {
-  const start = edge.geometry[0]!
-  const end = edge.geometry[1]!
+  return projectOntoSegment(point, edge.geometry[0]!, edge.geometry[1]!)
+}
+
+function projectOntoSegment(
+  point: Coordinates,
+  start: Coordinates,
+  end: Coordinates,
+): {
+  readonly fraction: number
+  readonly point: Coordinates
+  readonly distanceMeters: number
+} {
   const longitudeScale = Math.cos((point.latitude * Math.PI) / 180)
   const dx = (end.longitude - start.longitude) * longitudeScale
   const dy = end.latitude - start.latitude

@@ -17,8 +17,8 @@ const findLocation = (id: string): Location => {
   if (!location) throw new Error(`Required mock location "${id}" was not found`)
   return location
 }
-const initialOrigin = findLocation('campus-entrance')
-const initialDestination = findLocation('cruzen-murray-library')
+const initialOrigin = findLocation('cruzen-murray-library')
+const initialDestination = findLocation('simplot-dining-hall')
 
 export function useRoutePlanner() {
   const [routeRevision, setRouteRevision] = useState(0)

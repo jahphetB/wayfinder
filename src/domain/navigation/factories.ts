@@ -274,7 +274,7 @@ function createWalkingGraphEdge(
   if (input.pathKind) {
     assertOneOf(
       input.pathKind,
-      ['formal', 'informal', 'connector'],
+      ['main', 'formal', 'informal', 'connector'],
       'Walking path kind',
     )
   }

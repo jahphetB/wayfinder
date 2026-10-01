@@ -25,7 +25,7 @@ describe('App', () => {
   it('mounts navigation only after preview and resets it when editing the route', async () => {
     const user = userEvent.setup()
     const requestCurrentLocation = vi.fn().mockResolvedValue({
-      coordinates: { latitude: 43.6522, longitude: -116.6799 },
+      coordinates: { latitude: 43.6544341, longitude: -116.6768005 },
       accuracyMeters: 1,
       capturedAtMilliseconds: Date.now(),
     })

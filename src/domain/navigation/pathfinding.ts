@@ -2,9 +2,12 @@ import type { WalkingGraph, WalkingGraphEdge, WalkingPath } from './types'
 
 interface QueueEntry {
   readonly nodeId: string
-  readonly costMeters: number
+  readonly informalMeters: number
+  readonly adjustedMeters: number
   readonly distanceMeters: number
 }
+
+type RouteCost = Pick<QueueEntry, 'informalMeters' | 'adjustedMeters'>
 
 interface PreviousStep {
   readonly nodeId: string
@@ -30,17 +33,24 @@ export function findShortestWalkingPath(
     })
   }
 
-  const costs = new Map<string, number>([[originNodeId, 0]])
+  const costs = new Map<string, RouteCost>([
+    [originNodeId, { informalMeters: 0, adjustedMeters: 0 }],
+  ])
   const previousSteps = new Map<string, PreviousStep>()
   const queue: QueueEntry[] = [
-    { nodeId: originNodeId, costMeters: 0, distanceMeters: 0 },
+    {
+      nodeId: originNodeId,
+      informalMeters: 0,
+      adjustedMeters: 0,
+      distanceMeters: 0,
+    },
   ]
 
   while (queue.length > 0) {
-    queue.sort((first, second) => first.costMeters - second.costMeters)
+    queue.sort(compareCost)
     const current = queue.shift()
 
-    if (!current || current.costMeters !== costs.get(current.nodeId)) {
+    if (!current || compareCost(current, costs.get(current.nodeId)!) !== 0) {
       continue
     }
 
@@ -55,10 +65,18 @@ export function findShortestWalkingPath(
 
     for (const edge of connectedEdges(graph.edges, current.nodeId)) {
       const neighborNodeId = otherNodeId(edge, current.nodeId)
-      const nextCost = current.costMeters + walkingCost(edge)
+      const nextCost: RouteCost = {
+        informalMeters:
+          current.informalMeters +
+          (edge.pathKind === 'informal' ? edge.distanceMeters : 0),
+        adjustedMeters:
+          current.adjustedMeters +
+          edge.distanceMeters * (edge.pathKind === 'main' ? 0.9 : 1),
+      }
       const nextDistance = current.distanceMeters + edge.distanceMeters
 
-      if (nextCost >= (costs.get(neighborNodeId) ?? Infinity)) {
+      const existingCost = costs.get(neighborNodeId)
+      if (existingCost && compareCost(nextCost, existingCost) >= 0) {
         continue
       }
 
@@ -69,7 +87,7 @@ export function findShortestWalkingPath(
       })
       queue.push({
         nodeId: neighborNodeId,
-        costMeters: nextCost,
+        ...nextCost,
         distanceMeters: nextDistance,
       })
     }
@@ -78,8 +96,11 @@ export function findShortestWalkingPath(
   return undefined
 }
 
-function walkingCost(edge: WalkingGraphEdge): number {
-  return edge.distanceMeters * (edge.pathKind === 'informal' ? 1.12 : 1)
+function compareCost(first: RouteCost, second: RouteCost): number {
+  return (
+    first.informalMeters - second.informalMeters ||
+    first.adjustedMeters - second.adjustedMeters
+  )
 }
 
 function connectedEdges(

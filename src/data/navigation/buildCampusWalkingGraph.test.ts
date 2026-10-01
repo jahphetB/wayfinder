@@ -8,8 +8,12 @@ describe('buildCampusWalkingGraph', () => {
       '3': [43.6501, -116.6795],
     },
     ways: [{ id: '10', nodeIds: ['1', '2'], kind: 'formal' }],
-    buildings: [{ id: '20', entranceIds: ['3'] }],
+    buildings: [{ id: '20', nodeIds: ['3'], entranceIds: ['3'] }],
+    areas: [{ id: '30', nodeIds: ['3'] }],
     places: [] as { id: string }[],
+    entrances: [
+      { id: '1', description: 'Main entrance to the Activities Center' },
+    ],
   }
 
   it('splits the nearest walkway segment for an off-path entrance', () => {
@@ -65,5 +69,41 @@ describe('buildCampusWalkingGraph', () => {
         },
       ]),
     ).toThrow('No nearby walking way for distant')
+  })
+
+  it('validates a described entrance and keeps mapped areas identifiable', () => {
+    const result = buildCampusWalkingGraph(snapshot, [
+      {
+        id: 'activities',
+        label: 'Activities Center',
+        source: {
+          kind: 'described-entrance',
+          nodeId: '1',
+          descriptionIncludes: 'activities center',
+        },
+      },
+      {
+        id: 'parking',
+        label: 'Parking Lot',
+        source: { kind: 'mapped-area', areaId: '30' },
+      },
+    ])
+    expect(result.graph.nodes.some(({ id }) => id === 'activities')).toBe(true)
+    expect(result.graph.edges.map(({ id }) => id)).toContain(
+      'connector:parking',
+    )
+    expect(() =>
+      buildCampusWalkingGraph(snapshot, [
+        {
+          id: 'pool',
+          label: 'Pool',
+          source: {
+            kind: 'described-entrance',
+            nodeId: '1',
+            descriptionIncludes: 'swimming pool',
+          },
+        },
+      ]),
+    ).toThrow('description does not match OSM')
   })
 })

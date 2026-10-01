@@ -73,7 +73,11 @@ def import_osm(input_path):
             {
                 "id": way.get("id"),
                 "nodeIds": node_ids,
-                "kind": "informal" if way_tags.get("informal") == "yes" else "formal",
+                "kind": (
+                    "informal" if way_tags.get("informal") == "yes"
+                    else "main" if "main footway" in way_tags.get("description", "").lower()
+                    else "formal"
+                ),
                 "highway": way_tags["highway"],
             }
         )
@@ -84,29 +88,59 @@ def import_osm(input_path):
     ]
     selected_ids = set(connected)
     buildings = []
+    areas = []
     for way in ways:
         way_tags = tags(way)
-        if way_tags.get("building") != "college" or not way_tags.get("name"):
-            continue
-        entrance_ids = [
-            ref.get("ref")
-            for ref in way.findall("nd")
-            if tags(osm_nodes[ref.get("ref")]).get("entrance")
-        ]
-        selected_ids.update(entrance_ids)
-        buildings.append(
-            {"id": way.get("id"), "name": way_tags["name"], "entranceIds": entrance_ids}
-        )
+        node_ids = [ref.get("ref") for ref in way.findall("nd")]
+        if way_tags.get("name") and way_tags.get("building") in {"college", "residential"}:
+            entrance_ids = [
+                node_id for node_id in node_ids
+                if tags(osm_nodes[node_id]).get("entrance")
+            ]
+            selected_ids.update(node_ids)
+            buildings.append(
+                {"id": way.get("id"), "name": way_tags["name"],
+                 "kind": way_tags["building"], "nodeIds": node_ids,
+                 "entranceIds": entrance_ids}
+            )
+        parking_description = way_tags.get("description", "")
+        if parking_description and (
+            way_tags.get("amenity") == "parking"
+            or "parking lot" in parking_description.lower()
+        ):
+            selected_ids.update(node_ids)
+            areas.append(
+                {"id": way.get("id"), "name": parking_description,
+                 "kind": "parking", "nodeIds": node_ids}
+            )
+        if way_tags.get("leisure") == "stadium" and way_tags.get("name"):
+            selected_ids.update(node_ids)
+            areas.append(
+                {"id": way.get("id"), "name": way_tags["name"],
+                 "kind": "stadium", "nodeIds": node_ids}
+            )
 
     places = []
     for node_id, node in osm_nodes.items():
         node_tags = tags(node)
-        if node_tags.get("name") and (
-            node_tags.get("amenity") in {"theatre", "planetarium"}
-            or node_tags.get("tourism") in {"museum", "gallery"}
-        ):
+        if node_id in {
+            "5729141036", "5729141037", "5729141038", "5729141045",
+            "14239949038"
+        }:
             selected_ids.add(node_id)
-            places.append({"id": node_id, "name": node_tags["name"]})
+            places.append(
+                {"id": node_id, "name": node_tags.get("name") or node_tags.get("description")}
+            )
+
+    entrances = []
+    for node_id, node in osm_nodes.items():
+        node_tags = tags(node)
+        if node_tags.get("entrance"):
+            selected_ids.add(node_id)
+            entrances.append(
+                {"id": node_id, "kind": node_tags["entrance"],
+                 "description": node_tags.get("description", "")}
+            )
 
     output = {
         "source": {
@@ -122,7 +156,9 @@ def import_osm(input_path):
         },
         "ways": selected_ways,
         "buildings": buildings,
+        "areas": areas,
         "places": places,
+        "entrances": entrances,
     }
     OUTPUT.write_text(json.dumps(output, separators=(",", ":")) + "\n", encoding="utf-8")
     print(

@@ -9,6 +9,7 @@ import type {
 
 const straightThresholdDegrees = 30
 const turnAroundThresholdDegrees = 150
+const nearbyTurnMergeMeters = 12
 
 export function createRouteSteps(
   graph: WalkingGraph,
@@ -50,15 +51,41 @@ export function createRouteSteps(
     previousCoordinates = coordinates
   })
 
+  const guidedLegs: ((typeof legs)[number] & {
+    followingManeuver?: RouteManeuver
+    distanceBeforeFollowingTurn?: number
+  })[] = []
+  for (let index = 0; index < legs.length; index += 1) {
+    const leg = legs[index]!
+    const next = legs[index + 1]
+    if (
+      next &&
+      leg.maneuver !== 'depart' &&
+      leg.distanceMeters <= nearbyTurnMergeMeters &&
+      next.maneuver !== 'depart'
+    ) {
+      guidedLegs.push({
+        ...leg,
+        coordinates: [...leg.coordinates, ...next.coordinates.slice(1)],
+        distanceMeters: leg.distanceMeters + next.distanceMeters,
+        followingManeuver: next.maneuver,
+        distanceBeforeFollowingTurn: leg.distanceMeters,
+      })
+      index += 1
+    } else {
+      guidedLegs.push(leg)
+    }
+  }
+
   return Object.freeze(
-    legs.map((leg, index): RouteStep => {
+    guidedLegs.map((leg, index): RouteStep => {
       const checkpointCoordinates = leg.coordinates.at(-1)
       if (!checkpointCoordinates) {
         throw new Error(
           `Walking leg ${leg.edgeId} has no checkpoint coordinate`,
         )
       }
-      const isFinalStep = index === legs.length - 1
+      const isFinalStep = index === guidedLegs.length - 1
       return Object.freeze({
         id: `${routeId}-step-${index + 1}`,
         edgeId: leg.edgeId,
@@ -67,6 +94,8 @@ export function createRouteSteps(
           leg.maneuver,
           leg.distanceMeters,
           isFinalStep,
+          leg.followingManeuver,
+          leg.distanceBeforeFollowingTurn,
         ),
         coordinates: Object.freeze(leg.coordinates),
         distanceMeters: leg.distanceMeters,
@@ -143,6 +172,8 @@ function createInstruction(
   maneuver: RouteManeuver,
   distanceMeters: number,
   isFinalStep: boolean,
+  followingManeuver?: RouteManeuver,
+  distanceBeforeFollowingTurn?: number,
 ): string {
   const action = {
     depart: 'Start walking',
@@ -152,6 +183,17 @@ function createInstruction(
     'turn-around': 'Turn around',
   }[maneuver]
   const destinationText = isFinalStep ? ' to reach your destination' : ''
+
+  if (followingManeuver && distanceBeforeFollowingTurn !== undefined) {
+    const followingAction = {
+      depart: 'start walking',
+      continue: 'continue straight',
+      'turn-left': 'turn left',
+      'turn-right': 'turn right',
+      'turn-around': 'turn around',
+    }[followingManeuver]
+    return `${action}, then ${followingAction} after ${Math.round(distanceBeforeFollowingTurn)} m and continue for ${Math.round(distanceMeters - distanceBeforeFollowingTurn)} m${destinationText}.`
+  }
 
   return `${action} and continue for ${Math.round(distanceMeters)} m${destinationText}.`
 }

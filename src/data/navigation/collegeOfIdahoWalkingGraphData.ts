@@ -13,18 +13,9 @@ interface CollegeOfIdahoWalkingGraphData extends WalkingGraphRelease {
 // Simplot's two labels reflect the user's firsthand identification of its doors.
 const locations: readonly CampusLocationSpec[] = [
   {
-    id: 'campus-entrance',
-    label: 'Campus Entrance',
-    source: {
-      kind: 'illustrative',
-      coordinates: { latitude: 43.6522, longitude: -116.6799 },
-    },
-    maximumConnectorMeters: 120,
-  },
-  {
     id: 'morrison-quadrangle',
     label: 'Morrison Quadrangle & Clock Tower',
-    source: { kind: 'walkway-point', nodeId: '9284498078' },
+    source: { kind: 'point-of-interest', nodeId: '14239949038' },
   },
   {
     id: 'cruzen-murray-library',
@@ -77,7 +68,7 @@ const locations: readonly CampusLocationSpec[] = [
     source: {
       kind: 'building-entrance',
       buildingId: '492831868',
-      nodeId: '14229217300',
+      nodeId: '14229217299',
     },
   },
   {
@@ -183,6 +174,15 @@ const locations: readonly CampusLocationSpec[] = [
     id: 'ja-albertson-activities-center',
     label: 'J.A. Albertson Activities Center',
     source: {
+      kind: 'described-entrance',
+      nodeId: '9284508267',
+      descriptionIncludes: 'Activities Center',
+    },
+  },
+  {
+    id: 'jaac-swimming-pool',
+    label: 'J.A. Albertson Swimming Pool',
+    source: {
       kind: 'building-entrance',
       buildingId: '492831903',
       nodeId: '14233022397',
@@ -193,6 +193,66 @@ const locations: readonly CampusLocationSpec[] = [
     label: 'Centennial Amphitheater',
     source: { kind: 'point-of-interest', nodeId: '5729141038' },
   },
+  ...(
+    [
+      [
+        'former-terteling-library',
+        'N.L. Terteling Library (former)',
+        '492831877',
+      ],
+      ['west-hall', 'West Hall', '492831897'],
+      [
+        'marty-holly-athletic-center',
+        'Marty Holly Athletic Center',
+        '603509924',
+      ],
+      ['mustard-apartments', 'Mustard Apartments', '603518405'],
+      ['ketchup-apartments', 'Ketchup Apartments', '603518406'],
+      ['sawtooth-apartments', 'Sawtooth Apartments', '603518408'],
+      ['owyhee-apartments', 'Owyhee Apartments', '603518410'],
+    ] as const
+  ).map(([id, label, buildingId]) => ({
+    id,
+    label,
+    source: { kind: 'building-outline' as const, buildingId },
+    maximumConnectorMeters: 25,
+  })),
+  ...(
+    [
+      ['simplot-finney-parking', 'Simplot/Finney Parking Lots', '319413905'],
+      ['hayman-parking', 'Hayman Parking Lots', '319413906'],
+      ['hayman-parking-2', 'Hayman Parking Lot 2', '1006303601'],
+      ['village-parking', 'Village Parking Lot', '492831862'],
+      ['anderson-parking', 'Anderson Parking Lot', '492831869'],
+      ['jaac-parking', 'JAAC Parking Lot', '492831927'],
+      ['mccain-parking', 'McCain Parking Lot', '603509928'],
+      ['jewett-parking', 'Jewett Parking Lot', '603516934'],
+      ['hendren-parking', 'Hendren Parking Lot', '603518414'],
+      ['mountains-parking', 'Mountains Parking Lot', '1564171297'],
+      ['simplot-stadium', 'Simplot Stadium', '327890065'],
+    ] as const
+  ).map(([id, label, areaId]) => ({
+    id,
+    label,
+    source: { kind: 'mapped-area' as const, areaId },
+    maximumConnectorMeters: areaId === '327890065' ? 35 : 15,
+  })),
+  ...(
+    [
+      [
+        'orma-smith-museum',
+        'Orma J. Smith Museum of Natural History',
+        '5729141036',
+      ],
+      ['whittenberger-planetarium', 'Whittenberger Planetarium', '5729141037'],
+      ['rosenthal-gallery', 'Rosenthal Gallery of Art', '5729141045'],
+    ] as const
+  ).map(([id, label, nodeId]) => ({
+    id,
+    label,
+    source: { kind: 'point-of-interest' as const, nodeId },
+    maximumConnectorMeters: 25,
+  })),
 ]
 
 const campusNetwork = buildCampusWalkingGraph(osmSnapshot, locations)
@@ -201,8 +261,8 @@ export const collegeOfIdahoWalkingGraphData = {
   ...campusNetwork,
   provenance: {
     sourceDescription:
-      'Pedestrian ways and tagged building entrances were imported from the user-observed 2026-09-29 OpenStreetMap export (SHA-256 8B0EC753640275B3177D2C2514862B41EB7EB78228E870C16BED58C0276A2FEE). Informal ways have a small route-cost penalty; displayed distance is physical path length. The Campus Entrance and short unmapped destination connectors remain illustrative. Entrance reachability, access, crossing safety, and walking directions have not been campus-approved. OpenStreetMap data is ODbL: https://www.openstreetmap.org/copyright.',
+      'Pedestrian ways, building and parking outlines, entrances, and place descriptions come from the user-observed 2026-10-01 OpenStreetMap export (SHA-256 03B9BD752A588BFF7CB04A87B06D417736E1BFBC49091AFD9EF8452A88C0B40C). Formal paths always outrank informal paths; main footways are favored among formal alternatives. The displayed distance is physical length. Unmapped destination connectors and outline-derived entry points remain illustrative. Entrance reachability, access, crossing safety, and walking directions have not been campus-approved. OpenStreetMap data is ODbL: https://www.openstreetmap.org/copyright.',
     verificationStatus: 'illustrative',
-    reviewedOn: '2026-09-29',
+    reviewedOn: '2026-10-01',
   },
 } satisfies CollegeOfIdahoWalkingGraphData

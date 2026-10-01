@@ -4,14 +4,14 @@ import { determineRoutePlan, findRouteForLocations } from './routePlanner'
 import { collegeOfIdahoWalkingGraph } from '@/data/navigation/collegeOfIdahoWalkingGraph'
 import { mockLocations } from '@/data/navigation/mockLocations'
 
-const campusEntrance = mockLocations.find(
-  (location) => location.id === 'campus-entrance',
+const simplotDiningHall = mockLocations.find(
+  (location) => location.id === 'simplot-dining-hall',
 )
 const cruzenMurrayLibrary = mockLocations.find(
   (location) => location.id === 'cruzen-murray-library',
 )
 
-if (!campusEntrance || !cruzenMurrayLibrary) {
+if (!simplotDiningHall || !cruzenMurrayLibrary) {
   throw new Error('Required navigation fixtures are missing')
 }
 
@@ -36,7 +36,7 @@ describe('route planner model', () => {
     expect(
       determineRoutePlan(
         collegeOfIdahoWalkingGraph,
-        campusEntrance,
+        simplotDiningHall,
         unconnectedLocation,
       ),
     ).toEqual({ status: 'route-unavailable' })
@@ -46,20 +46,24 @@ describe('route planner model', () => {
     const reverseRoute = findRouteForLocations(
       collegeOfIdahoWalkingGraph,
       cruzenMurrayLibrary,
-      campusEntrance,
+      simplotDiningHall,
     )
     const forwardRoute = findRouteForLocations(
       collegeOfIdahoWalkingGraph,
-      campusEntrance,
+      simplotDiningHall,
       cruzenMurrayLibrary,
     )
 
-    expect(reverseRoute?.id).toBe('cruzen-murray-library-to-campus-entrance')
-    expect(forwardRoute?.id).toBe('campus-entrance-to-cruzen-murray-library')
+    expect(reverseRoute?.id).toBe(
+      'cruzen-murray-library-to-simplot-dining-hall',
+    )
+    expect(forwardRoute?.id).toBe(
+      'simplot-dining-hall-to-cruzen-murray-library',
+    )
     expect(
       determineRoutePlan(
         collegeOfIdahoWalkingGraph,
-        campusEntrance,
+        simplotDiningHall,
         cruzenMurrayLibrary,
       ),
     ).toEqual({ status: 'route-ready', route: forwardRoute })
