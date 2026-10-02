@@ -44,7 +44,7 @@ work together, that decision should be recorded here.
 Yote Wayfinder is a browser-based route-planning prototype. A person chooses a
 starting place and a destination, previews a calculated walking route, and sees
 that route on an interactive map. The map can be viewed from a flat 2D angle or
-a tilted 3D perspective with project-owned calibration geometry.
+a tilted 3D perspective. No building block is currently rendered.
 
 The project is deliberately divided into areas with different responsibilities.
 This is similar to organizing a business so that accounting, customer service,
@@ -74,7 +74,7 @@ location checks, instructions, retry messages, and arrival. See the
 complete browser-location flow and its prototype limitations.
 
 The current version is focused on The College of Idaho in Caldwell, Idaho. It
-offers 21 searchable places on a local walking graph imported from the user's
+offers 42 searchable places on a local walking graph imported from the user's
 newer OSM export. No routing server is required. Searching filters those known
 locations. Pressing **Preview route** calculates a path and sends it to the map.
 The observed geometry improves the drawing, but connections, permissions,
@@ -99,7 +99,7 @@ claims verified data without naming the person or organization that verified it.
 The visible labels for Morrison Quadrangle & Clock Tower and Cruzen-Murray
 Library are supported by current College and public-map sources. A Google Maps
 check showed the former N.L. Terteling Library listing as permanently closed,
-so it is not presented as a current destination. This is intentionally a
+so it is labeled as a former building, not presented as the current library. This is intentionally a
 narrow claim: no public source reviewed in Steps 11 or 12 proves the exact
 walking edges, their distances, temporary closures, travel directions, or
 accessibility. Those routing facts remain illustrative until an authorized
@@ -110,12 +110,12 @@ turns map data into the pixels, labels, markers, and lines seen in the browser.
 OpenStreetMap raster tiles provide the current street background. A raster tile
 is a small map image; many tiles are placed together to form the visible map.
 
-The 3D mode now combines MapLibre with an isolated Three.js custom layer.
-Three.js is a browser 3D rendering library. The layer currently draws one gold
-calibration building at a real campus coordinate. The shape, dimensions,
-heading, and identity are illustrative; it exists to prove geographic anchoring
-and cleanup before the project invests in real building assets. Two-dimensional
-mode hides this geometry while preserving the route and map state.
+The 3D button currently tilts the MapLibre camera. The former gold calibration
+block has been removed because it appeared over Hendren Hall without matching
+that building. The isolated Three.js layer remains in source code but is not
+attached to the current map. Three.js is a browser 3D rendering library that
+may be used for future, reviewed building models. Switching to 2D preserves
+the route and map state.
 
 ## The architecture in one picture
 
@@ -157,7 +157,7 @@ navigation interface.
    `Location` object, not only the visible label.
 7. When **Preview route** is pressed, the hook asks `routePlanner.ts` to request
    a route from the walking graph for the selected location identifiers.
-8. `walkingRoutes.ts` asks `pathfinding.ts` for the shortest path, then asks
+8. `walkingRoutes.ts` asks `pathfinding.ts` for a formal-first path, then asks
    `routeSteps.ts` to orient each selected edge's geometry in travel order and
    derive maneuvers, instructions, and checkpoints.
 9. The route factory validates that the steps form one continuous path and
@@ -168,9 +168,8 @@ navigation interface.
     GeoJSON is a common text-based format for geographic shapes and points.
 13. MapLibre draws the route line and location circles, then moves the camera so
     the route fits inside the visible map.
-14. In 3D mode, `MapLibreGeoreferencedBuildingLayer.ts` reads MapLibre's current
-    projection matrix and uses Three.js to draw the calibration building at its
-    geographic anchor. In 2D mode, the adapter hides that building layer.
+14. In 3D mode, MapLibre tilts the map camera. No building mesh is currently
+    attached; the dormant Three.js layer remains isolated for future models.
 
 Keeping this path explicit is important for debugging. If suggestions are
 wrong, inspect navigation data and model logic. If the route summary is right
@@ -188,7 +187,6 @@ YoteWayfinder/
 ├── src/                          Application source code
 │   ├── app/                      Screen assembly and global presentation
 │   ├── composition/              Chooses concrete service implementations
-│   ├── data/map/                 Owned 3D scene descriptions
 │   ├── data/navigation/          Local route and campus content
 │   ├── domain/navigation/        Business meaning and validation
 │   ├── features/
@@ -347,10 +345,10 @@ job it needs performed, and the composition layer selects the vendor that will
 perform it. Changing providers should primarily change this desk and the new
 provider implementation, not every caller.
 
-| File                                        | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                  |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/composition/createMapAdapter.ts`       | Creates the concrete MapLibre adapter, its style, and the georeferenced Three.js building layer. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
-| `src/composition/createLocationProvider.ts` | Selects the prototype simulator by default or the browser adapter when `VITE_LOCATION_MODE=browser`, keeping that choice outside components and domain rules.                                                                                                                                                                                                                                               |
+| File                                        | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/composition/createMapAdapter.ts`       | Creates the concrete MapLibre adapter and its style. It no longer attaches a 3D building layer. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
+| `src/composition/createLocationProvider.ts` | Selects the prototype simulator by default or the browser adapter when `VITE_LOCATION_MODE=browser`, keeping that choice outside components and domain rules.                                                                                                                                                                                                                                              |
 
 ## The `src/domain` folder
 
@@ -370,21 +368,21 @@ This subfolder owns navigation vocabulary and validity. It should not import
 from `data`, `features`, or MapLibre. Those outer areas depend on the domain,
 not the other way around.
 
-| File                                                 | Importance and relationship to other files                                                                                                                                                                                                                                                                                         |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/domain/navigation/types.ts`                     | Defines shared meanings for locations, rendered routes, walking-graph nodes, edges, paths, restrictions, provenance, and releases. These provider-independent shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                                      |
-| `src/domain/navigation/factories.ts`                 | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, invalid graph edges, unknown restriction values, invalid review dates, and unsubstantiated verified releases. Immutable means callers cannot accidentally alter accepted data later. |
-| `src/domain/navigation/factories.test.ts`            | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                                                                             |
-| `src/domain/navigation/pathfinding.ts`               | Contains the pure shortest-path calculation. It reads a `WalkingGraph`, skips closed edges, respects forward-only edges, and returns a `WalkingPath` without importing React, MapLibre, or mock-data files.                                                                                                                        |
-| `src/domain/navigation/pathfinding.test.ts`          | Proves the algorithm chooses the shorter allowed path, supports permitted reverse travel, rejects forbidden reverse travel, avoids closures, and safely reports no path for unknown or unreachable nodes.                                                                                                                          |
-| `src/domain/navigation/routeSteps.ts`                | Converts selected graph edges into travel-oriented geometry, classifies maneuvers from geographic bearings, writes short instructions, and places a turn or destination checkpoint at each step endpoint. It remains independent from React, MapLibre, and browser geolocation.                                                    |
-| `src/domain/navigation/routeSteps.test.ts`           | Proves left and right turns, checkpoint order, instructions, and reverse travel through bidirectional geometry.                                                                                                                                                                                                                    |
-| `src/domain/navigation/locationVerification.ts`      | Creates validated one-shot location readings, calculates geographic distance, and classifies checkpoint proximity with reported accuracy and reading age. It contains provisional policy values but does not request browser location.                                                                                             |
-| `src/domain/navigation/locationVerification.test.ts` | Proves meter distance, numerical edge cases, validation, confirmed/mismatched boundaries, overlapping accuracy, and stale or future readings.                                                                                                                                                                                      |
-| `src/domain/navigation/navigationSession.ts`         | Implements explicit awaiting-start, navigating, and arrived transitions. It chooses the expected origin or route-step checkpoint and advances only after confirmed verification without retaining raw reading coordinates.                                                                                                         |
-| `src/domain/navigation/navigationSession.test.ts`    | Proves origin validation, no progress after mismatch or uncertainty, ordered turn advancement, arrival, completed-session failure, and location-data minimization.                                                                                                                                                                 |
-| `src/domain/navigation/walkingRoutes.ts`             | Coordinates shortest-path selection, route-step creation, validation, and the prototype walking-duration estimate.                                                                                                                                                                                                                 |
-| `src/domain/navigation/walkingRoutes.test.ts`        | Proves path-to-route conversion preserves ordered detailed geometry, distance, duration, checkpoints, and unavailable-route behavior.                                                                                                                                                                                              |
+| File                                                 | Importance and relationship to other files                                                                                                                                                                                                                                                                                                       |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/domain/navigation/types.ts`                     | Defines shared meanings for locations, rendered routes, walking-graph nodes, edges, paths, restrictions, provenance, and releases. These provider-independent shapes are imported by data, navigation, and map code so every area agrees on the same meaning.                                                                                    |
+| `src/domain/navigation/factories.ts`                 | Creates validated, immutable domain objects. It rejects impossible coordinates, empty identifiers, same-endpoint routes, incomplete geometry, invalid graph edges, unknown restriction values, invalid review dates, and unsubstantiated verified releases. Immutable means callers cannot accidentally alter accepted data later.               |
+| `src/domain/navigation/factories.test.ts`            | Proves important validation rules: coordinates are frozen, latitude ranges are enforced, routes cannot start and end at the same place, and graph edges cannot point to unknown nodes.                                                                                                                                                           |
+| `src/domain/navigation/pathfinding.ts`               | Contains the pure formal-first path calculation. It minimizes informal walking first, then length adjusted by a small main-footway preference. It still skips closed edges, respects forward-only edges, and reports actual physical length without importing React or MapLibre.                                                                 |
+| `src/domain/navigation/pathfinding.test.ts`          | Proves the algorithm chooses the shorter allowed path, supports permitted reverse travel, rejects forbidden reverse travel, avoids closures, and safely reports no path for unknown or unreachable nodes.                                                                                                                                        |
+| `src/domain/navigation/routeSteps.ts`                | Converts selected graph edges into travel-oriented geometry, classifies maneuvers from geographic bearings, writes short instructions, and places checkpoints. Two turns separated by at most 12 m can share an instruction and checkpoint; farther turns remain distinct. It remains independent from React, MapLibre, and browser geolocation. |
+| `src/domain/navigation/routeSteps.test.ts`           | Proves left and right turns, checkpoint order, instructions, and reverse travel through bidirectional geometry.                                                                                                                                                                                                                                  |
+| `src/domain/navigation/locationVerification.ts`      | Creates validated one-shot location readings, calculates geographic distance, and classifies checkpoint proximity with reported accuracy and reading age. It contains provisional policy values but does not request browser location.                                                                                                           |
+| `src/domain/navigation/locationVerification.test.ts` | Proves meter distance, numerical edge cases, validation, confirmed/mismatched boundaries, overlapping accuracy, and stale or future readings.                                                                                                                                                                                                    |
+| `src/domain/navigation/navigationSession.ts`         | Implements explicit awaiting-start, navigating, and arrived transitions. It chooses the expected origin or route-step checkpoint and advances only after confirmed verification without retaining raw reading coordinates.                                                                                                                       |
+| `src/domain/navigation/navigationSession.test.ts`    | Proves origin validation, no progress after mismatch or uncertainty, ordered turn advancement, arrival, completed-session failure, and location-data minimization.                                                                                                                                                                               |
+| `src/domain/navigation/walkingRoutes.ts`             | Coordinates shortest-path selection, route-step creation, validation, and the prototype walking-duration estimate.                                                                                                                                                                                                                               |
+| `src/domain/navigation/walkingRoutes.test.ts`        | Proves path-to-route conversion preserves ordered detailed geometry, distance, duration, checkpoints, and unavailable-route behavior.                                                                                                                                                                                                            |
 
 ## The `src/data` folder
 
@@ -398,17 +396,6 @@ cannot quietly bypass the rules expected from future live data. When an API
 replaces these files, its responses should be translated and validated at a
 similar boundary.
 
-### `src/data/map`
-
-This subfolder describes project-owned visual scene content separately from
-walking directions. The distinction is important: a building model can look
-correct while an entrance or path remains unverified. Visual geometry must
-never silently become routing authority.
-
-| File                                  | Importance and relationship to other files                                                                                                                                                                                                               |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/map/collegeOfIdahoScene.ts` | Defines the current procedural calibration building and its geographic anchor. `createMapAdapter.ts` supplies it to the Three.js layer. Its explicit `illustrative` status prevents the spike from being mistaken for a measured campus-building record. |
-
 ### `src/data/navigation`
 
 This subfolder is the safest place for many current content changes. A person
@@ -419,18 +406,18 @@ provided identifiers and coordinates remain consistent.
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its north-south boundary now allows a tall map panel to zoom out enough to fit the current east-west routes. These values remain separate from individual locations and routes. |
 | `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                        |
-| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | Curates the 21 searchable places, maps each destination to an imported entrance, path node, or point of interest, and records provenance. It no longer hand-copies all walkway geometry. The Campus Entrance and short unmapped door links remain illustrative.                                                                                       |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | Curates 42 searchable places from mapped entrances, building/parking outlines, and landmarks; records provenance. It no longer hand-copies walkway geometry. Outline-derived approach points and short unmapped links remain illustrative. The invented Campus Entrance is absent.                                                                    |
 | `src/data/navigation/campusOsmNetwork.json`              | Generated, compact snapshot of the newer OSM export's connected walking network, building outlines, entrances, and points of interest. It is committed so local builds do not need the user's Downloads folder or a live OSM connection. Do not hand-edit it: rerun the importer and review the diff.                                                 |
-| `src/data/navigation/buildCampusWalkingGraph.ts`         | Converts imported path segments and curated locations into the existing graph contract. It validates referenced entrance and building IDs, attaches nearby entrance gaps as identifiable connectors, and keeps map-provider code out of route construction.                                                                                           |
+| `src/data/navigation/buildCampusWalkingGraph.ts`         | Converts imported path segments and curated locations into the existing graph contract. It validates referenced building, area, and described-entrance IDs; chooses the nearest outline point where no entrance exists; labels unmapped links as connectors; and keeps map-provider code out of route construction.                                   |
 | `src/data/navigation/buildCampusWalkingGraph.test.ts`    | Checks source-reference failures, projected connector behavior, and routing-network construction at the import boundary.                                                                                                                                                                                                                              |
 | `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                          |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Demonstrates intended shortest paths, confirms every searchable location has a graph node, checks that both Simplot entrances and the other current buildings are routable, compares drawn length with edge distance, and verifies the graph remains illustrative.                                                                                    |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Confirms all 42 places are routable, Anderson and JAAC/pool entrances are distinct, the library-to-cafeteria route uses main rather than informal ways, drawn length matches reported length, and the release remains illustrative.                                                                                                                   |
 | `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                 |
 
 The source preparation guide is [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md).
 It specifies authorized source formats, required measurement metadata, field
 observation templates, and review checks. Use it before editing the graph or
-3D scene data so that the source and confidence of each new measurement remain
+future 3D scene data so that the source and confidence of each new measurement remain
 traceable.
 
 The [OSM export review](OSM_EXPORT_REVIEW.md) preserves both historical and
@@ -783,6 +770,10 @@ providers one clear, tested entry point.
 
 ### Step 13: Georeferenced 3D architecture spike
 
+Historical note: this step's gold calibration block was removed in Step 25.
+The provider-specific layer code remains dormant; see the Step 25 guide for
+the current 3D behavior.
+
 Step 13 proves the smallest uncertain part of the approved owned-map direction:
 a Three.js object measured in meters can stay attached to a real campus latitude
 and longitude while MapLibre moves, tilts, and rotates the camera. The result is
@@ -1099,6 +1090,9 @@ See the Step 17 progress entry for final check and bundle details.
 
 ### Step 18: Turn-focused map guidance
 
+Historical note: the off-walkway Campus Entrance described below was removed
+in Step 25. The current route begins at a selected campus place.
+
 Step 18 makes prototype navigation state visible on the map. The route preview
 still shows the full path. After navigation starts, each route step is emitted as
 its own GeoJSON feature with a presentation state: completed, current, or
@@ -1272,6 +1266,10 @@ with place names and orientation, not measured geometry.
 
 ### Step 21: Campus geometry collection packet
 
+Historical note: this section describes the original smaller collection
+scope. The current packet covers corrections to the expanded destinations
+and no longer includes an invented campus gate.
+
 Step 21 prepares for data replacement; it does not change the application map
 or its route data. [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md)
 is the handoff sheet to use with authorized facilities records or, if they are
@@ -1316,6 +1314,9 @@ attribution for its basemap, and the export review links the ODbL source terms.
 
 ### Step 23: OSM-based 2D walking routes
 
+Historical note: this section describes the earlier export and limited
+destination set. Steps 24 and 25 supersede its source and scope.
+
 The user clarified that accurate 2D walking routes take priority over widths,
 building heights, accessibility, slopes, and further 3D work. Their OSM edits
 were made from firsthand campus observation. We therefore used the supplied
@@ -1359,6 +1360,9 @@ reports a canvas resize, so a browser-width change or phone rotation does not
 leave an already previewed route cut off.
 
 ### Step 24: Expanded OSM network and search
+
+Historical note: Step 25 replaced this snapshot, widened the catalogue,
+removed the Campus Entrance and 3D block, and changed route preference.
 
 The user supplied a newer OSM export based on firsthand observations. It has
 2,965 point nodes, 585 ways, and 5 relations. We imported the main connected
@@ -1406,6 +1410,62 @@ console. Review new paths visually and send corrections before physical
 navigation use. Heights, widths, slopes, accessibility, and detailed 3D work
 remain deferred as requested.
 
+### Step 25: Described destinations and formal route priority
+
+The user supplied `map (1).osm`, a further observed OSM export with
+descriptions on entrances, main footways, parking areas, and the clock-tower
+landmark. The [current source audit](OSM_EXPORT_REVIEW.md#fourth-application-batch-descriptions-and-broader-destinations-step-25)
+records its SHA-256 fingerprint, imported feature counts, and source
+conflicts. The importer preserves descriptions that affect route selection
+and destination identification; the original XML remains outside the app.
+
+The catalogue now has 42 named campus places. The invented Campus Entrance
+was deleted because the campus has no fixed gate. The initial preview is
+Cruzen-Murray Library to Simplot cafeteria, making the requested route easy to
+test. Anderson Residence Hall uses the door described as mostly used by
+residents. The JAAC activities entrance and swimming-pool entrance are two
+separate destinations. The activities entrance is on a mapped walkway but
+not the building outline, so the builder validates its description rather
+than pretending it is a building-outline node.
+
+The additional destinations include four named apartments, ten described
+parking areas, previously omitted named campus buildings, Simplot Stadium,
+and landmarks. When a building has no tagged entrance, the builder chooses
+the outline vertex closest to the walking network and marks the link as an
+illustrative connector. This is an _approach point_, not an inferred door.
+The former library building is labeled “former” to avoid claiming that it
+still operates as the library. One Hayman parking way also carries conflicting
+basketball-pitch tags; it is provisional pending the user's correction.
+
+`pathfinding.ts` now compares candidate routes in two stages: least informal
+walking first, then total length with a 10% discount in the internal score
+for ways explicitly described as main footways. This is a _lexicographic
+priority_: the first rule wins before the second is considered. It is an
+intentional change from Step 24's small informal penalty, implementing the
+user's stronger formal-path preference. Physical distance shown in the UI is
+never discounted. For the library-to-cafeteria example, a regression test
+requires main-footway use and no informal shortcut.
+
+`routeSteps.ts` combines two turns only when the leg between them is at most
+12 m. The merged instruction explicitly names both maneuvers and the short
+distance between them; its single checkpoint comes after the combined leg.
+Turns farther apart retain separate Next actions. This reduces unnecessary
+button presses without concealing a turn. It does not change the underlying
+path, map line, or location-verification policy.
+
+`createMapAdapter.ts` no longer installs the Three.js calibration scene, and
+`src/data/map/collegeOfIdahoScene.ts` was removed. The 3D button still tilts
+MapLibre's camera; no 3D building is currently drawn. The generic custom-layer
+implementation remains in source for later approved, measured models. Its
+code is dormant and does not contribute to the current map bundle.
+
+Focused tests cover source IDs, entrance separation, catalogue reachability,
+formal-path selection, physical distance, and close versus far turns. Real
+browser checks covered the library-to-cafeteria route, a parking route on a
+phone-size viewport, the expanded dropdown, and the 3D view without the block.
+The browser console had no errors or warnings. All destinations and
+connectors remain prototype data until physically checked and approved.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -1413,8 +1473,8 @@ afterward and inspect the browser for visual changes.
 
 ### Add a location
 
-1. Check that the new place has a mapped entrance on its building outline, a
-   path node, or a point-of-interest node in the current OSM snapshot. Confirm
+1. Check that the new place has a mapped entrance, building or parking outline,
+   path node, or point-of-interest node in the current OSM snapshot. Confirm
    its name and physical location with the user. If not, obtain better source
    geometry before adding it.
 2. Open `src/data/navigation/collegeOfIdahoWalkingGraphData.ts` and add a
@@ -1529,18 +1589,18 @@ Do not put provider URLs inside `MapView.tsx`. Keeping them in composition
 preserves the adapter boundary. Confirm that any tile service permits expected
 usage and provides required attribution.
 
-### Change the 3D calibration building
+### Add a future 3D building model
 
-1. Open `src/data/map/collegeOfIdahoScene.ts` for its anchor, heading,
-   dimensions, or color.
-2. Keep `verificationStatus` as `illustrative` unless the building record has
-   approved geographic and dimensional evidence.
-3. Do not use the model as evidence for an entrance or walkable connection;
-   those facts belong in the walking graph.
-4. Update the layer test if lifecycle behavior changes.
-5. Run the production build and record a material bundle-size change.
-6. Inspect both 3D and 2D modes in a real browser. Confirm the object is anchored
-   while panning and hidden in 2D.
+There is no current building block or scene data file. Do not recreate the
+former Hendren-area placeholder as a content edit. A future model requires
+separate approval and evidence for its identity, geographic anchor, and size.
+
+1. Keep route and entrance facts in the walking graph; the visual model is
+   never evidence of a usable path.
+2. Supply reviewed scene data to the retained
+   `MapLibreGeoreferencedBuildingLayer` only through `createMapAdapter.ts`.
+3. Add layer lifecycle tests, measure bundle and device performance, and check
+   both 2D and 3D in a real browser.
 
 When replacing the procedural block with GLB assets, add a separately approved
 asset-loading and performance step. Do not place a raw photogrammetry mesh in
@@ -1594,8 +1654,9 @@ came from a demonstration style that showed little street detail at campus zoom.
 
 ### A route preview is cut off at the edge
 
-1. Confirm that the first and last route coordinates in
-   `collegeOfIdahoWalkingGraphData.ts` match the chosen locations.
+1. Confirm that the chosen place IDs in
+   `collegeOfIdahoWalkingGraphData.ts` resolve to the expected imported source
+   points and the first/last route coordinates match them.
 2. Check whether the route itself extends outside the configured
    `collegeOfIdahoCampus.bounds`. The map's maximum pan boundary can also
    force a minimum zoom; this matters most on a tall, narrow map panel.
@@ -1609,22 +1670,12 @@ came from a demonstration style that showed little street detail at campus zoom.
    event re-fits the current preview rather than requiring a second click on
    **Preview route**.
 
-### The map works but the 3D building is missing
+### The 3D button tilts the map but no building appears
 
-1. Confirm the 3D button is selected. The layer is deliberately hidden in 2D.
-2. Check the browser console for WebGL or Three.js errors.
-3. Confirm `createMapAdapter.ts` constructs
-   `MapLibreGeoreferencedBuildingLayer` with `collegeOfIdahoScenePrototype`.
-4. Confirm `MapLibreMapAdapter` adds the layer from its map-load callback.
-5. Check that the anchor remains inside `collegeOfIdahoCampus.bounds` and the
-   dimensions are positive meter values.
-6. If the object moves away from its map position while panning, inspect the
-   model transform and MapLibre projection-matrix use in the layer.
-7. Toggle 2D and 3D. If the camera changes but visibility does not, inspect
-   `setVisible` calls in `MapLibreMapAdapter.setMode`.
-
-If the map and routes work, begin diagnosis in the Three.js layer rather than
-the navigation domain. That separation is intentional.
+This is expected after Step 25: the inaccurate calibration block was removed.
+`createMapAdapter.ts` does not supply a building layer. The retained generic
+Three.js layer is dormant until a reviewed 3D-model step is approved. A blank
+map or missing route is a separate map problem; use the sections above.
 
 ### The map appears but streets do not
 
@@ -1885,7 +1936,8 @@ historical context.
 
 ### ADR-021: Own campus 3D content while retaining MapLibre as renderer
 
-- **Status:** Accepted
+- **Status:** Accepted as a future integration; the Step 13 calibration scene
+  was removed in Step 25, and the layer is currently dormant.
 - **Decision:** Keep MapLibre for geographic projection, camera behavior, map
   interaction, and overlays; render project-owned 3D campus content through an
   isolated Three.js custom layer that shares MapLibre's WebGL context.
@@ -1893,8 +1945,9 @@ historical context.
   visual assets without recreating mature map projection, touch interaction,
   camera, and 2D-map behavior. The existing adapter already provides a safe
   integration boundary.
-- **Consequence:** Three.js adds a measurable deferred bundle cost and requires
-  explicit shared-context state management and resource disposal. Visual models
+- **Consequence:** Activating Three.js adds a deferred bundle cost and requires
+  explicit shared-context state management and resource disposal. The current
+  build does not bundle the unattached layer. Visual models
   remain separate from authoritative entrances and walking-graph data. A later
   asset pipeline must optimize and benchmark every realistic model.
 
@@ -2047,7 +2100,8 @@ historical context.
 
 ### ADR-032: Generate the 2D graph from a reviewed OSM snapshot
 
-- **Status:** Accepted for the Step 24 prototype.
+- **Status:** Source-import boundary remains accepted; the 12% routing policy
+  was superseded by ADR-033 in Step 25.
 - **Decision:** Keep the user-supplied XML outside the runtime. Import its main
   connected walking component into committed JSON with a small standard-library
   script. Curate searchable entrances separately and validate their OSM IDs at
@@ -2059,6 +2113,51 @@ historical context.
 - **Consequence:** New exports must be reviewed, regenerated, tested, and
   visually checked as a unit. An apparent link or mapped entrance is not proof
   of actual access. The entire route release remains illustrative.
+
+### ADR-033: Prefer formal walking paths before informal shortcuts
+
+- **Status:** Accepted for the Step 25 prototype.
+- **Decision:** Compare paths first by their total informal distance. Among
+  paths with equal informal distance, minimize adjusted distance: described
+  main footways count at 90% of their physical length for selection; other
+  formal ways and connectors count at full length. Display actual physical
+  distance to the user.
+- **Reason:** The user asked that formal walkways always beat informal paths
+  when both are available, including library-to-cafeteria directions, and
+  asked for a further main-footway preference. Keeping the score separate from
+  displayed distance prevents misleading route summaries.
+- **Consequence:** A formal route may be physically longer than an informal
+  shortcut. This priority is not a safety or accessibility certification;
+  on-site corrections remain necessary.
+
+### ADR-034: Separate known entrances from illustrative outline approaches
+
+- **Status:** Accepted for the Step 25 prototype.
+- **Decision:** Curate described entrance IDs explicitly for Anderson, Simplot,
+  JAAC activities, and the swimming pool. For named buildings or parking
+  areas without a mapped entrance, choose the outline vertex closest to the
+  connected walking network and label the link illustrative. Remove the
+  invented Campus Entrance. Keep the 3D calibration scene removed while
+  retaining its generic integration boundary for later reviewed assets.
+- **Reason:** A large searchable campus catalogue is useful now, but an
+  outline is not a door and a visual block is not an accurate building. The
+  available descriptions should be used precisely without claiming more than
+  they prove.
+- **Consequence:** The catalogue is broader, but some destinations are only
+  provisional approach points. They require user review or source correction
+  before physical navigation. 3D remains camera tilt without buildings.
+
+### ADR-035: Combine only nearby successive turns
+
+- **Status:** Accepted for prototype guidance in Step 25.
+- **Decision:** Merge two turn legs only when the first is at most 12 m long.
+  State both maneuvers and their separation in one instruction, with a single
+  checkpoint after the combined leg.
+- **Reason:** Every short OSM segment should not force an extra Next click,
+  yet far-apart turns must remain independently checkable.
+- **Consequence:** The full route geometry remains unchanged; only guidance
+  and checkpoint grouping change. The 12 m rule is a prototype threshold for
+  later field evaluation.
 
 ## Engineering principles in plain language
 
@@ -2100,44 +2199,44 @@ speculative frameworks for features that have not been approved.
 
 ## Glossary
 
-| Term                  | Plain-language meaning                                                                                        |
-| --------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Adapter               | A translator that makes one system fit the interface expected by another.                                     |
-| Accuracy area         | The area around a reported location where the device indicates the real position may be.                      |
-| API                   | A defined way for one piece of software to communicate with another.                                          |
-| Basemap               | The background geographic map beneath custom markers and route lines.                                         |
-| Bearing               | A compass direction measured in degrees and calculated between two geographic points.                         |
-| Build                 | Turning source files into optimized files suitable for hosting.                                               |
-| Bundle                | Browser-ready files assembled from source and dependencies.                                                   |
-| Component             | A reusable visible part of a React interface.                                                                 |
-| Checkpoint            | The expected geographic endpoint of a route step, later usable for progress verification.                     |
-| Corroborated fact     | A limited fact checked beyond the project's own mock record; it is not automatically an approved instruction. |
-| Contract or interface | A checked description of operations or data another module must provide.                                      |
-| Data minimization     | Keeping only the information needed for a feature and discarding unnecessary sensitive detail.                |
-| Dependency            | Code, data, or a service that another part requires.                                                          |
-| Domain                | The business meaning of the application, such as locations and routes.                                        |
-| Georeferencing        | Attaching data or a 3D object to a real location on Earth.                                                    |
-| GeoJSON               | A standard JSON format for geographic points, lines, and areas.                                               |
-| GLB                   | A compact binary file containing a web-ready 3D model and related data.                                       |
-| Haversine formula     | A calculation for approximate distance between two latitude/longitude points on Earth.                        |
-| Hook                  | A React function that manages reusable state or lifecycle behavior.                                           |
-| Infrastructure        | Code communicating with an external technical system or provider.                                             |
-| Lazy loading          | Delaying download or initialization until a feature is needed.                                                |
-| Matrix                | A mathematical structure used to combine 3D position, rotation, scale, and camera projection.                 |
-| Maneuver              | The action beginning a walking leg, such as depart, continue, turn left, or turn right.                       |
-| MCP                   | Model Context Protocol, a standard connection between an AI tool and an information or action service.        |
-| Mock data             | Local sample information used before or instead of a live backend.                                            |
-| Procedural model      | 3D geometry created by code instead of loaded from a model file.                                              |
-| Provider              | A library or service supplying a capability, such as map rendering or tiles.                                  |
-| Raster tile           | A small map image combined with neighboring images to form a map.                                             |
-| State                 | Information that can change while the application is being used.                                              |
-| State machine         | A model that permits only defined transitions between named states.                                           |
-| Three.js              | The browser 3D library currently used to draw project-owned geometry inside MapLibre.                         |
-| TypeScript            | JavaScript with compile-time checks for expected data shapes.                                                 |
-| WGS84                 | The world latitude-and-longitude coordinate reference used by GPS.                                            |
-| WebGL                 | Browser graphics technology used by MapLibre and Three.js for GPU drawing.                                    |
-| WebGL context         | The browser-managed connection to graphics state and resources on a device's GPU.                             |
-| Web worker            | A separate browser execution context that avoids blocking the interface.                                      |
+| Term                  | Plain-language meaning                                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Adapter               | A translator that makes one system fit the interface expected by another.                                         |
+| Accuracy area         | The area around a reported location where the device indicates the real position may be.                          |
+| API                   | A defined way for one piece of software to communicate with another.                                              |
+| Basemap               | The background geographic map beneath custom markers and route lines.                                             |
+| Bearing               | A compass direction measured in degrees and calculated between two geographic points.                             |
+| Build                 | Turning source files into optimized files suitable for hosting.                                                   |
+| Bundle                | Browser-ready files assembled from source and dependencies.                                                       |
+| Component             | A reusable visible part of a React interface.                                                                     |
+| Checkpoint            | The expected geographic endpoint of a route step, later usable for progress verification.                         |
+| Corroborated fact     | A limited fact checked beyond the project's own mock record; it is not automatically an approved instruction.     |
+| Contract or interface | A checked description of operations or data another module must provide.                                          |
+| Data minimization     | Keeping only the information needed for a feature and discarding unnecessary sensitive detail.                    |
+| Dependency            | Code, data, or a service that another part requires.                                                              |
+| Domain                | The business meaning of the application, such as locations and routes.                                            |
+| Georeferencing        | Attaching data or a 3D object to a real location on Earth.                                                        |
+| GeoJSON               | A standard JSON format for geographic points, lines, and areas.                                                   |
+| GLB                   | A compact binary file containing a web-ready 3D model and related data.                                           |
+| Haversine formula     | A calculation for approximate distance between two latitude/longitude points on Earth.                            |
+| Hook                  | A React function that manages reusable state or lifecycle behavior.                                               |
+| Infrastructure        | Code communicating with an external technical system or provider.                                                 |
+| Lazy loading          | Delaying download or initialization until a feature is needed.                                                    |
+| Matrix                | A mathematical structure used to combine 3D position, rotation, scale, and camera projection.                     |
+| Maneuver              | The action beginning a walking leg, such as depart, continue, turn left, or turn right.                           |
+| MCP                   | Model Context Protocol, a standard connection between an AI tool and an information or action service.            |
+| Mock data             | Local sample information used before or instead of a live backend.                                                |
+| Procedural model      | 3D geometry created by code instead of loaded from a model file.                                                  |
+| Provider              | A library or service supplying a capability, such as map rendering or tiles.                                      |
+| Raster tile           | A small map image combined with neighboring images to form a map.                                                 |
+| State                 | Information that can change while the application is being used.                                                  |
+| State machine         | A model that permits only defined transitions between named states.                                               |
+| Three.js              | A browser 3D library retained behind a dormant map layer for future reviewed models; not used by the current map. |
+| TypeScript            | JavaScript with compile-time checks for expected data shapes.                                                     |
+| WGS84                 | The world latitude-and-longitude coordinate reference used by GPS.                                                |
+| WebGL                 | Browser graphics technology used by MapLibre and Three.js for GPU drawing.                                        |
+| WebGL context         | The browser-managed connection to graphics state and resources on a device's GPU.                                 |
+| Web worker            | A separate browser execution context that avoids blocking the interface.                                          |
 
 ## How to maintain this handbook
 

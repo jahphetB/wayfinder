@@ -1,4 +1,9 @@
-# OpenStreetMap Export Review — 2026-09-28
+# OpenStreetMap Export Review — source history through 2026-10-01
+
+Sections below preserve earlier batches as history. The [fourth application
+batch](#fourth-application-batch-descriptions-and-broader-destinations-step-25)
+describes the current import. Earlier statements about a Campus Entrance,
+21 places, or a 12% informal penalty are superseded, not current instructions.
 
 This review describes the user-supplied `map.osm` export from 2026-09-28. The
 original file was inspected from the user's Downloads folder; it is not copied
@@ -100,7 +105,7 @@ The XML snapshot digest above lets us compare a later export against this one.
 The [collection packet](CAMPUS_DATA_COLLECTION.md) supplies a form for this
 evidence. Current route data lives in
 [`src/data/navigation/collegeOfIdahoWalkingGraphData.ts`](../src/data/navigation/collegeOfIdahoWalkingGraphData.ts),
-while visual building data lives separately under `src/data/map/`.
+while future 3D visual building data will be separate from route data.
 
 OpenStreetMap data is available under the Open Database License (ODbL); the
 map already credits OpenStreetMap contributors. See the
@@ -110,7 +115,7 @@ copyrighted sources without permission. User edits based on firsthand campus
 observation or permitted source material are the strongest input for this
 review.
 
-## Third application batch: newer observed export (Step 24)
+## Third application batch: newer observed export (Step 24, historical)
 
 The user supplied `map_moreinfo.osm` from firsthand mapping observations.
 Its SHA-256 digest is
@@ -144,3 +149,52 @@ Mapped proximity does not prove an open, safe, accessible, or legal passage.
 The entire graph retains `illustrative` verification status. Ask the user to
 visually review any incorrect path, junction, entrance, or connector before
 trying physical route navigation.
+
+## Fourth application batch: descriptions and broader destinations (Step 25)
+
+The user supplied `map (1).osm` after adding descriptions and more site
+features. Its SHA-256 digest is
+`03B9BD752A588BFF7CB04A87B06D417736E1BFBC49091AFD9EF8452A88C0B40C`.
+The XML has 2,939 nodes, 603 ways, and 4 relations. The importer found 188
+potentially walkable ways and retained 181 ways / 565 walking nodes in the
+largest connected component. Ten connected ways are described as **Main
+footway**, and five are marked informal. It retained 47 tagged entrances, 24
+named campus/residential building outlines, 12 described parking or named
+stadium outlines, and five selected campus landmarks.
+
+Every supplied `description` tag was reviewed. The routing-relevant
+descriptions identify the resident-used Anderson entrance (`14229217299`),
+the lobby-side Anderson entrance (`14229217300`), cafeteria and residence
+doors at Simplot (`14229218101` and `14229218102`), the main activities
+entrance (`9284508267`), the separate swimming-pool entrance (`14233022397`),
+Morrison Quadrangle & Clock Tower (`14239949038`), ten main footways, and
+the named parking areas. The activities entrance is a walking-way node rather
+than a node on the mapped JAAC building outline; the app validates its
+description instead of falsely assigning it to that outline.
+
+The app now lists 42 campus destinations, including four named residential
+apartment buildings, ten parking areas, the selected Simplot Stadium area,
+and additional landmarks. West Hall, the former N.L. Terteling Library
+building, Marty Holly Athletic Center, and any building without a tagged
+entrance use the outline point closest to the mapped walkway. These are
+**illustrative approach points**, not verified doors. The former library is
+labeled “former” so it is not confused with the current library. The
+invented Campus Entrance point and its long straight link are removed because
+the campus has no fixed gate.
+
+One source conflict needs user review: way `1006303601` is described as
+“Hayman parking lots 2” but tagged `leisure=pitch` and `sport=basketball`.
+The app includes a provisional Hayman Parking Lot 2 destination based on the
+user's description. Its classification and access point should be corrected
+in the source if that surface is truly parking. The export also contains two
+different `Simplot Stadium` polygons; the app selects way `327890065` as one
+provisional destination rather than presenting duplicate labels. The user
+should confirm that choice. Unnamed parking objects and unrelated off-campus
+businesses are not promoted into named campus destinations.
+
+Formal paths now take priority over informal paths even when an informal
+shortcut is shorter. Main footways get a smaller preference among formal
+alternatives; displayed distance remains physical length. This is a routing
+preference, not proof that a formal path is open, legally usable, or
+accessible. On-site inspection of paths, entrances, and the area-derived
+connectors remains necessary before real navigation use.

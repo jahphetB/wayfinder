@@ -463,3 +463,43 @@ Status: implementation and documentation complete; commits pushed to
   production build, and Git whitespace checks passed. Initial JavaScript is
   about 300.36 kB minified / 90.68 kB gzip; the deferred map remains about
   1,548 kB / 407 kB gzip. The known map-chunk size warning remains.
+
+## Step 25: Described destinations and formal-route priority
+
+Status: implementation and documentation complete; approved push to
+`origin/main` follows final verification.
+
+- Reviewed the user-supplied `map (1).osm` export, including every `description`
+  tag on entrance nodes and ways. Its SHA-256 fingerprint, counts, identified
+  places, and conflicting parking tags are recorded in `OSM_EXPORT_REVIEW.md`.
+- Regenerated the committed walking snapshot from the new source. Imported
+  ten described main footways, descriptive entrance metadata, named college
+  and apartment outlines, named parking areas, and campus landmarks.
+- Removed the inaccurate Campus Entrance point and its long connector. The
+  default preview now runs from Cruzen-Murray Library to Simplot cafeteria.
+- Expanded search to 42 destinations: named campus buildings, four apartment
+  buildings, ten described parking areas, stadium, and landmarks. Buildings
+  without a mapped entrance use a clearly illustrative outline point, not a
+  claim that a real door exists there. Unnamed or out-of-scope objects are not
+  silently added as destination labels.
+- Moved Anderson Hall to the entrance described as mostly used by residents.
+  JAAC activities and the swimming pool are separate places at separately
+  described entrance points. The main activities entrance is on a walkway
+  node and is not falsely asserted to be part of the JAAC building outline.
+- Formal paths now outrank informal paths for route selection; among formal
+  alternatives, main footways receive a modest preference. Distances still
+  report physical length. The library-to-cafeteria regression test checks a
+  main-footway route without informal shortcuts.
+- Merged pairs of nearby turns only when the intervening walking leg is at
+  most 12 m. The combined instruction explicitly names both turns; farther
+  turns retain separate Next checkpoints.
+- Removed the gold 3D calibration block and its scene data. The 3D map button
+  still tilts the map, while the dormant Three.js integration stays available
+  for a later approved building-model step.
+- Browser-tested desktop library-to-cafeteria and mobile library-to-JAAC
+  parking routes, all 42 dropdown choices, and 3D without the block. Console:
+  zero errors and warnings. Full checks: 74 tests in 16 files, formatting,
+  lint, strict type-check, whitespace, and production build pass. The initial
+  JavaScript is about 328.50 kB minified / 97.58 kB gzip; the deferred map
+  drops to about 1,017.91 kB / 275.58 kB gzip because the unused Three.js
+  scene is no longer bundled. The existing large-map-chunk warning remains.

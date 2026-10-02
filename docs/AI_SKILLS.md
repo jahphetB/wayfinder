@@ -44,7 +44,7 @@ stale.
 | College of Idaho campus map    | Steps 11-12   | Confirms published campus place names and the current Cruzen-Murray Library identity.                                |
 | OpenStreetMap-derived map data | Steps 11-12   | Corroborates public building coordinates, including Cruzen-Murray Library.                                           |
 | Google Maps                    | Step 12       | Directly checked the current library listing and identified that the former Terteling listing is permanently closed. |
-| Three.js                       | Step 13       | Draws the owned procedural 3D calibration building inside MapLibre's shared WebGL context.                           |
+| Three.js                       | Step 13       | Proved an owned 3D layer inside MapLibre; the calibration scene was removed in Step 25 and the layer is dormant.     |
 | Context7 MCP                   | Step 13       | Supplies current third-party library documentation through a project-scoped, secret-free remote connection.          |
 | Microsoft Edge headless mode   | Step 13       | Captured the real WebGL result for visual verification without adding a browser-test dependency to the application.  |
 
@@ -192,6 +192,27 @@ stale.
 - **YOTE / Durable step memory:** Added `docs/PROJECT_MEMORY.md` so source
   identity, decisions, limitations, commands, and the next approval boundary
   survive context resets without copying the entire handbook.
+
+#### Step 25 usage record
+
+- **EXTERNAL / OpenStreetMap XML:** Audited every description in the newer
+  user-observed export, including main footways, parking areas, Anderson,
+  Simplot, JAAC/pool entrances, and the clock-tower landmark. Flagged the
+  Hayman parking/basketball-tag conflict rather than presenting it as verified.
+- **OPENAI / Playwright skill:** Inspected the real desktop and phone map,
+  dropdown choices, two route previews, 3D without the block, and browser
+  console. Screenshots were kept under ignored `output/playwright/`.
+- **OPENAI / OpenAI Docs skill:** Checked current official model-selection
+  guidance before the next-step agent recommendation.
+- **YOTE / Description-backed destination curation:** Kept named destinations
+  separate from OSM path import, validated described entrance references, and
+  labeled outline-derived approach points as illustrative.
+- **YOTE / Formal-first path policy:** Used a two-part route score so formal
+  paths always beat informal shortcuts and main footways win close formal
+  comparisons without changing displayed physical distance.
+- **YOTE / Nearby-turn grouping:** Combined two maneuvers only across a short
+  12 m leg, with both actions preserved in the spoken/visible instruction and
+  tested separation for longer legs.
 
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |

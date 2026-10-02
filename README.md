@@ -2,9 +2,9 @@
 
 Wayfinder is a responsive navigation-map prototype. It provides
 origin and destination search, locally calculated prototype walking routes, and
-a 2D/3D MapLibre map with an OpenStreetMap basemap. Its 3D mode now includes one
-geographically anchored, illustrative Three.js building used to validate the
-future owned-campus-model architecture without requiring a routing backend.
+a 2D/3D MapLibre map with an OpenStreetMap basemap. The 3D button currently
+tilts the map; the former illustrative building block has been removed while
+accurate 2D routes are developed. No routing backend is required.
 
 ## Current progress
 
@@ -34,6 +34,7 @@ future owned-campus-model architecture without requiring a routing backend.
 | 22. OSM export review and entrance | Complete | Reviewed the supplied export and moved the Blatchley prototype destination to its mapped main entrance.                                                   |
 | 23. OSM-based 2D routes            | Complete | Traced limited destination routes along exported pedestrian ways, separated the two Simplot entrances, and fixed route camera fit.                        |
 | 24. Expanded OSM network           | Complete | Imported the newer observed walkway export, added 21 searchable places, favored formal paths when routes are close, and made long suggestions scrollable. |
+| 25. Described campus destinations  | Complete | Reviewed a new observed export, added 42 places, removed the invented gate and 3D block, prioritized formal/main paths, and combined nearby turns.        |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -72,10 +73,8 @@ The default street tiles come from OpenStreetMap for prototype use. Set
 `VITE_MAP_STYLE_URL` to a compatible hosted MapLibre style URL when a dedicated
 production tile provider is selected.
 
-The gold block visible in 3D mode is a procedural calibration building. Its
-campus coordinate is real, but its shape, dimensions, heading, and identity are
-illustrative. It proves that owned models can share MapLibre's geographic camera;
-it must not be interpreted as an accurate campus building.
+The previous illustrative 3D block has been removed. The 3D button still
+tilts the map, but no building meshes are currently displayed.
 
 The map starts on campus and limits ordinary panning to a
 campus-sized area. Current visible location data includes Cruzen-Murray Library,
@@ -84,8 +83,8 @@ and OpenStreetMap-derived public information. The walking-path topology,
 distances, closures, direction rules, and accessibility information are still
 illustrative prototype data, not official accessibility or walking directions.
 Calculated routes now retain each edge's detailed geometry and produce internal
-turn-by-turn steps. You can preview routes among 21 searchable campus places,
-including mapped building entrances and a point of interest. The map starts in
+turn-by-turn steps. You can preview routes among 42 searchable campus places,
+including buildings, apartments, parking areas, and landmarks. The map starts in
 **2D**; the existing experimental 3D view remains optional. In **Walk the
 route**, use **Demo checkpoint result** to test an expected, uncertain, wrong,
 stale, or unavailable reading from anywhere; changing the result restarts that
@@ -97,8 +96,10 @@ this prototype for safe campus navigation.
 The newer OpenStreetMap export now supplies centerlines for the current
 pedestrian routes and destination entrance coordinates. The Simplot entrance
 near Blatchley serves the cafeteria; its other entrance serves the connected
-residence hall. Short unmapped entrance links and the off-walkway Campus Entrance
-link remain illustrative. This drawing is ready for visual testing, not yet
+residence hall. JAAC and its swimming pool have separate entrances. Anderson
+uses the resident-used entrance described in the export. The former Campus
+Entrance marker is removed; there is no fixed gate. Short unmapped links and
+outline-derived destination points remain illustrative. This drawing is ready for visual testing, not yet
 verified for safe physical navigation.
 See the [export review](docs/OSM_EXPORT_REVIEW.md) for source coverage, gaps,
 and the next measurements needed. OpenStreetMap data is available under the
@@ -107,9 +108,11 @@ To update the route network after reviewing a newer export, run
 `python scripts/import_campus_osm.py path/to/map.osm` and inspect the generated
 `src/data/navigation/campusOsmNetwork.json` diff. Curated searchable places
 and entrance references live in `collegeOfIdahoWalkingGraphData.ts`; the
-graph builder connects them to imported paths. Formal paths get a small
-preference only when competing routes are close; the displayed distance is
-the actual drawn length. Search suggestions scroll when the list is long.
+graph builder connects them to imported paths. Routing now always favors
+formal footpaths over informal shortcuts; described main footways get an
+additional modest preference among formal choices. The displayed distance is
+the actual drawn length. Nearby consecutive turns can share one explicit
+instruction and checkpoint. Search suggestions scroll when the list is long.
 Read only this step in the [Step 16 handbook guide](docs/ARCHITECTURE.md#step-16-browser-location-and-checkpoint-navigation).
 The [Step 17 handbook guide](docs/ARCHITECTURE.md#step-17-prototype-location-simulator)
 explains simulation and the future field-test switch.
@@ -128,6 +131,8 @@ The [Step 23 handbook guide](docs/ARCHITECTURE.md#step-23-osm-based-2d-walking-r
 explains the current 2D route network, Simplot entrance split, and camera fit.
 The [Step 24 handbook guide](docs/ARCHITECTURE.md#step-24-expanded-osm-network-and-search)
 explains the import, routing policy, additional places, and remaining gaps.
+The [Step 25 handbook guide](docs/ARCHITECTURE.md#step-25-described-destinations-and-formal-route-priority)
+explains the newest source, destination choices, route priority, and turn merging.
 See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
 for source links and the future verified-data replacement process.
 
@@ -154,9 +159,9 @@ troubleshooting, and the architectural decision log in non-technical language.
 - `src/composition` connects contracts to concrete implementations.
 
 This separation keeps the project-owned walking graph independent from map
-rendering. MapLibre handles geographic projection and camera behavior, while an
-isolated Three.js custom layer draws owned 3D content. Both can evolve without
-moving route calculation into a map provider.
+rendering. MapLibre handles geographic projection and camera behavior. The
+Three.js custom-layer implementation remains in the codebase for later
+approved 3D work, but it is not attached to the current map.
 
 ## Current documentation integration
 

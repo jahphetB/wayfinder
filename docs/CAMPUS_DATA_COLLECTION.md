@@ -1,16 +1,16 @@
 # Campus Geometry Collection Packet
 
 This packet is for replacing illustrative map geometry in small, reviewable
-batches. Its initial example forms cover Campus Entrance, Cruzen-Murray Library,
-Blatchley Hall, Simplot Dining Hall, Simplot Residence Hall, and Sterry Hall.
-The application now lists 21 places from a newer user-observed OSM export; use
+batches. Its initial example forms cover Cruzen-Murray Library, Blatchley Hall,
+Simplot Dining Hall, Simplot Residence Hall, and Sterry Hall.
+The application now lists 42 places from a newer user-observed OSM export; use
 the same form for any of them, starting with paths or entrances the user sees
 as inaccurate. The two Simplot destinations are different entrances of one
 connected building. Do not assume an imported point proves usable access.
 
 For the current 2D phase, the highest-value feedback is a correction to a
-drawn walkway, junction, entrance connection, or the temporary Campus Entrance
-link. Building heights, walkway widths, slopes, and accessibility details can
+drawn walkway, junction, entrance connection, or an outline-derived approach
+point. There is no fixed campus entrance gate. Building heights, walkway widths, slopes, and accessibility details can
 wait until the basic 2D routes have been reviewed. Leave those fields unknown;
 do not guess values to make the map appear complete.
 
@@ -48,7 +48,9 @@ stable ID so a photo, measurement, and map point can be matched later.
 | `bldg-blatchley` | Blatchley Hall                  | Same building details.                                                                                       |
 | `bldg-simplot`   | Simplot Dining/Residence        | One building outline; mark the cafeteria door near Blatchley and the separate residence door.                |
 | `bldg-sterry`    | Sterry Hall                     | Same building details.                                                                                       |
-| `node-entrance`  | Campus Entrance                 | Exact point where the route begins and the closest walkway connection.                                       |
+| `node-anderson`  | Anderson Residence Hall         | Confirm the student-used door and its walkway connection.                                                    |
+| `node-jaac`      | JAAC and swimming pool          | Confirm each separately described entrance and its walking approach.                                         |
+| `area-parking`   | Parking area                    | Confirm the correct area and a real pedestrian access point.                                                 |
 | `walk-*`         | Each connecting walkway section | Centerline shape, measured width, endpoints/junction IDs, surface, stairs/ramps, crossing, and access notes. |
 
 For each location, take an overview photo and close photos of entrances or
@@ -78,7 +80,7 @@ feature_id,observation_id,feature_type,name,latitude,longitude,coordinate_refere
 Example only (replace the illustrative values with your observation):
 
 ```text
-node-entrance,obs-001,entrance,Campus Entrance,,,,point,,,,user field note,YYYY-MM-DD,unverified,,,entrance-overview.jpg,Do not treat as verified until reviewed
+node-anderson,obs-001,entrance,Anderson Residence Hall,,,,point,,,,user field note,YYYY-MM-DD,unverified,,,anderson-entrance.jpg,Confirm resident-used door and path
 walk-central-01,obs-002,walkway,Central walkway,,,,width,2.0,metres,,,tape measure,YYYY-MM-DD,measured,,,,Illustrative example width; replace it
 ```
 
@@ -105,11 +107,13 @@ For every submitted batch, we will:
 
 ## Where approved data goes
 
-Walking locations, walkway centerlines, connectivity, and their provenance
-belong in
+Walking path geometry comes from a reviewed OSM export through
+[`scripts/import_campus_osm.py`](../scripts/import_campus_osm.py) into the
+committed `campusOsmNetwork.json` snapshot. Curated labels, entrance IDs, and
+source status belong in
 [`src/data/navigation/collegeOfIdahoWalkingGraphData.ts`](../src/data/navigation/collegeOfIdahoWalkingGraphData.ts).
-The validated loader and route tests then check the data before route planning
-uses it. Building appearance and measured 3D dimensions belong in the separate
-scene data under `src/data/map/`; a 3D building model must not invent a walking
-entrance or path. The replacement procedure is also documented in the
+The graph builder, validated loader, and route tests check the result before
+route planning uses it. Future measured 3D appearance belongs in separately
+reviewed scene data; a visual model must never invent a walking entrance or
+path. The replacement procedure is also documented in the
 [architecture handbook](ARCHITECTURE.md#step-12-validated-data-replacement).

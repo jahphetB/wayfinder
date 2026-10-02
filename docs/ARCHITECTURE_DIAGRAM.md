@@ -30,8 +30,8 @@ flowchart TB
 
         subgraph NavigationDomain[Provider-independent navigation domain]
             WalkingRoutes[walkingRoutes.ts<br/>path-to-route conversion]
-            Pathfinder[pathfinding.ts<br/>Dijkstra shortest path]
-            RouteSteps[routeSteps.ts<br/>maneuvers, instructions, checkpoints]
+            Pathfinder[pathfinding.ts<br/>formal-first weighted Dijkstra]
+            RouteSteps[routeSteps.ts<br/>maneuvers, nearby-turn merging, checkpoints]
             LocationVerification[locationVerification.ts<br/>distance and accuracy classification]
             NavigationSession[navigationSession.ts<br/>explicit progress state machine]
             DomainTypes[types.ts<br/>locations, routes, graph contracts]
@@ -43,12 +43,12 @@ flowchart TB
             MapContract[MapAdapter.ts<br/>provider-neutral contract]
             BuildingContract[GeoreferencedBuilding.ts<br/>owned building description]
             Adapter[MapLibreMapAdapter.ts<br/>map lifecycle and overlays]
-            BuildingLayer[MapLibreGeoreferencedBuildingLayer.ts<br/>shared WebGL 3D layer]
+            BuildingLayer[MapLibreGeoreferencedBuildingLayer.ts<br/>dormant 3D layer, not attached]
         end
 
         subgraph Rendering[Rendering libraries]
             MapLibre[MapLibre GL JS<br/>projection, camera, basemap, overlays]
-            Three[Three.js<br/>3D geometry, lights, materials]
+            Three[Three.js<br/>retained for future approved models]
             GPU[(WebGL / device GPU)]
         end
     end
@@ -59,13 +59,12 @@ flowchart TB
     end
 
     subgraph OwnedData[Project-owned data]
-        GraphData[collegeOfIdahoWalkingGraphData.ts<br/>21 curated destinations, entrance IDs,<br/>illustrative provenance]
-        Snapshot[campusOsmNetwork.json<br/>committed connected walking geometry]
-        GraphBuilder[buildCampusWalkingGraph.ts<br/>validates IDs, projects entrance connectors]
+        GraphData[collegeOfIdahoWalkingGraphData.ts<br/>42 curated destinations, entrance IDs,<br/>illustrative provenance]
+        Snapshot[campusOsmNetwork.json<br/>paths, descriptions, outlines, entrances]
+        GraphBuilder[buildCampusWalkingGraph.ts<br/>validates IDs, projects outline connectors]
         GraphLoader[collegeOfIdahoWalkingGraph.ts<br/>validated runtime release]
         Locations[mockLocations.ts<br/>searchable locations derived from graph]
         Campus[collegeOfIdahoCampus.ts<br/>campus camera center and fit boundary]
-        Scene[collegeOfIdahoScene.ts<br/>illustrative 3D calibration building]
     end
 
     subgraph ExternalRuntime[Current external runtime dependency]
@@ -116,14 +115,11 @@ flowchart TB
     MapView --> MapContract --> CreateAdapter --> Adapter
     Adapter -->|leg colors and turn camera| MapLibre
     Campus --> MapView
-    Scene --> CreateAdapter
-    BuildingContract --> BuildingLayer
-    CreateAdapter --> BuildingLayer
+    BuildingContract -. future model data .-> BuildingLayer
     Adapter --> MapLibre
-    Adapter --> BuildingLayer
-    BuildingLayer --> Three
+    BuildingLayer -. dormant implementation .-> Three
     MapLibre --> GPU
-    Three --> GPU
+    Three -. not used at runtime .-> GPU
     OSM --> MapLibre
     OSMExport --> Importer --> Snapshot
     OSMExport -. counts and gaps .-> Handbook
@@ -148,15 +144,17 @@ flowchart TB
     BrowserProvider --> BrowserGPS
     CheckpointHook --> NavigationSession
     NavigationSession --> NavigationControls
-    ModelPipeline -. planned replacement assets .-> Scene
+    ModelPipeline -. future approved assets .-> BuildingLayer
 
     classDef implemented fill:#dff3e7,stroke:#155f3a,color:#082f20,stroke-width:2px
     classDef integration fill:#fff0c2,stroke:#9b6500,color:#493000,stroke-width:2px
     classDef external fill:#e9f0ff,stroke:#315da8,color:#172f58,stroke-width:2px
     classDef future fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
+    classDef dormant fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
 
-    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,BuildingContract,GraphData,GraphBuilder,Snapshot,GraphLoader,Locations,Campus,Scene implemented
-    class CreateAdapter,Adapter,BuildingLayer,MapLibre,Three,GPU integration
+    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,GraphData,GraphBuilder,Snapshot,GraphLoader,Locations,Campus implemented
+    class CreateAdapter,Adapter,MapLibre,GPU integration
+    class BuildingContract,BuildingLayer,Three dormant
     class OSM,OSMExport,Importer,Tests,Tooling,Handbook,Context7,AgentRules external
     class NavigationControls,CheckpointHook implemented
     class CreateLocation,BrowserProvider,PrototypeProvider integration
@@ -168,18 +166,19 @@ flowchart TB
 
 - The navigation domain has no dependency on MapLibre or Three.js. It can be
   tested and changed without starting a map.
-- `MapAdapter` is the boundary used by React. `createMapAdapter.ts` selects
-  MapLibre and the Three.js building layer at the application edge.
-- The walking graph is the routing authority. The 3D scene is visual content and
-  cannot define an entrance or a safe walking path by itself.
+- `MapAdapter` is the boundary used by React. `createMapAdapter.ts` currently
+  selects MapLibre only; the former 3D block is removed. The dormant Three.js
+  layer remains isolated for possible later approved model work.
+- The walking graph is the routing authority. Future 3D content cannot define
+  an entrance or a safe walking path by itself.
 - The user-supplied OSM XML is a reviewed source, not a runtime map service.
   The import script creates committed connected walking geometry; the graph
-  builder combines it with 21 curated places. The user identified which of
-  Simplot's two doors serves the cafeteria and residence. Unmapped
-  origin/entrance connectors and access facts remain illustrative.
+  builder combines it with 42 curated places. The user identified separate
+  Simplot and JAAC/pool entrances and Anderson's resident-used door. Unmapped
+  area/entrance connectors and access facts remain illustrative.
 - The app opens in 2D for path review. Campus camera bounds allow even the
-  widest current route to fit in a tall map panel; the existing 3D calibration
-  view is available but is not the current data-development priority.
+  widest current route to fit in a tall map panel. The 3D button tilts the map
+  without any building mesh while 2D accuracy remains the priority.
 - `routeSteps.ts` is implemented domain logic. It converts selected edge
   geometry into maneuvers and checkpoints. The implemented navigation session
   consumes those checkpoints without depending on a browser location API.
@@ -198,8 +197,8 @@ flowchart TB
   styling and a camera focused along the current travel direction. On a narrow
   screen, route preview scrolls to the map, but turn updates do not displace
   written instructions.
-- MapLibre and Three.js share the browser's WebGL graphics context. MapLibre owns
-  the camera and geographic projection; Three.js draws the owned 3D geometry.
+- MapLibre currently owns the camera and browser rendering. The retained
+  Three.js layer is not attached and does not add a building to the map.
 - Gray nodes describe the approved next architecture, not current behavior.
   Their dashed styling must remain until the corresponding implementation and
   tests are complete.
