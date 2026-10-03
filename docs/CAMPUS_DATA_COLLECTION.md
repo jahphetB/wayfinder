@@ -51,6 +51,8 @@ stable ID so a photo, measurement, and map point can be matched later.
 | `node-anderson`  | Anderson Residence Hall         | Confirm the student-used door and its walkway connection.                                                    |
 | `node-jaac`      | JAAC and swimming pool          | Confirm each separately described entrance and its walking approach.                                         |
 | `area-parking`   | Parking area                    | Confirm the correct area and a real pedestrian access point.                                                 |
+| `court-*`        | Sports courts                   | Confirm sport, court number/name, boundary, usable walkway approach, and any fence or gate.                  |
+| `drive-stadium`  | Stadium driving handoff         | Confirm which campus driveway may be used, allowed turns, stadium parking approach, and actual venue door.   |
 | `walk-*`         | Each connecting walkway section | Centerline shape, measured width, endpoints/junction IDs, surface, stairs/ramps, crossing, and access notes. |
 
 For each location, take an overview photo and close photos of entrances or
@@ -117,3 +119,9 @@ route planning uses it. Future measured 3D appearance belongs in separately
 reviewed scene data; a visual model must never invent a walking entrance or
 path. The replacement procedure is also documented in the
 [architecture handbook](ARCHITECTURE.md#step-12-validated-data-replacement).
+
+The current stadium preview uses a campus driveway tagged `access=private`
+in the supplied OSM file. Do not treat the dashed drive as approved access.
+A campus user should confirm permission and the correct road/parking approach
+before it is promoted beyond a prototype handoff. Court numbering is likewise
+temporary until the user supplies the names or numbering used on site.

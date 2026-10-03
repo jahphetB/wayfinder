@@ -503,3 +503,33 @@ Status: implementation and documentation complete; approved push to
   JavaScript is about 328.50 kB minified / 97.58 kB gzip; the deferred map
   drops to about 1,017.91 kB / 275.58 kB gzip because the unused Three.js
   scene is no longer bundled. The existing large-map-chunk warning remains.
+
+## Step 26: Court search, stadium handoff, and opening presentation
+
+Status: complete; focused source/data and app changes committed as `8f35d88`
+and `6f324bc`, with documentation committed separately for the approved push.
+
+- Extended the same source importer with sport-tagged pitch outlines and five
+  selected road ways without changing the 181-way connected walking network.
+  Added eight walking destinations: three tennis, two pickleball, one
+  basketball, and two beach-volleyball courts. The numbering is provisional;
+  no separately tagged standard-volleyball court exists in this export.
+- Added a distinct Simplot Stadium prototype driving handoff from the nearer
+  of two mapped campus driveway exits by straight-line distance to a west-side
+  parking approach. A dashed road line and separate venue marker distinguish
+  it from walking routes. The selected driveway is tagged private. The app
+  warns that permission, turns, parking, and venue entrance are unverified;
+  it does not offer car checkpoints or claim routing from the chosen start.
+- Opened the map in tilted 3D mode centered on the library entrance, facing
+  roughly toward Sterry Hall. Both search fields are empty on load. For a
+  walking preview, Start navigation now follows Preview route before longer
+  guidance. Changed the surrounding page and key controls to provisional
+  campus purple `#412D5E` pending an official current style guide.
+- Added focused source, planner, UI, and map-adapter tests. Browser-inspected
+  the opening view, stadium handoff, court search and walking route, phone
+  layout, and console (zero errors/warnings in a fresh session). All routes
+  remain prototype data pending field checks. Final checks: 80 tests in 17
+  files, formatting, lint, strict type-check, production build, and Git
+  whitespace check pass. Initial JavaScript is about 337.96 kB / 100.18 kB
+  gzip; the deferred map is about 1,019.29 kB / 275.95 kB gzip. Vite's
+  pre-existing large-map-chunk warning remains.

@@ -59,8 +59,9 @@ flowchart TB
     end
 
     subgraph OwnedData[Project-owned data]
-        GraphData[collegeOfIdahoWalkingGraphData.ts<br/>42 curated destinations, entrance IDs,<br/>illustrative provenance]
-        Snapshot[campusOsmNetwork.json<br/>paths, descriptions, outlines, entrances]
+        GraphData[collegeOfIdahoWalkingGraphData.ts<br/>50 curated destinations, entrances and courts,<br/>illustrative provenance]
+        Snapshot[campusOsmNetwork.json<br/>walking ways, selected roads,<br/>sport/building outlines and entrances]
+        StadiumHandoff[stadiumDrivingHandoff.ts<br/>limited prototype road handoff]
         GraphBuilder[buildCampusWalkingGraph.ts<br/>validates IDs, projects outline connectors]
         GraphLoader[collegeOfIdahoWalkingGraph.ts<br/>validated runtime release]
         Locations[mockLocations.ts<br/>searchable locations derived from graph]
@@ -94,6 +95,7 @@ flowchart TB
     Panel --> PlannerHook --> PlannerModel --> WalkingRoutes
     PlannerHook --> GraphLoader
     PlannerHook --> Locations
+    PlannerModel --> StadiumHandoff
     WalkingRoutes --> Pathfinder
     WalkingRoutes --> RouteSteps
     WalkingRoutes --> Factories
@@ -107,10 +109,12 @@ flowchart TB
     GraphLoader --> GraphData
     GraphData --> GraphBuilder
     GraphBuilder --> Snapshot
+    StadiumHandoff --> Snapshot
     GraphLoader --> Factories
     Locations --> GraphData
     Locations --> Factories
     WalkingRoutes --> MapView
+    App -->|separate driving handoff| MapView
 
     MapView --> MapContract --> CreateAdapter --> Adapter
     Adapter -->|leg colors and turn camera| MapLibre
@@ -152,7 +156,7 @@ flowchart TB
     classDef future fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
     classDef dormant fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
 
-    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,GraphData,GraphBuilder,Snapshot,GraphLoader,Locations,Campus implemented
+    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,GraphData,GraphBuilder,Snapshot,StadiumHandoff,GraphLoader,Locations,Campus implemented
     class CreateAdapter,Adapter,MapLibre,GPU integration
     class BuildingContract,BuildingLayer,Three dormant
     class OSM,OSMExport,Importer,Tests,Tooling,Handbook,Context7,AgentRules external
@@ -173,12 +177,17 @@ flowchart TB
   an entrance or a safe walking path by itself.
 - The user-supplied OSM XML is a reviewed source, not a runtime map service.
   The import script creates committed connected walking geometry; the graph
-  builder combines it with 42 curated places. The user identified separate
+  builder combines it with 50 curated places. The user identified separate
   Simplot and JAAC/pool entrances and Anderson's resident-used door. Unmapped
   area/entrance connectors and access facts remain illustrative.
-- The app opens in 2D for path review. Campus camera bounds allow even the
-  widest current route to fit in a tall map panel. The 3D button tilts the map
-  without any building mesh while 2D accuracy remains the priority.
+- The app opens with empty search fields and a tilted 3D camera over the
+  library facing approximately toward Sterry Hall. Campus bounds still let
+  routes fit in a tall panel. The 2D button remains available; 3D has no
+  building mesh while route accuracy remains the priority.
+- Simplot Stadium is the exception to walking guidance: the planner returns a
+  separate prototype road handoff from a mapped campus driveway to a parking
+  approach. The dashed MapLibre line does not create a driving checkpoint
+  session or a route from the selected origin. Driveway permission is unverified.
 - `routeSteps.ts` is implemented domain logic. It converts selected edge
   geometry into maneuvers and checkpoints. The implemented navigation session
   consumes those checkpoints without depending on a browser location API.

@@ -74,12 +74,16 @@ location checks, instructions, retry messages, and arrival. See the
 complete browser-location flow and its prototype limitations.
 
 The current version is focused on The College of Idaho in Caldwell, Idaho. It
-offers 42 searchable places on a local walking graph imported from the user's
+offers 50 searchable places on a local walking graph imported from the user's
 newer OSM export. No routing server is required. Searching filters those known
 locations. Pressing **Preview route** calculates a path and sends it to the map.
 The observed geometry improves the drawing, but connections, permissions,
 accessibility, and safe physical use are not campus-approved. The graph release
 remains illustrative, not official walking or emergency directions.
+The search fields start empty. The map opens tilted over the library toward
+Sterry Hall. Selecting Simplot Stadium gives a separate, explicitly provisional
+driving handoff from a mapped campus driveway; it does not run walking
+checkpoints or calculate a car route from the selected origin.
 
 The campus walking graph and route calculation are
 connected to the route-preview feature. The map receives the same provider-
@@ -406,13 +410,15 @@ provided identifiers and coordinates remain consistent.
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its north-south boundary now allows a tall map panel to zoom out enough to fit the current east-west routes. These values remain separate from individual locations and routes. |
 | `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                        |
-| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | Curates 42 searchable places from mapped entrances, building/parking outlines, and landmarks; records provenance. It no longer hand-copies walkway geometry. Outline-derived approach points and short unmapped links remain illustrative. The invented Campus Entrance is absent.                                                                    |
-| `src/data/navigation/campusOsmNetwork.json`              | Generated, compact snapshot of the newer OSM export's connected walking network, building outlines, entrances, and points of interest. It is committed so local builds do not need the user's Downloads folder or a live OSM connection. Do not hand-edit it: rerun the importer and review the diff.                                                 |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | Curates 50 searchable places from mapped entrances, building/parking/court outlines, and landmarks; records provenance. It no longer hand-copies walkway geometry. Outline-derived approach points and short unmapped links remain illustrative. The invented Campus Entrance is absent.                                                              |
+| `src/data/navigation/campusOsmNetwork.json`              | Generated, compact snapshot of the newer OSM export's connected walking network, selected road ways, sport/parking outlines, buildings, entrances, and points of interest. It is committed so local builds do not need the user's Downloads folder or a live OSM connection. Do not hand-edit it: rerun the importer and review the diff.             |
 | `src/data/navigation/buildCampusWalkingGraph.ts`         | Converts imported path segments and curated locations into the existing graph contract. It validates referenced building, area, and described-entrance IDs; chooses the nearest outline point where no entrance exists; labels unmapped links as connectors; and keeps map-provider code out of route construction.                                   |
 | `src/data/navigation/buildCampusWalkingGraph.test.ts`    | Checks source-reference failures, projected connector behavior, and routing-network construction at the import boundary.                                                                                                                                                                                                                              |
 | `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                          |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Confirms all 42 places are routable, Anderson and JAAC/pool entrances are distinct, the library-to-cafeteria route uses main rather than informal ways, drawn length matches reported length, and the release remains illustrative.                                                                                                                   |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Confirms all 50 places are connected, including the sports courts; Anderson and JAAC/pool entrances are distinct; the library-to-cafeteria route uses main rather than informal ways; drawn length matches reported length; and the release remains illustrative.                                                                                     |
 | `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                 |
+| `src/data/navigation/stadiumDrivingHandoff.ts`           | Builds one narrow, provisional road preview from selected OSM road IDs. It validates connected road points and one-way travel, then supplies the planner and map with a separate handoff shape. It never claims a venue entrance or car GPS checkpoints.                                                                                              |
+| `src/data/navigation/stadiumDrivingHandoff.test.ts`      | Checks the mapped exit and parking-approach endpoints so an OSM refresh cannot silently move the handoff.                                                                                                                                                                                                                                             |
 
 The source preparation guide is [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md).
 It specifies authorized source formats, required measurement metadata, field
@@ -477,9 +483,9 @@ simulation and its connections.
 The model holds pure navigation calculations. Keeping these functions free of
 React makes them suitable for focused tests and reuse.
 
-| File                                            | Importance and relationship to other files                                                                                                                             |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/navigation/model/routePlanner.ts` | Filters location results and asks the domain walking-route function for a route between two locations. It maps absent paths into the existing unavailable-route state. |
+| File                                            | Importance and relationship to other files                                                                                                                                                                                      |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/navigation/model/routePlanner.ts` | Filters location results and asks the domain walking-route function for ordinary destinations. For Simplot Stadium alone, it returns a distinct driving-handoff state, so walking checkpoints cannot be used for a car preview. |
 
 ### `src/features/navigation/hooks`
 
@@ -1466,6 +1472,62 @@ phone-size viewport, the expanded dropdown, and the 3D view without the block.
 The browser console had no errors or warnings. All destinations and
 connectors remain prototype data until physically checked and approved.
 
+### Step 26: Court search and stadium driving handoff
+
+The same user-observed `map (1).osm` source now supplies sport-tagged court
+outlines and a small, separately selected set of road ways. The import script
+keeps the walkable graph unchanged while adding those source objects to
+`campusOsmNetwork.json`; its source digest remains the same. The [fifth source
+audit](OSM_EXPORT_REVIEW.md#fifth-application-batch-mapped-courts-and-stadium-handoff-step-26)
+lists the OSM IDs and limitations. In `collegeOfIdahoWalkingGraphData.ts`,
+eight court labels refer to exact sport/area IDs. `buildCampusWalkingGraph.ts`
+checks that the sport matches before connecting the outline to a nearby
+walkway. Tennis, pickleball, basketball, and beach volleyball are searchable
+and receive walking previews. The numbers 1â€“3 or 1â€“2 distinguish otherwise
+unnamed OSM court outlines; they are not verified signs or official names.
+No ordinary volleyball court has a separate sport tag in this export.
+
+The stadium is different. The walking graph remains a pedestrian system and
+must not be relabeled as car directions. `stadiumDrivingHandoff.ts` selects
+the nearer of two road-connected campus driveway points by straight-line
+distance to a west-side stadium parking approach. It traces three mapped
+road ways: southbound one-way Cleveland Boulevard, South 24th Avenue, and
+the parking access. This is a **handoff**: a limited preview from a known
+boundary point, not a calculated car route from the user's chosen start.
+The final point is a parking approach, not a verified stadium door. Both
+candidate driveways are tagged `access=private`, so the screen states that
+permission and real-world turns must be checked. This remains illustrative.
+
+`routePlanner.ts` returns a separate `driving-handoff` state only when the
+selected destination is Simplot Stadium. `useRoutePlanner.ts` passes that
+state to `App.tsx`; `NavigationPanel.tsx` shows its caveats and deliberately
+does not mount `CheckpointNavigation.tsx`. `MapView.tsx` passes the limited
+road geometry through the typed `MapAdapter` contract. Only
+`MapLibreMapAdapter.ts` knows how to draw the dashed purple road line and
+separate exit, parking-approach, and stadium-outline markers. This keeps
+MapLibre and road presentation outside the walking algorithm. A future
+verified driving graph would need its own permission, one-way, turn, and
+destination-access checks, not a modification to walking checkpoints.
+
+The map now opens in tilted 3D camera mode, centered at the mapped library
+entrance with a roughly southward bearing toward Sterry Hall. The app still
+does not render 3D building models. Both route fields begin empty, making a
+place choice explicit. `CheckpointNavigation.tsx` renders the walking Start
+button immediately after Preview route, before the longer instructions.
+`styles.css` uses provisional purple `#412D5E` for the page and primary
+controls. Public references attribute this value to an older College brand
+book (see the [secondary team-color listing](https://www.cfc1869.com/team/College%20of%20Idaho/)
+and [older College brand-book link](https://issuu.com/thecollegeofidaho/docs/cofi_brandbook_v17_high)),
+but the original guide was not retrievable in this review; request the
+current official style guide before calling the value brand-certified.
+
+Focused tests cover sport-tag validation, all court routes, stadium state
+separation, road endpoints, map rendering, empty inputs, initial mode, and
+button order. The browser check examined the library opening, stadium
+handoff, tennis route, mobile layout, and a fresh console with zero errors or
+warnings. Court approach points,
+driveway use, parking, and venue access still require field confirmation.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -2158,6 +2220,35 @@ historical context.
 - **Consequence:** The full route geometry remains unchanged; only guidance
   and checkpoint grouping change. The 12 m rule is a prototype threshold for
   later field evaluation.
+
+### ADR-036: Keep the stadium drive separate from walking navigation
+
+- **Status:** Accepted as a limited prototype handoff in Step 26.
+- **Decision:** For Simplot Stadium only, show mapped road geometry from the
+  nearer of two candidate campus driveway exits by straight-line distance
+  to a west-side stadium parking approach. Use a distinct planner state and
+  dashed map layer; do not create a walking route, car checkpoint session,
+  or claim a route from the selected starting place.
+- **Reason:** The imported walking graph cannot validate car travel. A small
+  visual handoff serves the request now without falsely presenting pedestrian
+  paths or GPS checks as safe driving guidance.
+- **Consequence:** The selected driveway is tagged private and may not be
+  permitted. Road turns, venue entrance, and parking access need user review.
+  Full driving navigation would require its own reviewed road graph and tests.
+
+### ADR-037: Open with an explicit destination choice and 3D camera
+
+- **Status:** Accepted as presentation behavior in Step 26.
+- **Decision:** Start with empty route fields and a tilted 3D MapLibre camera
+  centered on the library entrance, facing roughly toward Sterry Hall. Keep
+  the 2D toggle and do not infer 3D building geometry. Use provisional purple
+  `#412D5E` for the surrounding page until a current institutional style
+  guide is supplied.
+- **Reason:** The user wants the map immediately visible in its preferred
+  orientation, without preselecting a route, and wants a campus-purple page.
+- **Consequence:** Tests and documentation must no longer assume a prefilled
+  library-to-cafeteria preview or a 2D initial map. Purple's exact brand status
+  remains unverified.
 
 ## Engineering principles in plain language
 

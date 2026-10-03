@@ -5,11 +5,12 @@ This short file is the current checkpoint for interrupted work. Read it with
 `docs/PROGRESS.md` is the chronological step record. Update this checkpoint
 after each meaningful step, especially when a source or approval state changes.
 
-## Current state after Step 25
+## Current state after Step 26
 
-- The app is a local, illustrative 2D campus-route prototype with an optional
-  tilted 3D camera mode without building meshes. It has 42 searchable places and a
-  MapLibre display, but routing is calculated by project-owned domain code.
+- The app is a local, illustrative campus-route prototype that opens with a
+  tilted 3D camera over the library toward Sterry Hall, with no building meshes.
+  The route fields start empty. It has 50 searchable places and a MapLibre
+  display, but walking routes are calculated by project-owned domain code.
 - Navigation uses simulated one-shot checkpoints by default so it can be
   tested without moving. `VITE_LOCATION_MODE=browser` enables physical
   location requests for later field testing. It is not on by default.
@@ -21,8 +22,17 @@ after each meaningful step, especially when a source or approval state changes.
   gate. Off-path entrances and outline-derived destination points have
   illustrative connectors, not access guarantees.
 - Anderson uses the resident-used entrance; JAAC activities and swimming pool
-  have distinct described entrances. The default preview is library to Simplot
-  cafeteria. Nearby turns can share one explicit instruction and Next action.
+  have distinct described entrances. Both locations must be chosen before
+  previewing. Start navigation follows Preview route for walking directions.
+  Nearby turns can share one explicit instruction and Next action.
+- Eight sports courts are searchable and walking-routable: tennis, pickleball,
+  basketball, and beach volleyball. Court numbers are provisional OSM-outline
+  labels, not official names. Standard volleyball has no distinct tag here.
+  Page purple `#412D5E` is provisional pending a current institutional guide.
+- Simplot Stadium is a separate prototype driving handoff from a mapped campus
+  driveway to a west-side parking approach. It is not a car route from the
+  chosen origin and has no car checkpoints. Both candidate driveways are
+  tagged private; permission, turns, parking, and venue entrance need review.
 
 ## Current source and replacement flow
 
@@ -47,6 +57,10 @@ after each meaningful step, especially when a source or approval state changes.
   Hayman parking but has basketball-pitch tags; confirm that classification.
   Two Simplot Stadium outlines exist; one provisional destination uses
   `327890065`. Confirm it with the user before treating either as verified.
+- The same XML digest now imports 11 sport-tagged pitch outlines and five
+  selected road ways. `stadiumDrivingHandoff.ts` validates the road chain;
+  `routePlanner.ts` returns a distinct handoff state; MapLibre draws a dashed
+  layer apart from pedestrian routes. See the source audit's fifth batch.
 
 ## Working rules and verification
 
@@ -54,7 +68,7 @@ after each meaningful step, especially when a source or approval state changes.
   report and ask for approval plus concise/detailed preference. Explain key
   files and newly used technical terms. No unapproved new features.
 - Make focused conventional commits after passing relevant checks. Push only
-  with explicit approval. The user approved pushing all pending Step 25 work.
+  with explicit approval. The user approved pushing all pending Step 26 work.
 - Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
   `npm run build`, and `git diff --check`. For visual changes, inspect the real
   browser at desktop/phone widths and check the console.
@@ -64,9 +78,10 @@ after each meaningful step, especially when a source or approval state changes.
 
 ## Next approval boundary
 
-Step 25 is complete after documentation, quality checks, commits, and the
+Step 26 is complete after documentation, quality checks, commits, and the
 approved push. Stop and ask before any next implementation step. The likely
-next small step is user-guided review of provisional outline approaches,
-the Hayman parking classification, the stadium selection, and any 2D routes
-the user identifies as wrong. It is a proposal, not authorization. Do not
-begin 3D building modeling until 2D work is accepted.
+next small step is user-guided review of provisional court numbers and
+approaches, stadium driveway permission/parking entrance, Hayman parking
+classification, and any 2D routes the user identifies as wrong. It is a
+proposal, not authorization. Do not begin 3D building modeling until 2D
+work is accepted.

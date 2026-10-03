@@ -214,6 +214,23 @@ stale.
   12 m leg, with both actions preserved in the spoken/visible instruction and
   tested separation for longer legs.
 
+#### Step 26 usage record
+
+- **EXTERNAL / OpenStreetMap XML:** Reused the same observed source to identify
+  court sport tags and a restricted driveway-to-stadium road chain. No new
+  external routing service or runtime dependency was added.
+- **OPENAI / Playwright skill:** Checked desktop and phone presentation, empty
+  fields, default 3D map, stadium handoff, tennis route, button placement,
+  and browser console in a real browser.
+- **OPENAI / OpenAI Docs skill:** Fetched current official model-selection
+  guidance for the next approved-step recommendation.
+- **YOTE / Mode-separated preview:** Kept the limited stadium road handoff out
+  of walking routes and GPS checkpoints. The map adapter draws a distinct
+  dashed line and the UI explains the unverified driveway and venue access.
+- **YOTE / Source-tag validation:** Added sports destinations only when the
+  curated sport and area IDs match the imported OSM tags. Court numbering
+  remains visibly provisional.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |
@@ -246,3 +263,5 @@ stale.
 | Accuracy-aware checkpoint verification          | Step 15                | Treats reported location as an uncertainty area and avoids claiming confirmation or mismatch when it overlaps the checkpoint boundary.             |
 | Explicit navigation state machine               | Step 15                | Allows progress only through tested awaiting-start, navigating, and arrived transitions triggered by one-shot verification actions.                |
 | Location-data minimization                      | Step 15                | Retains a verification result, distance, and accuracy in session state without retaining the raw location reading.                                 |
+| Mode-separated stadium handoff                  | Step 26                | Shows a limited car preview without misusing pedestrian routing or GPS checkpoints.                                                                |
+| Court source-tag validation                     | Step 26                | Makes each curated sports destination traceable to an OSM court outline and sport tag.                                                             |

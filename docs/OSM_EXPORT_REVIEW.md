@@ -198,3 +198,30 @@ alternatives; displayed distance remains physical length. This is a routing
 preference, not proof that a formal path is open, legally usable, or
 accessible. On-site inspection of paths, entrances, and the area-derived
 connectors remains necessary before real navigation use.
+
+## Fifth application batch: mapped courts and stadium handoff (Step 26)
+
+The source XML and SHA-256 digest are unchanged. The importer now also retains
+11 sport-tagged pitch outlines and five explicitly selected road ways in the
+committed snapshot, for 23 total area outlines and 1,057 selected coordinate
+nodes. The connected walking component remains 181 ways / 565 nodes. Eight
+court destinations are curated from tagged tennis (`1468620718`-`720`),
+pickleball (`1468620588`-`589`), basketball (`1468620587`), and beach
+volleyball (`1006303602`, `1564171295`) outlines. The numbered court names
+are app labels, not names present in OSM. No separate standard-volleyball
+court is tagged in this export. The conflicted Hayman way `1006303601` is not
+also presented as a basketball court until its classification is corrected.
+
+For the stadium, two mapped campus driveways join Cleveland Boulevard: ways
+`13756795` at node `127625903` and `13760269` at node `127681168`. The first
+is nearer in straight-line distance to the selected west-side parking
+approach. The prototype road line follows Cleveland Boulevard way
+`197875245` in its tagged one-way direction, South 24th Avenue way
+`13767980`, and stadium parking access way `327890075`. The final point is
+the mapped parking approach, **not** a verified venue entrance. Both candidate
+campus driveways are tagged `access=private` in the export. Permission, turn
+legality, current road conditions, parking, and the correct stadium entrance
+are unverified. The app therefore shows a labeled visual handoff and no car
+GPS/turn-by-turn session; it does not claim a calculated driving route from
+the person's selected starting place. Review this handoff with the user
+before any physical reliance.
