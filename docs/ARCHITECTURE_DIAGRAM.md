@@ -180,6 +180,9 @@ flowchart TB
   builder combines it with 50 curated places. The user identified separate
   Simplot and JAAC/pool entrances and Anderson's resident-used door. Unmapped
   area/entrance connectors and access facts remain illustrative.
+- Beach Volleyball Court 2 now resolves to an OSM-tagged main gate on its own
+  outline. The other seven courts still use provisional outline approaches;
+  all gate-to-walkway connectors need field confirmation.
 - The app opens with empty search fields and a tilted 3D camera over the
   library facing approximately toward Sterry Hall. Campus bounds still let
   routes fit in a tall panel. The 2D button remains available; 3D has no

@@ -231,6 +231,23 @@ stale.
   curated sport and area IDs match the imported OSM tags. Court numbering
   remains visibly provisional.
 
+#### Step 27 usage record
+
+- **OPENAI / Playwright skill:** Previewed the corrected library-to-court
+  route in a real browser, inspected the rendered map, and checked its console
+  for errors and warnings.
+- **OPENAI / OpenAI Docs skill:** Fetched current official model-selection
+  guidance for the next approval-gated step recommendation.
+- **EXTERNAL / User OSM export:** Checked each court outline for an entrance
+  tag and identified one main beach-volleyball gate without changing the
+  source snapshot or assuming access at other courts.
+- **EXTERNAL / Official College map and athletics directions:** Corroborated
+  named tennis facilities and the Cleveland/24th stadium road sequence,
+  while leaving driveway permission, parking, and venue access unverified.
+- **YOTE / Evidence-first destination point:** Prefer a validated mapped gate
+  over an arbitrary outline corner; keep its inferred walkway connector
+  explicitly provisional and test the source reference.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |
@@ -265,3 +282,4 @@ stale.
 | Location-data minimization                      | Step 15                | Retains a verification result, distance, and accuracy in session state without retaining the raw location reading.                                 |
 | Mode-separated stadium handoff                  | Step 26                | Shows a limited car preview without misusing pedestrian routing or GPS checkpoints.                                                                |
 | Court source-tag validation                     | Step 26                | Makes each curated sports destination traceable to an OSM court outline and sport tag.                                                             |
+| Evidence-first court gate selection             | Step 27                | Uses an actual tagged gate when available and fails clearly if a later source import removes or changes it.                                        |

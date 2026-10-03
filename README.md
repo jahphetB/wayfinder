@@ -36,6 +36,7 @@ accurate 2D routes are developed. No routing backend is required.
 | 24. Expanded OSM network           | Complete | Imported the newer observed walkway export, added 21 searchable places, favored formal paths when routes are close, and made long suggestions scrollable.     |
 | 25. Described campus destinations  | Complete | Reviewed a new observed export, added 42 places, removed the invented gate and 3D block, prioritized formal/main paths, and combined nearby turns.            |
 | 26. Court and stadium previews     | Complete | Added eight mapped sports courts, a separate prototype stadium driving handoff, empty search on launch, a library-facing 3D opening, and purple page styling. |
+| 27. Court-gate source review       | Complete | Moved one beach-volleyball destination to its mapped main gate and recorded the remaining court, parking, and stadium-access uncertainties.                   |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -103,6 +104,10 @@ uses the resident-used entrance described in the export. The former Campus
 Entrance marker is removed; there is no fixed gate. Short unmapped links and
 outline-derived destination points remain illustrative. This drawing is ready for visual testing, not yet
 verified for safe physical navigation.
+Beach Volleyball Court 2 now targets its mapped main gate, but the short
+connection to a walkway is still inferred. The other court approaches and
+court numbers remain provisional. The stadium driving preview uses a
+private-tagged driveway and must not be relied on for actual driving.
 See the [export review](docs/OSM_EXPORT_REVIEW.md) for source coverage, gaps,
 and the next measurements needed. OpenStreetMap data is available under the
 [Open Database License](https://www.openstreetmap.org/copyright).

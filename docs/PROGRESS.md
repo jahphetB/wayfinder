@@ -533,3 +533,30 @@ and `6f324bc`, with documentation committed separately for the approved push.
   whitespace check pass. Initial JavaScript is about 337.96 kB / 100.18 kB
   gzip; the deferred map is about 1,019.29 kB / 275.95 kB gzip. Vite's
   pre-existing large-map-chunk warning remains.
+
+## Step 27: Court-gate and source validation
+
+Status: complete locally; code committed as `f9fb661`; awaiting separate
+approval before pushing.
+
+- Rechecked the unchanged user-observed OSM export against the curated eight
+  courts, Hayman classification, two stadium outlines, and the prototype road
+  handoff. Only Beach Volleyball Court 2 has a tagged main entrance on its
+  outline; the other seven court approaches and all individual court numbers
+  remain provisional.
+- Moved Beach Volleyball Court 2's destination from a guessed outline corner
+  to that mapped gate. The graph builder now validates that an optional court
+  gate belongs to the selected sport outline and is tagged main. Its short
+  connection to the walking network is still inferred and accessibility is
+  unverified. Added unit and release-level regression tests.
+- The official campus map supports the existence of tennis courts and Simplot
+  Stadium; official athletics directions corroborate Cleveland Boulevard and
+  24th Avenue as the stadium road sequence. Neither source resolves the OSM
+  private-driveway permission, actual parking aisle and venue entrance, or
+  the conflicting parking/basketball tags on one Hayman area. Those remain
+  illustrative and are listed for user field review. No car-navigation or
+  broad walking-network change was made.
+- Verified formatting, lint, type-check, 82 tests in 17 files, production
+  build, and a real browser preview from the library to Beach Volleyball
+  Court 2. The route rendered and the browser console had zero errors or
+  warnings. The existing large MapLibre chunk warning remains.

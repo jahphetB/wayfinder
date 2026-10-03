@@ -406,19 +406,19 @@ This subfolder is the safest place for many current content changes. A person
 can add a location or route without editing React components or MapLibre code,
 provided identifiers and coordinates remain consistent.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                                                            |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its north-south boundary now allows a tall map panel to zoom out enough to fit the current east-west routes. These values remain separate from individual locations and routes. |
-| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                        |
-| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | Curates 50 searchable places from mapped entrances, building/parking/court outlines, and landmarks; records provenance. It no longer hand-copies walkway geometry. Outline-derived approach points and short unmapped links remain illustrative. The invented Campus Entrance is absent.                                                              |
-| `src/data/navigation/campusOsmNetwork.json`              | Generated, compact snapshot of the newer OSM export's connected walking network, selected road ways, sport/parking outlines, buildings, entrances, and points of interest. It is committed so local builds do not need the user's Downloads folder or a live OSM connection. Do not hand-edit it: rerun the importer and review the diff.             |
-| `src/data/navigation/buildCampusWalkingGraph.ts`         | Converts imported path segments and curated locations into the existing graph contract. It validates referenced building, area, and described-entrance IDs; chooses the nearest outline point where no entrance exists; labels unmapped links as connectors; and keeps map-provider code out of route construction.                                   |
-| `src/data/navigation/buildCampusWalkingGraph.test.ts`    | Checks source-reference failures, projected connector behavior, and routing-network construction at the import boundary.                                                                                                                                                                                                                              |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                          |
-| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Confirms all 50 places are connected, including the sports courts; Anderson and JAAC/pool entrances are distinct; the library-to-cafeteria route uses main rather than informal ways; drawn length matches reported length; and the release remains illustrative.                                                                                     |
-| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                 |
-| `src/data/navigation/stadiumDrivingHandoff.ts`           | Builds one narrow, provisional road preview from selected OSM road IDs. It validates connected road points and one-way travel, then supplies the planner and map with a separate handoff shape. It never claims a venue entrance or car GPS checkpoints.                                                                                              |
-| `src/data/navigation/stadiumDrivingHandoff.test.ts`      | Checks the mapped exit and parking-approach endpoints so an OSM refresh cannot silently move the handoff.                                                                                                                                                                                                                                             |
+| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                                                               |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/navigation/collegeOfIdahoCampus.ts`            | Defines the campus name, address, initial map viewpoint, and panning boundary. `MapView.tsx` reads this file and passes it through the provider-neutral map contract. Its north-south boundary now allows a tall map panel to zoom out enough to fit the current east-west routes. These values remain separate from individual locations and routes.    |
+| `src/data/navigation/collegeOfIdahoCampus.test.ts`       | Checks that the configured initial map center stays inside the configured campus boundary. It protects a simple but important data assumption.                                                                                                                                                                                                           |
+| `src/data/navigation/collegeOfIdahoWalkingGraphData.ts`  | Curates 50 searchable places from mapped entrances, building/parking/court outlines, and landmarks; records provenance. It no longer hand-copies walkway geometry. Outline-derived approach points and short unmapped links remain illustrative. The invented Campus Entrance is absent.                                                                 |
+| `src/data/navigation/campusOsmNetwork.json`              | Generated, compact snapshot of the newer OSM export's connected walking network, selected road ways, sport/parking outlines, buildings, entrances, and points of interest. It is committed so local builds do not need the user's Downloads folder or a live OSM connection. Do not hand-edit it: rerun the importer and review the diff.                |
+| `src/data/navigation/buildCampusWalkingGraph.ts`         | Converts imported path segments and curated locations into the existing graph contract. It validates referenced building, area, and described-entrance IDs; uses a mapped main court gate when one is supplied, otherwise chooses the nearest outline point; labels unmapped links as connectors; and keeps map-provider code out of route construction. |
+| `src/data/navigation/buildCampusWalkingGraph.test.ts`    | Checks source-reference failures, projected connector behavior, and routing-network construction at the import boundary.                                                                                                                                                                                                                                 |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.ts`      | A small validated loader for the editable graph dataset. It sends the records through domain factories, then exports the safe graph that `useRoutePlanner.ts` supplies to `routePlanner.ts`.                                                                                                                                                             |
+| `src/data/navigation/collegeOfIdahoWalkingGraph.test.ts` | Confirms all 50 places are connected, including the sports courts; Anderson and JAAC/pool entrances are distinct; the library-to-cafeteria route uses main rather than informal ways; drawn length matches reported length; and the release remains illustrative.                                                                                        |
+| `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                    |
+| `src/data/navigation/stadiumDrivingHandoff.ts`           | Builds one narrow, provisional road preview from selected OSM road IDs. It validates connected road points and one-way travel, then supplies the planner and map with a separate handoff shape. It never claims a venue entrance or car GPS checkpoints.                                                                                                 |
+| `src/data/navigation/stadiumDrivingHandoff.test.ts`      | Checks the mapped exit and parking-approach endpoints so an OSM refresh cannot silently move the handoff.                                                                                                                                                                                                                                                |
 
 The source preparation guide is [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md).
 It specifies authorized source formats, required measurement metadata, field
@@ -1528,6 +1528,37 @@ handoff, tennis route, mobile layout, and a fresh console with zero errors or
 warnings. Court approach points,
 driveway use, parking, and venue access still require field confirmation.
 
+### Step 27: Court-gate correction and source validation
+
+This step compared the eight court destinations, two stadium outlines, the
+Hayman conflict, and the limited stadium road preview with the unchanged user
+OSM export. It also checked the College's published campus map and athletics
+driving directions. The [sixth source audit](OSM_EXPORT_REVIEW.md#sixth-application-batch-court-entrances-and-source-conflicts-step-27)
+separates supported facts from those still needing the user's observation.
+No broad route-network or driving behavior was changed.
+
+One court has better location evidence: Beach Volleyball Court 2 contains an
+OSM node marked as its main entrance. `collegeOfIdahoWalkingGraphData.ts` now
+names that node, and `buildCampusWalkingGraph.ts` checks that it belongs to
+the selected sports area and really is a main entrance before using it.
+`buildCampusWalkingGraph.test.ts` checks the rule with a small sample network;
+`collegeOfIdahoWalkingGraph.test.ts` checks the actual imported court. This
+is a useful source-to-app connection: if a later OSM import removes or moves
+the gate, the build fails clearly instead of silently switching back to a
+different corner. The line from that gate to the nearest walking way remains
+an inferred connector, not proof of a usable opening in a fence.
+
+Seven other court outlines have no entrance tag. Their numbering, gates, and
+walkway approaches still need on-site review. The Hayman area described as a
+second parking lot is also tagged as a basketball pitch; the app has not
+invented a second court from it or claimed the conflict resolved. Published
+athletics directions support using Cleveland Boulevard and 24th Avenue to
+reach Simplot Stadium, but do not authorize the private-tagged campus driveway
+or verify the stadium parking aisle and venue door. The stadium handoff stays
+a warning-labeled prototype. The [field collection packet](CAMPUS_DATA_COLLECTION.md)
+now asks for those specific observations, rather than building height or 3D
+detail while the 2D map is still being checked.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -2249,6 +2280,20 @@ historical context.
 - **Consequence:** Tests and documentation must no longer assume a prefilled
   library-to-cafeteria preview or a 2D initial map. Purple's exact brand status
   remains unverified.
+
+### ADR-038: Prefer a mapped court gate over a guessed outline corner
+
+- **Status:** Accepted for the prototype in Step 27.
+- **Decision:** When a curated sports destination identifies an OSM main
+  entrance on its own outline, use that node as the destination. Reject an
+  entrance absent from the outline or not tagged main. Other court outlines
+  continue to use a provisional nearest-outline point.
+- **Reason:** The mapped gate is better evidence of where to approach the
+  court than an automatically selected polygon corner. This small optional
+  reference does not require a separate court-routing system.
+- **Consequence:** Beach Volleyball Court 2 now points to its tagged gate.
+  The connecting line, gate availability, court numbers, and the other seven
+  court approaches remain unverified until field review.
 
 ## Engineering principles in plain language
 

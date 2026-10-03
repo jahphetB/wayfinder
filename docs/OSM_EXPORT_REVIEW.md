@@ -225,3 +225,33 @@ are unverified. The app therefore shows a labeled visual handoff and no car
 GPS/turn-by-turn session; it does not claim a calculated driving route from
 the person's selected starting place. Review this handoff with the user
 before any physical reliance.
+
+## Sixth application batch: court entrances and source conflicts (Step 27)
+
+The original XML digest is unchanged. Of the eight searchable court outlines,
+only beach-volleyball way `1564171295` contains a node tagged as an entrance:
+`14239949034` is `entrance=main`. The app now targets that node for Beach
+Volleyball Court 2 instead of the previously chosen nearest outline corner.
+Its short connector to the pedestrian network is still inferred, not a mapped
+gate-to-path connection. The other seven courts have no entrance tag in this
+export, so their nearest-outline approaches remain illustrative. Court numbers
+are app identifiers, not source names.
+
+The [official campus map](https://collegeofidaho.edu/wp-content/uploads/2025/09/2021-2022-Campus-Map.pdf)
+names tennis courts and Simplot Stadium, but does not assign individual court
+numbers, confirm gate locations, or resolve the Hayman conflict. OSM way
+`1006303601` says “Hayman parking lots 2” in its description but is tagged
+`leisure=pitch`, `sport=basketball`, and `surface=asphalt`. The app retains
+the previously curated parking label as **illustrative** rather than also
+creating a basketball destination from the same area. The user needs to
+confirm its present use. The other selected stadium outline `327888520` has
+`sport=equestrian`; the app continues to use `327890065` as its provisional
+stadium destination, without treating either outline as a verified venue door.
+
+The [official athletics driving directions](https://yoteathletics.com/sports/2012/7/29/GEN_0729122039.aspx)
+corroborate Cleveland Boulevard then 24th Avenue for Simplot Stadium from
+21st Avenue. They do **not** establish permission to leave from the nearer
+OSM driveway, current turning restrictions at that driveway, the parking-aisle
+endpoint, or an open stadium gate. Those portions of the dashed handoff stay
+provisional. Field review should check permission, signs, parking access, and
+the actual venue entrance before any driving guidance is promoted.

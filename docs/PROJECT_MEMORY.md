@@ -5,7 +5,7 @@ This short file is the current checkpoint for interrupted work. Read it with
 `docs/PROGRESS.md` is the chronological step record. Update this checkpoint
 after each meaningful step, especially when a source or approval state changes.
 
-## Current state after Step 26
+## Current state after Step 27
 
 - The app is a local, illustrative campus-route prototype that opens with a
   tilted 3D camera over the library toward Sterry Hall, with no building meshes.
@@ -28,6 +28,9 @@ after each meaningful step, especially when a source or approval state changes.
 - Eight sports courts are searchable and walking-routable: tennis, pickleball,
   basketball, and beach volleyball. Court numbers are provisional OSM-outline
   labels, not official names. Standard volleyball has no distinct tag here.
+  Beach Volleyball Court 2 uses its OSM-tagged main gate; the other seven
+  courts still use provisional outline approaches. Even the mapped gate has
+  an inferred link to the walking network.
   Page purple `#412D5E` is provisional pending a current institutional guide.
 - Simplot Stadium is a separate prototype driving handoff from a mapped campus
   driveway to a west-side parking approach. It is not a car route from the
@@ -61,6 +64,10 @@ after each meaningful step, especially when a source or approval state changes.
   selected road ways. `stadiumDrivingHandoff.ts` validates the road chain;
   `routePlanner.ts` returns a distinct handoff state; MapLibre draws a dashed
   layer apart from pedestrian routes. See the source audit's fifth batch.
+- The sixth source audit records the court-gate check and official-source
+  corroboration. The College's athletics directions support Cleveland then
+  24th to Simplot Stadium, not the private campus driveway or a venue door.
+  Hayman parking/basketball classification still needs the user's observation.
 
 ## Working rules and verification
 
@@ -68,7 +75,8 @@ after each meaningful step, especially when a source or approval state changes.
   report and ask for approval plus concise/detailed preference. Explain key
   files and newly used technical terms. No unapproved new features.
 - Make focused conventional commits after passing relevant checks. Push only
-  with explicit approval. The user approved pushing all pending Step 26 work.
+  with explicit approval. Step 26 is pushed; Step 27 approval does not include
+  a new push approval.
 - Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
   `npm run build`, and `git diff --check`. For visual changes, inspect the real
   browser at desktop/phone widths and check the console.
@@ -78,10 +86,10 @@ after each meaningful step, especially when a source or approval state changes.
 
 ## Next approval boundary
 
-Step 26 is complete after documentation, quality checks, commits, and the
-approved push. Stop and ask before any next implementation step. The likely
-next small step is user-guided review of provisional court numbers and
-approaches, stadium driveway permission/parking entrance, Hayman parking
-classification, and any 2D routes the user identifies as wrong. It is a
-proposal, not authorization. Do not begin 3D building modeling until 2D
+Step 27 is limited to the source-supported court gate and a documented
+validation audit. No physical campus observation or permission review has
+occurred. After verification and a local commit, stop and ask before the next
+step or a push. The likely next step is user-supplied corrections for the
+remaining seven court approaches, Hayman classification, and stadium
+driveway/parking/venue access. Do not begin 3D building modeling until 2D
 work is accepted.

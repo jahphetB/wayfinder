@@ -3,7 +3,7 @@
 This packet is for replacing illustrative map geometry in small, reviewable
 batches. Its initial example forms cover Cruzen-Murray Library, Blatchley Hall,
 Simplot Dining Hall, Simplot Residence Hall, and Sterry Hall.
-The application now lists 42 places from a newer user-observed OSM export; use
+The application now lists 50 places from a newer user-observed OSM export; use
 the same form for any of them, starting with paths or entrances the user sees
 as inaccurate. The two Simplot destinations are different entrances of one
 connected building. Do not assume an imported point proves usable access.
@@ -125,3 +125,9 @@ in the supplied OSM file. Do not treat the dashed drive as approved access.
 A campus user should confirm permission and the correct road/parking approach
 before it is promoted beyond a prototype handoff. Court numbering is likewise
 temporary until the user supplies the names or numbering used on site.
+Beach Volleyball Court 2 has an OSM-tagged main entrance, which the app now
+uses as its destination point. The path from the walkway to that gate is still
+inferred. The other seven mapped courts have no entrance tag in this export;
+mark each gate and any fence or barrier before treating its route as verified.
+The area described as Hayman parking lot 2 also has basketball-pitch tags;
+confirm whether it is parking, a court, or a changed-use space.
