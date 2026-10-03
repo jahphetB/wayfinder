@@ -59,6 +59,21 @@ describe('imported campus walking graph', () => {
     }
   })
 
+  it('targets the mapped Beach Volleyball Court 2 gate', () => {
+    const court = mockLocations.find(
+      ({ id }) => id === 'beach-volleyball-court-2',
+    )
+    expect(court?.coordinates).toEqual({
+      latitude: osmSnapshot.nodes['14239949034'][0],
+      longitude: osmSnapshot.nodes['14239949034'][1],
+    })
+    expect(
+      collegeOfIdahoWalkingGraph.edges.find(
+        ({ id }) => id === 'connector:beach-volleyball-court-2',
+      )?.accessibility,
+    ).toBe('unverified')
+  })
+
   it('uses the student entrance at Anderson and distinct JAAC/pool entrances', () => {
     const point = (id: string) =>
       mockLocations.find((place) => place.id === id)?.coordinates

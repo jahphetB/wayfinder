@@ -6,16 +6,22 @@ describe('buildCampusWalkingGraph', () => {
       '1': [43.65, -116.68],
       '2': [43.65, -116.679],
       '3': [43.6501, -116.6795],
+      '4': [43.65008, -116.6797],
     },
     ways: [{ id: '10', nodeIds: ['1', '2'], kind: 'formal' }],
     buildings: [{ id: '20', nodeIds: ['3'], entranceIds: ['3'] }],
     areas: [
       { id: '30', kind: 'parking', nodeIds: ['3'] },
-      { id: '31', kind: 'sport', sport: 'tennis', nodeIds: ['3'] },
+      { id: '31', kind: 'sport', sport: 'tennis', nodeIds: ['3', '4'] },
     ],
     places: [] as { id: string }[],
     entrances: [
-      { id: '1', description: 'Main entrance to the Activities Center' },
+      {
+        id: '1',
+        kind: 'main',
+        description: 'Main entrance to the Activities Center',
+      },
+      { id: '4', kind: 'main', description: '' },
     ],
   }
 
@@ -129,5 +135,37 @@ describe('buildCampusWalkingGraph', () => {
         },
       ]),
     ).toThrow('sport does not match OSM')
+  })
+
+  it('uses a mapped court entrance and rejects an unrelated entrance', () => {
+    const result = buildCampusWalkingGraph(snapshot, [
+      {
+        id: 'tennis',
+        label: 'Tennis Court',
+        source: {
+          kind: 'sports-area',
+          areaId: '31',
+          sport: 'tennis',
+          entranceNodeId: '4',
+        },
+      },
+    ])
+    expect(
+      result.graph.nodes.find(({ id }) => id === 'tennis')?.coordinates,
+    ).toEqual({ latitude: 43.65008, longitude: -116.6797 })
+    expect(() =>
+      buildCampusWalkingGraph(snapshot, [
+        {
+          id: 'tennis',
+          label: 'Tennis Court',
+          source: {
+            kind: 'sports-area',
+            areaId: '31',
+            sport: 'tennis',
+            entranceNodeId: '1',
+          },
+        },
+      ]),
+    ).toThrow('main entrance does not match OSM')
   })
 })

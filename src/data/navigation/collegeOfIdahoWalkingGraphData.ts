@@ -256,12 +256,18 @@ const locations: readonly CampusLocationSpec[] = [
         'Beach Volleyball Court 2',
         '1564171295',
         'beachvolleyball',
+        '14239949034',
       ],
     ] as const
-  ).map(([id, label, areaId, sport]) => ({
+  ).map(([id, label, areaId, sport, entranceNodeId]) => ({
     id,
     label,
-    source: { kind: 'sports-area' as const, areaId, sport },
+    source: {
+      kind: 'sports-area' as const,
+      areaId,
+      sport,
+      ...(entranceNodeId ? { entranceNodeId } : {}),
+    },
     maximumConnectorMeters: 35,
   })),
   ...(
