@@ -10,6 +10,7 @@ export interface MapInitialView {
   readonly center: Coordinates
   readonly zoom: number
   readonly mode: MapMode
+  readonly bearing?: number
   readonly maxBounds?: MapBounds
 }
 
@@ -39,6 +40,11 @@ export interface MapContent {
   readonly destination: Location | undefined
   readonly route: Route | undefined
   readonly navigationSession: NavigationSession | undefined
+  readonly drivingHandoff?:
+    | {
+        readonly coordinates: readonly Coordinates[]
+      }
+    | undefined
 }
 
 export type MapAdapterFactory = () => MapAdapter

@@ -1,8 +1,5 @@
 import { useMemo, useState } from 'react'
-import {
-  mockLocationSearchResults,
-  mockLocations,
-} from '@/data/navigation/mockLocations'
+import { mockLocationSearchResults } from '@/data/navigation/mockLocations'
 import { collegeOfIdahoWalkingGraph } from '@/data/navigation/collegeOfIdahoWalkingGraph'
 import type { Location, Route } from '@/domain/navigation/types'
 import {
@@ -12,29 +9,22 @@ import {
 } from '@/features/navigation/model/routePlanner'
 
 type Field = 'origin' | 'destination'
-const findLocation = (id: string): Location => {
-  const location = mockLocations.find((candidate) => candidate.id === id)
-  if (!location) throw new Error(`Required mock location "${id}" was not found`)
-  return location
-}
-const initialOrigin = findLocation('cruzen-murray-library')
-const initialDestination = findLocation('simplot-dining-hall')
 
 export function useRoutePlanner() {
   const [routeRevision, setRouteRevision] = useState(0)
-  const [origin, setOrigin] = useState<Location | undefined>(initialOrigin)
-  const [destination, setDestination] = useState<Location | undefined>(
-    initialDestination,
-  )
-  const [originQuery, setOriginQuery] = useState(initialOrigin.label)
-  const [destinationQuery, setDestinationQuery] = useState(
-    initialDestination.label,
-  )
+  const [origin, setOrigin] = useState<Location>()
+  const [destination, setDestination] = useState<Location>()
+  const [originQuery, setOriginQuery] = useState('')
+  const [destinationQuery, setDestinationQuery] = useState('')
   const [routePlanState, setRoutePlanState] = useState<RoutePlanState>({
     status: 'empty',
   })
   const plannedRoute: Route | undefined =
     routePlanState.status === 'route-ready' ? routePlanState.route : undefined
+  const drivingHandoff =
+    routePlanState.status === 'driving-handoff'
+      ? routePlanState.handoff
+      : undefined
   const originSuggestions = useMemo(
     () => filterLocationSearchResults(mockLocationSearchResults, originQuery),
     [originQuery],
@@ -86,6 +76,7 @@ export function useRoutePlanner() {
     originSuggestions,
     destinationSuggestions,
     plannedRoute,
+    drivingHandoff,
     routePlanState,
     changeQuery,
     selectLocation,

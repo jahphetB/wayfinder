@@ -82,6 +82,22 @@ export function CheckpointNavigation({
       className="checkpoint-navigation"
       aria-label="Checkpoint navigation"
     >
+      {starting && (
+        <button
+          type="button"
+          className="route-action start-navigation-action"
+          disabled={pending}
+          onClick={() => {
+            void checkLocation()
+          }}
+        >
+          {pending
+            ? 'Checking location…'
+            : retry
+              ? 'Try location again'
+              : 'Start navigation'}
+        </button>
+      )}
       <h2>Walk the route</h2>
       <p className="prototype-notice">
         Prototype paths and checkpoints are illustrative and may not match
@@ -165,7 +181,7 @@ export function CheckpointNavigation({
             Back
           </button>
         )}
-        {!arrived && (
+        {!starting && !arrived && (
           <button
             type="button"
             className="route-action"
@@ -178,9 +194,7 @@ export function CheckpointNavigation({
               ? 'Checking location…'
               : retry
                 ? 'Try location again'
-                : starting
-                  ? 'Start navigation'
-                  : 'Next Turn'}
+                : 'Next Turn'}
           </button>
         )}
       </div>

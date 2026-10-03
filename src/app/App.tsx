@@ -18,7 +18,7 @@ export function App({
 }) {
   const [defaultLocationProvider] = useState(createLocationProvider)
   const planner = useRoutePlanner()
-  const [mapMode, setMapMode] = useState<'2d' | '3d'>('2d')
+  const [mapMode, setMapMode] = useState<'2d' | '3d'>('3d')
   const [navigationSession, setNavigationSession] =
     useState<NavigationSession>()
   const activeLocationProvider = locationProvider ?? defaultLocationProvider
@@ -60,6 +60,7 @@ export function App({
             onModeChange={setMapMode}
             origin={planner.origin}
             route={planner.plannedRoute}
+            drivingHandoff={planner.drivingHandoff}
             navigationSession={currentNavigationSession}
           />
         </Suspense>

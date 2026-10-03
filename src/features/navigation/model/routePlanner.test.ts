@@ -10,8 +10,11 @@ const simplotDiningHall = mockLocations.find(
 const cruzenMurrayLibrary = mockLocations.find(
   (location) => location.id === 'cruzen-murray-library',
 )
+const simplotStadium = mockLocations.find(
+  (location) => location.id === 'simplot-stadium',
+)
 
-if (!simplotDiningHall || !cruzenMurrayLibrary) {
+if (!simplotDiningHall || !cruzenMurrayLibrary || !simplotStadium) {
   throw new Error('Required navigation fixtures are missing')
 }
 
@@ -67,5 +70,17 @@ describe('route planner model', () => {
         cruzenMurrayLibrary,
       ),
     ).toEqual({ status: 'route-ready', route: forwardRoute })
+  })
+
+  it('shows a driving handoff, not walking checkpoints, for Simplot Stadium', () => {
+    const plan = determineRoutePlan(
+      collegeOfIdahoWalkingGraph,
+      cruzenMurrayLibrary,
+      simplotStadium,
+    )
+    expect(plan.status).toBe('driving-handoff')
+    if (plan.status !== 'driving-handoff') return
+    expect(plan.handoff.exitLabel).toContain('Cleveland Boulevard')
+    expect(plan.handoff.coordinates.length).toBeGreaterThan(4)
   })
 })

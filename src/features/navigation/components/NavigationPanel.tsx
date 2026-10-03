@@ -155,9 +155,35 @@ function RouteSummary({
   if (planState.status === 'empty' || !origin || !destination)
     return (
       <p className="route-summary-empty">
-        Select locations, then preview a walking route.
+        {destination?.id === 'simplot-stadium'
+          ? 'Select a start, then preview the prototype stadium drive from a mapped campus exit.'
+          : 'Select locations, then preview a walking route.'}
       </p>
     )
+
+  if (planState.status === 'driving-handoff') {
+    return (
+      <section aria-live="polite" className="route-summary driving-handoff">
+        <p>Prototype driving handoff</p>
+        <strong>{destination.label}</strong>
+        <span>
+          This preview starts at {planState.handoff.exitLabel}, not at your
+          selected start. It does not provide a verified driving route from your
+          location.
+        </span>
+        <ol>
+          {planState.handoff.instructions.map((instruction) => (
+            <li key={instruction}>{instruction}</li>
+          ))}
+        </ol>
+        <span>
+          Check road signs, access, and parking on site. Car navigation and GPS
+          checkpoints are not available for this preview.
+        </span>
+        <span>{planState.handoff.accessNotice}</span>
+      </section>
+    )
+  }
 
   const { route } = planState
 
@@ -190,7 +216,8 @@ export function NavigationPanel({
       <p className="eyebrow">Route planner</p>
       <h1>Find your way, beautifully.</h1>
       <p className="panel-intro">
-        Pick your start and destination to preview a simple walking route.
+        Pick your start and destination to preview a route. Stadium driving is a
+        separate prototype handoff.
       </p>
       <form
         onSubmit={(event) => {
@@ -226,11 +253,6 @@ export function NavigationPanel({
           Preview route
         </button>
       </form>
-      <RouteSummary
-        destination={planner.destination}
-        origin={planner.origin}
-        planState={planner.routePlanState}
-      />
       {planner.plannedRoute && (
         <CheckpointNavigation
           key={planner.routeRevision}
@@ -242,6 +264,11 @@ export function NavigationPanel({
             : {})}
         />
       )}
+      <RouteSummary
+        destination={planner.destination}
+        origin={planner.origin}
+        planState={planner.routePlanState}
+      />
     </section>
   )
 }

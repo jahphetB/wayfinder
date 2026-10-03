@@ -59,6 +59,7 @@ export class MapLibreMapAdapter implements MapAdapter {
     destination: undefined,
     route: undefined,
     navigationSession: undefined,
+    drivingHandoff: undefined,
   }
 
   private cameraStateKey: string | undefined
@@ -89,6 +90,9 @@ export class MapLibreMapAdapter implements MapAdapter {
       center: [initialView.center.longitude, initialView.center.latitude],
       zoom: initialView.zoom,
       ...cameraForMode(initialView.mode),
+      ...(initialView.bearing === undefined
+        ? {}
+        : { bearing: initialView.bearing }),
       ...maxBounds,
     })
     this.map.on('load', () => {
@@ -103,13 +107,19 @@ export class MapLibreMapAdapter implements MapAdapter {
       )
     })
     this.map.on('resize', () => {
-      if (!this.isReady || !this.content.route) return
+      if (
+        !this.isReady ||
+        (!this.content.route && !this.content.drivingHandoff)
+      )
+        return
       this.cameraStateKey = undefined
       this.syncContent()
     })
   }
 
   setMode(mode: MapMode): void {
+    this.requireMap()
+    if (mode === this.mode) return
     this.mode = mode
     this.options.campusLayer?.setVisible(mode === '3d')
     const session = this.content.navigationSession
@@ -161,27 +171,66 @@ export class MapLibreMapAdapter implements MapAdapter {
           },
         })) ?? [],
     }
+    const handoffCoordinates = this.content.drivingHandoff?.coordinates
+    const handoffData = {
+      type: 'FeatureCollection',
+      features: handoffCoordinates
+        ? [
+            {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates: handoffCoordinates.map((point) => [
+                  point.longitude,
+                  point.latitude,
+                ]),
+              },
+            },
+          ]
+        : [],
+    }
     const locations = [this.content.origin, this.content.destination].filter(
       (location): location is NonNullable<MapContent['origin']> =>
         location !== undefined,
     )
+    const markers = handoffCoordinates
+      ? [
+          { coordinates: handoffCoordinates[0], kind: 'handoff' },
+          { coordinates: handoffCoordinates.at(-1), kind: 'handoff' },
+          { coordinates: this.content.destination?.coordinates, kind: 'venue' },
+        ]
+      : locations.map(({ coordinates }) => ({ coordinates, kind: 'walking' }))
     const locationData = {
       type: 'FeatureCollection',
-      features: locations.map((location) => ({
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'Point',
-          coordinates: [
-            location.coordinates.longitude,
-            location.coordinates.latitude,
-          ],
-        },
-      })),
+      features: markers.flatMap((marker) =>
+        marker.coordinates
+          ? [
+              {
+                type: 'Feature',
+                properties: { kind: marker.kind },
+                geometry: {
+                  type: 'Point',
+                  coordinates: [
+                    marker.coordinates.longitude,
+                    marker.coordinates.latitude,
+                  ],
+                },
+              },
+            ]
+          : [],
+      ),
     }
     const routeSource = map.getSource('yote-route')
     if (isGeoJsonSource(routeSource)) routeSource.setData(routeData)
     else map.addSource('yote-route', { type: 'geojson', data: routeData })
+    const handoffSource = map.getSource('yote-driving-handoff')
+    if (isGeoJsonSource(handoffSource)) handoffSource.setData(handoffData)
+    else
+      map.addSource('yote-driving-handoff', {
+        type: 'geojson',
+        data: handoffData,
+      })
     const locationSource = map.getSource('yote-locations')
     if (isGeoJsonSource(locationSource)) locationSource.setData(locationData)
     else
@@ -193,6 +242,18 @@ export class MapLibreMapAdapter implements MapAdapter {
         source: 'yote-route',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: { 'line-color': '#ffffff', 'line-width': 10 },
+      })
+    if (!map.getLayer('yote-driving-handoff'))
+      map.addLayer({
+        id: 'yote-driving-handoff',
+        type: 'line',
+        source: 'yote-driving-handoff',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': '#593777',
+          'line-width': 6,
+          'line-dasharray': [2, 1],
+        },
       })
     if (!map.getLayer('yote-route-line'))
       map.addLayer({
@@ -239,7 +300,13 @@ export class MapLibreMapAdapter implements MapAdapter {
         source: 'yote-locations',
         paint: {
           'circle-radius': 8,
-          'circle-color': '#ef694c',
+          'circle-color': [
+            'match',
+            ['get', 'kind'],
+            'handoff',
+            '#412d5e',
+            '#ef694c',
+          ],
           'circle-stroke-color': '#fff',
           'circle-stroke-width': 3,
         },
@@ -251,7 +318,9 @@ export class MapLibreMapAdapter implements MapAdapter {
         : 'preview:-1'
     const cameraStateKey = this.content.route
       ? `${this.content.route.id}:${cameraProgress}`
-      : undefined
+      : handoffCoordinates
+        ? 'stadium-driving-handoff'
+        : undefined
     if (cameraStateKey === this.cameraStateKey) return
     this.cameraStateKey = cameraStateKey
 
@@ -264,6 +333,16 @@ export class MapLibreMapAdapter implements MapAdapter {
       const latitudes = this.content.route.coordinates.map(
         (point) => point.latitude,
       )
+      map.fitBounds(
+        [
+          [Math.min(...longitudes), Math.min(...latitudes)],
+          [Math.max(...longitudes), Math.max(...latitudes)],
+        ],
+        { padding: 80, maxZoom: 16, duration: 700 },
+      )
+    } else if (handoffCoordinates) {
+      const longitudes = handoffCoordinates.map((point) => point.longitude)
+      const latitudes = handoffCoordinates.map((point) => point.latitude)
       map.fitBounds(
         [
           [Math.min(...longitudes), Math.min(...latitudes)],

@@ -8,6 +8,7 @@ import type {
 import { createMapAdapter } from '@/composition/createMapAdapter'
 import { collegeOfIdahoCampus } from '@/data/navigation/collegeOfIdahoCampus'
 import type { MapAdapter } from '@/features/map/contracts/MapAdapter'
+import type { DrivingHandoff } from '@/data/navigation/stadiumDrivingHandoff'
 
 interface MapViewProps {
   readonly origin: Location | undefined
@@ -15,6 +16,7 @@ interface MapViewProps {
   readonly route: Route | undefined
   readonly navigationSession: NavigationSession | undefined
   readonly mode: MapMode
+  readonly drivingHandoff: DrivingHandoff | undefined
   readonly onModeChange: (mode: MapMode) => void
 }
 
@@ -26,6 +28,7 @@ export function MapView({
   route,
   navigationSession,
   mode,
+  drivingHandoff,
   onModeChange,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -47,6 +50,7 @@ export function MapView({
         {
           center: collegeOfIdahoCampus.center,
           zoom: collegeOfIdahoCampus.initialZoom,
+          bearing: collegeOfIdahoCampus.initialBearing,
           mode: initialMode.current,
           maxBounds: collegeOfIdahoCampus.bounds,
         },
@@ -78,12 +82,23 @@ export function MapView({
       origin,
       destination,
       route,
+      drivingHandoff,
       navigationSession,
     })
-  }, [origin, destination, route, navigationSession, retryVersion])
+  }, [
+    origin,
+    destination,
+    route,
+    drivingHandoff,
+    navigationSession,
+    retryVersion,
+  ])
 
   useEffect(() => {
-    if (route && window.matchMedia('(max-width: 760px)').matches) {
+    if (
+      (route || drivingHandoff) &&
+      window.matchMedia('(max-width: 760px)').matches
+    ) {
       containerRef.current?.scrollIntoView({
         behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
           ? 'auto'
@@ -91,7 +106,7 @@ export function MapView({
         block: 'start',
       })
     }
-  }, [route])
+  }, [route, drivingHandoff])
   useEffect(() => {
     adapterRef.current?.setMode(mode)
   }, [mode, retryVersion])
@@ -144,7 +159,9 @@ export function MapView({
               ? 'The camera is following the current route leg.'
               : route
                 ? 'Route preview is shown on the map.'
-                : 'Choose a route to show it on the map.'}
+                : drivingHandoff
+                  ? 'Dashed purple line: prototype drive to parking approach. Orange: stadium outline; entrance unverified.'
+                  : 'Choose a route to show it on the map.'}
       </p>
     </section>
   )

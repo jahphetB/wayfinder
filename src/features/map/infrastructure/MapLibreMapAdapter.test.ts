@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
 import { collegeOfIdahoWalkingGraph } from '@/data/navigation/collegeOfIdahoWalkingGraph'
 import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
+import { stadiumDrivingHandoff } from '@/data/navigation/stadiumDrivingHandoff'
 import type { NavigationSession } from '@/domain/navigation/types'
 
 import type { MapLibreMapInstance } from './MapLibreMapAdapter'
@@ -312,5 +313,60 @@ describe('MapLibreMapAdapter', () => {
       ],
       { padding: 80, maxZoom: 16, duration: 700 },
     )
+  })
+
+  it('draws the stadium handoff separately from walking legs', () => {
+    const on = vi.fn()
+    const addSource = vi.fn()
+    const addLayer = vi.fn()
+    const fitBounds = vi.fn()
+    const createMap = vi.fn((): MapLibreMapInstance => ({
+      easeTo: vi.fn(),
+      on,
+      addSource,
+      getSource: vi.fn(),
+      addLayer,
+      getLayer: vi.fn(),
+      fitBounds,
+      remove: vi.fn(),
+    }))
+    const adapter = new MapLibreMapAdapter({
+      style: 'https://example.test/style.json',
+      createMap,
+    })
+    adapter.initialize(document.createElement('div'), {
+      center: { latitude: 43.6544341, longitude: -116.6768005 },
+      zoom: 18,
+      bearing: 185,
+      mode: '3d',
+    })
+    const loadListener = on.mock.calls.find(
+      ([event]) => event === 'load',
+    )?.[1] as () => void
+    loadListener()
+    adapter.setContent({
+      origin: undefined,
+      destination: undefined,
+      route: undefined,
+      navigationSession: undefined,
+      drivingHandoff: stadiumDrivingHandoff,
+    })
+
+    expect(createMap).toHaveBeenCalledWith(
+      expect.objectContaining({ bearing: 185, pitch: 60 }),
+    )
+    const sources = addSource.mock.calls as unknown as Array<
+      [string, { data: { features: Array<{ geometry: { type: string } }> } }]
+    >
+    const handoffSource = sources
+      .filter(([id]) => id === 'yote-driving-handoff')
+      .at(-1)
+    expect(handoffSource?.[1].data.features[0]?.geometry.type).toBe(
+      'LineString',
+    )
+    expect(addLayer).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'yote-driving-handoff' }),
+    )
+    expect(fitBounds).toHaveBeenCalledTimes(1)
   })
 })

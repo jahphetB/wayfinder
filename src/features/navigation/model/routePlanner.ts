@@ -5,12 +5,17 @@ import type {
   WalkingGraph,
 } from '@/domain/navigation/types'
 import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
+import {
+  stadiumDrivingHandoff,
+  type DrivingHandoff,
+} from '@/data/navigation/stadiumDrivingHandoff'
 
 export type RoutePlanState =
   | { readonly status: 'empty' }
   | { readonly status: 'invalid-location' }
   | { readonly status: 'route-unavailable' }
   | { readonly status: 'route-ready'; readonly route: Route }
+  | { readonly status: 'driving-handoff'; readonly handoff: DrivingHandoff }
 
 export function filterLocationSearchResults(
   results: readonly LocationSearchResult[],
@@ -38,6 +43,10 @@ export function determineRoutePlan(
   destination: Location | undefined,
 ): RoutePlanState {
   if (!origin || !destination) return { status: 'invalid-location' }
+
+  if (destination.id === stadiumDrivingHandoff.destinationId) {
+    return { status: 'driving-handoff', handoff: stadiumDrivingHandoff }
+  }
 
   const route = findRouteForLocations(graph, origin, destination)
   return route

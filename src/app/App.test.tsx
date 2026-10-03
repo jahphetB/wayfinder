@@ -21,6 +21,19 @@ vi.mock('@/features/map/components/MapView', () => ({
 
 import { App } from './App'
 
+async function selectLibraryAndDining(
+  user: ReturnType<typeof userEvent.setup>,
+) {
+  await user.click(screen.getByRole('combobox', { name: 'Start' }))
+  await user.click(
+    screen.getByRole('option', { name: 'Cruzen-Murray Library' }),
+  )
+  await user.click(screen.getByRole('combobox', { name: 'Destination' }))
+  await user.click(
+    screen.getByRole('option', { name: 'Simplot Dining Hall (Cafeteria)' }),
+  )
+}
+
 describe('App', () => {
   it('mounts navigation only after preview and resets it when editing the route', async () => {
     const user = userEvent.setup()
@@ -30,6 +43,7 @@ describe('App', () => {
       capturedAtMilliseconds: Date.now(),
     })
     render(<App locationProvider={{ requestCurrentLocation }} />)
+    await selectLibraryAndDining(user)
     expect(
       screen.queryByRole('button', { name: 'Start navigation' }),
     ).not.toBeInTheDocument()
@@ -60,7 +74,11 @@ describe('App', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByRole('region', { name: 'Interactive map' }),
-    ).toHaveAttribute('data-map-mode', '2d')
+    ).toHaveAttribute('data-map-mode', '3d')
+    expect(screen.getByRole('combobox', { name: 'Start' })).toHaveValue('')
+    expect(screen.getByRole('combobox', { name: 'Destination' })).toHaveValue(
+      '',
+    )
   })
 
   it('shows a clear invalid-location state after a typed value is not selected', async () => {
@@ -68,7 +86,6 @@ describe('App', () => {
     render(<App />)
 
     const startInput = screen.getByRole('combobox', { name: 'Start' })
-    await user.clear(startInput)
     await user.type(startInput, 'Unknown place')
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
 
@@ -82,11 +99,14 @@ describe('App', () => {
     render(<App />)
 
     const startInput = screen.getByRole('combobox', { name: 'Start' })
-    await user.clear(startInput)
     await user.type(startInput, 'Morrison')
     await user.keyboard('{ArrowDown}{Enter}')
 
     expect(startInput).toHaveValue('Morrison Quadrangle & Clock Tower')
+    await user.click(screen.getByRole('combobox', { name: 'Destination' }))
+    await user.click(
+      screen.getByRole('option', { name: 'Simplot Dining Hall (Cafeteria)' }),
+    )
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
     expect(screen.getByText('Walking route')).toBeInTheDocument()
   })
@@ -95,6 +115,7 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App />)
 
+    await selectLibraryAndDining(user)
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
     await user.selectOptions(
       screen.getByLabelText('Demo checkpoint result'),
@@ -121,7 +142,6 @@ describe('App', () => {
     const destinationInput = screen.getByRole('combobox', {
       name: 'Destination',
     })
-    await user.clear(destinationInput)
     await user.type(destinationInput, 'Sterry')
 
     expect(
@@ -136,7 +156,7 @@ describe('App', () => {
     const destinationInput = screen.getByRole('combobox', {
       name: 'Destination',
     })
-    await user.clear(destinationInput)
+    await user.click(destinationInput)
     expect(screen.getAllByRole('option').length).toBeGreaterThan(15)
     expect(
       screen.getByRole('option', { name: 'Centennial Amphitheater' }),
@@ -144,5 +164,27 @@ describe('App', () => {
     await user.type(destinationInput, 'McCain')
     await user.keyboard('{ArrowDown}{Enter}')
     expect(destinationInput).toHaveValue('McCain Student Center')
+  })
+
+  it('keeps the start action directly after preview and separates the stadium handoff', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await selectLibraryAndDining(user)
+    await user.click(screen.getByRole('button', { name: 'Preview route' }))
+    const preview = screen.getByRole('button', { name: 'Preview route' })
+    const start = screen.getByRole('button', { name: 'Start navigation' })
+    expect(
+      preview.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+
+    const destination = screen.getByRole('combobox', { name: 'Destination' })
+    await user.clear(destination)
+    await user.type(destination, 'Simplot Stadium')
+    await user.click(screen.getByRole('option', { name: 'Simplot Stadium' }))
+    await user.click(preview)
+    expect(screen.getByText('Prototype driving handoff')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Start navigation' }),
+    ).toBeNull()
   })
 })
