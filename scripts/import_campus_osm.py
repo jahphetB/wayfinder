@@ -15,6 +15,9 @@ import xml.etree.ElementTree as ET
 
 OUTPUT = Path(__file__).resolve().parents[1] / "src/data/navigation/campusOsmNetwork.json"
 WALKABLE = {"footway", "path", "steps"}
+STADIUM_HANDOFF_ROADS = {
+    "13756795", "13760269", "197875245", "13767980", "327890075"
+}
 
 
 def tags(element):
@@ -87,6 +90,23 @@ def import_osm(input_path):
         way for way in walkable_ways if all(node_id in connected for node_id in way["nodeIds"])
     ]
     selected_ids = set(connected)
+    road_ways = []
+    for way in ways:
+        if way.get("id") not in STADIUM_HANDOFF_ROADS:
+            continue
+        way_tags = tags(way)
+        node_ids = [ref.get("ref") for ref in way.findall("nd")]
+        if not way_tags.get("highway") or any(node_id not in osm_nodes for node_id in node_ids):
+            raise ValueError(f"Incomplete stadium handoff road {way.get('id')}")
+        selected_ids.update(node_ids)
+        road_ways.append(
+            {"id": way.get("id"), "nodeIds": node_ids,
+             "name": way_tags.get("name", ""),
+             "oneway": way_tags.get("oneway") == "yes",
+             "access": way_tags.get("access", "")}
+        )
+    if {road["id"] for road in road_ways} != STADIUM_HANDOFF_ROADS:
+        raise ValueError("The mapped stadium handoff roads are incomplete")
     buildings = []
     areas = []
     for way in ways:
@@ -118,6 +138,17 @@ def import_osm(input_path):
             areas.append(
                 {"id": way.get("id"), "name": way_tags["name"],
                  "kind": "stadium", "nodeIds": node_ids}
+            )
+        if (
+            way_tags.get("leisure") == "pitch"
+            and way_tags.get("sport")
+            and not parking_description
+        ):
+            selected_ids.update(node_ids)
+            areas.append(
+                {"id": way.get("id"), "name": way_tags.get("name", ""),
+                 "kind": "sport", "sport": way_tags["sport"],
+                 "nodeIds": node_ids}
             )
 
     places = []
@@ -155,6 +186,7 @@ def import_osm(input_path):
             for node_id in sorted(selected_ids, key=int)
         },
         "ways": selected_ways,
+        "roadWays": road_ways,
         "buildings": buildings,
         "areas": areas,
         "places": places,

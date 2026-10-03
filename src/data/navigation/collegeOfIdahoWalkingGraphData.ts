@@ -239,6 +239,33 @@ const locations: readonly CampusLocationSpec[] = [
   })),
   ...(
     [
+      ['tennis-court-1', 'Tennis Court 1', '1468620718', 'tennis'],
+      ['tennis-court-2', 'Tennis Court 2', '1468620719', 'tennis'],
+      ['tennis-court-3', 'Tennis Court 3', '1468620720', 'tennis'],
+      ['pickleball-court-1', 'Pickleball Court 1', '1468620588', 'pickleball'],
+      ['pickleball-court-2', 'Pickleball Court 2', '1468620589', 'pickleball'],
+      ['basketball-court', 'Basketball Court', '1468620587', 'basketball'],
+      [
+        'beach-volleyball-court-1',
+        'Beach Volleyball Court 1',
+        '1006303602',
+        'beachvolleyball',
+      ],
+      [
+        'beach-volleyball-court-2',
+        'Beach Volleyball Court 2',
+        '1564171295',
+        'beachvolleyball',
+      ],
+    ] as const
+  ).map(([id, label, areaId, sport]) => ({
+    id,
+    label,
+    source: { kind: 'sports-area' as const, areaId, sport },
+    maximumConnectorMeters: 35,
+  })),
+  ...(
+    [
       [
         'orma-smith-museum',
         'Orma J. Smith Museum of Natural History',
@@ -261,7 +288,7 @@ export const collegeOfIdahoWalkingGraphData = {
   ...campusNetwork,
   provenance: {
     sourceDescription:
-      'Pedestrian ways, building and parking outlines, entrances, and place descriptions come from the user-observed 2026-10-01 OpenStreetMap export (SHA-256 03B9BD752A588BFF7CB04A87B06D417736E1BFBC49091AFD9EF8452A88C0B40C). Formal paths always outrank informal paths; main footways are favored among formal alternatives. The displayed distance is physical length. Unmapped destination connectors and outline-derived entry points remain illustrative. Entrance reachability, access, crossing safety, and walking directions have not been campus-approved. OpenStreetMap data is ODbL: https://www.openstreetmap.org/copyright.',
+      'Pedestrian ways, building, parking, and sport outlines, entrances, and place descriptions come from the user-observed 2026-10-01 OpenStreetMap export (SHA-256 03B9BD752A588BFF7CB04A87B06D417736E1BFBC49091AFD9EF8452A88C0B40C). Court numbering is provisional. Formal paths always outrank informal paths; main footways are favored among formal alternatives. The displayed distance is physical length. Unmapped destination connectors and outline-derived entry points remain illustrative. Entrance reachability, access, crossing safety, and walking directions have not been campus-approved. OpenStreetMap data is ODbL: https://www.openstreetmap.org/copyright.',
     verificationStatus: 'illustrative',
     reviewedOn: '2026-10-01',
   },

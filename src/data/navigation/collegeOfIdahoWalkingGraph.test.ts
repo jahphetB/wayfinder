@@ -29,14 +29,34 @@ describe('imported campus walking graph', () => {
     const nodeIds = new Set(
       collegeOfIdahoWalkingGraph.nodes.map(({ id }) => id),
     )
-    expect(mockLocations).toHaveLength(42)
+    expect(mockLocations).toHaveLength(50)
     expect(mockLocations.every(({ id }) => nodeIds.has(id))).toBe(true)
     const labels = mockLocations.map(({ label }) => label)
     expect(labels).toContain('West Hall')
     expect(labels).toContain('Mustard Apartments')
     expect(labels).toContain('JAAC Parking Lot')
     expect(labels).toContain('J.A. Albertson Swimming Pool')
+    expect(labels).toContain('Tennis Court 1')
+    expect(labels).toContain('Pickleball Court 2')
+    expect(labels).toContain('Beach Volleyball Court 1')
+    expect(labels).toContain('Basketball Court')
     expect(labels).not.toContain('Campus Entrance')
+  })
+
+  it('keeps every new mapped court connected to the pedestrian graph', () => {
+    const courtIds = mockLocations
+      .filter(({ id }) => id.includes('court'))
+      .map(({ id }) => id)
+    expect(courtIds).toHaveLength(8)
+    for (const destinationId of courtIds) {
+      expect(
+        findWalkingRoute(
+          collegeOfIdahoWalkingGraph,
+          'cruzen-murray-library',
+          destinationId,
+        ),
+      ).toBeDefined()
+    }
   })
 
   it('uses the student entrance at Anderson and distinct JAAC/pool entrances', () => {

@@ -22,6 +22,8 @@ interface OsmSnapshot {
   }[]
   readonly areas: readonly {
     readonly id: string
+    readonly kind: string
+    readonly sport?: string
     readonly nodeIds: readonly string[]
   }[]
   readonly places: readonly { readonly id: string }[]
@@ -46,6 +48,11 @@ export type CampusLocationSource =
     }
   | { readonly kind: 'building-outline'; readonly buildingId: string }
   | { readonly kind: 'mapped-area'; readonly areaId: string }
+  | {
+      readonly kind: 'sports-area'
+      readonly areaId: string
+      readonly sport: string
+    }
   | { readonly kind: 'illustrative'; readonly coordinates: Coordinates }
 
 export interface CampusLocationSpec {
@@ -175,9 +182,15 @@ function resolveLocation(
       throw new Error(`${location.label} building is absent from OSM`)
     return nearestOutlinePoint(snapshot, building.nodeIds)
   }
-  if (source.kind === 'mapped-area') {
+  if (source.kind === 'mapped-area' || source.kind === 'sports-area') {
     const area = snapshot.areas.find(({ id }) => id === source.areaId)
     if (!area) throw new Error(`${location.label} area is absent from OSM`)
+    if (
+      source.kind === 'sports-area' &&
+      (area.kind !== 'sport' || area.sport !== source.sport)
+    ) {
+      throw new Error(`${location.label} sport does not match OSM`)
+    }
     return nearestOutlinePoint(snapshot, area.nodeIds)
   }
   if (source.kind === 'building-entrance') {

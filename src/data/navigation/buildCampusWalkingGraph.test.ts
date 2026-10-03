@@ -9,7 +9,10 @@ describe('buildCampusWalkingGraph', () => {
     },
     ways: [{ id: '10', nodeIds: ['1', '2'], kind: 'formal' }],
     buildings: [{ id: '20', nodeIds: ['3'], entranceIds: ['3'] }],
-    areas: [{ id: '30', nodeIds: ['3'] }],
+    areas: [
+      { id: '30', kind: 'parking', nodeIds: ['3'] },
+      { id: '31', kind: 'sport', sport: 'tennis', nodeIds: ['3'] },
+    ],
     places: [] as { id: string }[],
     entrances: [
       { id: '1', description: 'Main entrance to the Activities Center' },
@@ -105,5 +108,26 @@ describe('buildCampusWalkingGraph', () => {
         },
       ]),
     ).toThrow('description does not match OSM')
+  })
+
+  it('accepts a tagged court but rejects a mislabeled sport', () => {
+    expect(
+      buildCampusWalkingGraph(snapshot, [
+        {
+          id: 'tennis',
+          label: 'Tennis Court',
+          source: { kind: 'sports-area', areaId: '31', sport: 'tennis' },
+        },
+      ]).locations,
+    ).toEqual([{ id: 'tennis', label: 'Tennis Court' }])
+    expect(() =>
+      buildCampusWalkingGraph(snapshot, [
+        {
+          id: 'volleyball',
+          label: 'Volleyball Court',
+          source: { kind: 'sports-area', areaId: '31', sport: 'volleyball' },
+        },
+      ]),
+    ).toThrow('sport does not match OSM')
   })
 })
