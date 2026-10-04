@@ -255,3 +255,13 @@ OSM driveway, current turning restrictions at that driveway, the parking-aisle
 endpoint, or an open stadium gate. Those portions of the dashed handoff stay
 provisional. Field review should check permission, signs, parking access, and
 the actual venue entrance before any driving guidance is promoted.
+
+## Seventh application batch: one visual library outline (Step 28)
+
+The source XML and snapshot digest remain unchanged. The first attached 3D
+prototype reads building way `603509923` (Cruzen-Murray Library) from the
+snapshot's building outlines. The same outline supplies only horizontal
+shape; its 8 m extrusion height, roof, color, and material are illustrative.
+No new entrance, walking path, or accessibility fact is inferred from the 3D
+shape. A measured height, current photographs with reuse permission, and a
+field check are required before presenting a realistic building model.

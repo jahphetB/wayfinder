@@ -44,7 +44,8 @@ work together, that decision should be recorded here.
 Yote Wayfinder is a browser-based route-planning prototype. A person chooses a
 starting place and a destination, previews a calculated walking route, and sees
 that route on an interactive map. The map can be viewed from a flat 2D angle or
-a tilted 3D perspective. No building block is currently rendered.
+a tilted 3D perspective. One library building is shown as an illustrative
+footprint-based 3D shape; it does not affect walking directions.
 
 The project is deliberately divided into areas with different responsibilities.
 This is similar to organizing a business so that accounting, customer service,
@@ -114,12 +115,12 @@ turns map data into the pixels, labels, markers, and lines seen in the browser.
 OpenStreetMap raster tiles provide the current street background. A raster tile
 is a small map image; many tiles are placed together to form the visible map.
 
-The 3D button currently tilts the MapLibre camera. The former gold calibration
-block has been removed because it appeared over Hendren Hall without matching
-that building. The isolated Three.js layer remains in source code but is not
-attached to the current map. Three.js is a browser 3D rendering library that
-may be used for future, reviewed building models. Switching to 2D preserves
-the route and map state.
+The 3D button tilts the MapLibre camera and shows one library shape based on
+the imported OSM building outline. The former gold calibration block over
+Hendren Hall remains removed. Three.js, a browser 3D rendering library,
+extrudes the real outline to a clearly illustrative 8 m height. The shape is
+visual only: it cannot create an entrance or change the walking graph.
+Switching to 2D hides it while preserving the route and map state.
 
 ## The architecture in one picture
 
@@ -192,6 +193,7 @@ YoteWayfinder/
 │   ├── app/                      Screen assembly and global presentation
 │   ├── composition/              Chooses concrete service implementations
 │   ├── data/navigation/          Local route and campus content
+│   ├── data/scene/               One visual 3D prototype, not route data
 │   ├── domain/navigation/        Business meaning and validation
 │   ├── features/
 │   │   ├── map/                  Interactive-map capability
@@ -349,10 +351,10 @@ job it needs performed, and the composition layer selects the vendor that will
 perform it. Changing providers should primarily change this desk and the new
 provider implementation, not every caller.
 
-| File                                        | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                 |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/composition/createMapAdapter.ts`       | Creates the concrete MapLibre adapter and its style. It no longer attaches a 3D building layer. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
-| `src/composition/createLocationProvider.ts` | Selects the prototype simulator by default or the browser adapter when `VITE_LOCATION_MODE=browser`, keeping that choice outside components and domain rules.                                                                                                                                                                                                                                              |
+| File                                        | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/composition/createMapAdapter.ts`       | Creates the concrete MapLibre adapter and its style, and supplies one footprint-based Three.js library layer. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
+| `src/composition/createLocationProvider.ts` | Selects the prototype simulator by default or the browser adapter when `VITE_LOCATION_MODE=browser`, keeping that choice outside components and domain rules.                                                                                                                                                                                                                                                            |
 
 ## The `src/domain` folder
 
@@ -390,10 +392,11 @@ not the other way around.
 
 ## The `src/data` folder
 
-The data folder supplies records used by the application. Today these are local
-mock records, meaning realistic sample information stored in source code instead
-of retrieved from a server. This makes the prototype reliable while the real
-data source is still undecided.
+The data folder supplies records used by the application. Navigation records
+and the one visual 3D scene record live in separate subfolders. They are
+packaged locally rather than fetched from a routing server, which keeps this
+prototype usable during source review. The scene reads a copied OSM footprint
+but never adds a walking entrance or path.
 
 The files construct records through domain factories. Sample data therefore
 cannot quietly bypass the rules expected from future live data. When an API
@@ -419,6 +422,18 @@ provided identifiers and coordinates remain consistent.
 | `src/data/navigation/mockLocations.ts`                   | Derives searchable locations and search-result records from the editable dataset. Every searchable location must also have a graph node; the module throws a clear error if that data rule is broken.                                                                                                                                                    |
 | `src/data/navigation/stadiumDrivingHandoff.ts`           | Builds one narrow, provisional road preview from selected OSM road IDs. It validates connected road points and one-way travel, then supplies the planner and map with a separate handoff shape. It never claims a venue entrance or car GPS checkpoints.                                                                                                 |
 | `src/data/navigation/stadiumDrivingHandoff.test.ts`      | Checks the mapped exit and parking-approach endpoints so an OSM refresh cannot silently move the handoff.                                                                                                                                                                                                                                                |
+
+### `src/data/scene`
+
+This folder owns visual 3D content, separately from the walking network.
+Keeping it separate means a future photo-based building model can change how
+the campus looks without changing where a person is told to walk. The current
+scene contains one small prototype, not a complete or measured 3D campus.
+
+| File                                              | Importance and relationship to other files                                                                                                                                                  |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/scene/libraryPrototypeBuilding.ts`      | Reads the library's OSM outline from the committed snapshot, validates its points, and supplies an illustrative 8 m height. `createMapAdapter.ts` hands this visual record to the 3D layer. |
+| `src/data/scene/libraryPrototypeBuilding.test.ts` | Guards the source building ID, imported footprint, and illustrative status so a source refresh cannot quietly move the prototype or turn the guessed height into a claim.                   |
 
 The source preparation guide is [`docs/CAMPUS_DATA_COLLECTION.md`](CAMPUS_DATA_COLLECTION.md).
 It specifies authorized source formats, required measurement metadata, field
@@ -534,10 +549,10 @@ A contract is a description of what a service must be able to do. It does not
 say how the service performs those actions. Components depend on this contract
 instead of a particular map provider.
 
-| File                                                  | Importance and relationship to other files                                                                                                                                                                 |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/map/contracts/MapAdapter.ts`            | Defines initialization, content updates, mode changes, and cleanup. It also defines content and initial-view shapes. Any replacement provider must implement this interface.                               |
-| `src/features/map/contracts/GeoreferencedBuilding.ts` | Defines a provider-independent building anchor, dimensions, heading, color, and verification status. It contains no MapLibre or Three.js types, so owned scene data is not locked to the current renderer. |
+| File                                                  | Importance and relationship to other files                                                                                                                                                             |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/features/map/contracts/MapAdapter.ts`            | Defines initialization, content updates, mode changes, and cleanup. It also defines content and initial-view shapes. Any replacement provider must implement this interface.                           |
+| `src/features/map/contracts/GeoreferencedBuilding.ts` | Defines a provider-independent building anchor, outline, height, color, and verification status. It contains no MapLibre or Three.js types, so owned scene data is not locked to the current renderer. |
 
 ### `src/features/map/infrastructure`
 
@@ -549,7 +564,7 @@ and commands belong here rather than in navigation or general UI code.
 | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/features/map/infrastructure/MapLibreMapAdapter.ts`                      | Implements `MapAdapter` with MapLibre. It configures the worker, creates the map, translates route content to GeoJSON, coordinates the 3D layer, changes camera mode, fits route bounds, and cleans up. A web worker is a separate browser execution context that prevents map work from blocking the interface. |
 | `src/features/map/infrastructure/MapLibreMapAdapter.test.ts`                 | Uses substitutes to verify initialization, 2D/3D behavior, custom-layer visibility, cleanup, readiness, and explicit failure when controls are used too early.                                                                                                                                                   |
-| `src/features/map/infrastructure/MapLibreGeoreferencedBuildingLayer.ts`      | Implements a MapLibre custom 3D layer with Three.js. It converts the building's latitude, longitude, altitude, heading, and meter dimensions into MapLibre coordinates; shares MapLibre's WebGL canvas; and disposes geometry, material, and renderer resources when removed.                                    |
+| `src/features/map/infrastructure/MapLibreGeoreferencedBuildingLayer.ts`      | Implements a MapLibre custom 3D layer with Three.js. It converts the geographic outline to a metre-scale 3D footprint at the supplied anchor; shares MapLibre's WebGL canvas; and disposes geometry, material, and renderer resources when removed.                                                              |
 | `src/features/map/infrastructure/MapLibreGeoreferencedBuildingLayer.test.ts` | Uses a renderer substitute to prove the layer shares the map canvas, renders only while visible, requests a repaint when its visibility changes, and disposes the renderer. Actual WebGL appearance still requires a real-browser check.                                                                         |
 
 ## The `src/test` folder
@@ -1559,6 +1574,44 @@ a warning-labeled prototype. The [field collection packet](CAMPUS_DATA_COLLECTIO
 now asks for those specific observations, rather than building height or 3D
 detail while the 2D map is still being checked.
 
+### Step 28: First footprint-based 3D building
+
+The user is satisfied with current 2D accuracy for this project stage and
+will provide further route corrections later. This step therefore starts the
+previously approved 3D phase without claiming that the walking network is
+official or complete. It activates only one library prototype, not a campus
+full of unmeasured buildings. The older Hendren-area block remains removed.
+
+`libraryPrototypeBuilding.ts` reads building `603509923` from the same
+committed OSM snapshot used by the walking graph. It checks that the outline
+is closed and its points exist, then supplies that outline and an explicitly
+illustrative 8 m height through `GeoreferencedBuilding.ts`. The height is a
+visible placeholder, not a campus measurement. `createMapAdapter.ts` passes
+this record to `MapLibreGeoreferencedBuildingLayer.ts`, while `MapView.tsx`
+continues to depend only on the map-adapter contract. The 3D layer converts
+the geographic outline into local metre coordinates and extrudes it, meaning
+it extends a flat outline upward to make a simple solid. It shares the map's
+graphics canvas, appears only in 3D, and releases its graphics resources on
+removal. It does not feed the planner, the walking graph, or GPS checkpoints.
+
+The footprint is stronger evidence than the removed generic box, but the
+model's height, roof, materials, and entrance appearance are not known.
+`MapView.tsx` labels the 3D shape's height illustrative. The browser check
+showed the shape over the library's mapped footprint, the normal flat
+basemap after switching to 2D, and no console errors or warnings. This is
+not photogrammetry or a realistic building model. Photo-based GLB assets
+remain a later, separately reviewed step.
+
+Activating Three.js increases the deferred map JavaScript from about
+1,019.29 kB / 275.95 kB gzip in Step 27 to about 1,578.44 kB / 417.01 kB
+gzip here. The initial application chunk stays about 338.26 kB / 100.25 kB
+gzip. Vite's existing large-chunk warning persists. This is a material
+mobile-loading cost, so expanding to more 3D buildings should be approved
+with an asset/performance budget and device testing first. The implementation
+follows the [MapLibre custom-layer example](https://github.com/maplibre/maplibre-gl-js/blob/main/test/examples/add-a-3d-model-using-threejs.html)
+and [Three.js extrusion documentation](https://threejs.org/docs/pages/ExtrudeGeometry.html)
+consulted through Context7.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -1765,10 +1818,14 @@ came from a demonstration style that showed little street detail at campus zoom.
 
 ### The 3D button tilts the map but no building appears
 
-This is expected after Step 25: the inaccurate calibration block was removed.
-`createMapAdapter.ts` does not supply a building layer. The retained generic
-Three.js layer is dormant until a reviewed 3D-model step is approved. A blank
-map or missing route is a separate map problem; use the sections above.
+After Step 28, one library shape should appear in 3D mode. Confirm that
+`createMapAdapter.ts` supplies `libraryPrototypeBuilding` to the building
+layer, that the imported library outline still has the expected OSM ID, and
+that `MapLibreMapAdapter.syncCampusLayer` adds the layer after map load. Check
+the browser console for graphics errors and verify the 2D button hides only
+the model, not the basemap or route. The former Hendren calibration block
+should **not** return. A blank map or missing route is a separate issue; use
+the sections above.
 
 ### The map appears but streets do not
 
@@ -2029,8 +2086,8 @@ historical context.
 
 ### ADR-021: Own campus 3D content while retaining MapLibre as renderer
 
-- **Status:** Accepted as a future integration; the Step 13 calibration scene
-  was removed in Step 25, and the layer is currently dormant.
+- **Status:** Active for one illustrative library footprint in Step 28. The
+  Step 13 calibration scene remains removed.
 - **Decision:** Keep MapLibre for geographic projection, camera behavior, map
   interaction, and overlays; render project-owned 3D campus content through an
   isolated Three.js custom layer that shares MapLibre's WebGL context.
@@ -2038,11 +2095,10 @@ historical context.
   visual assets without recreating mature map projection, touch interaction,
   camera, and 2D-map behavior. The existing adapter already provides a safe
   integration boundary.
-- **Consequence:** Activating Three.js adds a deferred bundle cost and requires
-  explicit shared-context state management and resource disposal. The current
-  build does not bundle the unattached layer. Visual models
-  remain separate from authoritative entrances and walking-graph data. A later
-  asset pipeline must optimize and benchmark every realistic model.
+- **Consequence:** Activating Three.js adds about 141 kB gzip to the deferred
+  map bundle and requires shared-context state management and resource
+  disposal. Visual models remain separate from navigation entrances and paths.
+  A later asset pipeline must optimize and benchmark realistic models.
 
 ### ADR-022: Use one-shot GPS checkpoints for navigation
 
@@ -2294,6 +2350,21 @@ historical context.
 - **Consequence:** Beach Volleyball Court 2 now points to its tagged gate.
   The connecting line, gate availability, court numbers, and the other seven
   court approaches remain unverified until field review.
+
+### ADR-039: Begin 3D with one mapped outline and unmeasured height
+
+- **Status:** Accepted as a limited visual prototype in Step 28.
+- **Decision:** Derive only the library's horizontal shape from its imported
+  OSM footprint, extrude it to an explicitly illustrative height, and attach
+  it through the existing Three.js custom-layer boundary. Keep it hidden in
+  2D and independent from walking-route data.
+- **Reason:** This gives a geographically anchored, reviewable 3D starting
+  point without reintroducing the inaccurate Hendren box or inventing a full
+  campus of building dimensions. The user's later 2D corrections can still
+  arrive without blocking this small visual step.
+- **Consequence:** Height, roof, textures, and real entrances are not
+  represented accurately. The deferred map bundle grows materially, so
+  further models require performance review and better source assets.
 
 ## Engineering principles in plain language
 

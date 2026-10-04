@@ -8,10 +8,13 @@ the same form for any of them, starting with paths or entrances the user sees
 as inaccurate. The two Simplot destinations are different entrances of one
 connected building. Do not assume an imported point proves usable access.
 
-For the current 2D phase, the highest-value feedback is a correction to a
+For later 2D corrections, the highest-value feedback is a correction to a
 drawn walkway, junction, entrance connection, or an outline-derived approach
 point. There is no fixed campus entrance gate. Building heights, walkway widths, slopes, and accessibility details can
-wait until the basic 2D routes have been reviewed. Leave those fields unknown;
+wait until the basic 2D routes have been reviewed. The first 3D library
+prototype now uses an explicitly illustrative height; supply a measured
+height and authorized photos before it is treated as a realistic model.
+Leave unknown fields unknown;
 do not guess values to make the map appear complete.
 
 ## Best source to request

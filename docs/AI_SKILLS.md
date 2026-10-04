@@ -248,6 +248,21 @@ stale.
   over an arbitrary outline corner; keep its inferred walkway connector
   explicitly provisional and test the source reference.
 
+#### Step 28 usage record
+
+- **EXTERNAL / Context7 MapLibre and Three.js documentation:** Checked the
+  current custom-layer and footprint-extrusion patterns before activating the
+  isolated 3D boundary. The project added no new package.
+- **OPENAI / Playwright skill:** Compared the real-browser 3D library shape
+  with the 2D basemap footprint and checked the console after switching modes.
+- **OPENAI / OpenAI Docs skill:** Fetched current official model-selection
+  guidance for the next-step recommendation.
+- **YOTE / Visual-data separation:** Derived only a 3D visual outline from
+  the OSM snapshot. Kept its guessed height illustrative and prevented scene
+  content from becoming a navigation entrance or walking edge.
+- **YOTE / Bundle-cost checkpoint:** Measured the added deferred Three.js
+  payload before considering more buildings or realistic assets.
+
 | Practice                                        | Introduced in          | Purpose                                                                                                                                            |
 | ----------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                      |
@@ -283,3 +298,5 @@ stale.
 | Mode-separated stadium handoff                  | Step 26                | Shows a limited car preview without misusing pedestrian routing or GPS checkpoints.                                                                |
 | Court source-tag validation                     | Step 26                | Makes each curated sports destination traceable to an OSM court outline and sport tag.                                                             |
 | Evidence-first court gate selection             | Step 27                | Uses an actual tagged gate when available and fails clearly if a later source import removes or changes it.                                        |
+| Footprint-based visual prototype                | Step 28                | Anchors one simple 3D library shape to the mapped outline while leaving height and appearance explicitly illustrative.                             |
+| Deferred 3D bundle measurement                  | Step 28                | Records the real download increase before scaling to more models or mobile assets.                                                                 |

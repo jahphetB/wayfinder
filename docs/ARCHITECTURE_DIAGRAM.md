@@ -43,12 +43,12 @@ flowchart TB
             MapContract[MapAdapter.ts<br/>provider-neutral contract]
             BuildingContract[GeoreferencedBuilding.ts<br/>owned building description]
             Adapter[MapLibreMapAdapter.ts<br/>map lifecycle and overlays]
-            BuildingLayer[MapLibreGeoreferencedBuildingLayer.ts<br/>dormant 3D layer, not attached]
+            BuildingLayer[MapLibreGeoreferencedBuildingLayer.ts<br/>one library footprint in 3D]
         end
 
         subgraph Rendering[Rendering libraries]
             MapLibre[MapLibre GL JS<br/>projection, camera, basemap, overlays]
-            Three[Three.js<br/>retained for future approved models]
+            Three[Three.js<br/>footprint extrusion in shared map canvas]
             GPU[(WebGL / device GPU)]
         end
     end
@@ -66,6 +66,7 @@ flowchart TB
         GraphLoader[collegeOfIdahoWalkingGraph.ts<br/>validated runtime release]
         Locations[mockLocations.ts<br/>searchable locations derived from graph]
         Campus[collegeOfIdahoCampus.ts<br/>campus camera center and fit boundary]
+        LibraryScene[libraryPrototypeBuilding.ts<br/>OSM library outline, illustrative height]
     end
 
     subgraph ExternalRuntime[Current external runtime dependency]
@@ -119,11 +120,13 @@ flowchart TB
     MapView --> MapContract --> CreateAdapter --> Adapter
     Adapter -->|leg colors and turn camera| MapLibre
     Campus --> MapView
-    BuildingContract -. future model data .-> BuildingLayer
+    Snapshot --> LibraryScene
+    LibraryScene --> BuildingContract --> BuildingLayer
+    CreateAdapter --> BuildingLayer
     Adapter --> MapLibre
-    BuildingLayer -. dormant implementation .-> Three
+    Adapter --> BuildingLayer --> Three
     MapLibre --> GPU
-    Three -. not used at runtime .-> GPU
+    Three --> GPU
     OSM --> MapLibre
     OSMExport --> Importer --> Snapshot
     OSMExport -. counts and gaps .-> Handbook
@@ -156,9 +159,8 @@ flowchart TB
     classDef future fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
     classDef dormant fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
 
-    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,GraphData,GraphBuilder,Snapshot,StadiumHandoff,GraphLoader,Locations,Campus implemented
-    class CreateAdapter,Adapter,MapLibre,GPU integration
-    class BuildingContract,BuildingLayer,Three dormant
+    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,GraphData,GraphBuilder,Snapshot,StadiumHandoff,GraphLoader,Locations,Campus,LibraryScene,BuildingContract implemented
+    class CreateAdapter,Adapter,MapLibre,BuildingLayer,Three,GPU integration
     class OSM,OSMExport,Importer,Tests,Tooling,Handbook,Context7,AgentRules external
     class NavigationControls,CheckpointHook implemented
     class CreateLocation,BrowserProvider,PrototypeProvider integration
@@ -170,9 +172,10 @@ flowchart TB
 
 - The navigation domain has no dependency on MapLibre or Three.js. It can be
   tested and changed without starting a map.
-- `MapAdapter` is the boundary used by React. `createMapAdapter.ts` currently
-  selects MapLibre only; the former 3D block is removed. The dormant Three.js
-  layer remains isolated for possible later approved model work.
+- `MapAdapter` is the boundary used by React. `createMapAdapter.ts` selects
+  MapLibre and attaches one footprint-based library layer. The former
+  inaccurate Hendren block remains removed. Three.js is isolated in the
+  custom layer; the rest of React does not construct 3D objects.
 - The walking graph is the routing authority. Future 3D content cannot define
   an entrance or a safe walking path by itself.
 - The user-supplied OSM XML is a reviewed source, not a runtime map service.
@@ -184,9 +187,9 @@ flowchart TB
   outline. The other seven courts still use provisional outline approaches;
   all gate-to-walkway connectors need field confirmation.
 - The app opens with empty search fields and a tilted 3D camera over the
-  library facing approximately toward Sterry Hall. Campus bounds still let
-  routes fit in a tall panel. The 2D button remains available; 3D has no
-  building mesh while route accuracy remains the priority.
+  library facing approximately toward Sterry Hall. The one library mesh uses
+  its OSM footprint and an illustrative height. The 2D button hides it while
+  preserving route state; campus bounds still let routes fit in a tall panel.
 - Simplot Stadium is the exception to walking guidance: the planner returns a
   separate prototype road handoff from a mapped campus driveway to a parking
   approach. The dashed MapLibre line does not create a driving checkpoint

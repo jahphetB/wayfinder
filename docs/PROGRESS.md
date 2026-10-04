@@ -560,3 +560,28 @@ approval before pushing.
   build, and a real browser preview from the library to Beach Volleyball
   Court 2. The route rendered and the browser console had zero errors or
   warnings. The existing large MapLibre chunk warning remains.
+
+## Step 28: One footprint-based library prototype in 3D
+
+Status: implementation complete locally and committed as `78b6c3a`;
+awaiting approval before any push.
+Step 27's two pending commits were pushed at the user's request.
+
+- The user chose to defer additional 2D source corrections and begin the
+  previously agreed 3D phase. Reused the committed OSM library outline rather
+  than reintroducing the inaccurate former Hendren-area demonstration box.
+- Added a separate scene-data record for the library's mapped footprint and
+  clearly illustrative 8 m height. Updated the provider-independent building
+  contract and existing Three.js custom layer to extrude that outline. The
+  composition boundary attaches only this one shape; it hides in 2D and
+  cannot alter walking routes or GPS checkpoints.
+- Added source and geometry tests. In a real browser, the shape aligned with
+  the library footprint, disappeared in 2D, and the console reported zero
+  errors and warnings. The map note identifies its height as illustrative.
+- Final checks pass: formatting, lint, strict type-check, 84 tests in 18
+  files, production build, and Git whitespace check.
+- The initial JS remains about 338.26 kB / 100.25 kB gzip. Activating Three.js
+  raises the deferred map JS to about 1,578.44 kB / 417.01 kB gzip, a material
+  increase from Step 27's 1,019.29 kB / 275.95 kB gzip. Vite's existing
+  large-chunk warning remains; review mobile performance before expanding
+  beyond one building.

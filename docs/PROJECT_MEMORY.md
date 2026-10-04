@@ -5,18 +5,21 @@ This short file is the current checkpoint for interrupted work. Read it with
 `docs/PROGRESS.md` is the chronological step record. Update this checkpoint
 after each meaningful step, especially when a source or approval state changes.
 
-## Current state after Step 27
+## Current state after Step 28
 
 - The app is a local, illustrative campus-route prototype that opens with a
-  tilted 3D camera over the library toward Sterry Hall, with no building meshes.
+  tilted 3D camera over the library toward Sterry Hall. One library mesh now
+  uses its OSM footprint and an illustrative 8 m height; the former inaccurate
+  Hendren block remains removed. 2D hides the mesh without changing routes.
   The route fields start empty. It has 50 searchable places and a MapLibre
   display, but walking routes are calculated by project-owned domain code.
 - Navigation uses simulated one-shot checkpoints by default so it can be
   tested without moving. `VITE_LOCATION_MODE=browser` enables physical
   location requests for later field testing. It is not on by default.
-- Accurate 2D paths are the priority. Building height, walkway width, slope,
-  accessibility classification, realistic 3D models, and safe-access claims
-  remain deferred or unverified. Do not present routes as official guidance.
+- The user is mostly satisfied with current 2D accuracy and will provide
+  corrections later. Building height, walkway width, slope, accessibility
+  classification, realistic 3D models, and safe-access claims remain deferred
+  or unverified. Do not present routes as official guidance.
 - Most path geometry comes from the user's observed OSM export. The invented
   Campus Entrance and its long link are removed because there is no fixed
   gate. Off-path entrances and outline-derived destination points have
@@ -68,6 +71,11 @@ after each meaningful step, especially when a source or approval state changes.
   corroboration. The College's athletics directions support Cleveland then
   24th to Simplot Stadium, not the private campus driveway or a venue door.
   Hayman parking/basketball classification still needs the user's observation.
+- `src/data/scene/libraryPrototypeBuilding.ts` derives one visual library
+  outline from the existing snapshot. `createMapAdapter.ts` attaches it through
+  `MapLibreGeoreferencedBuildingLayer.ts`; no 3D model influences routing.
+  Activating Three.js raised the deferred map bundle from about 275.95 to
+  417.01 kB gzip. Benchmark before adding more models or photo assets.
 
 ## Working rules and verification
 
@@ -75,8 +83,8 @@ after each meaningful step, especially when a source or approval state changes.
   report and ask for approval plus concise/detailed preference. Explain key
   files and newly used technical terms. No unapproved new features.
 - Make focused conventional commits after passing relevant checks. Push only
-  with explicit approval. Step 26 is pushed; Step 27 approval does not include
-  a new push approval.
+  with explicit approval. Step 27's two commits were pushed at the user's
+  request. No separate push approval exists yet for Step 28.
 - Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
   `npm run build`, and `git diff --check`. For visual changes, inspect the real
   browser at desktop/phone widths and check the console.
@@ -86,10 +94,11 @@ after each meaningful step, especially when a source or approval state changes.
 
 ## Next approval boundary
 
-Step 27 is limited to the source-supported court gate and a documented
-validation audit. No physical campus observation or permission review has
-occurred. After verification and a local commit, stop and ask before the next
-step or a push. The likely next step is user-supplied corrections for the
-remaining seven court approaches, Hayman classification, and stadium
-driveway/parking/venue access. Do not begin 3D building modeling until 2D
-work is accepted.
+Step 28 begins the agreed 3D phase with a single footprint-based library
+prototype after the user deferred further 2D corrections. No physical campus
+observation, measured building height, photo asset, or permission review has
+occurred. After verification and local commits, stop for approval before
+pushing or expanding 3D. A likely next step is a performance/source plan for
+one photo-derived building asset, with explicit user approval before adding
+new dependencies, model files, or more buildings. 2D corrections can resume
+when the user provides them.

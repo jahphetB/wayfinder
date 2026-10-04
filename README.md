@@ -2,9 +2,9 @@
 
 Wayfinder is a responsive navigation-map prototype. It provides
 origin and destination search, locally calculated prototype walking routes, and
-a 2D/3D MapLibre map with an OpenStreetMap basemap. The 3D button currently
-tilts the map; the former illustrative building block has been removed while
-accurate 2D routes are developed. No routing backend is required.
+a 2D/3D MapLibre map with an OpenStreetMap basemap. The 3D view includes one
+prototype library shape traced from the supplied building footprint; its
+height and appearance are illustrative. No routing backend is required.
 
 ## Current progress
 
@@ -37,6 +37,7 @@ accurate 2D routes are developed. No routing backend is required.
 | 25. Described campus destinations  | Complete | Reviewed a new observed export, added 42 places, removed the invented gate and 3D block, prioritized formal/main paths, and combined nearby turns.            |
 | 26. Court and stadium previews     | Complete | Added eight mapped sports courts, a separate prototype stadium driving handoff, empty search on launch, a library-facing 3D opening, and purple page styling. |
 | 27. Court-gate source review       | Complete | Moved one beach-volleyball destination to its mapped main gate and recorded the remaining court, parking, and stadium-access uncertainties.                   |
+| 28. First footprint-based 3D model | Complete | Added one library prototype from the mapped outline through the isolated Three.js layer; 2D and walking routes remain unchanged.                              |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -75,8 +76,9 @@ The default street tiles come from OpenStreetMap for prototype use. Set
 `VITE_MAP_STYLE_URL` to a compatible hosted MapLibre style URL when a dedicated
 production tile provider is selected.
 
-The previous illustrative 3D block has been removed. The 3D button still
-tilts the map, but no building meshes are currently displayed.
+The previous inaccurate Hendren-area block remains removed. The 3D button now
+shows one footprint-based Cruzen-Murray Library prototype; its 8 m height is
+not measured. The 2D button hides the model without changing a selected route.
 
 The map starts on campus and limits ordinary panning to a
 campus-sized area. Current visible location data includes Cruzen-Murray Library,
