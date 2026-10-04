@@ -5,15 +5,17 @@ import {
   type Map as MapLibreMap,
 } from 'maplibre-gl'
 import {
-  BoxGeometry,
   Camera,
   DirectionalLight,
+  ExtrudeGeometry,
   Group,
   HemisphereLight,
   Matrix4,
   Mesh,
   MeshStandardMaterial,
   Scene,
+  Shape,
+  Vector2,
   Vector3,
   WebGLRenderer,
   type WebGLRendererParameters,
@@ -50,7 +52,7 @@ export class MapLibreGeoreferencedBuildingLayer implements CustomLayerInterface 
 
   private readonly scene = new Scene()
 
-  private readonly buildingGeometry: BoxGeometry
+  private readonly buildingGeometry: ExtrudeGeometry
 
   private readonly buildingMaterial: MeshStandardMaterial
 
@@ -69,22 +71,15 @@ export class MapLibreGeoreferencedBuildingLayer implements CustomLayerInterface 
     options: MapLibreGeoreferencedBuildingLayerOptions = {},
   ) {
     this.createRenderer = options.createRenderer ?? defaultRendererFactory
-    this.buildingGeometry = new BoxGeometry(
-      building.dimensionsMeters.width,
-      building.dimensionsMeters.height,
-      building.dimensionsMeters.depth,
-    )
+    this.buildingGeometry = createFootprintGeometry(building)
     this.buildingMaterial = new MeshStandardMaterial({
       color: building.color,
       roughness: 0.78,
       metalness: 0.05,
     })
 
-    const buildingMesh = new Mesh(this.buildingGeometry, this.buildingMaterial)
-    buildingMesh.position.y = building.dimensionsMeters.height / 2
-
     const buildingGroup = new Group()
-    buildingGroup.add(buildingMesh)
+    buildingGroup.add(new Mesh(this.buildingGeometry, this.buildingMaterial))
     this.scene.add(buildingGroup)
     this.scene.add(new HemisphereLight('#fff8df', '#405c4b', 2.1))
 
@@ -135,8 +130,6 @@ function createModelTransform(building: GeoreferencedBuilding): Matrix4 {
     building.altitudeMeters,
   )
   const metersToMercatorUnits = anchor.meterInMercatorCoordinateUnits()
-  const headingRadians = (building.headingDegrees * Math.PI) / 180
-
   return new Matrix4()
     .makeTranslation(anchor.x, anchor.y, anchor.z)
     .scale(
@@ -147,5 +140,38 @@ function createModelTransform(building: GeoreferencedBuilding): Matrix4 {
       ),
     )
     .multiply(new Matrix4().makeRotationX(Math.PI / 2))
-    .multiply(new Matrix4().makeRotationY(-headingRadians))
+}
+
+function createFootprintGeometry(
+  building: GeoreferencedBuilding,
+): ExtrudeGeometry {
+  if (
+    !Number.isFinite(building.heightMeters) ||
+    building.heightMeters <= 0 ||
+    building.footprint.length < 3
+  ) {
+    throw new Error('A 3D building needs a footprint and positive height')
+  }
+  const anchor = MercatorCoordinate.fromLngLat([
+    building.anchor.longitude,
+    building.anchor.latitude,
+  ])
+  const metersToMercatorUnits = anchor.meterInMercatorCoordinateUnits()
+  const outline = building.footprint.map((point) => {
+    const mapped = MercatorCoordinate.fromLngLat([
+      point.longitude,
+      point.latitude,
+    ])
+    return new Vector2(
+      (mapped.x - anchor.x) / metersToMercatorUnits,
+      (anchor.y - mapped.y) / metersToMercatorUnits,
+    )
+  })
+  const geometry = new ExtrudeGeometry(new Shape(outline), {
+    depth: building.heightMeters,
+    bevelEnabled: false,
+  })
+  // Shape Y points north; rotate extrusion depth into local vertical Y.
+  geometry.rotateX(-Math.PI / 2)
+  return geometry
 }

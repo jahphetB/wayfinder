@@ -162,6 +162,9 @@ export function MapView({
                 : drivingHandoff
                   ? 'Dashed purple line: prototype drive to parking approach. Orange: stadium outline; entrance unverified.'
                   : 'Choose a route to show it on the map.'}
+        {mode === '3d' &&
+          mapStatus === 'ready' &&
+          ' Library 3D shape: mapped footprint, illustrative height.'}
       </p>
     </section>
   )

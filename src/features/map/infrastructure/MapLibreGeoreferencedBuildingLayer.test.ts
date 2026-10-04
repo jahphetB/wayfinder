@@ -1,4 +1,5 @@
 import type { CustomRenderMethodInput, Map as MapLibreMap } from 'maplibre-gl'
+import { Group, Mesh, Scene } from 'three'
 import { vi } from 'vitest'
 
 import type { GeoreferencedBuilding } from '@/features/map/contracts/GeoreferencedBuilding'
@@ -10,8 +11,13 @@ const building: GeoreferencedBuilding = {
   label: 'Test building',
   anchor: { latitude: 43.6526, longitude: -116.676 },
   altitudeMeters: 0,
-  headingDegrees: 0,
-  dimensionsMeters: { width: 20, depth: 10, height: 8 },
+  footprint: [
+    { latitude: 43.6525, longitude: -116.6761 },
+    { latitude: 43.6525, longitude: -116.6759 },
+    { latitude: 43.6527, longitude: -116.6759 },
+    { latitude: 43.6527, longitude: -116.6761 },
+  ],
+  heightMeters: 8,
   color: '#d9a441',
   verificationStatus: 'illustrative',
 }
@@ -47,8 +53,27 @@ describe('MapLibreGeoreferencedBuildingLayer', () => {
     expect(renderer.autoClear).toBe(false)
     expect(resetState).toHaveBeenCalledTimes(1)
     expect(render).toHaveBeenCalledTimes(1)
+    const scene = render.mock.calls[0]?.[0] as Scene
+    const buildingGroup = scene.children.find(
+      (child): child is Group => child instanceof Group,
+    )
+    const mesh = buildingGroup?.children[0] as Mesh
+    mesh.geometry.computeBoundingBox()
+    expect(mesh.geometry.boundingBox?.min.y).toBeCloseTo(0)
+    expect(mesh.geometry.boundingBox?.max.y).toBeCloseTo(8)
+    expect(mesh.geometry.boundingBox?.max.x).toBeGreaterThan(0)
     expect(triggerRepaint).toHaveBeenCalledTimes(1)
     expect(dispose).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects invalid prototype dimensions', () => {
+    expect(
+      () =>
+        new MapLibreGeoreferencedBuildingLayer({
+          ...building,
+          heightMeters: 0,
+        }),
+    ).toThrow('needs a footprint and positive height')
   })
 })
 
