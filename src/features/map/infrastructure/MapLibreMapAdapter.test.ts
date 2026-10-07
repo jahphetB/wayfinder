@@ -8,6 +8,66 @@ import type { MapLibreMapInstance } from './MapLibreMapAdapter'
 import { MapLibreMapAdapter } from './MapLibreMapAdapter'
 
 describe('MapLibreMapAdapter', () => {
+  it('frames the campus overview and refits it after a mode change or resize', () => {
+    const on = vi.fn()
+    const fitBounds = vi.fn()
+    const adapter = new MapLibreMapAdapter({
+      style: 'https://example.test/style.json',
+      createMap: vi.fn(() => ({
+        easeTo: vi.fn(),
+        on,
+        addSource: vi.fn(),
+        getSource: vi.fn(),
+        addLayer: vi.fn(),
+        getLayer: vi.fn(),
+        fitBounds,
+        remove: vi.fn(),
+      })),
+    })
+    const overviewBounds = {
+      southwest: { latitude: 43.65065, longitude: -116.6807 },
+      northeast: { latitude: 43.65565, longitude: -116.66985 },
+    }
+
+    adapter.initialize(document.createElement('div'), {
+      center: { latitude: 43.6544, longitude: -116.6768 },
+      zoom: 18,
+      mode: '3d',
+      overviewBounds,
+    })
+    const load = on.mock.calls.find(
+      ([event]) => event === 'load',
+    )?.[1] as () => void
+    const resize = on.mock.calls.find(
+      ([event]) => event === 'resize',
+    )?.[1] as () => void
+    load()
+    expect(fitBounds).toHaveBeenLastCalledWith(
+      [
+        [-116.6807, 43.65065],
+        [-116.66985, 43.65565],
+      ],
+      expect.objectContaining({ padding: 24, pitch: 40, duration: 0 }),
+    )
+
+    adapter.setMode('2d')
+    expect(fitBounds).toHaveBeenLastCalledWith(
+      [
+        [-116.6807, 43.65065],
+        [-116.66985, 43.65565],
+      ],
+      expect.objectContaining({ pitch: 30, duration: 450 }),
+    )
+    resize()
+    expect(fitBounds).toHaveBeenLastCalledWith(
+      [
+        [-116.6807, 43.65065],
+        [-116.66985, 43.65565],
+      ],
+      expect.objectContaining({ pitch: 30, duration: 0 }),
+    )
+  })
+
   it('creates a 3D map and changes to 2D mode through its provider boundary', () => {
     const easeTo = vi.fn()
     const remove = vi.fn()
@@ -57,7 +117,7 @@ describe('MapLibreMapAdapter', () => {
     expect(easeTo).toHaveBeenCalledWith({
       bearing: 0,
       duration: 450,
-      pitch: 0,
+      pitch: 30,
     })
     expect(remove).toHaveBeenCalledTimes(1)
   })
@@ -250,7 +310,7 @@ describe('MapLibreMapAdapter', () => {
 
     adapter.setMode('2d')
     expect(easeTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({ pitch: 0, duration: 450 }),
+      expect.objectContaining({ pitch: 30, duration: 450 }),
     )
   })
 
@@ -311,7 +371,13 @@ describe('MapLibreMapAdapter', () => {
           Math.max(...route.coordinates.map((point) => point.latitude)),
         ],
       ],
-      { padding: 80, maxZoom: 16, duration: 700 },
+      {
+        padding: 32,
+        maxZoom: 17.5,
+        bearing: 0,
+        pitch: 30,
+        duration: 700,
+      },
     )
   })
 

@@ -64,6 +64,8 @@ export class MapLibreMapAdapter implements MapAdapter {
 
   private cameraStateKey: string | undefined
 
+  private overviewBounds: MapBounds | undefined
+
   private readonly createMap: MapLibreMapFactory
 
   constructor(private readonly options: MapLibreMapAdapterOptions) {
@@ -80,6 +82,7 @@ export class MapLibreMapAdapter implements MapAdapter {
     }
 
     this.mode = initialView.mode
+    this.overviewBounds = initialView.overviewBounds
     const maxBounds = initialView.maxBounds
       ? { maxBounds: mapLibreBounds(initialView.maxBounds) }
       : {}
@@ -99,6 +102,9 @@ export class MapLibreMapAdapter implements MapAdapter {
       this.isReady = true
       this.syncCampusLayer()
       this.syncContent()
+      if (!this.content.route && !this.content.drivingHandoff) {
+        this.fitOverview(0)
+      }
       callbacks?.onReady?.()
     })
     this.map.on('error', (event) => {
@@ -107,11 +113,11 @@ export class MapLibreMapAdapter implements MapAdapter {
       )
     })
     this.map.on('resize', () => {
-      if (
-        !this.isReady ||
-        (!this.content.route && !this.content.drivingHandoff)
-      )
+      if (!this.isReady) return
+      if (!this.content.route && !this.content.drivingHandoff) {
+        this.fitOverview(0)
         return
+      }
       this.cameraStateKey = undefined
       this.syncContent()
     })
@@ -126,10 +132,14 @@ export class MapLibreMapAdapter implements MapAdapter {
     if (session?.status === 'navigating' || session?.status === 'arrived') {
       this.focusNavigationSession(session, 450)
     } else {
-      this.requireMap().easeTo({
-        ...cameraForMode(mode),
-        duration: 450,
-      })
+      if (this.content.route || this.content.drivingHandoff) {
+        this.cameraStateKey = undefined
+        this.syncContent()
+      } else if (this.overviewBounds) {
+        this.fitOverview(450)
+      } else {
+        this.requireMap().easeTo({ ...cameraForMode(mode), duration: 450 })
+      }
     }
   }
 
@@ -142,6 +152,7 @@ export class MapLibreMapAdapter implements MapAdapter {
     this.map?.remove()
     this.map = undefined
     this.isReady = false
+    this.overviewBounds = undefined
   }
 
   private requireMap(): MapLibreMapInstance {
@@ -338,7 +349,7 @@ export class MapLibreMapAdapter implements MapAdapter {
           [Math.min(...longitudes), Math.min(...latitudes)],
           [Math.max(...longitudes), Math.max(...latitudes)],
         ],
-        { padding: 80, maxZoom: 16, duration: 700 },
+        previewCameraOptions(this.mode),
       )
     } else if (handoffCoordinates) {
       const longitudes = handoffCoordinates.map((point) => point.longitude)
@@ -348,7 +359,7 @@ export class MapLibreMapAdapter implements MapAdapter {
           [Math.min(...longitudes), Math.min(...latitudes)],
           [Math.max(...longitudes), Math.max(...latitudes)],
         ],
-        { padding: 80, maxZoom: 16, duration: 700 },
+        previewCameraOptions(this.mode),
       )
     }
   }
@@ -382,7 +393,7 @@ export class MapLibreMapAdapter implements MapAdapter {
       center: [center.longitude, center.latitude],
       zoom: 18,
       bearing: calculateBearing(from, to),
-      pitch: this.mode === '3d' ? 60 : 0,
+      pitch: pitchForMode(this.mode),
       offset: [0, 80],
       duration,
     })
@@ -395,6 +406,17 @@ export class MapLibreMapAdapter implements MapAdapter {
     const map = this.requireMap()
     campusLayer.setVisible(this.mode === '3d')
     if (!map.getLayer(campusLayer.id)) map.addLayer(campusLayer)
+  }
+
+  private fitOverview(duration: number): void {
+    if (!this.overviewBounds) return
+    this.requireMap().fitBounds(mapLibreBounds(this.overviewBounds), {
+      padding: 24,
+      maxZoom: 16,
+      bearing: 0,
+      pitch: this.mode === '3d' ? 40 : 30,
+      duration,
+    })
   }
 }
 
@@ -412,7 +434,21 @@ function cameraForMode(mode: MapMode): EaseToOptions {
     return { bearing: -20, pitch: 60 }
   }
 
-  return { bearing: 0, pitch: 0 }
+  return { bearing: 0, pitch: pitchForMode(mode) }
+}
+
+function pitchForMode(mode: MapMode): number {
+  return mode === '3d' ? 60 : 30
+}
+
+function previewCameraOptions(mode: MapMode): object {
+  return {
+    padding: 32,
+    maxZoom: 17.5,
+    bearing: 0,
+    pitch: pitchForMode(mode),
+    duration: 700,
+  }
 }
 
 function routeLegState(

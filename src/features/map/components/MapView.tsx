@@ -53,6 +53,7 @@ export function MapView({
           bearing: collegeOfIdahoCampus.initialBearing,
           mode: initialMode.current,
           maxBounds: collegeOfIdahoCampus.bounds,
+          overviewBounds: collegeOfIdahoCampus.overviewBounds,
         },
         {
           onReady: () => setMapStatus('ready'),

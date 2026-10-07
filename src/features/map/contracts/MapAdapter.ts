@@ -12,6 +12,7 @@ export interface MapInitialView {
   readonly mode: MapMode
   readonly bearing?: number
   readonly maxBounds?: MapBounds
+  readonly overviewBounds?: MapBounds
 }
 
 export interface MapBounds {
