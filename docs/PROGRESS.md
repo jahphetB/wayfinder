@@ -585,3 +585,26 @@ Step 27's two pending commits were pushed at the user's request.
   increase from Step 27's 1,019.29 kB / 275.95 kB gzip. Vite's existing
   large-chunk warning remains; review mobile performance before expanding
   beyond one building.
+
+## Step 29: Campus overview and route camera framing
+
+Status: verified locally; awaiting separate push approval. Step 28's two
+commits also remain local and unpushed.
+
+- Deferred additional 3D building work at the user's request. The opening
+  camera now fits all imported building/area outlines, including both stadium
+  outlines. The pan boundary extends east to avoid clipping the stadium.
+- Route previews fit their paths with 32 px padding and up to 17.5 zoom,
+  including after switching modes or resizing. The 2D camera now uses a
+  readable 30-degree tilt; the opening 3D overview uses 40 degrees while
+  active turn guidance retains 60 degrees.
+- Added tests for mapped-outline coverage, overview re-fit, and preview
+  options. Desktop/phone browser screenshots checked the opening view;
+  desktop route screenshots checked 3D and 2D endpoint framing and labels.
+  Browser console showed no errors or warnings.
+- The rectangular basemap still shows some neighboring streets; this is a
+  focused campus camera, not a geographical clipping mask. Routes and source
+  geometry were not changed.
+- Formatting, lint, strict type-check, 87 tests in 18 files, and production
+  build pass. The deferred map chunk is about 417.16 kB gzip; the existing
+  large-map-bundle concern remains, without new dependencies in this step.

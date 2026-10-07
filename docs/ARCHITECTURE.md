@@ -81,8 +81,8 @@ locations. Pressing **Preview route** calculates a path and sends it to the map.
 The observed geometry improves the drawing, but connections, permissions,
 accessibility, and safe physical use are not campus-approved. The graph release
 remains illustrative, not official walking or emergency directions.
-The search fields start empty. The map opens tilted over the library toward
-Sterry Hall. Selecting Simplot Stadium gives a separate, explicitly provisional
+The search fields start empty. The map opens in a tilted overview of the
+campus and stadium. Selecting Simplot Stadium gives a separate, explicitly provisional
 driving handoff from a mapped campus driveway; it does not run walking
 checkpoints or calculate a car route from the selected origin.
 
@@ -173,8 +173,8 @@ navigation interface.
     GeoJSON is a common text-based format for geographic shapes and points.
 13. MapLibre draws the route line and location circles, then moves the camera so
     the route fits inside the visible map.
-14. In 3D mode, MapLibre tilts the map camera. No building mesh is currently
-    attached; the dormant Three.js layer remains isolated for future models.
+14. In 3D mode, MapLibre tilts the map camera and shows one illustrative
+    library mesh. The Three.js layer remains isolated from routing.
 
 Keeping this path explicit is important for debugging. If suggestions are
 wrong, inspect navigation data and model logic. If the route summary is right
@@ -1141,7 +1141,7 @@ At navigation start, the camera centers near the route origin, zooms to 18, and
 uses the first leg's geographic bearing. Bearing is the compass direction from
 one coordinate to another. After each confirmed turn, it moves to the beginning
 of the new leg and rotates toward that leg. In 3D the pitch is 60 degrees; in 2D
-it remains flat. An offset places the checkpoint slightly below center so more
+it uses a milder 30-degree tilt (changed in Step 29). An offset places the checkpoint slightly below center so more
 of the path ahead remains visible. Arrival focuses the destination.
 
 `moveNavigationBack` is provider-independent domain behavior. From an active
@@ -1611,6 +1611,39 @@ with an asset/performance budget and device testing first. The implementation
 follows the [MapLibre custom-layer example](https://github.com/maplibre/maplibre-gl-js/blob/main/test/examples/add-a-3d-model-using-threejs.html)
 and [Three.js extrusion documentation](https://threejs.org/docs/pages/ExtrudeGeometry.html)
 consulted through Context7.
+
+### Step 29: Campus overview and route camera framing
+
+The user deferred further building models. This step adjusts only the map
+camera. The opening view now fits a dedicated rectangle around all imported
+building and area outlines, including both stadium outlines. That rectangle
+is deliberately different from the broader _pan boundary_, which restricts
+ordinary map movement and had to extend slightly east so it would not clip
+the stadium. A test checks that every imported outline remains inside the
+opening rectangle after future OSM refreshes. No walkway or destination
+coordinates changed.
+
+`collegeOfIdahoCampus.ts` owns those project-specific coordinates. `MapView.tsx`
+passes them through the provider-neutral `MapInitialView` type in
+`MapAdapter.ts`; only `MapLibreMapAdapter.ts` turns them into a MapLibre
+`fitBounds` camera command. It fits again after a panel resize or an empty-map
+2D/3D switch. Route previews now use 32 pixels of screen padding and a higher
+maximum zoom than the older broad preview. A mode switch re-fits the route
+instead of merely changing tilt, helping keep both endpoints on screen.
+Turn-by-turn camera movement retains its separate, closer behavior.
+
+The opening 3D overview uses a 40-degree pitch; 2D uses a gentler 30-degree
+pitch, including during preview and turn guidance. _Pitch_ means camera tilt:
+zero looks straight down, while a larger value looks more toward the horizon.
+The milder 2D tilt makes labels easier to read and hides the illustrative
+library mesh. The map is still a rectangular browser panel, so some nearby
+streets will appear around the campus; this is a camera focus, not a basemap
+mask or a claim that every visible feature is on campus. The 3D navigation
+turn camera retains its 60-degree tilt.
+
+This uses MapLibre's [fitBounds example](https://github.com/maplibre/maplibre-gl-js/blob/main/test/examples/fit-to-the-bounds-of-a-linestring.html)
+and [camera option definitions](https://github.com/maplibre/maplibre-gl-js/blob/main/src/ui/camera.ts)
+reviewed through Context7. The decision is recorded in ADR-040 below.
 
 ## Safe change recipes
 
@@ -2365,6 +2398,19 @@ historical context.
 - **Consequence:** Height, roof, textures, and real entrances are not
   represented accurately. The deferred map bundle grows materially, so
   further models require performance review and better source assets.
+
+### ADR-040: Separate opening, preview, and turn cameras
+
+- **Status:** Accepted for the prototype in Step 29.
+- **Decision:** Keep campus-wide opening bounds in project data; fit them only
+  through the map adapter. Use a smaller route-preview margin and a 30-degree
+  2D pitch. Keep the already established turn-following camera separate.
+- **Reason:** An opening library close-up omitted most of the campus and the
+  stadium, while flat 2D did not provide the requested perspective. Different
+  camera tasks need different framing without changing the walking graph.
+- **Consequence:** The 3D opening view is less close to the library than before.
+  Nearby streets remain visible at the edges of a rectangular map panel. More
+  3D building work is deferred until the user explicitly resumes it.
 
 ## Engineering principles in plain language
 

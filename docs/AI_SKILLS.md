@@ -50,6 +50,18 @@ stale.
 
 ## Yote Wayfinder project practices
 
+### Step 29 usage record
+
+- **OPENAI / OpenAI Docs:** Checked current official model-selection guidance
+  for the next-step recommendation.
+- **OPENAI / Playwright:** Used a real browser at desktop and phone widths to
+  inspect the opening map, route-preview margins, 2D labels, and console.
+- **EXTERNAL / Context7 + MapLibre primary source:** Checked fitBounds and
+  pitch/bearing options before changing camera behavior.
+- **YOTE / Camera-purpose separation:** Kept opening overview, route preview,
+  and turn-following as distinct adapter-owned camera tasks. Added outline
+  coverage tests so a later OSM import cannot silently omit a facility.
+
 ### Step 16 usage record
 
 - **OPENAI / OpenAI Docs:** Checked official model-selection guidance for the

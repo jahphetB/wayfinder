@@ -5,10 +5,10 @@ This short file is the current checkpoint for interrupted work. Read it with
 `docs/PROGRESS.md` is the chronological step record. Update this checkpoint
 after each meaningful step, especially when a source or approval state changes.
 
-## Current state after Step 28
+## Current state after Step 29
 
 - The app is a local, illustrative campus-route prototype that opens with a
-  tilted 3D camera over the library toward Sterry Hall. One library mesh now
+  tilted 3D camera framing mapped campus facilities and stadium. One library mesh
   uses its OSM footprint and an illustrative 8 m height; the former inaccurate
   Hendren block remains removed. 2D hides the mesh without changing routes.
   The route fields start empty. It has 50 searchable places and a MapLibre
@@ -76,6 +76,12 @@ after each meaningful step, especially when a source or approval state changes.
   `MapLibreGeoreferencedBuildingLayer.ts`; no 3D model influences routing.
   Activating Three.js raised the deferred map bundle from about 275.95 to
   417.01 kB gzip. Benchmark before adding more models or photo assets.
+- `collegeOfIdahoCampus.ts` now defines separate overview and pan bounds.
+  `MapView.tsx` passes them through the adapter contract. MapLibre re-fits
+  the overview on resize, fits route previews with a small margin, and gives
+  2D a readable 30-degree tilt. A rectangular basemap still reveals nearby
+  streets. No additional 3D buildings are planned until the user resumes that
+  phase explicitly.
 
 ## Working rules and verification
 
@@ -84,7 +90,8 @@ after each meaningful step, especially when a source or approval state changes.
   files and newly used technical terms. No unapproved new features.
 - Make focused conventional commits after passing relevant checks. Push only
   with explicit approval. Step 27's two commits were pushed at the user's
-  request. No separate push approval exists yet for Step 28.
+  request. Step 28's two commits are local and unpushed; Step 29's verified
+  changes also need separate push approval after local commits.
 - Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
   `npm run build`, and `git diff --check`. For visual changes, inspect the real
   browser at desktop/phone widths and check the console.
@@ -94,11 +101,7 @@ after each meaningful step, especially when a source or approval state changes.
 
 ## Next approval boundary
 
-Step 28 begins the agreed 3D phase with a single footprint-based library
-prototype after the user deferred further 2D corrections. No physical campus
-observation, measured building height, photo asset, or permission review has
-occurred. After verification and local commits, stop for approval before
-pushing or expanding 3D. A likely next step is a performance/source plan for
-one photo-derived building asset, with explicit user approval before adding
-new dependencies, model files, or more buildings. 2D corrections can resume
-when the user provides them.
+Step 29 is the user-approved camera refinement before continuing the plan.
+Finish its checks and local commits, then stop for approval. Do not expand
+3D building work or push local commits without express user authorization.
+Further route/data corrections can resume when the user supplies them.

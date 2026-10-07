@@ -65,7 +65,7 @@ flowchart TB
         GraphBuilder[buildCampusWalkingGraph.ts<br/>validates IDs, projects outline connectors]
         GraphLoader[collegeOfIdahoWalkingGraph.ts<br/>validated runtime release]
         Locations[mockLocations.ts<br/>searchable locations derived from graph]
-        Campus[collegeOfIdahoCampus.ts<br/>campus camera center and fit boundary]
+        Campus[collegeOfIdahoCampus.ts<br/>campus overview and pan boundary]
         LibraryScene[libraryPrototypeBuilding.ts<br/>OSM library outline, illustrative height]
     end
 
@@ -118,7 +118,7 @@ flowchart TB
     App -->|separate driving handoff| MapView
 
     MapView --> MapContract --> CreateAdapter --> Adapter
-    Adapter -->|leg colors and turn camera| MapLibre
+    Adapter -->|overview, preview fit, leg colors and turn camera| MapLibre
     Campus --> MapView
     Snapshot --> LibraryScene
     LibraryScene --> BuildingContract --> BuildingLayer
@@ -186,10 +186,10 @@ flowchart TB
 - Beach Volleyball Court 2 now resolves to an OSM-tagged main gate on its own
   outline. The other seven courts still use provisional outline approaches;
   all gate-to-walkway connectors need field confirmation.
-- The app opens with empty search fields and a tilted 3D camera over the
-  library facing approximately toward Sterry Hall. The one library mesh uses
-  its OSM footprint and an illustrative height. The 2D button hides it while
-  preserving route state; campus bounds still let routes fit in a tall panel.
+- The app opens with empty search fields and a tilted campus-and-stadium
+  overview. Previewing a route fits its path with a small margin. The one
+  library mesh uses its OSM footprint and an illustrative height; 2D hides it
+  and keeps a milder tilt while preserving route state.
 - Simplot Stadium is the exception to walking guidance: the planner returns a
   separate prototype road handoff from a mapped campus driveway to a parking
   approach. The dashed MapLibre line does not create a driving checkpoint
