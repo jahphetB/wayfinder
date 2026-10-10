@@ -7,7 +7,7 @@ import {
 } from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 
-import type { MapMode } from '@/domain/navigation/types'
+import type { Coordinates, MapMode } from '@/domain/navigation/types'
 import type {
   MapAdapter,
   MapAdapterCallbacks,
@@ -146,6 +146,59 @@ export class MapLibreMapAdapter implements MapAdapter {
   setContent(content: MapContent): void {
     this.content = content
     if (this.isReady) this.syncContent()
+  }
+
+  showUserLocation(coordinates: Coordinates | undefined): void {
+    const map = this.requireMap()
+    if (!this.isReady) return
+    const data = {
+      type: 'FeatureCollection',
+      features: coordinates
+        ? [
+            {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Point',
+                coordinates: [coordinates.longitude, coordinates.latitude],
+              },
+            },
+          ]
+        : [],
+    }
+    const source = map.getSource('yote-user-location')
+    if (isGeoJsonSource(source)) source.setData(data)
+    else if (coordinates) {
+      map.addSource('yote-user-location', { type: 'geojson', data })
+      map.addLayer({
+        id: 'yote-user-location-halo',
+        type: 'circle',
+        source: 'yote-user-location',
+        paint: {
+          'circle-radius': 14,
+          'circle-color': '#ffffff',
+          'circle-opacity': 0.85,
+        },
+      })
+      map.addLayer({
+        id: 'yote-user-location-dot',
+        type: 'circle',
+        source: 'yote-user-location',
+        paint: {
+          'circle-radius': 8,
+          'circle-color': '#1674c5',
+          'circle-stroke-color': '#ffffff',
+          'circle-stroke-width': 2,
+        },
+      })
+    }
+    if (coordinates) {
+      map.easeTo({
+        center: [coordinates.longitude, coordinates.latitude],
+        zoom: 17,
+        duration: 600,
+      })
+    }
   }
 
   destroy(): void {

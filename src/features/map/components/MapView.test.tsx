@@ -1,0 +1,103 @@
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
+import { createMapAdapter } from '@/composition/createMapAdapter'
+import type {
+  MapAdapter,
+  MapAdapterCallbacks,
+  MapInitialView,
+} from '@/features/map/contracts/MapAdapter'
+import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
+import { LocationProviderError } from '@/features/navigation/contracts/LocationProviderError'
+import { MapView } from './MapView'
+
+vi.mock('@/composition/createMapAdapter', () => ({ createMapAdapter: vi.fn() }))
+
+const campusReading = {
+  coordinates: { latitude: 43.6544341, longitude: -116.6768005 },
+  accuracyMeters: 10,
+  capturedAtMilliseconds: Date.now(),
+}
+
+function renderMap(provider: LocationProvider) {
+  const showUserLocation = vi.fn()
+  vi.mocked(createMapAdapter).mockReturnValue({
+    initialize: vi.fn(
+      (
+        _container: HTMLElement,
+        _initialView: MapInitialView,
+        callbacks?: MapAdapterCallbacks,
+      ): void => {
+        callbacks?.onReady?.()
+      },
+    ),
+    setMode: vi.fn(),
+    setContent: vi.fn(),
+    showUserLocation,
+    destroy: vi.fn(),
+  } satisfies MapAdapter)
+
+  render(
+    <MapView
+      origin={undefined}
+      destination={undefined}
+      route={undefined}
+      navigationSession={undefined}
+      drivingHandoff={undefined}
+      mode="3d"
+      onModeChange={vi.fn()}
+      locationLookupProvider={provider}
+    />,
+  )
+  return showUserLocation
+}
+
+describe('MapView location control', () => {
+  it('requests real location only on click and focuses an on-campus reading', async () => {
+    const requestCurrentLocation = vi.fn().mockResolvedValue(campusReading)
+    const showUserLocation = renderMap({ requestCurrentLocation })
+
+    expect(requestCurrentLocation).not.toHaveBeenCalled()
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Get your location' }))
+
+    await waitFor(() =>
+      expect(showUserLocation).toHaveBeenLastCalledWith(
+        campusReading.coordinates,
+      ),
+    )
+    expect(screen.getByRole('status')).toHaveTextContent('mapped campus area')
+  })
+
+  it('warns when clearly off campus without moving the map', async () => {
+    const showUserLocation = renderMap({
+      requestCurrentLocation: vi.fn().mockResolvedValue({
+        ...campusReading,
+        coordinates: { latitude: 43.661, longitude: -116.676 },
+      }),
+    })
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Get your location' }))
+
+    expect(
+      await screen.findByText(/appear to be off campus/),
+    ).toBeInTheDocument()
+    expect(showUserLocation).toHaveBeenCalledWith(undefined)
+    expect(showUserLocation).not.toHaveBeenCalledWith(expect.any(Object))
+  })
+
+  it('explains denied permission instead of claiming a position', async () => {
+    renderMap({
+      requestCurrentLocation: vi
+        .fn()
+        .mockRejectedValue(new LocationProviderError('permission-denied')),
+    })
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Get your location' }))
+
+    expect(await screen.findByText(/permission was denied/)).toBeInTheDocument()
+  })
+})

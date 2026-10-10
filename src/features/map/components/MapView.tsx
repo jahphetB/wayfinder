@@ -7,8 +7,11 @@ import type {
 } from '@/domain/navigation/types'
 import { createMapAdapter } from '@/composition/createMapAdapter'
 import { collegeOfIdahoCampus } from '@/data/navigation/collegeOfIdahoCampus'
+import { classifyCampusLocation } from '@/data/navigation/classifyCampusLocation'
 import type { MapAdapter } from '@/features/map/contracts/MapAdapter'
 import type { DrivingHandoff } from '@/data/navigation/stadiumDrivingHandoff'
+import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
+import { LocationProviderError } from '@/features/navigation/contracts/LocationProviderError'
 
 interface MapViewProps {
   readonly origin: Location | undefined
@@ -18,6 +21,7 @@ interface MapViewProps {
   readonly mode: MapMode
   readonly drivingHandoff: DrivingHandoff | undefined
   readonly onModeChange: (mode: MapMode) => void
+  readonly locationLookupProvider: LocationProvider
 }
 
 type MapStatus = 'loading' | 'ready' | 'error'
@@ -30,6 +34,7 @@ export function MapView({
   mode,
   drivingHandoff,
   onModeChange,
+  locationLookupProvider,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const adapterRef = useRef<MapAdapter | undefined>(undefined)
@@ -37,6 +42,17 @@ export function MapView({
   const [mapStatus, setMapStatus] = useState<MapStatus>('loading')
   const [mapError, setMapError] = useState<string | undefined>()
   const [retryVersion, setRetryVersion] = useState(0)
+  const [isLocating, setIsLocating] = useState(false)
+  const [locationMessage, setLocationMessage] = useState<string>()
+  const locationRequestId = useRef(0)
+  const locationRequestInProgress = useRef(false)
+
+  useEffect(
+    () => () => {
+      locationRequestId.current += 1
+    },
+    [],
+  )
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -117,6 +133,56 @@ export function MapView({
     setMapError(undefined)
     setRetryVersion((version) => version + 1)
   }
+
+  async function locateUser(): Promise<void> {
+    if (locationRequestInProgress.current) return
+    locationRequestInProgress.current = true
+    const requestId = ++locationRequestId.current
+    setIsLocating(true)
+    setLocationMessage('Requesting your location…')
+    adapterRef.current?.showUserLocation(undefined)
+    try {
+      const reading = await locationLookupProvider.requestCurrentLocation({
+        expectedCoordinates: collegeOfIdahoCampus.center,
+      })
+      if (requestId !== locationRequestId.current) return
+      const status = classifyCampusLocation(reading)
+      if (status === 'inside') {
+        adapterRef.current?.showUserLocation(reading.coordinates)
+        setLocationMessage(
+          'You appear within the mapped campus area. The blue dot is approximate.',
+        )
+      } else if (status === 'outside') {
+        setLocationMessage(
+          'You appear to be off campus. The map remains focused on campus.',
+        )
+      } else {
+        setLocationMessage(
+          'Your location is too close to the mapped area edge, or not precise enough, to tell whether you are on campus.',
+        )
+      }
+    } catch (error) {
+      if (requestId !== locationRequestId.current) return
+      const code =
+        error instanceof LocationProviderError ? error.code : 'unavailable'
+      const messages = {
+        'permission-denied':
+          'Location permission was denied. Allow it in your browser settings and try again.',
+        timeout: 'Finding your location took too long. Please try again.',
+        unavailable:
+          'Your location is unavailable. Check your device settings and try again.',
+        unsupported: 'This browser does not support location requests.',
+        'insecure-context':
+          'Location requires HTTPS or localhost. Open the app securely and try again.',
+      }
+      setLocationMessage(messages[code])
+    } finally {
+      if (requestId === locationRequestId.current) {
+        locationRequestInProgress.current = false
+        setIsLocating(false)
+      }
+    }
+  }
   return (
     <section aria-label="Interactive map" className="map-view">
       <div className="map-canvas" ref={containerRef} />
@@ -150,6 +216,16 @@ export function MapView({
         >
           3D
         </button>
+      </div>
+      <div className="map-location-control">
+        <button
+          disabled={mapStatus !== 'ready' || isLocating}
+          onClick={() => void locateUser()}
+          type="button"
+        >
+          {isLocating ? 'Finding location…' : 'Get your location'}
+        </button>
+        {locationMessage && <p role="status">{locationMessage}</p>}
       </div>
       <p className="map-view-note">
         {mapStatus === 'error'

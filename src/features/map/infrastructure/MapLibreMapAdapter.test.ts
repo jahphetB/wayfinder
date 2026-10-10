@@ -8,6 +8,71 @@ import type { MapLibreMapInstance } from './MapLibreMapAdapter'
 import { MapLibreMapAdapter } from './MapLibreMapAdapter'
 
 describe('MapLibreMapAdapter', () => {
+  it('shows a separate user dot and gently focuses it without changing route content', () => {
+    const on = vi.fn()
+    let userLocationSourceExists = false
+    const addSource = vi.fn((id: string, source: object) => {
+      void source
+      if (id === 'yote-user-location') userLocationSourceExists = true
+    })
+    const addLayer = vi.fn()
+    const easeTo = vi.fn()
+    const setData = vi.fn()
+    const mapInstance: MapLibreMapInstance = {
+      easeTo,
+      on,
+      addSource,
+      getSource: vi.fn((id: string) =>
+        id === 'yote-user-location' && userLocationSourceExists
+          ? { setData }
+          : undefined,
+      ),
+      addLayer,
+      getLayer: vi.fn(),
+      fitBounds: vi.fn(),
+      remove: vi.fn(),
+    }
+    const adapter = new MapLibreMapAdapter({
+      style: 'https://example.test/style.json',
+      createMap: vi.fn(() => mapInstance),
+    })
+    adapter.initialize(document.createElement('div'), {
+      center: { latitude: 43.654, longitude: -116.676 },
+      zoom: 16,
+      mode: '3d',
+    })
+    const load = on.mock.calls.find(
+      ([event]) => event === 'load',
+    )?.[1] as () => void
+    load()
+    addSource.mockClear()
+    addLayer.mockClear()
+    adapter.showUserLocation({ latitude: 43.6544, longitude: -116.6768 })
+
+    const userSource = addSource.mock.calls.find(
+      ([id]) => id === 'yote-user-location',
+    )?.[1] as
+      | { data: { features: Array<{ geometry: { coordinates: number[] } }> } }
+      | undefined
+    expect(userSource?.data.features[0]?.geometry.coordinates).toEqual([
+      -116.6768, 43.6544,
+    ])
+    expect(addLayer).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'yote-user-location-dot' }),
+    )
+    expect(easeTo).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        center: [-116.6768, 43.6544],
+        zoom: 17,
+      }),
+    )
+    adapter.showUserLocation(undefined)
+    expect(setData).toHaveBeenLastCalledWith(
+      expect.objectContaining({ features: [] }),
+    )
+    expect(addSource).toHaveBeenCalledTimes(1)
+  })
+
   it('frames the campus overview and refits it after a mode change or resize', () => {
     const on = vi.fn()
     const fitBounds = vi.fn()

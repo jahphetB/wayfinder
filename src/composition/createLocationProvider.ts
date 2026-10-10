@@ -7,6 +7,10 @@ export function createLocationProvider(): LocationProvider {
     return new PrototypeLocationProvider()
   }
 
+  return createBrowserLocationProvider()
+}
+
+export function createBrowserLocationProvider(): LocationProvider {
   return new BrowserLocationProvider(
     typeof navigator === 'undefined' ? undefined : navigator.geolocation,
     globalThis.isSecureContext === true,

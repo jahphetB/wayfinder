@@ -361,6 +361,42 @@ form {
   cursor: wait;
   opacity: 0.55;
 }
+.map-location-control {
+  position: absolute;
+  z-index: 2;
+  top: 1.25rem;
+  left: 1.25rem;
+  display: grid;
+  gap: 0.45rem;
+  max-width: min(15rem, calc(100% - 8rem));
+}
+.map-location-control button {
+  justify-self: start;
+  min-height: 3.25rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #d5cadf;
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 94%);
+  color: #412d5e;
+  box-shadow: 0 8px 22px rgb(20 60 38 / 18%);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+.map-location-control button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+.map-location-control p {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 94%);
+  color: #412d5e;
+  box-shadow: 0 8px 22px rgb(20 60 38 / 18%);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
 .map-view-note {
   position: absolute;
   z-index: 2;
