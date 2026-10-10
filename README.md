@@ -39,6 +39,7 @@ height and appearance are illustrative. No routing backend is required.
 | 27. Court-gate source review        | Complete | Moved one beach-volleyball destination to its mapped main gate and recorded the remaining court, parking, and stadium-access uncertainties.                   |
 | 28. First footprint-based 3D model  | Complete | Added one library prototype from the mapped outline through the isolated Three.js layer; 2D and walking routes remain unchanged.                              |
 | 29. Campus and route camera framing | Complete | The opening map frames campus facilities and stadium, previews keep endpoints close, and 2D uses a readable tilt.                                             |
+| 30. One-time location button        | Complete | Browser location can show an approximate blue dot or an off-campus/uncertain message without changing route navigation.                                       |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -67,6 +68,14 @@ VITE_LOCATION_MODE=browser
 ```
 
 Remove that setting, or set it to `prototype`, to return to safe simulation.
+
+The separate **Get your location** button always makes one real browser
+location request when pressed, even while route checkpoints use the prototype
+simulator. A clear reading within the mapped campus area shows an approximate
+blue dot and zooms closer. Clearly outside, uncertain, denied, and unavailable
+readings have distinct messages. This is an approximate rectangular area check,
+not a verified campus boundary or continuous tracking. Browser location needs
+HTTPS or localhost and your permission. It does not start a route.
 
 MapLibre's vendor stylesheet is loaded before the application's stylesheet in
 `src/main.tsx`. This order lets the application preserve the map host's full

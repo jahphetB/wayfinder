@@ -50,6 +50,18 @@ stale.
 
 ## Yote Wayfinder project practices
 
+### Step 30 usage record
+
+- **OPENAI / OpenAI Docs:** Checked official current model-selection guidance
+  for the next-step recommendation.
+- **OPENAI / Playwright:** Verified one-time on/off-campus geolocation with
+  simulated browser coordinates and checked the phone layout and console.
+- **EXTERNAL / Context7 + MDN:** Checked MapLibre GeoJSON/camera patterns and
+  browser geolocation's secure-context and permission behavior.
+- **YOTE / Location-purpose isolation:** Kept the real map-locate request
+  separate from simulated route checkpoints; classified boundary overlap as
+  uncertain and prevented a late result from updating an unmounted map.
+
 ### Step 29 usage record
 
 - **OPENAI / OpenAI Docs:** Checked current official model-selection guidance

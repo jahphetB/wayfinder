@@ -55,7 +55,7 @@ flowchart TB
 
     subgraph Composition[Application composition boundary]
         CreateAdapter[createMapAdapter.ts<br/>constructs concrete integrations]
-        CreateLocation[createLocationProvider.ts<br/>selects prototype or browser provider]
+        CreateLocation[createLocationProvider.ts<br/>selects route provider and makes real locate provider]
     end
 
     subgraph OwnedData[Project-owned data]
@@ -66,6 +66,7 @@ flowchart TB
         GraphLoader[collegeOfIdahoWalkingGraph.ts<br/>validated runtime release]
         Locations[mockLocations.ts<br/>searchable locations derived from graph]
         Campus[collegeOfIdahoCampus.ts<br/>campus overview and pan boundary]
+        CampusPresence[classifyCampusLocation.ts<br/>approximate campus-area check]
         LibraryScene[libraryPrototypeBuilding.ts<br/>OSM library outline, illustrative height]
     end
 
@@ -118,6 +119,9 @@ flowchart TB
     App -->|separate driving handoff| MapView
 
     MapView --> MapContract --> CreateAdapter --> Adapter
+    MapView --> CampusPresence --> Campus
+    MapView -->|one-time browser reading| BrowserProvider
+    MapView -->|blue dot and closer camera| MapContract
     Adapter -->|overview, preview fit, leg colors and turn camera| MapLibre
     Campus --> MapView
     Snapshot --> LibraryScene
@@ -159,7 +163,7 @@ flowchart TB
     classDef future fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
     classDef dormant fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
 
-    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,GraphData,GraphBuilder,Snapshot,StadiumHandoff,GraphLoader,Locations,Campus,LibraryScene,BuildingContract implemented
+    class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,CampusPresence,GraphData,GraphBuilder,Snapshot,StadiumHandoff,GraphLoader,Locations,Campus,LibraryScene,BuildingContract implemented
     class CreateAdapter,Adapter,MapLibre,BuildingLayer,Three,GPU integration
     class OSM,OSMExport,Importer,Tests,Tooling,Handbook,Context7,AgentRules external
     class NavigationControls,CheckpointHook implemented

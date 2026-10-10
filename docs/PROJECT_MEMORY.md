@@ -5,7 +5,7 @@ This short file is the current checkpoint for interrupted work. Read it with
 `docs/PROGRESS.md` is the chronological step record. Update this checkpoint
 after each meaningful step, especially when a source or approval state changes.
 
-## Current state after Step 29
+## Current state after Step 30
 
 - The app is a local, illustrative campus-route prototype that opens with a
   tilted 3D camera framing mapped campus facilities and stadium. One library mesh
@@ -82,6 +82,13 @@ after each meaningful step, especially when a source or approval state changes.
   2D a readable 30-degree tilt. A rectangular basemap still reveals nearby
   streets. No additional 3D buildings are planned until the user resumes that
   phase explicitly.
+- Step 30 adds a one-time **Get your location** control. It uses a separate
+  real browser provider even when route checkpoints are simulated, and never
+  advances navigation. A clear mapped-area reading shows an approximate blue
+  dot and moves the camera closer; outside/uncertain/failure messages remain
+  explicit. `classifyCampusLocation.ts` uses the coarse overview rectangle
+  plus GPS accuracy, not a verified property boundary. No continuous tracking
+  or server-side location storage was added.
 
 ## Working rules and verification
 
@@ -90,8 +97,8 @@ after each meaningful step, especially when a source or approval state changes.
   files and newly used technical terms. No unapproved new features.
 - Make focused conventional commits after passing relevant checks. Push only
   with explicit approval. Step 27's two commits were pushed at the user's
-  request. Step 28's two commits are local and unpushed; Step 29's verified
-  changes also need separate push approval after local commits.
+  request. Steps 28-29 have four local, unpushed commits; Step 30 also needs
+  separate push approval after its local commits.
 - Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
   `npm run build`, and `git diff --check`. For visual changes, inspect the real
   browser at desktop/phone widths and check the console.
@@ -101,7 +108,10 @@ after each meaningful step, especially when a source or approval state changes.
 
 ## Next approval boundary
 
-Step 29 is the user-approved camera refinement before continuing the plan.
-Finish its checks and local commits, then stop for approval. Do not expand
-3D building work or push local commits without express user authorization.
-Further route/data corrections can resume when the user supplies them.
+Step 30 is the user-approved one-time location button before mobile
+performance work. Finish checks and local commits, then stop for approval.
+The requested sequence is mobile performance baseline, a user-guided UI/UX
+cleanup checkpoint, and only then stepwise deployment of the functional
+prototype. After successful deployment, revisit real-world reliability;
+realistic 3D buildings and further features come later. Do not start
+performance, deployment, extra 3D, or a push without the relevant approval.

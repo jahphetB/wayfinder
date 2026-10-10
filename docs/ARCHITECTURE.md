@@ -1645,6 +1645,43 @@ This uses MapLibre's [fitBounds example](https://github.com/maplibre/maplibre-gl
 and [camera option definitions](https://github.com/maplibre/maplibre-gl-js/blob/main/src/ui/camera.ts)
 reviewed through Context7. The decision is recorded in ADR-040 below.
 
+### Step 30: One-time "Get your location" control
+
+The map now offers a clearly labeled button for a single browser GPS request.
+It works even while route-checkpoint testing remains in prototype-simulation
+mode. `App.tsx` creates a dedicated `BrowserLocationProvider` at the
+composition boundary and passes it to `MapView.tsx`. The route navigation
+provider stays separate, so locating yourself never starts a route, advances
+a turn, or silently replaces the simulator. The browser prompts for permission
+when needed. No continuous position watcher was added.
+
+`classifyCampusLocation.ts` compares the reading and its reported accuracy
+with the existing overview rectangle. A reading wholly within that rectangle
+is described as appearing in the mapped campus area. One clearly beyond it
+produces an off-campus message. A reading whose accuracy overlaps its edge is
+uncertain. This is intentionally a rough visual-area check, not an official
+campus property line or reliable presence proof. The rectangle includes the
+stadium but also some neighboring streets, so a nearby off-campus device can
+be reported inside. Field validation and a reviewed campus boundary belong
+to the later real-world navigation phase.
+
+On a clear inside result, `MapView.tsx` calls the provider-neutral
+`showUserLocation` operation in `MapAdapter.ts`.
+`MapLibreMapAdapter.ts` adds a blue GeoJSON point in its own layer and moves
+the camera closer. _GeoJSON_ is a standard text format for map points and
+shapes. The dot is separate from route endpoints and does not modify the
+walking graph. Starting another lookup clears the previous dot; outside or
+failed lookups leave the map on campus. The coordinate exists in the browser
+map only for this page session and is not sent to this application's server
+or saved as a route. Map tiles are still fetched from the configured basemap
+source. A late request result after unmount is ignored.
+
+Browser geolocation requires a secure context such as HTTPS or localhost,
+permission, and a working device location source. Errors are shown as usable
+messages. See [MDN's getCurrentPosition reference](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition)
+and MapLibre's [GeoJSON point/camera example](https://github.com/maplibre/maplibre-gl-js/blob/main/test/examples/customize-camera-animations.html),
+consulted through Context7. This step adds no dependency or deployment work.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -2411,6 +2448,19 @@ historical context.
 - **Consequence:** The 3D opening view is less close to the library than before.
   Nearby streets remain visible at the edges of a rectangular map panel. More
   3D building work is deferred until the user explicitly resumes it.
+
+### ADR-041: Keep "locate me" separate from prototype navigation
+
+- **Status:** Accepted for the prototype in Step 30.
+- **Decision:** Use the real one-shot browser provider for the map location
+  button, independently of the simulator-selected checkpoint provider. Use a
+  conservative accuracy-aware check against the mapped-area rectangle.
+- **Reason:** People should be able to try the button without physically
+  visiting every turn. A location lookup must not advance a route or imply
+  that the illustrative map boundary is verified.
+- **Consequence:** The control is useful for orientation but cannot certify
+  campus presence. Review the boundary and test GPS in the field before
+  relying on it for real-world navigation.
 
 ## Engineering principles in plain language
 

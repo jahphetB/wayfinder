@@ -608,3 +608,29 @@ commits also remain local and unpushed.
 - Formatting, lint, strict type-check, 87 tests in 18 files, and production
   build pass. The deferred map chunk is about 417.16 kB gzip; the existing
   large-map-bundle concern remains, without new dependencies in this step.
+
+## Step 30: One-time map location control
+
+Status: implemented and verified locally; awaiting separate push approval.
+
+- Added **Get your location** to the map. It uses a real one-shot browser
+  request regardless of the route-checkpoint simulator setting; it does not
+  start or advance navigation.
+- A clear reading within the mapped campus-and-stadium rectangle draws a
+  separate approximate blue dot and moves the camera closer. A clearly
+  outside reading, uncertain edge/accuracy overlap, permission denial, and
+  unavailable location receive explicit messages. Repeat requests clear the
+  old dot first; late results after unmount are discarded.
+- Added tests for inside/outside/uncertain classification, button behavior,
+  and adapter dot/camera handling. A real browser with simulated on- and
+  off-campus positions showed the expected messages and dot; a phone-width
+  layout remained usable, with no console errors or warnings.
+- The area is a coarse rectangle, not an official boundary; it includes some
+  neighboring streets. No new dependency, continuous tracking, or route-data
+  change was introduced.
+- The user's revised sequence is: mobile performance check next, then a
+  user-guided UI/UX cleanup before any deployment step; deploy the functional
+  prototype before the later real-world reliability and realistic-3D phases.
+- Formatting, lint, strict type-check, 94 tests in 20 files, production
+  build, and Git whitespace check pass. The deferred map bundle remains large
+  at about 418.21 kB gzip; the next step will measure mobile impact.
