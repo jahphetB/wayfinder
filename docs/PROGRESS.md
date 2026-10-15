@@ -536,8 +536,7 @@ and `6f324bc`, with documentation committed separately for the approved push.
 
 ## Step 27: Court-gate and source validation
 
-Status: complete locally; code committed as `f9fb661`; awaiting separate
-approval before pushing.
+Status: complete; code committed as `f9fb661` and pushed before Step 28.
 
 - Rechecked the unchanged user-observed OSM export against the curated eight
   courts, Hayman classification, two stadium outlines, and the prototype road
@@ -563,8 +562,7 @@ approval before pushing.
 
 ## Step 28: One footprint-based library prototype in 3D
 
-Status: implementation complete locally and committed as `78b6c3a`;
-awaiting approval before any push.
+Status: complete; code and documentation commits pushed with Step 31 approval.
 Step 27's two pending commits were pushed at the user's request.
 
 - The user chose to defer additional 2D source corrections and begin the
@@ -588,8 +586,7 @@ Step 27's two pending commits were pushed at the user's request.
 
 ## Step 29: Campus overview and route camera framing
 
-Status: verified locally; awaiting separate push approval. Step 28's two
-commits also remain local and unpushed.
+Status: complete; Step 28-29 commits pushed with Step 31 approval.
 
 - Deferred additional 3D building work at the user's request. The opening
   camera now fits all imported building/area outlines, including both stadium
@@ -611,7 +608,7 @@ commits also remain local and unpushed.
 
 ## Step 30: One-time map location control
 
-Status: implemented and verified locally; awaiting separate push approval.
+Status: complete; Step 30 commits pushed with Step 31 approval.
 
 - Added **Get your location** to the map. It uses a real one-shot browser
   request regardless of the route-checkpoint simulator setting; it does not
@@ -634,3 +631,32 @@ Status: implemented and verified locally; awaiting separate push approval.
 - Formatting, lint, strict type-check, 94 tests in 20 files, production
   build, and Git whitespace check pass. The deferred map bundle remains large
   at about 418.21 kB gzip; the next step will measure mobile impact.
+
+## Step 31: Mobile performance baseline
+
+Status: production-build measurement and documentation complete locally;
+Step 28-30's six pending commits were pushed to `origin/main` at the user's
+request. Step 31's documentation commit requires separate push approval.
+
+- Tested the actual Vite production build at a 390 x 844 Chromium viewport.
+  Three cold-cache reloads used browser-emulated 150 ms network latency,
+  200,000 bytes/s download throughput, and 4x CPU slowdown. This is a
+  repeatable desktop emulation, **not** a measurement on a physical phone.
+- First contentful paint was 2.428-2.652 s. Local application assets finished
+  around 6.8-7.0 s in the two fully recorded repeat runs; the last observed
+  OpenStreetMap tile finished around 8.75-9.23 s. There were 13-16 long tasks
+  totaling about 3.29-3.69 s per run. Paint measures the early interface, not
+  readiness of the map; tile completion is only a network proxy for map
+  completion, not a measured map-ready event.
+- The build outputs 100.50 kB gzip initial JS, 418.21 kB gzip deferred map JS,
+  13.01 kB gzip CSS, and a 508.54 kB uncompressed map worker. On one run the
+  browser transferred about 99 kB initial JS, 415 kB map JS, and 145 kB worker.
+  The map chunk retains Vite's greater-than-500-kB minified warning.
+- The map rendered after scrolling into view. No horizontal overflow or
+  browser-console warnings/errors appeared. At initial phone scroll position,
+  only the top edge of the map is visible below the tall planner; this is a
+  UI/UX review item, not a performance defect fixed in this step.
+- No new dependency or bundle reorganization was added. The one-library 3D
+  prototype is intentionally retained; mobile cost should be checked on a
+  real lower-end phone and prioritized alongside the user's upcoming UI/UX
+  review before choosing any targeted optimization or deploying.

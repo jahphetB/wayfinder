@@ -40,12 +40,14 @@ height and appearance are illustrative. No routing backend is required.
 | 28. First footprint-based 3D model  | Complete | Added one library prototype from the mapped outline through the isolated Three.js layer; 2D and walking routes remain unchanged.                              |
 | 29. Campus and route camera framing | Complete | The opening map frames campus facilities and stadium, previews keep endpoints close, and 2D uses a readable tilt.                                             |
 | 30. One-time location button        | Complete | Browser location can show an approximate blue dot or an off-campus/uncertain message without changing route navigation.                                       |
+| 31. Mobile performance check        | Complete | A production-build phone-viewport baseline separates early interface paint from later map/tile completion; no speculative bundle change was made.             |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
 [detailed progress log](docs/PROGRESS.md), and
 [AI skills inventory](docs/AI_SKILLS.md). The [project memory](docs/PROJECT_MEMORY.md)
 records the latest source, decisions, limitations, and resume checklist.
+Read only this step in the [Step 31 handbook guide](docs/ARCHITECTURE.md#step-31-mobile-performance-baseline).
 
 ## Local development
 
@@ -194,8 +196,8 @@ troubleshooting, and the architectural decision log in non-technical language.
 
 This separation keeps the project-owned walking graph independent from map
 rendering. MapLibre handles geographic projection and camera behavior. The
-Three.js custom-layer implementation remains in the codebase for later
-approved 3D work, but it is not attached to the current map.
+Three.js custom layer renders one illustrative library shape. More 3D
+infrastructure remains deferred until a later approved phase.
 
 ## Current documentation integration
 

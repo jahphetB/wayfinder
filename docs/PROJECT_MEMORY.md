@@ -5,7 +5,7 @@ This short file is the current checkpoint for interrupted work. Read it with
 `docs/PROGRESS.md` is the chronological step record. Update this checkpoint
 after each meaningful step, especially when a source or approval state changes.
 
-## Current state after Step 30
+## Current state after Step 31
 
 - The app is a local, illustrative campus-route prototype that opens with a
   tilted 3D camera framing mapped campus facilities and stadium. One library mesh
@@ -89,6 +89,14 @@ after each meaningful step, especially when a source or approval state changes.
   explicit. `classifyCampusLocation.ts` uses the coarse overview rectangle
   plus GPS accuracy, not a verified property boundary. No continuous tracking
   or server-side location storage was added.
+- Step 31 measured the unchanged production app at a 390 x 844 Chromium
+  viewport with emulated 150 ms latency, 200,000 bytes/s download, and 4x CPU
+  slowdown. First contentful paint was 2.428-2.652 s across three reloads;
+  local assets finished around 6.8-7.0 s and the last observed OSM tile around
+  8.75-9.23 s in repeat runs. This is not a real-phone test or measured map-ready
+  event. The large 418.21 kB gzip map bundle remains a concern; do not add more
+  models or change bundling without a measured, approved reason. Phone layout
+  places most of the map below the initial fold; bring that to UI/UX review.
 
 ## Working rules and verification
 
@@ -96,9 +104,9 @@ after each meaningful step, especially when a source or approval state changes.
   report and ask for approval plus concise/detailed preference. Explain key
   files and newly used technical terms. No unapproved new features.
 - Make focused conventional commits after passing relevant checks. Push only
-  with explicit approval. Step 27's two commits were pushed at the user's
-  request. Steps 28-29 have four local, unpushed commits; Step 30 also needs
-  separate push approval after its local commits.
+  with explicit approval. The six previously pending Step 28-30 commits were
+  pushed to `origin/main` through `f96f381` with Step 31 approval. Step 31's
+  local documentation commit must await separate push approval.
 - Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
   `npm run build`, and `git diff --check`. For visual changes, inspect the real
   browser at desktop/phone widths and check the console.
@@ -108,10 +116,10 @@ after each meaningful step, especially when a source or approval state changes.
 
 ## Next approval boundary
 
-Step 30 is the user-approved one-time location button before mobile
-performance work. Finish checks and local commits, then stop for approval.
-The requested sequence is mobile performance baseline, a user-guided UI/UX
-cleanup checkpoint, and only then stepwise deployment of the functional
-prototype. After successful deployment, revisit real-world reliability;
-realistic 3D buildings and further features come later. Do not start
-performance, deployment, extra 3D, or a push without the relevant approval.
+Step 31's mobile performance baseline is complete. Stop for the user's UI/UX
+review and specific change approval before editing that interface or starting
+deployment. The agreed sequence is user-guided UI/UX cleanup, then stepwise
+deployment of the functional prototype. After deployment, revisit real-world
+reliability; realistic 3D buildings and further features come later. A real
+lower-end phone measurement is still needed before claiming mobile performance
+is production-ready. Do not push Step 31's local commit without approval.

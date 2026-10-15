@@ -1682,6 +1682,43 @@ messages. See [MDN's getCurrentPosition reference](https://developer.mozilla.org
 and MapLibre's [GeoJSON point/camera example](https://github.com/maplibre/maplibre-gl-js/blob/main/test/examples/customize-camera-animations.html),
 consulted through Context7. This step adds no dependency or deployment work.
 
+### Step 31: Mobile performance baseline
+
+This step measures the existing production app; it does not change the map,
+routing rules, or visual design. `vite.config.ts` makes the production files,
+and `App.tsx` requests `MapView.tsx` as a separate bundle. That separation
+keeps the map code out of the initial JavaScript file, but because the map is
+visible on the opening page, the browser requests the separate bundle almost
+immediately. It is **not** a promise that mobile visitors avoid the map download.
+`MapView.tsx` then constructs the adapter from `createMapAdapter.ts`;
+`MapLibreMapAdapter.ts` requests the worker and OpenStreetMap image tiles and
+attaches the one-library Three.js layer. A worker runs some map work separately
+from the main page; a tile is one of the small background-map images.
+
+The Step 31 check used `npm run build`, `npx vite preview`, and Chromium at a
+390 x 844 viewport. Browser-emulated network limits were 150 ms latency and
+200,000 bytes/s download, with 4x CPU slowdown and cache disabled for local
+requests. Across three reloads, the first visible interface paint took
+2.428-2.652 s, but that early paint is **not** the map-ready time. In the
+recorded repeat runs, local assets ended around 6.8-7.0 s and the last observed
+external tile ended around 8.75-9.23 s. Tile timing is an imperfect proxy:
+some tiles can be cached, delayed, or requested after camera changes. The
+browser reported 13-16 long tasks (main-page work lasting at least 50 ms),
+totaling roughly 3.29-3.69 s. These figures are desktop emulation, not a
+physical-phone or field-network result.
+
+The build's initial JavaScript is 100.50 kB gzip; the map bundle is
+418.21 kB gzip and includes MapLibre and Three.js; the map worker is
+508.54 kB before compression. CSS is 13.01 kB gzip. The map is present when
+scrolled into view, with no horizontal overflow or console errors/warnings.
+The large map bundle remains a genuine cost, but this check alone does not
+justify replacing the approved renderer or removing the one-library 3D
+prototype. On this phone layout, the planner occupies almost the entire first
+screen and pushes the map below the fold. That is a design choice to review
+with the user before deployment, alongside a real lower-end phone test and
+then any measured, focused optimization. “Below the fold” means the visitor
+must scroll before most of the map appears.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -2502,44 +2539,44 @@ speculative frameworks for features that have not been approved.
 
 ## Glossary
 
-| Term                  | Plain-language meaning                                                                                            |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Adapter               | A translator that makes one system fit the interface expected by another.                                         |
-| Accuracy area         | The area around a reported location where the device indicates the real position may be.                          |
-| API                   | A defined way for one piece of software to communicate with another.                                              |
-| Basemap               | The background geographic map beneath custom markers and route lines.                                             |
-| Bearing               | A compass direction measured in degrees and calculated between two geographic points.                             |
-| Build                 | Turning source files into optimized files suitable for hosting.                                                   |
-| Bundle                | Browser-ready files assembled from source and dependencies.                                                       |
-| Component             | A reusable visible part of a React interface.                                                                     |
-| Checkpoint            | The expected geographic endpoint of a route step, later usable for progress verification.                         |
-| Corroborated fact     | A limited fact checked beyond the project's own mock record; it is not automatically an approved instruction.     |
-| Contract or interface | A checked description of operations or data another module must provide.                                          |
-| Data minimization     | Keeping only the information needed for a feature and discarding unnecessary sensitive detail.                    |
-| Dependency            | Code, data, or a service that another part requires.                                                              |
-| Domain                | The business meaning of the application, such as locations and routes.                                            |
-| Georeferencing        | Attaching data or a 3D object to a real location on Earth.                                                        |
-| GeoJSON               | A standard JSON format for geographic points, lines, and areas.                                                   |
-| GLB                   | A compact binary file containing a web-ready 3D model and related data.                                           |
-| Haversine formula     | A calculation for approximate distance between two latitude/longitude points on Earth.                            |
-| Hook                  | A React function that manages reusable state or lifecycle behavior.                                               |
-| Infrastructure        | Code communicating with an external technical system or provider.                                                 |
-| Lazy loading          | Delaying download or initialization until a feature is needed.                                                    |
-| Matrix                | A mathematical structure used to combine 3D position, rotation, scale, and camera projection.                     |
-| Maneuver              | The action beginning a walking leg, such as depart, continue, turn left, or turn right.                           |
-| MCP                   | Model Context Protocol, a standard connection between an AI tool and an information or action service.            |
-| Mock data             | Local sample information used before or instead of a live backend.                                                |
-| Procedural model      | 3D geometry created by code instead of loaded from a model file.                                                  |
-| Provider              | A library or service supplying a capability, such as map rendering or tiles.                                      |
-| Raster tile           | A small map image combined with neighboring images to form a map.                                                 |
-| State                 | Information that can change while the application is being used.                                                  |
-| State machine         | A model that permits only defined transitions between named states.                                               |
-| Three.js              | A browser 3D library retained behind a dormant map layer for future reviewed models; not used by the current map. |
-| TypeScript            | JavaScript with compile-time checks for expected data shapes.                                                     |
-| WGS84                 | The world latitude-and-longitude coordinate reference used by GPS.                                                |
-| WebGL                 | Browser graphics technology used by MapLibre and Three.js for GPU drawing.                                        |
-| WebGL context         | The browser-managed connection to graphics state and resources on a device's GPU.                                 |
-| Web worker            | A separate browser execution context that avoids blocking the interface.                                          |
+| Term                  | Plain-language meaning                                                                                               |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Adapter               | A translator that makes one system fit the interface expected by another.                                            |
+| Accuracy area         | The area around a reported location where the device indicates the real position may be.                             |
+| API                   | A defined way for one piece of software to communicate with another.                                                 |
+| Basemap               | The background geographic map beneath custom markers and route lines.                                                |
+| Bearing               | A compass direction measured in degrees and calculated between two geographic points.                                |
+| Build                 | Turning source files into optimized files suitable for hosting.                                                      |
+| Bundle                | Browser-ready files assembled from source and dependencies.                                                          |
+| Component             | A reusable visible part of a React interface.                                                                        |
+| Checkpoint            | The expected geographic endpoint of a route step, later usable for progress verification.                            |
+| Corroborated fact     | A limited fact checked beyond the project's own mock record; it is not automatically an approved instruction.        |
+| Contract or interface | A checked description of operations or data another module must provide.                                             |
+| Data minimization     | Keeping only the information needed for a feature and discarding unnecessary sensitive detail.                       |
+| Dependency            | Code, data, or a service that another part requires.                                                                 |
+| Domain                | The business meaning of the application, such as locations and routes.                                               |
+| Georeferencing        | Attaching data or a 3D object to a real location on Earth.                                                           |
+| GeoJSON               | A standard JSON format for geographic points, lines, and areas.                                                      |
+| GLB                   | A compact binary file containing a web-ready 3D model and related data.                                              |
+| Haversine formula     | A calculation for approximate distance between two latitude/longitude points on Earth.                               |
+| Hook                  | A React function that manages reusable state or lifecycle behavior.                                                  |
+| Infrastructure        | Code communicating with an external technical system or provider.                                                    |
+| Lazy loading          | Delaying download or initialization until a feature is needed.                                                       |
+| Matrix                | A mathematical structure used to combine 3D position, rotation, scale, and camera projection.                        |
+| Maneuver              | The action beginning a walking leg, such as depart, continue, turn left, or turn right.                              |
+| MCP                   | Model Context Protocol, a standard connection between an AI tool and an information or action service.               |
+| Mock data             | Local sample information used before or instead of a live backend.                                                   |
+| Procedural model      | 3D geometry created by code instead of loaded from a model file.                                                     |
+| Provider              | A library or service supplying a capability, such as map rendering or tiles.                                         |
+| Raster tile           | A small map image combined with neighboring images to form a map.                                                    |
+| State                 | Information that can change while the application is being used.                                                     |
+| State machine         | A model that permits only defined transitions between named states.                                                  |
+| Three.js              | A browser 3D library used behind the map adapter for one illustrative library shape; further models remain deferred. |
+| TypeScript            | JavaScript with compile-time checks for expected data shapes.                                                        |
+| WGS84                 | The world latitude-and-longitude coordinate reference used by GPS.                                                   |
+| WebGL                 | Browser graphics technology used by MapLibre and Three.js for GPU drawing.                                           |
+| WebGL context         | The browser-managed connection to graphics state and resources on a device's GPU.                                    |
+| Web worker            | A separate browser execution context that avoids blocking the interface.                                             |
 
 ## How to maintain this handbook
 
