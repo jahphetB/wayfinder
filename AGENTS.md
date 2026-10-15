@@ -1,4 +1,4 @@
-# Yote Wayfinder Working Agreement
+# Yotes Wayfinder Working Agreement
 
 ## Delivery cadence
 

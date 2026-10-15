@@ -5,7 +5,7 @@ This short file is the current checkpoint for interrupted work. Read it with
 `docs/PROGRESS.md` is the chronological step record. Update this checkpoint
 after each meaningful step, especially when a source or approval state changes.
 
-## Current state after Step 31
+## Current state after Step 32
 
 - The app is a local, illustrative campus-route prototype that opens with a
   tilted 3D camera framing mapped campus facilities and stadium. One library mesh
@@ -97,6 +97,13 @@ after each meaningful step, especially when a source or approval state changes.
   event. The large 418.21 kB gzip map bundle remains a concern; do not add more
   models or change bundling without a measured, approved reason. Phone layout
   places most of the map below the initial fold; bring that to UI/UX review.
+- Step 32 renamed the visible product to **Yotes Wayfinder**, set the heading
+  to “Find your way on campus,” and removed the subtitle, “Walk the route”
+  heading, and visible demo-result selector. Expected checkpoint results are
+  still simulated by default, so the user can preview and step through a route
+  without moving. The route summary keeps its origin, destination, duration,
+  and distance; the Completed / Current leg / Upcoming legend and Back/Next
+  controls remain. Mobile layout now places the map higher on the page.
 
 ## Working rules and verification
 
@@ -104,9 +111,10 @@ after each meaningful step, especially when a source or approval state changes.
   report and ask for approval plus concise/detailed preference. Explain key
   files and newly used technical terms. No unapproved new features.
 - Make focused conventional commits after passing relevant checks. Push only
-  with explicit approval. The six previously pending Step 28-30 commits were
-  pushed to `origin/main` through `f96f381` with Step 31 approval. Step 31's
-  local documentation commit must await separate push approval.
+  with explicit approval. Step 31 is pushed through `6abd7c4`. Step 32 has
+  three focused implementation commits (`55e5ae5`, `f558267`, `9a3cd78`); its
+  documentation commit is separate. The user approved pushing these commits
+  in the Step 32 request; verify remote status before reporting publication.
 - Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
   `npm run build`, and `git diff --check`. For visual changes, inspect the real
   browser at desktop/phone widths and check the console.
@@ -116,10 +124,10 @@ after each meaningful step, especially when a source or approval state changes.
 
 ## Next approval boundary
 
-Step 31's mobile performance baseline is complete. Stop for the user's UI/UX
-review and specific change approval before editing that interface or starting
-deployment. The agreed sequence is user-guided UI/UX cleanup, then stepwise
-deployment of the functional prototype. After deployment, revisit real-world
-reliability; realistic 3D buildings and further features come later. A real
-lower-end phone measurement is still needed before claiming mobile performance
-is production-ready. Do not push Step 31's local commit without approval.
+Step 32's user-approved UI cleanup is complete and its commits may be pushed
+under the user's explicit approval. Deployment has not started. The user wants
+deployment as the next stage; prepare a stepwise deployment proposal and
+confirm hosting target/account needs before any external publishing. After
+deployment, revisit real-world reliability; realistic 3D buildings and further
+features come later. A real lower-end phone measurement is still needed before
+claiming mobile performance is production-ready.

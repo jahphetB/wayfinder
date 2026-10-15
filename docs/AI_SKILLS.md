@@ -48,7 +48,7 @@ stale.
 | Context7 MCP                   | Step 13       | Supplies current third-party library documentation through a project-scoped, secret-free remote connection.          |
 | Microsoft Edge headless mode   | Step 13       | Captured the real WebGL result for visual verification without adding a browser-test dependency to the application.  |
 
-## Yote Wayfinder project practices
+## Yotes Wayfinder project practices
 
 ### Step 30 usage record
 
@@ -335,3 +335,15 @@ stale.
 - **YOTE / Evidence-before-optimization:** Recorded exact build and browser
   costs while preserving the approved one-library 3D prototype. A real device
   check and the user's design priorities should precede a bundle redesign.
+
+#### Step 32 usage record
+
+- **OPENAI / Playwright skill:** Checked the production UI at desktop and phone
+  widths, previewed a route, confirmed the progress legend, and checked the
+  browser console.
+- **YOTE / Progressive disclosure:** Kept the route summary and navigation
+  progress visible while removing developer-oriented demo controls from the
+  ordinary user view.
+- **YOTE / First-screen map access:** Reduced mobile planner height using
+  responsive spacing and control sizing, then inspected the real production
+  layout rather than relying only on CSS dimensions.

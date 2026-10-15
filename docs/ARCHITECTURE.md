@@ -1719,6 +1719,34 @@ with the user before deployment, alongside a real lower-end phone test and
 then any measured, focused optimization. “Below the fold” means the visitor
 must scroll before most of the map appears.
 
+### Step 32: Campus-focused UI cleanup
+
+The visible app name is now **Yotes Wayfinder** in `App.tsx` and the browser
+tab title and description in `index.html`. The route panel headline is “Find
+your way on campus,” and the descriptive sentence below it has been removed
+to shorten the first screen.
+
+`NavigationPanel.tsx` still joins the searchable places, preview button,
+checkpoint guidance, and route summary. The summary continues to show
+“Walking route,” the selected origin and destination, estimated minutes, and
+kilometres. `CheckpointNavigation.tsx` no longer shows the “Walk the route”
+heading or demo-result menu. In prototype mode, the existing provider returns
+an expected checkpoint when Start navigation or Next Turn is pressed. The
+notice explains this in one short sentence; turn instructions, Back, Next Turn,
+and the three route-color meanings stay visible. `useCheckpointNavigation.ts`
+owns progress state and the one-request-per-click behavior, so hiding the menu
+did not alter location-check behavior.
+
+`src/app/styles.css` reduces phone padding and form-control height and removes
+the old minimum height that pushed the map down. The map now starts higher on a
+390 x 844 phone viewport. The map note is positioned above map attribution so
+the two no longer compete for the bottom corner. These changes affect the
+presentation only; route data and location providers did not change. Browser
+checks at 390 x 844 and 1365 x 900 confirmed the title, route summary, progress
+legend, and map presentation with no console errors or warnings. A person
+viewing a route on a phone still needs to scroll to see the entire map and
+longer instruction content.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks

@@ -41,6 +41,7 @@ height and appearance are illustrative. No routing backend is required.
 | 29. Campus and route camera framing | Complete | The opening map frames campus facilities and stadium, previews keep endpoints close, and 2D uses a readable tilt.                                             |
 | 30. One-time location button        | Complete | Browser location can show an approximate blue dot or an off-campus/uncertain message without changing route navigation.                                       |
 | 31. Mobile performance check        | Complete | A production-build phone-viewport baseline separates early interface paint from later map/tile completion; no speculative bundle change was made.             |
+| 32. Campus-focused UI cleanup       | Complete | Updated the name and headline, removed extra demo controls, preserved route progress and summary, and made the map visible sooner on phones.                  |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -48,6 +49,7 @@ See the [architecture handbook](docs/ARCHITECTURE.md),
 [AI skills inventory](docs/AI_SKILLS.md). The [project memory](docs/PROJECT_MEMORY.md)
 records the latest source, decisions, limitations, and resume checklist.
 Read only this step in the [Step 31 handbook guide](docs/ARCHITECTURE.md#step-31-mobile-performance-baseline).
+Read only this step in the [Step 32 handbook guide](docs/ARCHITECTURE.md#step-32-campus-focused-ui-cleanup).
 
 ## Local development
 

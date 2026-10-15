@@ -635,8 +635,8 @@ Status: complete; Step 30 commits pushed with Step 31 approval.
 ## Step 31: Mobile performance baseline
 
 Status: production-build measurement and documentation complete locally;
-Step 28-30's six pending commits were pushed to `origin/main` at the user's
-request. Step 31's documentation commit requires separate push approval.
+Step 28-30's six pending commits and the Step 31 documentation commit were
+pushed to `origin/main` at the user's request.
 
 - Tested the actual Vite production build at a 390 x 844 Chromium viewport.
   Three cold-cache reloads used browser-emulated 150 ms network latency,
@@ -660,3 +660,33 @@ request. Step 31's documentation commit requires separate push approval.
   prototype is intentionally retained; mobile cost should be checked on a
   real lower-end phone and prioritized alongside the user's upcoming UI/UX
   review before choosing any targeted optimization or deploying.
+
+## Step 32: Campus-focused UI cleanup
+
+Status: implementation complete and locally committed in three focused
+commits; awaiting final documentation commit and push approval.
+
+- Updated the displayed brand to **Yotes Wayfinder**, changed the headline to
+  “Find your way on campus,” and removed the explanatory paragraph below it.
+- Removed the “Walk the route” heading and the visible demo checkpoint-result
+  selector. Prototype navigation still uses simulated expected readings by
+  default, so Start navigation and Next Turn remain usable without moving.
+  Simplified the simulation guidance to one short notice and retained Back,
+  turn instructions, and the Completed / Current leg / Upcoming legend.
+- Preserved the **Walking route** summary with origin, destination, duration,
+  and distance. On phones, reduced planner spacing and control heights so the
+  map begins higher and occupies more of the first viewport. Moved the map note
+  above the bottom attribution area.
+- `App.tsx` owns the header brand; `index.html` owns the browser tab title and
+  description. `NavigationPanel.tsx` connects search, route summary and
+  checkpoint guidance; `CheckpointNavigation.tsx` presents route progress,
+  while `useCheckpointNavigation.ts` retains state and one-shot check behavior.
+  `src/app/styles.css` controls desktop and phone layout.
+- Verified the production build in a real browser at 390 x 844 and 1365 x 900.
+  The initial mobile view now shows the map beginning above the fold, and a
+  previewed route displayed the start/destination and 0.3 km summary. The
+  progress legend remained visible after starting simulation; the console had
+  no warnings or errors. Formatting, lint, type-check, build, and 19 focused
+  navigation tests pass. The existing large map-bundle warning remains.
+- Three implementation commits: `55e5ae5`, `f558267`, and `9a3cd78`.
+  The documentation commit is recorded separately. Deployment has not started.
