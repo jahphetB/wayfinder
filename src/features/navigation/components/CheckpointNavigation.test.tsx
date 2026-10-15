@@ -43,9 +43,11 @@ describe('CheckpointNavigation', () => {
         provider={new PrototypeLocationProvider()}
       />,
     )
-    expect(screen.getByText(/Demo location is on/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Prototype mode simulates location checks/),
+    ).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent(
-      'simulate the selected starting checkpoint',
+      'simulate the starting location check',
     )
     await user.click(screen.getByRole('button', { name: 'Start navigation' }))
     await user.click(screen.getByRole('button', { name: 'Next Turn' }))
@@ -53,28 +55,24 @@ describe('CheckpointNavigation', () => {
     expect(screen.getByRole('status')).toHaveTextContent('You have arrived')
   })
 
-  it('resets the prototype route when changing outcomes while keeping focus', async () => {
+  it('keeps simulation controls out of the route guidance and retries a failed checkpoint', async () => {
     const user = userEvent.setup()
     const provider = new PrototypeLocationProvider()
-    render(
-      <CheckpointNavigation
-        route={route}
-        provider={provider}
-        prototypeLocationScenarioController={provider}
-      />,
-    )
+    provider.setScenario('mismatched')
+    render(<CheckpointNavigation route={route} provider={provider} />)
 
-    const result = screen.getByLabelText('Demo checkpoint result')
+    expect(
+      screen.queryByRole('heading', { name: 'Walk the route' }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Demo checkpoint result')).toBeNull()
     await user.click(screen.getByRole('button', { name: 'Start navigation' }))
-    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
-    await user.selectOptions(result, 'mismatched')
-
-    expect(provider.scenario).toBe('mismatched')
-    expect(result).toHaveFocus()
     expect(screen.queryByText('Step 1 of 2')).not.toBeInTheDocument()
     expect(
-      screen.getByText('Changing this result restarts the route simulation.'),
+      screen.getByText(/simulated location did not match/i),
     ).toBeInTheDocument()
+    provider.setScenario('expected')
+    await user.click(screen.getByRole('button', { name: 'Try location again' }))
+    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
   })
 
   it('does not start navigation from an expired initial reading', async () => {

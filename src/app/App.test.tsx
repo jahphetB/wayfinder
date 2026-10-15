@@ -111,28 +111,19 @@ describe('App', () => {
     expect(screen.getByText('Walking route')).toBeInTheDocument()
   })
 
-  it('lets prototype users choose a recoverable checkpoint outcome without moving', async () => {
+  it('lets prototype users advance simulated checkpoints without exposing demo controls', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     await selectLibraryAndDining(user)
     await user.click(screen.getByRole('button', { name: 'Preview route' }))
-    await user.selectOptions(
-      screen.getByLabelText('Demo checkpoint result'),
-      'mismatched',
-    )
+    expect(screen.queryByLabelText('Demo checkpoint result')).toBeNull()
     await user.click(screen.getByRole('button', { name: 'Start navigation' }))
 
-    expect(screen.getByRole('status')).toHaveTextContent('wrong location')
-    expect(
-      screen.getByRole('button', { name: 'Try location again' }),
-    ).toBeEnabled()
-    await user.selectOptions(
-      screen.getByLabelText('Demo checkpoint result'),
-      'expected',
-    )
-    await user.click(screen.getByRole('button', { name: 'Start navigation' }))
     expect(screen.getByText(/Step 1 of \d+/)).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'simulate the next checkpoint',
+    )
   })
 
   it('searches the added building destinations', async () => {

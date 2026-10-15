@@ -7,7 +7,6 @@ import type {
 import { useRoutePlanner } from '../hooks/useRoutePlanner'
 import type { RoutePlanState } from '../model/routePlanner'
 import type { LocationProvider } from '../contracts/LocationProvider'
-import type { PrototypeLocationScenarioController } from '../contracts/PrototypeLocationScenario'
 import { CheckpointNavigation } from './CheckpointNavigation'
 
 interface FieldProps {
@@ -204,12 +203,10 @@ export function NavigationPanel({
   planner,
   locationProvider,
   onNavigationSessionChange,
-  prototypeLocationScenarioController,
 }: {
   readonly planner: ReturnType<typeof useRoutePlanner>
   readonly locationProvider: LocationProvider
   readonly onNavigationSessionChange: (session: NavigationSession) => void
-  readonly prototypeLocationScenarioController?: PrototypeLocationScenarioController
 }) {
   return (
     <section className="navigation-panel">
@@ -255,9 +252,6 @@ export function NavigationPanel({
           route={planner.plannedRoute}
           provider={locationProvider}
           onSessionChange={onNavigationSessionChange}
-          {...(prototypeLocationScenarioController
-            ? { prototypeLocationScenarioController }
-            : {})}
         />
       )}
       <RouteSummary

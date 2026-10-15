@@ -68,12 +68,5 @@ export function useCheckpointNavigation(
     setSession((currentSession) => moveNavigationBack(currentSession))
   }
 
-  function resetNavigation(): void {
-    if (busy.current) return
-    lastReadingTimestamp.current = -1
-    setFailure(undefined)
-    setSession(startNavigationSession(route))
-  }
-
-  return { session, pending, failure, checkLocation, goBack, resetNavigation }
+  return { session, pending, failure, checkLocation, goBack }
 }

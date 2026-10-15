@@ -2,12 +2,6 @@ import { useEffect } from 'react'
 import type { NavigationSession, Route } from '@/domain/navigation/types'
 import type { LocationProvider } from '../contracts/LocationProvider'
 import type { LocationFailure } from '../contracts/LocationProviderError'
-import {
-  isPrototypeLocationScenario,
-  prototypeLocationScenarios,
-  type PrototypeLocationScenario,
-  type PrototypeLocationScenarioController,
-} from '../contracts/PrototypeLocationScenario'
 import { useCheckpointNavigation } from '../hooks/useCheckpointNavigation'
 
 const failureMessages: Record<LocationFailure, string> = {
@@ -27,14 +21,12 @@ export function CheckpointNavigation({
   route,
   provider,
   onSessionChange,
-  prototypeLocationScenarioController,
 }: {
   readonly route: Route
   readonly provider: LocationProvider
   readonly onSessionChange?: (session: NavigationSession) => void
-  readonly prototypeLocationScenarioController?: PrototypeLocationScenarioController
 }) {
-  const { session, pending, failure, checkLocation, goBack, resetNavigation } =
+  const { session, pending, failure, checkLocation, goBack } =
     useCheckpointNavigation(route, provider)
   useEffect(() => onSessionChange?.(session), [onSessionChange, session])
   const step = route.steps[session.currentStepIndex]
@@ -47,10 +39,10 @@ export function CheckpointNavigation({
   const simulating = provider.mode === 'prototype-simulation'
   let message = starting
     ? simulating
-      ? 'Press Start navigation to simulate the selected starting checkpoint.'
+      ? 'Press Start navigation to simulate the starting location check.'
       : 'Go to your selected starting place, then start navigation to check your location.'
     : simulating
-      ? 'Press Next Turn to simulate the next expected checkpoint.'
+      ? 'Press Next Turn to simulate the next checkpoint.'
       : 'When you reach the end of this walking leg, press Next Turn to check your location.'
   if (arrived)
     message = 'You have arrived. The destination location check passed.'
@@ -60,20 +52,20 @@ export function CheckpointNavigation({
       : 'Checking your location… Respond to any browser permission prompt.'
   else if (failure)
     message = simulating
-      ? 'The demo location is unavailable. Choose Expected checkpoint to continue testing.'
+      ? 'The prototype location check failed. Try again.'
       : failureMessages[failure]
   else if (verification?.status === 'mismatched') {
     message = simulating
-      ? 'The demo reading is at the wrong location. Progress has not advanced. Choose Expected checkpoint to continue testing.'
+      ? 'The simulated location did not match this checkpoint. Try again; progress has not advanced.'
       : 'You may be at the wrong location. Check the route and try again; your progress has not advanced.'
   } else if (verification?.status === 'uncertain') {
     message =
       verification.reason === 'accuracy-overlaps-checkpoint'
         ? simulating
-          ? 'The demo reading is not accurate enough to confirm this checkpoint. Choose Expected checkpoint to continue testing.'
+          ? 'The simulated location could not confirm this checkpoint. Try again.'
           : 'Your location is not accurate enough to confirm this checkpoint. Wait for a clearer signal and try again.'
         : simulating
-          ? 'The demo reading is stale. Choose Expected checkpoint to continue testing.'
+          ? 'The simulated location is too old to confirm this checkpoint. Try again.'
           : 'The location reading is not fresh enough to confirm this checkpoint. Try again.'
   }
 
@@ -98,45 +90,15 @@ export function CheckpointNavigation({
               : 'Start navigation'}
         </button>
       )}
-      <h2>Walk the route</h2>
       <p className="prototype-notice">
         Prototype paths and checkpoints are illustrative and may not match
         campus walkways.
       </p>
       {simulating ? (
-        <>
-          <p className="simulation-notice">
-            Demo location is on. Buttons simulate the selected checkpoint
-            result, so you can test from anywhere. Your device location is not
-            requested.
-          </p>
-          {prototypeLocationScenarioController && (
-            <label className="prototype-scenario-control">
-              Demo checkpoint result
-              <select
-                aria-label="Demo checkpoint result"
-                aria-describedby="prototype-scenario-help"
-                onChange={(event) => {
-                  const scenario = event.target.value
-                  if (!isPrototypeLocationScenario(scenario)) return
-                  prototypeLocationScenarioController.setScenario(scenario)
-                  resetNavigation()
-                }}
-                disabled={pending}
-                value={prototypeLocationScenarioController.scenario}
-              >
-                {prototypeLocationScenarios.map((scenario) => (
-                  <option key={scenario} value={scenario}>
-                    {scenarioLabels[scenario]}
-                  </option>
-                ))}
-              </select>
-              <span id="prototype-scenario-help">
-                Changing this result restarts the route simulation.
-              </span>
-            </label>
-          )}
-        </>
+        <p className="simulation-notice">
+          Prototype mode simulates location checks, so you can try navigation
+          without moving.
+        </p>
       ) : (
         <p>
           Location is requested only when you press a navigation button. It is
@@ -200,12 +162,4 @@ export function CheckpointNavigation({
       </div>
     </section>
   )
-}
-
-const scenarioLabels: Record<PrototypeLocationScenario, string> = {
-  expected: 'Expected checkpoint — continue',
-  'uncertain-accuracy': 'Uncertain accuracy — stay on this step',
-  mismatched: 'Wrong location — stay on this step',
-  stale: 'Stale reading — stay on this step',
-  unavailable: 'Location unavailable — stay on this step',
 }

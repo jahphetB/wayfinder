@@ -87,11 +87,6 @@ select:focus-visible {
   line-height: 0.98;
   letter-spacing: -0.06em;
 }
-.panel-intro {
-  margin: 1rem 0 2rem;
-  color: #62586e;
-  line-height: 1.55;
-}
 form {
   display: grid;
   gap: 0.9rem;
@@ -434,39 +429,6 @@ form {
   background: #e8f2ff;
   color: #173b64;
   padding: 0.8rem 0.9rem;
-}
-.prototype-scenario-control {
-  display: grid;
-  gap: 0.4rem;
-  min-width: 0;
-  margin: 0.8rem 0;
-  color: #574569;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.prototype-scenario-control select {
-  width: 100%;
-  min-width: 0;
-  min-height: 2.75rem;
-  padding: 0 0.7rem;
-  border: 1px solid #c4b4d3;
-  border-radius: 0.65rem;
-  color: #173b64;
-  background: #f8fcff;
-  font: inherit;
-  letter-spacing: normal;
-  text-transform: none;
-}
-.prototype-scenario-control span {
-  color: #54705f;
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: normal;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-  text-transform: none;
 }
 .current-instruction {
   padding: 0.8rem;

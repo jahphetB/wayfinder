@@ -6,7 +6,6 @@ import {
   createLocationProvider,
 } from '@/composition/createLocationProvider'
 import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
-import { getPrototypeLocationScenarioController } from '@/features/navigation/contracts/PrototypeLocationScenario'
 import type { NavigationSession } from '@/domain/navigation/types'
 
 const MapView = lazy(async () => {
@@ -26,8 +25,6 @@ export function App({
   const [navigationSession, setNavigationSession] =
     useState<NavigationSession>()
   const activeLocationProvider = locationProvider ?? defaultLocationProvider
-  const prototypeLocationScenarioController =
-    getPrototypeLocationScenarioController(activeLocationProvider)
   const currentNavigationSession =
     navigationSession?.route === planner.plannedRoute
       ? navigationSession
@@ -49,9 +46,6 @@ export function App({
           planner={planner}
           locationProvider={activeLocationProvider}
           onNavigationSessionChange={setNavigationSession}
-          {...(prototypeLocationScenarioController
-            ? { prototypeLocationScenarioController }
-            : {})}
         />
         <Suspense
           fallback={

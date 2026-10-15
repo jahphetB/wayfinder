@@ -105,10 +105,9 @@ Calculated routes now retain each edge's detailed geometry and produce internal
 turn-by-turn steps. You can preview routes among 50 searchable campus places,
 including buildings, apartments, parking areas, courts, and landmarks. The map
 starts in **3D** with a campus-wide overview, with empty search
-fields; the 2D toggle remains available. In **Walk the
-route**, use **Demo checkpoint result** to test an expected, uncertain, wrong,
-stale, or unavailable reading from anywhere; changing the result restarts that
-route simulation. The default prototype does not request your device location.
+fields; the 2D toggle remains available. **Start navigation** and **Next Turn**
+simulate expected checkpoint readings so you can try a route without moving.
+The default prototype does not request your device location.
 Physical browser-location mode remains available through the environment setting
 above; in that mode uncertain, mismatched, or failed readings do not advance progress.
 Use HTTPS for later phone testing. Paths remain illustrative: do not rely on
