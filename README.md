@@ -1,10 +1,12 @@
-# Yotes Wayfinder
+# Wayfinder
 
 Wayfinder is a responsive navigation-map prototype. It provides
 origin and destination search, locally calculated prototype walking routes, and
 a 2D/3D MapLibre map with an OpenStreetMap basemap. The 3D view includes one
 prototype library shape traced from the supplied building footprint; its
 height and appearance are illustrative. No routing backend is required.
+
+Live: https://wayfinder-umber.vercel.app/
 
 ## Current progress
 
