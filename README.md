@@ -1,4 +1,4 @@
-# Wayfinder
+# Yotes Wayfinder
 
 Wayfinder is a responsive navigation-map prototype. It provides
 origin and destination search, locally calculated prototype walking routes, and

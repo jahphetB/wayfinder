@@ -1,6 +1,6 @@
-# Yote Wayfinder Architecture Handbook
+# Yotes Wayfinder Architecture Handbook
 
-This is the living handbook for Yote Wayfinder. It explains what the project
+This is the living handbook for Yotes Wayfinder. It explains what the project
 does, how its pieces fit together, where common changes belong, and how to
 investigate problems. It is written so that a reader does not need a software
 engineering background to understand the overall system.
@@ -41,7 +41,7 @@ work together, that decision should be recorded here.
 
 ## Start here
 
-Yote Wayfinder is a browser-based route-planning prototype. A person chooses a
+Yotes Wayfinder is a browser-based route-planning prototype. A person chooses a
 starting place and a destination, previews a calculated walking route, and sees
 that route on an interactive map. The map can be viewed from a flat 2D angle or
 a tilted 3D perspective. One library building is shown as an illustrative

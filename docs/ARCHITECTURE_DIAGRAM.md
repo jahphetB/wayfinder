@@ -1,4 +1,4 @@
-# Yote Wayfinder Architecture Diagram
+# Yotes Wayfinder Architecture Diagram
 
 This is the maintained visual map of the project. Solid arrows and green or
 gold boxes represent implemented behavior. Dashed arrows are labeled to distinguish
@@ -9,7 +9,7 @@ architectural boundary changes.
 
 ```mermaid
 flowchart TB
-    User([Person using Yote Wayfinder])
+    User([Person using Yotes Wayfinder])
 
     subgraph Browser[Browser application]
         Index[index.html<br/>HTML host]

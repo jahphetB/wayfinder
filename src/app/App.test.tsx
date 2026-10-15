@@ -67,7 +67,7 @@ describe('App', () => {
     render(<App />)
 
     expect(
-      screen.getByRole('heading', { name: 'Find your way, beautifully.' }),
+      screen.getByRole('heading', { name: 'Find your way on campus' }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('region', { name: 'Interactive map' }),

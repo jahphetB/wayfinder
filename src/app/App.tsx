@@ -37,7 +37,7 @@ export function App({
       <header className="page-header">
         <div className="brand">
           <span aria-hidden="true" className="brand-mark" />
-          Yote Wayfinder
+          Yotes Wayfinder
         </div>
         <span className="header-status">Prototype</span>
       </header>

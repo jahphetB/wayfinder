@@ -214,11 +214,7 @@ export function NavigationPanel({
   return (
     <section className="navigation-panel">
       <p className="eyebrow">Route planner</p>
-      <h1>Find your way, beautifully.</h1>
-      <p className="panel-intro">
-        Pick your start and destination to preview a route. Stadium driving is a
-        separate prototype handoff.
-      </p>
+      <h1>Find your way on campus</h1>
       <form
         onSubmit={(event) => {
           event.preventDefault()
