@@ -42,6 +42,7 @@ height and appearance are illustrative. No routing backend is required.
 | 30. One-time location button        | Complete | Browser location can show an approximate blue dot or an off-campus/uncertain message without changing route navigation.                                       |
 | 31. Mobile performance check        | Complete | A production-build phone-viewport baseline separates early interface paint from later map/tile completion; no speculative bundle change was made.             |
 | 32. Campus-focused UI cleanup       | Complete | Updated the name and headline, removed extra demo controls, preserved route progress and summary, and made the map visible sooner on phones.                  |
+| 33. Vercel deployment preparation   | Complete | Pinned the Vite build and `dist` output for a GitHub import; the first live deployment remains for the repository owner to start.                             |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -50,6 +51,7 @@ See the [architecture handbook](docs/ARCHITECTURE.md),
 records the latest source, decisions, limitations, and resume checklist.
 Read only this step in the [Step 31 handbook guide](docs/ARCHITECTURE.md#step-31-mobile-performance-baseline).
 Read only this step in the [Step 32 handbook guide](docs/ARCHITECTURE.md#step-32-campus-focused-ui-cleanup).
+Read only this step in the [Step 33 handbook guide](docs/ARCHITECTURE.md#step-33-vercel-deployment-preparation).
 
 ## Local development
 
@@ -208,13 +210,40 @@ make its current third-party library documentation tools available. Basic remote
 access is configured without storing an API key; an optional personal Context7
 key may be configured outside the repository for higher limits.
 
-## GitHub publishing
+## Deploy on Vercel
 
-The repository uses a local `main` branch and focused commits. To connect it to GitHub after creating an empty repository there, run:
+The source repository is [jahphetB/wayfinder](https://github.com/jahphetB/wayfinder).
+The root [`vercel.json`](vercel.json) pins the Vite framework, `npm run build`
+(which also checks TypeScript), and the `dist` output folder. No backend, API
+key, custom domain, or environment variable is required for the first
+prototype deployment.
 
-```bash
-git remote add origin https://github.com/<account>/<repository>.git
-git push -u origin main
-```
+1. Sign in to [Vercel](https://vercel.com/) with GitHub and select **Add New → Project**.
+2. Grant Vercel access to `jahphetB/wayfinder`, then import that repository.
+3. Confirm the repository root is selected. The committed configuration should
+   show Vite, `npm run build`, and `dist`; do not override these settings.
+4. Leave environment variables empty to keep simulated checkpoint navigation
+   on. Click **Deploy**, then open the HTTPS `vercel.app` address Vercel gives you.
+5. On a phone and desktop, check that the map tiles load, search and route
+   preview work, 2D/3D switching works, simulated turns advance, and the
+   separate **Get your location** button handles permission and off-campus
+   results. Report any build error or browser-console error before treating the
+   deployment as successful.
 
-Pushing is intentionally performed only after explicit user approval. Confirm the remote with `git remote -v` before the first push.
+After import, Vercel deploys future pushes to `main` automatically. Keep the
+project's approval-gated Git push practice in mind: an approved push will then
+also publish a new version. Preview branches or pull requests can be used to
+review changes before they reach `main`.
+
+This first public site is still an **illustrative prototype**, not verified
+walking or driving guidance. `VITE_LOCATION_MODE=browser` must not be set for
+this deployment; enable physical checkpoint testing only in a later reviewed
+step. The **Get your location** control remains a separate real, one-time GPS
+request on HTTPS. The default basemap uses OpenStreetMap's community tile server,
+whose [usage policy](https://operations.osmfoundation.org/policies/tiles/) and
+best-effort availability apply. If use grows, choose an appropriate tile provider
+before relying on map availability. `VITE_` environment values are included in
+browser code, so never store secrets there. The current build retains source
+maps for debugging and a known large map-chunk warning; neither prevents
+deployment. Vercel's free Hobby plan is restricted to
+[personal/non-commercial use](https://vercel.com/legal/terms).

@@ -690,3 +690,26 @@ commits; awaiting final documentation commit and push approval.
   navigation tests pass. The existing large map-bundle warning remains.
 - Three implementation commits: `55e5ae5`, `f558267`, and `9a3cd78`.
   The documentation commit is recorded separately. Deployment has not started.
+
+## Step 33: Vercel deployment preparation
+
+Status: repository configuration and local verification complete; the owner
+still needs to import the GitHub repository into Vercel and deploy it.
+
+- Added root `vercel.json` with the Vite preset, `npm run build`, and `dist`.
+  This preserves the existing TypeScript check during Vercel builds and avoids
+  manual build/output settings on import. No router rewrite, function, API key,
+  or runtime dependency was added.
+- Left checkpoint navigation in its existing prototype default. The separate
+  one-shot browser location button remains functional over the HTTPS address
+  supplied by Vercel. Neither routing data nor map-provider code changed.
+- Confirmed `npm run format:check`, `npm run lint`, `npm run typecheck`,
+  `npm run test` (20 files, 94 tests), `npm run build`, and `git diff --check`.
+  The known large MapView chunk warning remains. This is a local build check,
+  not proof of a successful hosted deployment or a physical-phone check.
+- Documented the five owner import/test actions in README. The default raster
+  tiles still depend on OpenStreetMap's best-effort community service; the app
+  remains illustrative and is not ready for relied-on physical navigation.
+- Vercel will deploy later `main` pushes automatically after initial import.
+  Keep the existing approval gate for pushes; use preview branches for review
+  when necessary. The user explicitly approved pushing this step.

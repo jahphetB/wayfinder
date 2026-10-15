@@ -5,7 +5,7 @@ This short file is the current checkpoint for interrupted work. Read it with
 `docs/PROGRESS.md` is the chronological step record. Update this checkpoint
 after each meaningful step, especially when a source or approval state changes.
 
-## Current state after Step 32
+## Current state after Step 33
 
 - The app is a local, illustrative campus-route prototype that opens with a
   tilted 3D camera framing mapped campus facilities and stadium. One library mesh
@@ -104,6 +104,12 @@ after each meaningful step, especially when a source or approval state changes.
   without moving. The route summary keeps its origin, destination, duration,
   and distance; the Completed / Current leg / Upcoming legend and Back/Next
   controls remain. Mobile layout now places the map higher on the page.
+- Step 33 added root `vercel.json` to pin Vite, `npm run build`, and `dist`.
+  No router, backend, route data, map behavior, or location mode changed. The
+  owner can import `jahphetB/wayfinder` into Vercel and deploy without adding
+  environment variables. The first hosted build and smoke test have not yet
+  happened. Once imported, approved pushes to `main` publish automatically.
+  OpenStreetMap community tiles remain best-effort; navigation is illustrative.
 
 ## Working rules and verification
 
@@ -111,10 +117,9 @@ after each meaningful step, especially when a source or approval state changes.
   report and ask for approval plus concise/detailed preference. Explain key
   files and newly used technical terms. No unapproved new features.
 - Make focused conventional commits after passing relevant checks. Push only
-  with explicit approval. Step 31 is pushed through `6abd7c4`. Step 32 has
-  three focused implementation commits (`55e5ae5`, `f558267`, `9a3cd78`); its
-  documentation commit is separate. The user approved pushing these commits
-  in the Step 32 request; verify remote status before reporting publication.
+  with explicit approval. Step 32 is pushed through `61a5c44`. Step 33's
+  Vercel configuration commit is `90797ee`; its documentation commit follows
+  separately. The user approved pushing Step 33; verify the remote after push.
 - Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
   `npm run build`, and `git diff --check`. For visual changes, inspect the real
   browser at desktop/phone widths and check the console.
@@ -124,10 +129,9 @@ after each meaningful step, especially when a source or approval state changes.
 
 ## Next approval boundary
 
-Step 32's user-approved UI cleanup is complete and its commits may be pushed
-under the user's explicit approval. Deployment has not started. The user wants
-deployment as the next stage; prepare a stepwise deployment proposal and
-confirm hosting target/account needs before any external publishing. After
-deployment, revisit real-world reliability; realistic 3D buildings and further
-features come later. A real lower-end phone measurement is still needed before
-claiming mobile performance is production-ready.
+The repository-side Vercel preparation and GitHub push are approved. The owner
+must import the repository and start the first deployment in their Vercel
+account; no live URL is verified yet. After they share that URL, inspect the
+hosted build and phone/desktop browser behavior, then stop for another approval.
+Do not enable physical checkpoint mode or claim route safety. A real lower-end
+phone check is still needed before claiming mobile performance is production-ready.

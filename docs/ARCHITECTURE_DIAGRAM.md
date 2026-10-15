@@ -70,14 +70,17 @@ flowchart TB
         LibraryScene[libraryPrototypeBuilding.ts<br/>OSM library outline, illustrative height]
     end
 
-    subgraph ExternalRuntime[Current external runtime dependency]
+    subgraph ExternalRuntime[External runtime and pending hosting]
         OSM[OpenStreetMap raster tiles<br/>prototype basemap]
         BrowserGPS[Browser Geolocation API<br/>one-shot location requests]
+        Vercel[Vercel static hosting<br/>first import pending]
     end
 
     subgraph QualityAndKnowledge[Development quality and project knowledge]
         Tests[Vitest and Testing Library<br/>focused automated tests]
         Tooling[TypeScript, ESLint, Prettier, Vite<br/>strict checks and bundling]
+        VercelConfig[vercel.json<br/>Vite preset, checked build, dist output]
+        GitHub[GitHub main<br/>approved source commits]
         Handbook[README and docs<br/>architecture, progress, skills, decisions]
         OSMExport[User-supplied OSM XML snapshot<br/>reviewed source geometry]
         Importer[scripts/import_campus_osm.py<br/>filtered, reproducible source import]
@@ -132,6 +135,9 @@ flowchart TB
     MapLibre --> GPU
     Three --> GPU
     OSM --> MapLibre
+    GitHub --> VercelConfig
+    VercelConfig -. owner imports and builds dist .-> Vercel
+    Vercel -. serves after first deployment .-> Index
     OSMExport --> Importer --> Snapshot
     OSMExport -. counts and gaps .-> Handbook
 
@@ -165,7 +171,9 @@ flowchart TB
 
     class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,CampusPresence,GraphData,GraphBuilder,Snapshot,StadiumHandoff,GraphLoader,Locations,Campus,LibraryScene,BuildingContract implemented
     class CreateAdapter,Adapter,MapLibre,BuildingLayer,Three,GPU integration
-    class OSM,OSMExport,Importer,Tests,Tooling,Handbook,Context7,AgentRules external
+    class OSM,OSMExport,Importer,Tests,Tooling,Handbook,Context7,AgentRules,GitHub external
+    class VercelConfig implemented
+    class Vercel external
     class NavigationControls,CheckpointHook implemented
     class CreateLocation,BrowserProvider,PrototypeProvider integration
     class BrowserGPS external

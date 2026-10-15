@@ -347,3 +347,15 @@ stale.
 - **YOTE / First-screen map access:** Reduced mobile planner height using
   responsive spacing and control sizing, then inspected the real production
   layout rather than relying only on CSS dimensions.
+
+#### Step 33 usage record
+
+- **EXTERNAL / Context7 and official Vercel/Vite documentation:** Checked the
+  supported Vite deployment settings, output folder, and browser-visible
+  environment-variable behavior before committing host configuration.
+- **YOTE / Repository-owned deployment contract:** Kept the build and output
+  settings in one reviewed `vercel.json`, preserving TypeScript checks on the
+  hosted build without adding a server or unneeded routing rewrite.
+- **YOTE / Local-versus-live verification boundary:** Recorded passing local
+  checks separately from the still-pending owner import, hosted build, and
+  phone/browser smoke test.
