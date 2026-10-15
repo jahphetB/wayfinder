@@ -44,7 +44,7 @@ describe('CheckpointNavigation', () => {
       />,
     )
     expect(
-      screen.getByText(/Prototype mode simulates location checks/),
+      screen.getByText(/location checks are simulated/),
     ).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent(
       'simulate the starting location check',

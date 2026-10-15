@@ -396,7 +396,7 @@ form {
   position: absolute;
   z-index: 2;
   right: 1.25rem;
-  bottom: 1.25rem;
+  bottom: 3.25rem;
   max-width: 15rem;
   margin: 0;
   padding: 0.7rem 0.85rem;
@@ -421,14 +421,13 @@ form {
   font-size: 1rem;
 }
 .prototype-notice {
+  margin: 0.75rem 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.7rem;
+  background: #fff4df;
   color: #79420b;
-}
-
-.simulation-notice {
-  border-radius: 0.75rem;
-  background: #e8f2ff;
-  color: #173b64;
-  padding: 0.8rem 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 .current-instruction {
   padding: 0.8rem;
@@ -493,17 +492,55 @@ form {
 }
 @media (max-width: 760px) {
   .app-shell {
-    padding: 1.15rem;
+    padding: 0.85rem;
+  }
+  .page-header {
+    margin-bottom: 1rem;
   }
   .wayfinder-layout {
+    border-radius: 1.25rem;
     grid-template-columns: 1fr;
     min-height: 0;
   }
   .navigation-panel {
-    min-height: 33rem;
+    padding: 1.2rem;
+  }
+  .navigation-panel .eyebrow {
+    margin: 0 0 0.55rem;
+  }
+  .navigation-panel h1 {
+    max-width: none;
+    margin: 0 0 0.8rem;
+    font-size: clamp(1.7rem, 7vw, 2.15rem);
+    line-height: 1.05;
+  }
+  .navigation-panel form {
+    gap: 0.65rem;
+  }
+  .location-field input {
+    min-height: 3rem;
+  }
+  .swap-locations {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+  .route-action {
+    min-height: 3.1rem;
+    margin-top: 0.15rem;
+  }
+  .route-summary-empty {
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+  }
+  .route-summary {
+    margin-top: 1rem;
+  }
+  .checkpoint-navigation {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
   }
   .map-preview {
-    min-height: 20rem;
+    min-height: 24rem;
   }
   .map-preview p {
     right: 1rem;

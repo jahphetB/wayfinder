@@ -90,16 +90,18 @@ export function CheckpointNavigation({
               : 'Start navigation'}
         </button>
       )}
-      <p className="prototype-notice">
-        Prototype paths and checkpoints are illustrative and may not match
-        campus walkways.
-      </p>
       {simulating ? (
-        <p className="simulation-notice">
-          Prototype mode simulates location checks, so you can try navigation
-          without moving.
+        <p className="prototype-notice">
+          Prototype routes are illustrative; location checks are simulated so
+          you can try navigation without moving.
         </p>
       ) : (
+        <p className="prototype-notice">
+          Prototype paths and checkpoints are illustrative and may not match
+          campus walkways.
+        </p>
+      )}
+      {!simulating && (
         <p>
           Location is requested only when you press a navigation button. It is
           not continuously tracked or saved by this app.
