@@ -1,9 +1,8 @@
 # Yotes Wayfinder Architecture Diagram
 
 This is the maintained visual map of the project. Solid arrows and green or
-gold boxes represent implemented behavior. Dashed arrows are labeled to distinguish
-contract implementations, verification relationships, and planned integrations;
-gray boxes show components that have not been built.
+gold boxes represent implemented behavior. Dashed arrows label contract
+implementations, verification relationships, and deployment connections.
 Update this diagram whenever a major module, data flow, external dependency, or
 architectural boundary changes.
 
@@ -70,10 +69,10 @@ flowchart TB
         LibraryScene[libraryPrototypeBuilding.ts<br/>OSM library outline, illustrative height]
     end
 
-    subgraph ExternalRuntime[External runtime and pending hosting]
+    subgraph ExternalRuntime[External runtime and hosting]
         OSM[OpenStreetMap raster tiles<br/>prototype basemap]
         BrowserGPS[Browser Geolocation API<br/>one-shot location requests]
-        Vercel[Vercel static hosting<br/>first import pending]
+        Vercel[Vercel static hosting<br/>production prototype]
     end
 
     subgraph QualityAndKnowledge[Development quality and project knowledge]
@@ -86,10 +85,6 @@ flowchart TB
         Importer[scripts/import_campus_osm.py<br/>filtered, reproducible source import]
         Context7[Context7 MCP<br/>current library documentation]
         AgentRules[AGENTS.md<br/>approval and engineering rules]
-    end
-
-    subgraph ApprovedFuture[Approved future integrations - not implemented]
-        ModelPipeline[Authorized photos and photogrammetry<br/>optimized GLB and KTX2 assets]
     end
 
     User --> Index --> Main --> App
@@ -136,8 +131,8 @@ flowchart TB
     Three --> GPU
     OSM --> MapLibre
     GitHub --> VercelConfig
-    VercelConfig -. owner imports and builds dist .-> Vercel
-    Vercel -. serves after first deployment .-> Index
+    VercelConfig -. builds dist .-> Vercel
+    Vercel -. serves prototype .-> Index
     OSMExport --> Importer --> Snapshot
     OSMExport -. counts and gaps .-> Handbook
 
@@ -161,12 +156,10 @@ flowchart TB
     BrowserProvider --> BrowserGPS
     CheckpointHook --> NavigationSession
     NavigationSession --> NavigationControls
-    ModelPipeline -. future approved assets .-> BuildingLayer
 
     classDef implemented fill:#dff3e7,stroke:#155f3a,color:#082f20,stroke-width:2px
     classDef integration fill:#fff0c2,stroke:#9b6500,color:#493000,stroke-width:2px
     classDef external fill:#e9f0ff,stroke:#315da8,color:#172f58,stroke-width:2px
-    classDef future fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
     classDef dormant fill:#eeeeee,stroke:#777,color:#333,stroke-dasharray:6 4
 
     class Index,Main,App,Panel,PlannerHook,PlannerModel,LocationContract,WalkingRoutes,Pathfinder,RouteSteps,LocationVerification,NavigationSession,DomainTypes,Factories,MapView,MapContract,CampusPresence,GraphData,GraphBuilder,Snapshot,StadiumHandoff,GraphLoader,Locations,Campus,LibraryScene,BuildingContract implemented
@@ -177,7 +170,6 @@ flowchart TB
     class NavigationControls,CheckpointHook implemented
     class CreateLocation,BrowserProvider,PrototypeProvider integration
     class BrowserGPS external
-    class ModelPipeline future
 ```
 
 ## How to read the diagram
@@ -215,20 +207,16 @@ flowchart TB
 - Composition selects the prototype simulator by default. It uses the expected
   checkpoint supplied through the contract; `VITE_LOCATION_MODE=browser` selects
   physical one-shot browser location for future field testing.
-- The prototype provider additionally offers a narrow scenario capability. App
-  exposes it only when present; choosing a demo outcome resets the existing
-  session (preserving selector focus) and still passes its reading through
-  normal verification. A changed route starts a fresh component session.
+- The prototype provider offers a scenario capability used in testing. The
+  ordinary interface uses expected checkpoint readings; its former scenario
+  menu is hidden. A changed route starts a fresh component session.
 - The navigation component reports immutable session progress to App. App passes
   it to MapView, and the adapter converts it into completed/current/upcoming leg
   styling and a camera focused along the current travel direction. On a narrow
   screen, route preview scrolls to the map, but turn updates do not displace
   written instructions.
-- MapLibre currently owns the camera and browser rendering. The retained
-  Three.js layer is not attached and does not add a building to the map.
-- Gray nodes describe the approved next architecture, not current behavior.
-  Their dashed styling must remain until the corresponding implementation and
-  tests are complete.
+- MapLibre owns the camera and browser rendering. The attached Three.js layer
+  renders one library footprint with an illustrative height in 3D mode.
 
 ## Diagram maintenance checklist
 
@@ -237,7 +225,7 @@ Update this file in the same commit when a change:
 1. Adds, removes, or renames a major runtime module.
 2. Changes which module owns state or data.
 3. Adds or removes a third-party runtime service.
-4. Turns a gray future component into implemented behavior.
+4. Adds a new implemented component.
 5. Changes the direction of an important dependency.
 6. Introduces a new verification, documentation, or build system that affects
    the project workflow.

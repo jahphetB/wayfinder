@@ -562,8 +562,7 @@ Status: complete; code committed as `f9fb661` and pushed before Step 28.
 
 ## Step 28: One footprint-based library prototype in 3D
 
-Status: complete; code and documentation commits pushed with Step 31 approval.
-Step 27's two pending commits were pushed at the user's request.
+Status: complete.
 
 - The user chose to defer additional 2D source corrections and begin the
   previously agreed 3D phase. Reused the committed OSM library outline rather
@@ -586,7 +585,7 @@ Step 27's two pending commits were pushed at the user's request.
 
 ## Step 29: Campus overview and route camera framing
 
-Status: complete; Step 28-29 commits pushed with Step 31 approval.
+Status: complete.
 
 - Deferred additional 3D building work at the user's request. The opening
   camera now fits all imported building/area outlines, including both stadium
@@ -608,7 +607,7 @@ Status: complete; Step 28-29 commits pushed with Step 31 approval.
 
 ## Step 30: One-time map location control
 
-Status: complete; Step 30 commits pushed with Step 31 approval.
+Status: complete.
 
 - Added **Get your location** to the map. It uses a real one-shot browser
   request regardless of the route-checkpoint simulator setting; it does not
@@ -630,7 +629,7 @@ Status: complete; Step 30 commits pushed with Step 31 approval.
   prototype before the later real-world reliability and realistic-3D phases.
 - Formatting, lint, strict type-check, 94 tests in 20 files, production
   build, and Git whitespace check pass. The deferred map bundle remains large
-  at about 418.21 kB gzip; the next step will measure mobile impact.
+  at about 418.21 kB gzip; Step 31 records its mobile performance baseline.
 
 ## Step 31: Mobile performance baseline
 
@@ -663,8 +662,7 @@ pushed to `origin/main` at the user's request.
 
 ## Step 32: Campus-focused UI cleanup
 
-Status: implementation complete and locally committed in three focused
-commits; awaiting final documentation commit and push approval.
+Status: complete.
 
 - Updated the displayed brand to **Yotes Wayfinder**, changed the headline to
   “Find your way on campus,” and removed the explanatory paragraph below it.
@@ -689,12 +687,11 @@ commits; awaiting final documentation commit and push approval.
   no warnings or errors. Formatting, lint, type-check, build, and 19 focused
   navigation tests pass. The existing large map-bundle warning remains.
 - Three implementation commits: `55e5ae5`, `f558267`, and `9a3cd78`.
-  The documentation commit is recorded separately. Deployment has not started.
+  Documentation commit: `61a5c44`.
 
 ## Step 33: Vercel deployment preparation
 
-Status: repository configuration and local verification complete; the owner
-still needs to import the GitHub repository into Vercel and deploy it.
+Status: repository configuration and local verification complete.
 
 - Added root `vercel.json` with the Vite preset, `npm run build`, and `dist`.
   This preserves the existing TypeScript check during Vercel builds and avoids
@@ -710,15 +707,11 @@ still needs to import the GitHub repository into Vercel and deploy it.
 - Documented the five owner import/test actions in README. The default raster
   tiles still depend on OpenStreetMap's best-effort community service; the app
   remains illustrative and is not ready for relied-on physical navigation.
-- Vercel will deploy later `main` pushes automatically after initial import.
-  Keep the existing approval gate for pushes; use preview branches for review
-  when necessary. The user explicitly approved pushing this step.
+- The connected Vercel project builds new `main` pushes automatically.
 
 ## Step 34: Ownership and source protection
 
-Status: implemented and locally verified; push and account changes require
-the owner's approval. No live deployment or repository-visibility change was
-performed in this step.
+Status: implemented and locally verified.
 
 - Added root `LICENSE` reserving rights in original materials for `jahphetB`,
   the Git author/account identity. Kept ordinary hosted-app use permitted and
@@ -728,14 +721,23 @@ performed in this step.
 - Disabled production source maps, added an ownership banner to the app
   bundles, and generated `dist/THIRD_PARTY_LICENSES.md` through Vite's built-in
   license reporting. Added environment-file ignore rules.
-- Added `docs/OWNERSHIP.md` explaining MIT/Apache/GPL versus the current notice,
-  legal and technical limits, separate data/library rights, private source,
-  account protection, registration/brand options, and deployment verification.
+- Added `docs/OWNERSHIP.md` covering original-work permissions and separate
+  software/data rights. Step 35 condensed it into public-facing terms.
 - Formatting, lint, TypeScript, all 94 tests in 20 files, and production build
   pass. Inspected the build: zero `*.map` files, both app bundles contain the
   ownership banner, and the dependency license report contains notices for
   React, React DOM, Scheduler, MapLibre, and Three.js. The existing large-map
   chunk warning remains. No new package or application navigation feature.
-- The notice does not prove ownership or prevent copying. Browser code/data
-  are still downloadable. Old public deployments and downloaded copies are
-  not revoked; an approved push and new hosted deployment are still needed.
+- Browser code/data remain downloadable; the notice and build settings do not
+  revoke existing copies or rights.
+
+## Step 35: Public documentation and deployment verification
+
+- Condensed the README into features, setup, checks, deployment, architecture,
+  and ownership. Preserved the prototype's access and geographic limitations.
+- Replaced the ownership tutorial and owner-action list with a concise statement
+  of original-work permissions and third-party terms.
+- Removed conversational planning from recent explanatory records and retained
+  the existing `Wayfinder` title edit in `LICENSE`.
+- Local verification: formatting, lint, TypeScript, 94 tests in 20 files,
+  and production build pass. No application runtime code changed in this step.

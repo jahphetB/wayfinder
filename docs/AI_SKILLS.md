@@ -52,8 +52,7 @@ stale.
 
 ### Step 30 usage record
 
-- **OPENAI / OpenAI Docs:** Checked official current model-selection guidance
-  for the next-step recommendation.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **OPENAI / Playwright:** Verified one-time on/off-campus geolocation with
   simulated browser coordinates and checked the phone layout and console.
 - **EXTERNAL / Context7 + MDN:** Checked MapLibre GeoJSON/camera patterns and
@@ -64,8 +63,7 @@ stale.
 
 ### Step 29 usage record
 
-- **OPENAI / OpenAI Docs:** Checked current official model-selection guidance
-  for the next-step recommendation.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **OPENAI / Playwright:** Used a real browser at desktop and phone widths to
   inspect the opening map, route-preview margins, 2D labels, and console.
 - **EXTERNAL / Context7 + MapLibre primary source:** Checked fitBounds and
@@ -76,9 +74,7 @@ stale.
 
 ### Step 16 usage record
 
-- **OPENAI / OpenAI Docs:** Checked official model-selection guidance for the
-  next-step recommendation; use one agent and increase reasoning only when the
-  observed task warrants it. This does not change the application's dependencies.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 
 - **OPENAI / Playwright:** Used the installed browser-testing skill with an
   isolated session and emulated geolocation to check progress, uncertainty,
@@ -89,8 +85,8 @@ stale.
   permission, accuracy, freshness, and timeout behavior. No new skill download
   or dependency was necessary.
 - **YOTE / Approved-step workflow:** Applied the existing project memory skill
-  to preserve scope, isolated domain/provider boundaries, verification, focused
-  commits, and explicit push approval.
+  to preserve scope, isolated domain/provider boundaries, verification, and
+  focused commits.
 - **YOTE / One-shot request lifecycle:** Applied an immediate duplicate-request
   guard, late-result disposal, preview-keyed session reset, typed recovery
   failures, and timestamp-reuse rejection. This is a documented project practice,
@@ -146,8 +142,7 @@ stale.
   the turn-advance viewport, and a keyboard-focused scenario change in a real
   local browser. This exposed the unwanted turn-update scroll and narrow
   selector overflow that component tests alone did not show.
-- **OPENAI / OpenAI Docs:** Checked current official model-selection guidance
-  before recommending the next step's efficient and stronger model options.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **EXTERNAL / GPS.gov:** Used official consumer GPS accuracy guidance to keep
   phone waypoint observations separate from measured footprints, entrance
   positions, and walkway widths.
@@ -187,8 +182,7 @@ stale.
 - **OPENAI / Playwright skill:** Tested the actual browser previews and console.
   Measuring route endpoint positions on the live map exposed a camera-boundary
   constraint that isolated domain tests could not reveal.
-- **OPENAI / OpenAI Docs skill:** Checked current official model-selection
-  guidance before recommending an efficient agent for the next 2D review step.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **YOTE / Traceable 2D graph editing:** Kept editable source coordinates in
   one data file, derived routing/search/map output through existing contracts,
   and checked drawn polyline lengths against edge distances. This is a project
@@ -204,8 +198,7 @@ stale.
   phone route previews, suggestion-list dimensions, keyboard scrolling, and
   the JavaScript console. The skill guides runtime verification; it does not
   provide campus facts.
-- **OPENAI / OpenAI Docs skill:** Checked the current official model-selection
-  guidance before recommending an efficient model for the next review step.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **YOTE / Reproducible OSM import:** Developed a dependency-free importer that
   keeps source XML outside the app and commits a compact, traceable walking
   snapshot. A separate builder validates curated destination references.
@@ -214,7 +207,7 @@ stale.
   combined straight source segments into useful turns. Focused tests protect
   the distinction between route score and shown length.
 - **YOTE / Durable step memory:** Added `docs/PROJECT_MEMORY.md` so source
-  identity, decisions, limitations, commands, and the next approval boundary
+  identity, decisions, limitations, and verification commands
   survive context resets without copying the entire handbook.
 
 #### Step 25 usage record
@@ -226,8 +219,7 @@ stale.
 - **OPENAI / Playwright skill:** Inspected the real desktop and phone map,
   dropdown choices, two route previews, 3D without the block, and browser
   console. Screenshots were kept under ignored `output/playwright/`.
-- **OPENAI / OpenAI Docs skill:** Checked current official model-selection
-  guidance before the next-step agent recommendation.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **YOTE / Description-backed destination curation:** Kept named destinations
   separate from OSM path import, validated described entrance references, and
   labeled outline-derived approach points as illustrative.
@@ -246,8 +238,7 @@ stale.
 - **OPENAI / Playwright skill:** Checked desktop and phone presentation, empty
   fields, default 3D map, stadium handoff, tennis route, button placement,
   and browser console in a real browser.
-- **OPENAI / OpenAI Docs skill:** Fetched current official model-selection
-  guidance for the next approved-step recommendation.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **YOTE / Mode-separated preview:** Kept the limited stadium road handoff out
   of walking routes and GPS checkpoints. The map adapter draws a distinct
   dashed line and the UI explains the unverified driveway and venue access.
@@ -260,8 +251,7 @@ stale.
 - **OPENAI / Playwright skill:** Previewed the corrected library-to-court
   route in a real browser, inspected the rendered map, and checked its console
   for errors and warnings.
-- **OPENAI / OpenAI Docs skill:** Fetched current official model-selection
-  guidance for the next approval-gated step recommendation.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **EXTERNAL / User OSM export:** Checked each court outline for an entrance
   tag and identified one main beach-volleyball gate without changing the
   source snapshot or assuming access at other courts.
@@ -279,8 +269,7 @@ stale.
   isolated 3D boundary. The project added no new package.
 - **OPENAI / Playwright skill:** Compared the real-browser 3D library shape
   with the 2D basemap footprint and checked the console after switching modes.
-- **OPENAI / OpenAI Docs skill:** Fetched current official model-selection
-  guidance for the next-step recommendation.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **YOTE / Visual-data separation:** Derived only a 3D visual outline from
   the OSM snapshot. Kept its guessed height illustrative and prevented scene
   content from becoming a navigation entrance or walking edge.
@@ -289,10 +278,8 @@ stale.
 
 | Practice                                        | Introduced in          | Purpose                                                                                                                                                    |
 | ----------------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Approval-gated delivery                         | Step 1                 | Keeps implementation within the agreed scope.                                                                                                              |
 | Maintainable frontend boundaries                | Step 2                 | Separates domain, data, UI, map infrastructure, and composition.                                                                                           |
 | Technical-term and file-connection explanations | Step 2                 | Makes the project easier to understand and maintain.                                                                                                       |
-| Commit-before-push workflow                     | Step 2                 | Preserves a reviewable local history and requires approval before remote changes.                                                                          |
 | React composition and hook isolation            | Step 3                 | Keeps navigation visuals separate from selection and route-preview behavior.                                                                               |
 | Lazy-loaded map integration                     | Step 4                 | Defers the large MapLibre bundle until the interactive map component is needed.                                                                            |
 | MapLibre Vite worker configuration              | Step 4 fix             | Bundles MapLibre's required map-rendering worker for Vite development and builds.                                                                          |
@@ -303,7 +290,6 @@ stale.
 | Campus-scope configuration                      | Step 6                 | Keeps the College of Idaho focus, initial view, and pan limits in one data module separate from map-provider code.                                         |
 | Evidence-based bundle review                    | Step 6                 | Retains existing lazy loading unless build output shows a material, user-facing need for more splitting.                                                   |
 | Domain-level Dijkstra pathfinding               | Step 7                 | Calculates a shortest walking path from validated graph data without coupling the algorithm to React or MapLibre.                                          |
-| Two-part approval report                        | Step 7                 | Uses a completed-step report followed by a brief next-step preview for predictable approval decisions.                                                     |
 | Graph-to-route transformation                   | Step 8                 | Converts a calculated path into the established provider-neutral route shape without changing map-provider code.                                           |
 | Constraint-aware graph routing                  | Step 9                 | Models closures and one-way paths as validated data, then tests the shortest-path logic against those restrictions.                                        |
 | Cohesive commit cadence                         | Step 9                 | Creates separate verified commits for independently complete code and documentation units within an approved step.                                         |
@@ -330,8 +316,7 @@ stale.
 
 - **OPENAI / Playwright skill:** Measured three cold-cache Chromium runs at a
   phone viewport, inspected the map on scroll, and checked console and overflow.
-- **OPENAI / OpenAI Docs skill:** Checked current model-selection guidance for
-  the upcoming user-guided UI/UX review recommendation.
+- **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
 - **YOTE / Evidence-before-optimization:** Recorded exact build and browser
   costs while preserving the approved one-library 3D prototype. A real device
   check and the user's design priorities should precede a bundle redesign.
@@ -357,15 +342,14 @@ stale.
   settings in one reviewed `vercel.json`, preserving TypeScript checks on the
   hosted build without adding a server or unneeded routing rewrite.
 - **YOTE / Local-versus-live verification boundary:** Recorded passing local
-  checks separately from the still-pending owner import, hosted build, and
-  phone/browser smoke test.
+  checks separately from hosted builds and phone/browser verification.
 
 #### Step 34 usage record
 
 - **EXTERNAL / Official copyright and license sources:** Consulted the U.S.
   Copyright Office, GitHub's license guidance, npm metadata guidance, and
   OpenStreetMap licensing to distinguish original-work ownership from reuse
-  permissions and third-party rights. No legal registration was performed.
+  permissions and third-party rights.
 - **EXTERNAL / Context7 and Vite:** Checked current production source-map,
   copyright-banner, and built-in dependency license reporting options.
 - **YOTE / Rights scoped to original work:** Recorded reserved rights without
@@ -373,3 +357,10 @@ stale.
   GitHub repository privacy.
 - **YOTE / Build artifact inspection:** Checked the generated deployment for
   missing source maps, an ownership banner, and nonempty dependency notices.
+
+#### Step 35 usage record
+
+- **OPENAI / Playwright skill:** Used browser snapshots and interactions to
+  check the deployed prototype at desktop and phone viewport sizes.
+- **YOTE / Public documentation:** Kept ownership terms and setup concise,
+  with architecture and verified implementation history in their dedicated files.

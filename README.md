@@ -1,182 +1,54 @@
-# Wayfinder
+# Yotes Wayfinder
 
-Wayfinder is a responsive navigation-map prototype. It provides
-origin and destination search, locally calculated prototype walking routes, and
-a 2D/3D MapLibre map with an OpenStreetMap basemap. The 3D view includes one
-prototype library shape traced from the supplied building footprint; its
-height and appearance are illustrative. No routing backend is required.
+A responsive campus navigation prototype built with React, TypeScript,
+MapLibre, and Three.js. Walking routes are calculated locally from an
+OpenStreetMap-derived campus network; no routing backend is required.
 
-## Current progress
+[Open the prototype](https://wayfinder-umber.vercel.app/) ·
+[Architecture handbook](docs/ARCHITECTURE.md) ·
+[Progress](docs/PROGRESS.md)
 
-| Step                                | Status   | Outcome                                                                                                                                                       |
-| ----------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Project foundation               | Complete | React, TypeScript, quality checks, test tooling, and production builds are configured.                                                                        |
-| 2. Domain and map abstraction       | Complete | Provider-independent models, validated mock data, and a tested MapLibre boundary are in place.                                                                |
-| 3. Navigation interface             | Complete | Responsive location inputs, autocomplete, swapping, route preview, and a visual map placeholder are ready.                                                    |
-| 4. Interactive map                  | Complete | MapLibre renders the selected route and locations, fits the camera, and switches between 2D and 3D views.                                                     |
-| 5. Application states and polish    | Complete | Clear route and map states, keyboard autocomplete, accessible status messaging, and map recovery are in place.                                                |
-| 6. Testing, bundling, and delivery  | Complete | Campus-focused mock data, map bounds, verification, bundle review, and delivery documentation are complete.                                                   |
-| 7. Routing foundation               | Complete | A validated, testable campus walking graph and shortest-path logic are ready for later UI integration.                                                        |
-| 8. Graph route integration          | Complete | The planner now converts calculated walking paths into routes that the existing map can render.                                                               |
-| 9. Route constraints                | Complete | The graph models closures, directionality, and unverified accessibility status before more paths are added.                                                   |
-| 10. Data verification workflow      | Complete | The graph now carries validated provenance and cannot claim verification without a named reviewer.                                                            |
-| 11. Public-source corroboration     | Complete | Official campus naming and one independently mapped coordinate are recorded while operational route data remains illustrative.                                |
-| 12. Validated data replacement      | Complete | Current-library data is corrected and isolated as the single source of truth for future verified-data replacement.                                            |
-| 13. Georeferenced 3D spike          | Complete | MapLibre and Three.js share one map camera to render a tested, geographically anchored calibration building in 3D mode.                                       |
-| 14. Route steps and checkpoints     | Complete | Graph edges now carry detailed geometry, and calculated routes contain validated turn instructions and expected checkpoints.                                  |
-| 15. Location verification domain    | Complete | One-shot location readings can be conservatively classified, and tested session logic advances only after confirmed checks.                                   |
-| 16. Browser checkpoint navigation   | Complete | Explicit one-shot location requests power Start navigation, Next Turn, recovery messages, and arrival without continuous tracking.                            |
-| 17. Prototype location simulator    | Complete | Navigation can be tested from anywhere by default; one environment setting restores physical browser-location checks later.                                   |
-| 18. Turn-focused map guidance       | Complete | The prototype follows mapped footways, distinguishes route legs, follows turns with the camera, and supports Back navigation.                                 |
-| 19. Prototype scenarios and places  | Complete | Three more destinations are available, and selectable demo outcomes test recovery behavior without physical movement.                                         |
-| 20. Mobile navigation refinement    | Complete | Turn instructions stay in view on phones, compact layouts fit narrow screens, and demo controls preserve keyboard focus.                                      |
-| 21. Campus data collection packet   | Complete | A reusable source request, measurement template, and review checklist cover the current map points and destinations.                                          |
-| 22. OSM export review and entrance  | Complete | Reviewed the supplied export and moved the Blatchley prototype destination to its mapped main entrance.                                                       |
-| 23. OSM-based 2D routes             | Complete | Traced limited destination routes along exported pedestrian ways, separated the two Simplot entrances, and fixed route camera fit.                            |
-| 24. Expanded OSM network            | Complete | Imported the newer observed walkway export, added 21 searchable places, favored formal paths when routes are close, and made long suggestions scrollable.     |
-| 25. Described campus destinations   | Complete | Reviewed a new observed export, added 42 places, removed the invented gate and 3D block, prioritized formal/main paths, and combined nearby turns.            |
-| 26. Court and stadium previews      | Complete | Added eight mapped sports courts, a separate prototype stadium driving handoff, empty search on launch, a library-facing 3D opening, and purple page styling. |
-| 27. Court-gate source review        | Complete | Moved one beach-volleyball destination to its mapped main gate and recorded the remaining court, parking, and stadium-access uncertainties.                   |
-| 28. First footprint-based 3D model  | Complete | Added one library prototype from the mapped outline through the isolated Three.js layer; 2D and walking routes remain unchanged.                              |
-| 29. Campus and route camera framing | Complete | The opening map frames campus facilities and stadium, previews keep endpoints close, and 2D uses a readable tilt.                                             |
-| 30. One-time location button        | Complete | Browser location can show an approximate blue dot or an off-campus/uncertain message without changing route navigation.                                       |
-| 31. Mobile performance check        | Complete | A production-build phone-viewport baseline separates early interface paint from later map/tile completion; no speculative bundle change was made.             |
-| 32. Campus-focused UI cleanup       | Complete | Updated the name and headline, removed extra demo controls, preserved route progress and summary, and made the map visible sooner on phones.                  |
-| 33. Vercel deployment preparation   | Complete | Pinned the Vite build and `dist` output for a GitHub import; the first live deployment remains for the repository owner to start.                             |
-| 34. Ownership and source protection | Complete | Recorded reserved rights for original work, disabled production source maps, and generated separate dependency license notices.                               |
+## Features
 
-See the [architecture handbook](docs/ARCHITECTURE.md),
-[comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
-[detailed progress log](docs/PROGRESS.md), and
-[AI skills inventory](docs/AI_SKILLS.md). The [project memory](docs/PROJECT_MEMORY.md)
-records the latest source, decisions, limitations, and resume checklist.
-Read only this step in the [Step 31 handbook guide](docs/ARCHITECTURE.md#step-31-mobile-performance-baseline).
-Read only this step in the [Step 32 handbook guide](docs/ARCHITECTURE.md#step-32-campus-focused-ui-cleanup).
-Read only this step in the [Step 33 handbook guide](docs/ARCHITECTURE.md#step-33-vercel-deployment-preparation).
+- Search among 50 mapped buildings, courts, parking areas, and landmarks.
+- Preview walking routes with distance, estimated time, and turn instructions.
+- Follow simulated checkpoints with Start navigation, Next Turn, and Back.
+- Switch between tilted 2D and 3D views, including one illustrative library model.
+- Request your location once to display an approximate position or an
+  off-campus, uncertain, or unavailable-location message.
+- Preview a separate, illustrative stadium driving handoff.
 
-## Local development
+Routes, entrance connectors, access conditions, and model height are prototype
+data. They are not verified walking, accessibility, driving, or emergency
+guidance. The stadium preview includes private-tagged driveways and does not
+provide car turn-by-turn navigation.
+
+## Run locally
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Open the exact local URL printed by Vite. If the default port is already in
-use, Vite selects another port such as `http://localhost:5174/`.
+Open the exact URL printed by Vite. If the default port is occupied, Vite
+selects another available port.
 
-Navigation uses clearly labeled simulated checkpoint locations by default, so
-you can test the entire interface without moving around campus or granting
-location permission. When physical campus testing begins, create `.env.local`
-in the project root with the following line, restart the development server,
-and confirm that the blue **Demo location is on** notice is gone:
+Navigation uses simulated checkpoint readings by default, so routes can be
+tested without moving or granting location permission. The separate
+**Get your location** button requests one real browser reading when pressed.
+It requires HTTPS or localhost and browser permission. The campus-area check
+uses an approximate rectangle rather than a verified property boundary.
+
+For physical checkpoint testing, add this to a local `.env.local` file and
+restart Vite:
 
 ```text
 VITE_LOCATION_MODE=browser
 ```
 
-Remove that setting, or set it to `prototype`, to return to safe simulation.
+Remove the setting or use `prototype` to restore simulated checkpoints.
 
-The separate **Get your location** button always makes one real browser
-location request when pressed, even while route checkpoints use the prototype
-simulator. A clear reading within the mapped campus area shows an approximate
-blue dot and zooms closer. Clearly outside, uncertain, denied, and unavailable
-readings have distinct messages. This is an approximate rectangular area check,
-not a verified campus boundary or continuous tracking. Browser location needs
-HTTPS or localhost and your permission. It does not start a route.
-
-MapLibre's vendor stylesheet is loaded before the application's stylesheet in
-`src/main.tsx`. This order lets the application preserve the map host's full
-height. If the map canvas exists but is not visible, inspect `.map-canvas` in
-the browser and confirm that its computed height is greater than zero.
-
-The default street tiles come from OpenStreetMap for prototype use. Set
-`VITE_MAP_STYLE_URL` to a compatible hosted MapLibre style URL when a dedicated
-production tile provider is selected.
-
-The previous inaccurate Hendren-area block remains removed. The 3D button now
-shows one footprint-based Cruzen-Murray Library prototype; its 8 m height is
-not measured. The 2D button hides the model without changing a selected route.
-
-The opening camera frames the mapped campus buildings and stadium together,
-and route previews zoom toward their endpoints. The 2D view has a mild tilt;
-the 3D building remains hidden there. Surrounding streets can still be visible
-because the map viewport is rectangular; this is not a campus-only tile mask.
-Ordinary panning remains limited to a campus-sized area. Current visible location data includes Cruzen-Murray Library,
-whose identity and coordinate were checked against official campus sources, Google Maps,
-and OpenStreetMap-derived public information. The walking-path topology,
-distances, closures, direction rules, and accessibility information are still
-illustrative prototype data, not official accessibility or walking directions.
-Calculated routes now retain each edge's detailed geometry and produce internal
-turn-by-turn steps. You can preview routes among 50 searchable campus places,
-including buildings, apartments, parking areas, courts, and landmarks. The map
-starts in **3D** with a campus-wide overview, with empty search
-fields; the 2D toggle remains available. **Start navigation** and **Next Turn**
-simulate expected checkpoint readings so you can try a route without moving.
-The default prototype does not request your device location.
-Physical browser-location mode remains available through the environment setting
-above; in that mode uncertain, mismatched, or failed readings do not advance progress.
-Use HTTPS for later phone testing. Paths remain illustrative: do not rely on
-this prototype for safe campus navigation.
-The newer OpenStreetMap export now supplies centerlines for the current
-pedestrian routes and destination entrance coordinates. The Simplot entrance
-near Blatchley serves the cafeteria; its other entrance serves the connected
-residence hall. JAAC and its swimming pool have separate entrances. Anderson
-uses the resident-used entrance described in the export. The former Campus
-Entrance marker is removed; there is no fixed gate. Short unmapped links and
-outline-derived destination points remain illustrative. This drawing is ready for visual testing, not yet
-verified for safe physical navigation.
-Beach Volleyball Court 2 now targets its mapped main gate, but the short
-connection to a walkway is still inferred. The other court approaches and
-court numbers remain provisional. The stadium driving preview uses a
-private-tagged driveway and must not be relied on for actual driving.
-See the [export review](docs/OSM_EXPORT_REVIEW.md) for source coverage, gaps,
-and the next measurements needed. OpenStreetMap data is available under the
-[Open Database License](https://www.openstreetmap.org/copyright).
-To update the route network after reviewing a newer export, run
-`python scripts/import_campus_osm.py path/to/map.osm` and inspect the generated
-`src/data/navigation/campusOsmNetwork.json` diff. Curated searchable places
-and entrance references live in `collegeOfIdahoWalkingGraphData.ts`; the
-graph builder connects them to imported paths. Routing now always favors
-formal footpaths over informal shortcuts; described main footways get an
-additional modest preference among formal choices. The displayed distance is
-the actual drawn length. Nearby consecutive turns can share one explicit
-instruction and checkpoint. Search suggestions scroll when the list is long.
-Mapped tennis, pickleball, basketball, and beach-volleyball courts are
-searchable. Their numbered labels are provisional because the export has sport
-tags but no individual court names. No separately tagged standard volleyball
-court was present. Simplot Stadium shows a separate dashed prototype drive
-from the nearer of two mapped road-connected campus driveways by straight-line
-distance to a west-side
-parking approach. It does not calculate a car route from your selected start
-or offer car GPS checkpoints. Confirm road access, turns, parking, and the venue
-entrance on site. The page uses provisional purple `#412D5E`; provide the
-current institutional style guide for exact brand compliance.
-Read only this step in the [Step 16 handbook guide](docs/ARCHITECTURE.md#step-16-browser-location-and-checkpoint-navigation).
-The [Step 17 handbook guide](docs/ARCHITECTURE.md#step-17-prototype-location-simulator)
-explains simulation and the future field-test switch.
-The [Step 18 handbook guide](docs/ARCHITECTURE.md#step-18-turn-focused-map-guidance)
-explains walkway alignment, route colors, camera behavior, and Back navigation.
-The [Step 19 handbook guide](docs/ARCHITECTURE.md#step-19-prototype-scenarios-and-limited-destination-expansion)
-explains scenario testing and the three-destination scope.
-The [Step 20 handbook guide](docs/ARCHITECTURE.md#step-20-mobile-navigation-and-demo-usability)
-explains phone-sized layout, visible turn instructions, and keyboard behavior.
-The [campus geometry collection packet](docs/CAMPUS_DATA_COLLECTION.md)
-explains what source files, measurements, photographs, and review details to
-provide before replacing illustrative geometry.
-The [Step 22 handbook guide](docs/ARCHITECTURE.md#step-22-osm-export-audit-and-blatchley-entrance)
-explains this export's first route update and its remaining uncertainty.
-The [Step 23 handbook guide](docs/ARCHITECTURE.md#step-23-osm-based-2d-walking-routes)
-explains the current 2D route network, Simplot entrance split, and camera fit.
-The [Step 24 handbook guide](docs/ARCHITECTURE.md#step-24-expanded-osm-network-and-search)
-explains the import, routing policy, additional places, and remaining gaps.
-The [Step 25 handbook guide](docs/ARCHITECTURE.md#step-25-described-destinations-and-formal-route-priority)
-explains the newest source, destination choices, route priority, and turn merging.
-The [Step 26 handbook guide](docs/ARCHITECTURE.md#step-26-court-search-and-stadium-driving-handoff)
-explains court sourcing, the separate stadium handoff, default view, and limits.
-See the [architecture handbook's Step 12 guide](docs/ARCHITECTURE.md#step-12-validated-data-replacement)
-for source links and the future verified-data replacement process.
-
-## Quality checks
+## Production build and checks
 
 ```bash
 npm run format:check
@@ -186,79 +58,44 @@ npm run test
 npm run build
 ```
 
-## Architecture
-
-The [living architecture handbook](docs/ARCHITECTURE.md) explains every current
-folder and file, the route-preview data flow, safe change recipes,
-troubleshooting, and the architectural decision log in non-technical language.
-
-- `src/app` contains application composition and global styles.
-- `src/domain` contains provider-independent business models and validation.
-- `src/data` contains local mock data built from domain models.
-- `src/features/map` contains the map contract and provider-specific infrastructure.
-- `src/composition` connects contracts to concrete implementations.
-
-This separation keeps the project-owned walking graph independent from map
-rendering. MapLibre handles geographic projection and camera behavior. The
-Three.js custom layer renders one illustrative library shape. More 3D
-infrastructure remains deferred until a later approved phase.
-
-## Current documentation integration
-
-The project includes a project-scoped Context7 MCP connection in
-`.codex/config.toml`. Start a new Codex session from this trusted repository to
-make its current third-party library documentation tools available. Basic remote
-access is configured without storing an API key; an optional personal Context7
-key may be configured outside the repository for higher limits.
+Vite generates the deployment files in `dist`. Production source maps are
+disabled. The build includes copyright banners and
+`THIRD_PARTY_LICENSES.md` for bundled dependencies. The map bundle currently
+produces a size warning; the [mobile baseline](docs/ARCHITECTURE.md#step-31-mobile-performance-baseline)
+documents its measured cost.
 
 ## Deploy on Vercel
 
-The source repository is [jahphetB/wayfinder](https://github.com/jahphetB/wayfinder).
-The root [`vercel.json`](vercel.json) pins the Vite framework, `npm run build`
-(which also checks TypeScript), and the `dist` output folder. No backend, API
-key, custom domain, or environment variable is required for the first
-prototype deployment.
+1. Import [jahphetB/wayfinder](https://github.com/jahphetB/wayfinder) from GitHub.
+2. Select the repository root and `main` as the production branch.
+3. Keep the settings from `vercel.json`: Vite, `npm run build`, and `dist`.
+4. Leave environment variables unset to use prototype navigation, then deploy.
 
-1. Sign in to [Vercel](https://vercel.com/) with GitHub and select **Add New → Project**.
-2. Grant Vercel access to `jahphetB/wayfinder`, then import that repository.
-3. Confirm the repository root is selected. The committed configuration should
-   show Vite, `npm run build`, and `dist`; do not override these settings.
-4. Leave environment variables empty to keep simulated checkpoint navigation
-   on. Click **Deploy**, then open the HTTPS `vercel.app` address Vercel gives you.
-5. On a phone and desktop, check that the map tiles load, search and route
-   preview work, 2D/3D switching works, simulated turns advance, and the
-   separate **Get your location** button handles permission and off-campus
-   results. Report any build error or browser-console error before treating the
-   deployment as successful.
+A connected Vercel project deploys new pushes to `main` automatically.
+`VITE_MAP_STYLE_URL` can select a compatible hosted MapLibre style.
+All `VITE_` values are included in browser code and must not contain secrets.
 
-After import, Vercel deploys future pushes to `main` automatically. Keep the
-project's approval-gated Git push practice in mind: an approved push will then
-also publish a new version. Preview branches or pull requests can be used to
-review changes before they reach `main`.
+The default basemap uses OpenStreetMap community tiles, subject to the
+[tile usage policy](https://operations.osmfoundation.org/policies/tiles/).
+Vercel Hobby is limited to [personal/non-commercial use](https://vercel.com/legal/terms).
 
-This first public site is still an **illustrative prototype**, not verified
-walking or driving guidance. `VITE_LOCATION_MODE=browser` must not be set for
-this deployment; enable physical checkpoint testing only in a later reviewed
-step. The **Get your location** control remains a separate real, one-time GPS
-request on HTTPS. The default basemap uses OpenStreetMap's community tile server,
-whose [usage policy](https://operations.osmfoundation.org/policies/tiles/) and
-best-effort availability apply. If use grows, choose an appropriate tile provider
-before relying on map availability. `VITE_` environment values are included in
-browser code, so never store secrets there. Production source maps are disabled;
-the build publishes dependency notices in `THIRD_PARTY_LICENSES.md` and retains
-a known large map-chunk warning. Vercel's free Hobby plan is restricted to
-[personal/non-commercial use](https://vercel.com/legal/terms).
+## Project structure and data
 
-## Ownership and permissions
+UI, route logic, geographic data, and map-provider code have separate
+responsibilities. The [architecture handbook](docs/ARCHITECTURE.md) describes
+the folders, files, data flow, and debugging procedures. The
+[Mermaid diagram](docs/ARCHITECTURE_DIAGRAM.md) shows their connections, and
+[PROGRESS.md](docs/PROGRESS.md) records completed implementation work.
 
-Copyright (c) 2026 jahphetB. All rights reserved in the original project
-materials, subject to applicable law and existing rights. See [LICENSE](LICENSE).
-The notice permits ordinary use of the hosted app but grants no general reuse
-license for original source or other original materials. Third-party libraries
-and OpenStreetMap-derived data retain their own licenses and attribution rules.
+The OSM import procedure and remaining source gaps are documented in the
+[export review](docs/OSM_EXPORT_REVIEW.md). The
+[data collection guide](docs/CAMPUS_DATA_COLLECTION.md) describes the format
+for geographic corrections. OpenStreetMap-derived data retains its
+[Open Database License and attribution requirements](https://www.openstreetmap.org/copyright).
 
-See the [ownership guide](docs/OWNERSHIP.md) for what this protects, the
-difference from MIT/Apache/GPL, and owner actions such as private repository
-access and account protection. Disabling source maps reduces original-source
-exposure; browser-delivered code can still be inspected. Read just this step
-in the [Step 34 handbook guide](docs/ARCHITECTURE.md#step-34-ownership-and-source-protection).
+## Ownership
+
+Copyright (c) 2026 jahphetB. All rights reserved in original project materials,
+subject to applicable law and existing rights. See [LICENSE](LICENSE) and
+[ownership terms](docs/OWNERSHIP.md). Ordinary use of the hosted application is
+permitted. Third-party software and geographic data retain their own licenses.

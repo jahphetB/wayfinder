@@ -12,6 +12,9 @@
   and approval boundary after each meaningful step so interrupted work can resume.
 - Keep `docs/ARCHITECTURE.md` synchronized when a change affects project
   structure, cross-file data flow, troubleshooting, or an architectural decision.
+- Write explanatory documents for public readers. Keep current behavior,
+  ownership terms, setup, architecture, and verification evidence; omit owner
+  to-do lists, account-management advice, and conversational next-step planning.
 
 ## Scope and change control
 

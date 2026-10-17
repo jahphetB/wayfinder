@@ -1,13 +1,12 @@
-# Project memory and resume checkpoint
+# Project state reference
 
-This short file is the current checkpoint for interrupted work. Read it with
-`AGENTS.md` and `docs/ARCHITECTURE.md`; the latter is the full handbook, while
-`docs/PROGRESS.md` is the chronological step record. Update this checkpoint
-after each meaningful step, especially when a source or approval state changes.
+This reference summarizes the current implementation, source data, and
+verification record. `docs/ARCHITECTURE.md` is the full handbook;
+`docs/PROGRESS.md` records implementation history.
 
-## Current state after Step 34
+## Current state after Step 35
 
-- The app is a local, illustrative campus-route prototype that opens with a
+- The app is an illustrative campus-route prototype that opens with a
   tilted 3D camera framing mapped campus facilities and stadium. One library mesh
   uses its OSM footprint and an illustrative 8 m height; the former inaccurate
   Hendren block remains removed. 2D hides the mesh without changing routes.
@@ -106,9 +105,9 @@ after each meaningful step, especially when a source or approval state changes.
   controls remain. Mobile layout now places the map higher on the page.
 - Step 33 added root `vercel.json` to pin Vite, `npm run build`, and `dist`.
   No router, backend, route data, map behavior, or location mode changed. The
-  owner can import `jahphetB/wayfinder` into Vercel and deploy without adding
-  environment variables. The first hosted build and smoke test have not yet
-  happened. Once imported, approved pushes to `main` publish automatically.
+  repository can be imported into Vercel without adding environment variables.
+  The hosted prototype is at `https://wayfinder-umber.vercel.app/`.
+  The connected Vercel project publishes `main` pushes automatically.
   OpenStreetMap community tiles remain best-effort; navigation is illustrative.
 - Step 34 responds to the owner's request to protect the app. Root `LICENSE`
   reserves rights in original materials using the current Git identity
@@ -116,35 +115,19 @@ after each meaningful step, especially when a source or approval state changes.
   Package metadata says `UNLICENSED`; no open-source reuse grant was adopted.
   Production source maps are off. Vite adds ownership banners and generates
   `dist/THIRD_PARTY_LICENSES.md`; `.env` patterns are ignored. See
-  `docs/OWNERSHIP.md` and the Step 34 handbook guide for account actions and
-  limitations. No GitHub visibility change, account change, registration,
-  remote push, or live-site verification is included in Step 34.
+  `docs/OWNERSHIP.md` for ownership scope and third-party terms.
+- Step 35 condensed public documentation and removed account advice and
+  conversational planning from explanatory files. Public documents describe
+  current behavior, setup, architecture, terms, and verification evidence.
 
-## Working rules and verification
+## Verification record
 
-- One approved step per turn; stop with a two-part completed-step/next-step
-  report and ask for approval plus concise/detailed preference. Explain key
-  files and newly used technical terms. No unapproved new features.
-- Make focused conventional commits after passing relevant checks. Push only
-  with explicit approval. Step 33 is pushed through `c88eb73`. Step 34 is
-  authorized for local protection work and focused commits; seek new approval
-  before pushing it or changing GitHub account/repository settings.
-  Implementation commit: `6394f84`; the synchronized documentation commit
-  follows separately.
-- Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
-  `npm run build`, and `git diff --check`. For visual changes, inspect the real
-  browser at desktop/phone widths and check the console.
-- README must not contain the exact phrase the user previously prohibited;
-  keep it neutral and focused on the product. Keep the handbook, diagram,
-  progress log, and AI skills inventory synchronized with code changes.
+The repository checks are `npm run format:check`, `npm run lint`,
+`npm run typecheck`, `npm run test`, `npm run build`, and `git diff --check`.
+Step 34 passed all 94 tests in 20 files and confirmed that the build contains
+no source maps, includes ownership banners, and publishes dependency notices.
 
-## Next approval boundary
-
-Step 34's local changes pass the required checks: 94 tests, lint, TypeScript,
-formatting, build, and inspected production artifacts. Seek approval to push
-the protection commits; the next new deployment needs verification that old
-source-map files are absent and dependency notices remain accessible. A URL
-appeared in the separate homepage portfolio data, but this project has not
-verified that hosted release. Source privacy/account changes require a separate
-owner action or approval. Real-world reliability and realistic 3D work remain
-later phases, and a real lower-end phone check remains outstanding.
+The README uses neutral product wording. Detailed architecture, source
+provenance, progress, and AI-tool records have dedicated documents. Explanatory
+documents omit owner to-do lists, account-management advice, and conversational
+planning. The contributor workflow is defined in `AGENTS.md`.

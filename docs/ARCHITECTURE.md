@@ -126,14 +126,12 @@ Switching to 2D hides it while preserving the route and map state.
 
 The maintained [comprehensive Mermaid architecture diagram](ARCHITECTURE_DIAGRAM.md)
 shows the implemented runtime, project-owned data, external dependencies,
-quality systems, and approved future GPS and photogrammetry boundaries. Mermaid
+quality systems, and deployment connections. Mermaid
 is a text format that GitHub turns into a navigable diagram; because the source
 is text, it can be reviewed and updated alongside code.
 
-The diagram uses solid connections for implemented behavior and dashed gray
-connections for approved work that has not been built. This distinction keeps
-the target architecture visible without suggesting that checkpoint navigation
-or photogrammetry already works.
+The diagram uses solid connections for implemented dependencies and labeled
+dashed connections for contract implementations, verification, and deployment.
 
 The arrows show dependency direction: a file higher in the picture may call or
 use a file below it. The lower-level files do not need to know how the whole
@@ -1798,14 +1796,12 @@ Sources: [Vercel configuration](https://vercel.com/docs/project-configuration/ve
 
 ### Step 34: Ownership and source protection
 
-The owner wants to reserve reuse rights rather than broadly license the app.
-The new root `LICENSE` states that intention for original project materials
-using the existing Git identity, `jahphetB`. It permits ordinary use of the
+The root `LICENSE` reserves rights in original project materials for
+`jahphetB`. It permits ordinary use of the
 hosted app and excludes third-party software and OSM-derived data from the
 ownership claim. `package.json` and the lockfile record `UNLICENSED`; this
 does not make the GitHub repository private. The detailed
-[ownership guide](OWNERSHIP.md) explains MIT, Apache, GPL, and the current
-reserved-rights choice in plain language.
+[ownership terms](OWNERSHIP.md) describe the scope and third-party exclusions.
 
 `vite.config.ts` now sets production `sourcemap` to `false`. A source map is
 a debugging file that can reveal original source files behind a compiled
@@ -1818,15 +1814,21 @@ Development debugging remains available through Vite's development server.
 `.gitignore` excludes local environment files and allows a future
 `.env.example`. Ignoring a file cannot revoke a credential already disclosed,
 and `VITE_` values are still public when included in a browser build.
-Account actions such as making the GitHub source private or enabling two-factor
-authentication require the owner's account access. They are documented in the
-guide, with no visibility or account setting changed in this step. After an
-approved push, a new hosted deployment must be checked before claiming the
-changes are live; old deployments may still carry earlier source maps.
+These build settings apply to newly generated deployments. Previously
+published files and browser-delivered JavaScript remain accessible according
+to their hosting settings.
 
 Technical sources: [Vite build options](https://vite.dev/config/build-options),
 [npm license metadata](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/#license),
-and the legal/hosting sources linked in the ownership guide.
+and [OpenStreetMap licensing](https://www.openstreetmap.org/copyright).
+
+### Step 35: Public documentation and deployment verification
+
+The README summarizes the application's features, setup, checks, deployment,
+and ownership. `docs/OWNERSHIP.md` contains the permissions and third-party
+terms. The handbook and progress log preserve implementation details and
+verification evidence without account-management advice or conversational
+planning. `AGENTS.md` records this documentation convention for contributors.
 
 ## Safe change recipes
 
