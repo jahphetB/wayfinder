@@ -359,3 +359,17 @@ stale.
 - **YOTE / Local-versus-live verification boundary:** Recorded passing local
   checks separately from the still-pending owner import, hosted build, and
   phone/browser smoke test.
+
+#### Step 34 usage record
+
+- **EXTERNAL / Official copyright and license sources:** Consulted the U.S.
+  Copyright Office, GitHub's license guidance, npm metadata guidance, and
+  OpenStreetMap licensing to distinguish original-work ownership from reuse
+  permissions and third-party rights. No legal registration was performed.
+- **EXTERNAL / Context7 and Vite:** Checked current production source-map,
+  copyright-banner, and built-in dependency license reporting options.
+- **YOTE / Rights scoped to original work:** Recorded reserved rights without
+  claiming upstream libraries or OSM data, and kept npm privacy distinct from
+  GitHub repository privacy.
+- **YOTE / Build artifact inspection:** Checked the generated deployment for
+  missing source maps, an ownership banner, and nonempty dependency notices.

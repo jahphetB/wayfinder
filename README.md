@@ -6,7 +6,6 @@ a 2D/3D MapLibre map with an OpenStreetMap basemap. The 3D view includes one
 prototype library shape traced from the supplied building footprint; its
 height and appearance are illustrative. No routing backend is required.
 
-
 ## Current progress
 
 | Step                                | Status   | Outcome                                                                                                                                                       |
@@ -44,6 +43,7 @@ height and appearance are illustrative. No routing backend is required.
 | 31. Mobile performance check        | Complete | A production-build phone-viewport baseline separates early interface paint from later map/tile completion; no speculative bundle change was made.             |
 | 32. Campus-focused UI cleanup       | Complete | Updated the name and headline, removed extra demo controls, preserved route progress and summary, and made the map visible sooner on phones.                  |
 | 33. Vercel deployment preparation   | Complete | Pinned the Vite build and `dist` output for a GitHub import; the first live deployment remains for the repository owner to start.                             |
+| 34. Ownership and source protection | Complete | Recorded reserved rights for original work, disabled production source maps, and generated separate dependency license notices.                               |
 
 See the [architecture handbook](docs/ARCHITECTURE.md),
 [comprehensive Mermaid architecture diagram](docs/ARCHITECTURE_DIAGRAM.md),
@@ -244,7 +244,21 @@ request on HTTPS. The default basemap uses OpenStreetMap's community tile server
 whose [usage policy](https://operations.osmfoundation.org/policies/tiles/) and
 best-effort availability apply. If use grows, choose an appropriate tile provider
 before relying on map availability. `VITE_` environment values are included in
-browser code, so never store secrets there. The current build retains source
-maps for debugging and a known large map-chunk warning; neither prevents
-deployment. Vercel's free Hobby plan is restricted to
+browser code, so never store secrets there. Production source maps are disabled;
+the build publishes dependency notices in `THIRD_PARTY_LICENSES.md` and retains
+a known large map-chunk warning. Vercel's free Hobby plan is restricted to
 [personal/non-commercial use](https://vercel.com/legal/terms).
+
+## Ownership and permissions
+
+Copyright (c) 2026 jahphetB. All rights reserved in the original project
+materials, subject to applicable law and existing rights. See [LICENSE](LICENSE).
+The notice permits ordinary use of the hosted app but grants no general reuse
+license for original source or other original materials. Third-party libraries
+and OpenStreetMap-derived data retain their own licenses and attribution rules.
+
+See the [ownership guide](docs/OWNERSHIP.md) for what this protects, the
+difference from MIT/Apache/GPL, and owner actions such as private repository
+access and account protection. Disabling source maps reduces original-source
+exposure; browser-delivered code can still be inspected. Read just this step
+in the [Step 34 handbook guide](docs/ARCHITECTURE.md#step-34-ownership-and-source-protection).

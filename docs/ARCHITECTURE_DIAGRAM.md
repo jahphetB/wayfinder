@@ -78,7 +78,7 @@ flowchart TB
 
     subgraph QualityAndKnowledge[Development quality and project knowledge]
         Tests[Vitest and Testing Library<br/>focused automated tests]
-        Tooling[TypeScript, ESLint, Prettier, Vite<br/>strict checks and bundling]
+        Tooling[TypeScript, ESLint, Prettier, Vite<br/>strict checks, no production source maps,<br/>copyright banner and dependency notices]
         VercelConfig[vercel.json<br/>Vite preset, checked build, dist output]
         GitHub[GitHub main<br/>approved source commits]
         Handbook[README and docs<br/>architecture, progress, skills, decisions]

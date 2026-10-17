@@ -5,7 +5,7 @@ This short file is the current checkpoint for interrupted work. Read it with
 `docs/PROGRESS.md` is the chronological step record. Update this checkpoint
 after each meaningful step, especially when a source or approval state changes.
 
-## Current state after Step 33
+## Current state after Step 34
 
 - The app is a local, illustrative campus-route prototype that opens with a
   tilted 3D camera framing mapped campus facilities and stadium. One library mesh
@@ -110,6 +110,15 @@ after each meaningful step, especially when a source or approval state changes.
   environment variables. The first hosted build and smoke test have not yet
   happened. Once imported, approved pushes to `main` publish automatically.
   OpenStreetMap community tiles remain best-effort; navigation is illustrative.
+- Step 34 responds to the owner's request to protect the app. Root `LICENSE`
+  reserves rights in original materials using the current Git identity
+  `jahphetB`; ordinary hosted-app use and third-party/existing rights remain.
+  Package metadata says `UNLICENSED`; no open-source reuse grant was adopted.
+  Production source maps are off. Vite adds ownership banners and generates
+  `dist/THIRD_PARTY_LICENSES.md`; `.env` patterns are ignored. See
+  `docs/OWNERSHIP.md` and the Step 34 handbook guide for account actions and
+  limitations. No GitHub visibility change, account change, registration,
+  remote push, or live-site verification is included in Step 34.
 
 ## Working rules and verification
 
@@ -117,9 +126,11 @@ after each meaningful step, especially when a source or approval state changes.
   report and ask for approval plus concise/detailed preference. Explain key
   files and newly used technical terms. No unapproved new features.
 - Make focused conventional commits after passing relevant checks. Push only
-  with explicit approval. Step 32 is pushed through `61a5c44`. Step 33's
-  Vercel configuration commit is `90797ee`; its documentation commit follows
-  separately. The user approved pushing Step 33; verify the remote after push.
+  with explicit approval. Step 33 is pushed through `c88eb73`. Step 34 is
+  authorized for local protection work and focused commits; seek new approval
+  before pushing it or changing GitHub account/repository settings.
+  Implementation commit: `6394f84`; the synchronized documentation commit
+  follows separately.
 - Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test`,
   `npm run build`, and `git diff --check`. For visual changes, inspect the real
   browser at desktop/phone widths and check the console.
@@ -129,9 +140,11 @@ after each meaningful step, especially when a source or approval state changes.
 
 ## Next approval boundary
 
-The repository-side Vercel preparation and GitHub push are approved. The owner
-must import the repository and start the first deployment in their Vercel
-account; no live URL is verified yet. After they share that URL, inspect the
-hosted build and phone/desktop browser behavior, then stop for another approval.
-Do not enable physical checkpoint mode or claim route safety. A real lower-end
-phone check is still needed before claiming mobile performance is production-ready.
+Step 34's local changes pass the required checks: 94 tests, lint, TypeScript,
+formatting, build, and inspected production artifacts. Seek approval to push
+the protection commits; the next new deployment needs verification that old
+source-map files are absent and dependency notices remain accessible. A URL
+appeared in the separate homepage portfolio data, but this project has not
+verified that hosted release. Source privacy/account changes require a separate
+owner action or approval. Real-world reliability and realistic 3D work remain
+later phases, and a real lower-end phone check remains outstanding.

@@ -713,3 +713,29 @@ still needs to import the GitHub repository into Vercel and deploy it.
 - Vercel will deploy later `main` pushes automatically after initial import.
   Keep the existing approval gate for pushes; use preview branches for review
   when necessary. The user explicitly approved pushing this step.
+
+## Step 34: Ownership and source protection
+
+Status: implemented and locally verified; push and account changes require
+the owner's approval. No live deployment or repository-visibility change was
+performed in this step.
+
+- Added root `LICENSE` reserving rights in original materials for `jahphetB`,
+  the Git author/account identity. Kept ordinary hosted-app use permitted and
+  excluded third-party libraries, OSM-derived data, and existing rights.
+- Added npm `UNLICENSED` metadata without changing dependency versions.
+  Existing `private: true` concerns npm publication, not GitHub visibility.
+- Disabled production source maps, added an ownership banner to the app
+  bundles, and generated `dist/THIRD_PARTY_LICENSES.md` through Vite's built-in
+  license reporting. Added environment-file ignore rules.
+- Added `docs/OWNERSHIP.md` explaining MIT/Apache/GPL versus the current notice,
+  legal and technical limits, separate data/library rights, private source,
+  account protection, registration/brand options, and deployment verification.
+- Formatting, lint, TypeScript, all 94 tests in 20 files, and production build
+  pass. Inspected the build: zero `*.map` files, both app bundles contain the
+  ownership banner, and the dependency license report contains notices for
+  React, React DOM, Scheduler, MapLibre, and Three.js. The existing large-map
+  chunk warning remains. No new package or application navigation feature.
+- The notice does not prove ownership or prevent copying. Browser code/data
+  are still downloadable. Old public deployments and downloaded copies are
+  not revoked; an approved push and new hosted deployment are still needed.
