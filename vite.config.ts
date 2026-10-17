@@ -17,7 +17,14 @@ export default defineConfig({
     exclude: ['maplibre-gl'],
   },
   build: {
-    sourcemap: true,
+    sourcemap: false,
+    license: { fileName: 'THIRD_PARTY_LICENSES.md' },
+    rolldownOptions: {
+      output: {
+        postBanner:
+          '/* Yotes Wayfinder: Copyright (c) 2026 jahphetB. Original portions: all rights reserved. Third-party licenses: /THIRD_PARTY_LICENSES.md. */',
+      },
+    },
     target: 'es2022',
   },
   test: {
