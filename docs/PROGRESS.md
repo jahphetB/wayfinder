@@ -741,3 +741,13 @@ Status: implemented and locally verified.
   the existing `Wayfinder` title edit in `LICENSE`.
 - Local verification: formatting, lint, TypeScript, 94 tests in 20 files,
   and production build pass. No application runtime code changed in this step.
+- Live verification at `https://wayfinder-umber.vercel.app/`: Vercel reported
+  successful deployment of `9da260f`. The page served the new application
+  bundle with its copyright banner, dependency notices returned HTTP 200,
+  and the corresponding source-map URL returned HTTP 404.
+- Browser checks covered the library-to-Sterry route, 2D/3D switching, Start,
+  Next Turn, Back, all seven route steps through arrival, and simulated
+  on-campus/off-campus location responses. The map rendered at 1365 x 900
+  and 390 x 844; the phone page had no horizontal overflow. The browser
+  console reported zero errors or warnings. These checks used simulated GPS,
+  not physical navigation or a real-phone performance measurement.

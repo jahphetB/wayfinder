@@ -131,3 +131,13 @@ The README uses neutral product wording. Detailed architecture, source
 provenance, progress, and AI-tool records have dedicated documents. Explanatory
 documents omit owner to-do lists, account-management advice, and conversational
 planning. The contributor workflow is defined in `AGENTS.md`.
+
+Step 35 passed formatting, lint, TypeScript, the 94 tests, and production build.
+Vercel reported deployment success for `9da260f`; the public site served
+`index-BTJ4wUCh.js` with the copyright banner and dependency notices, while
+the corresponding `.map` URL returned 404. Browser verification covered a
+library-to-Sterry route through arrival, Next/Back, 2D/3D, and simulated
+on-campus/off-campus readings at desktop/phone viewport sizes. The map
+rendered, the phone page had no horizontal overflow, and the console reported
+no errors or warnings. This is a browser check using simulated GPS, not a
+physical navigation or real-phone performance test.

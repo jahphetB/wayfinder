@@ -1830,6 +1830,12 @@ terms. The handbook and progress log preserve implementation details and
 verification evidence without account-management advice or conversational
 planning. `AGENTS.md` records this documentation convention for contributors.
 
+The live prototype passed browser checks for library-to-Sterry route preview,
+2D/3D switching, simulated navigation through arrival, Back, and simulated
+on-campus/off-campus readings at desktop and phone viewport sizes. The map
+rendered without console errors or warnings. The deployed application banner
+and dependency notices were present; its source-map URL returned HTTP 404.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
