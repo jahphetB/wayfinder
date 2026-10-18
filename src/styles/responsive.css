@@ -1,0 +1,59 @@
+@media (max-width: 760px) {
+  .app-shell {
+    padding: var(--layout-padding-mobile);
+  }
+  .page-header {
+    margin-bottom: 1rem;
+  }
+  .wayfinder-layout {
+    border-radius: var(--frame-radius);
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .navigation-panel {
+    padding: var(--panel-padding-mobile);
+  }
+  .navigation-panel .eyebrow {
+    margin: 0 0 0.55rem;
+  }
+  .navigation-panel h1 {
+    max-width: none;
+    margin: 0 0 0.8rem;
+    font-size: var(--font-size-title-mobile);
+    line-height: 1.05;
+  }
+  .navigation-panel form {
+    gap: 0.65rem;
+  }
+  .location-field input {
+    min-height: 3rem;
+  }
+  .swap-locations {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+  .route-action {
+    min-height: var(--button-height-mobile);
+    margin-top: 0.15rem;
+  }
+  .route-summary-empty {
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+  }
+  .route-summary {
+    margin-top: 1rem;
+  }
+  .checkpoint-navigation {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+  }
+  .map-preview {
+    min-height: 24rem;
+  }
+  .map-preview p {
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+}

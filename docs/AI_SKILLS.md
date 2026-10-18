@@ -371,3 +371,31 @@ stale.
   presentation at desktop and phone viewport sizes.
 - **YOTE / Scoped presentation changes:** Updated responsive container styling
   and introductory copy without changing navigation behavior.
+
+#### Step 37 usage record
+
+- **OPENAI / OpenAI Docs skill:** Checked official model documentation for
+  explicit model and reasoning recommendations.
+- **EXTERNAL / Context7 and official GitHub/Vercel documentation:** Checked
+  preview deployments, production promotion, branch protection, and recovery.
+- **EXTERNAL / actionlint:** Validated workflow syntax with the official
+  checksum-verified 1.7.12 Windows release in a temporary directory.
+- **YOTE / Reviewable releases:** Kept automated source checks, browser preview
+  evidence, production verification, and dashboard enforcement distinct.
+
+#### Step 38 usage record
+
+- **OPENAI / Playwright skill:** Compared desktop presentation before and after
+  the stylesheet refactor and checked preserved control colors and layout.
+- **YOTE / Explicit presentation settings:** Grouped CSS variables by purpose,
+  separated stylesheet responsibilities, and labeled typed map-camera settings.
+
+#### Step 38A usage record
+
+- **EXTERNAL / Context7 and MapLibre documentation:** Used provider-owned GeoJSON
+  fill selection and lifecycle events behind the existing adapter contract.
+- **OPENAI / Playwright skill:** Checked actual footprint clicks for all three
+  buildings, slide controls, dismissal, and the scrollable phone dialog.
+- **YOTE / Content separate from rendering:** Kept building descriptions and image
+  metadata independent of the adapter and React popup, with honest missing-photo
+  states and no new dependencies.

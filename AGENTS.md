@@ -2,11 +2,14 @@
 
 ## Delivery cadence
 
-- Complete one user-approved meaningful step at a time, then stop for approval.
+- Complete the user-approved scope, including grouped steps when explicitly approved,
+  then stop before the next unapproved step.
 - After every step, explain completed work, verification, key files and their connections, and technical terms when first introduced.
 - Recommend concise or detailed reporting and ask for the user's preference for the next step.
 - Use two clearly labeled report parts: the completed-step report, then a brief
   next-step preview with its goal, plan, and model recommendation.
+- Name the exact recommended model and reasoning effort (for example,
+  GPT-6.1 Sol with medium reasoning); do not substitute generic agent descriptions.
 - Update `README.md`, `docs/PROGRESS.md`, and `docs/AI_SKILLS.md` with meaningful progress.
 - Update `docs/PROJECT_MEMORY.md` with the current source, decisions, limitations,
   and approval boundary after each meaningful step so interrupted work can resume.
@@ -24,10 +27,19 @@
 
 ## Git workflow
 
+- Follow `docs/RELEASE_WORKFLOW.md`: work on a feature branch, verify, publish
+  an approved preview, review, then merge with explicit release approval.
+- Keep `main` for reviewed production changes. Record the tested preview commit
+  and working production deployment before release; do not claim hosted checks
+  or dashboard enforcement are active based on local files alone.
+
 - Commit each meaningful completed change with a focused conventional-style message.
 - Prefer several small, cohesive commits within a larger approved step when each
   unit can be independently verified and documented.
-- Do not push commits until the user explicitly approves that push and a remote is configured.
+- Commits and pushes to the preview feature branch have standing user approval.
+  Ask before merging into `main` or promoting a deployment to production.
+- Explicitly announce whether work targets preview or production and announce
+  every transition between them. A preview push is not a production release.
 - Keep build, lint, type-check, formatting, and relevant tests passing before committing.
 
 ## Engineering expectations
@@ -35,6 +47,9 @@
 - Use strict TypeScript, descriptive naming, small modules, and explicit failure behavior.
 - Favor React composition for UI and classes for stateful infrastructure only when encapsulation is useful.
 - Keep map-provider dependencies behind typed contracts and compose implementations at the application boundary.
+- Keep interface styles in `src/styles`; expose meaningful visual settings in
+  `theme.css` and map-camera/route colors in `mapPresentation.ts`. Preserve the
+  current layout unless a visual change is part of the approved scope.
 - Avoid speculative abstractions and duplicate logic.
 
 ## Current technical documentation

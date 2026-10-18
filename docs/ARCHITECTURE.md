@@ -56,7 +56,7 @@ require rewriting the map library.
 If you only need to make a small content change, begin with
 [`src/data/navigation`](../src/data/navigation). If you need to change the
 screen, begin with [`src/features`](../src/features) and
-[`src/app/styles.css`](../src/app/styles.css). If the map itself is failing,
+[`src/styles`](../src/styles). If the map itself is failing,
 begin with [`src/features/map`](../src/features/map),
 [`src/composition/createMapAdapter.ts`](../src/composition/createMapAdapter.ts),
 and the [map troubleshooting section](#the-map-is-blank-or-invisible).
@@ -183,6 +183,7 @@ the shared state in the hook and `App.tsx`.
 
 ```text
 YoteWayfinder/
+├── .github/                      Automated checks and pull-request template
 ├── .codex/                       Project-scoped agent integrations
 ├── docs/                         Human-readable project records
 ├── scripts/                      Reproducible source-data imports
@@ -190,12 +191,15 @@ YoteWayfinder/
 ├── src/                          Application source code
 │   ├── app/                      Screen assembly and global presentation
 │   ├── composition/              Chooses concrete service implementations
+│   ├── data/campus/              Three building-detail content records
 │   ├── data/navigation/          Local route and campus content
 │   ├── data/scene/               One visual 3D prototype, not route data
 │   ├── domain/navigation/        Business meaning and validation
 │   ├── features/
+│   │   ├── buildings/            Building dialog, image slides, and content types
 │   │   ├── map/                  Interactive-map capability
 │   │   └── navigation/           Route-planning capability
+│   ├── styles/                   Named theme and responsibility-based styles
 │   └── test/                     Shared automated-test setup
 ├── dist/                         Generated production output
 ├── node_modules/                 Installed third-party packages
@@ -230,7 +234,25 @@ require a new session after the configuration changes. A personal Context7 key
 may provide higher limits, but it belongs in user-level configuration or a
 secure environment setting and must never be committed here.
 
+### The `.github` folder
+
+This folder holds instructions GitHub reads during development. It is not shipped
+to visitors. `workflows/quality.yml` is the automated inspection procedure: GitHub
+checks a pull request or a `main` push, installs the recorded packages, and runs
+the same quality commands used locally. `pull_request_template.md` gives proposed
+changes a consistent review form, including preview evidence and a recovery target.
+
+The workflow reads `.node-version` and commands from `package.json`; those commands
+use the existing compiler, lint, test, and bundling configuration. The template
+links to `docs/RELEASE_WORKFLOW.md`, which explains how a contributor uses these
+files together. GitHub branch protection must be configured separately to make
+checks a mandatory merge condition; committing this folder alone cannot enforce it.
+
 ## Root files
+
+`.node-version` selects Node.js 22 for the GitHub check runner. Local contributors
+use the same major version; `package.json` pins Vercel builds to 22.x through
+`engines.node`, as explained in the release guide.
 
 The project root is the control desk for the repository. Files here tell tools
 how to install, validate, build, and start the application. The root should not
@@ -268,6 +290,11 @@ is generated from dependencies and should not be edited by hand.
 
 ## The `docs` folder
 
+`docs/RELEASE_WORKFLOW.md` is the contributor release procedure. It connects local
+branches and checks to GitHub pull requests, Vercel test deployments, release
+approval, production verification, version tags, and recovery. Its repository
+settings section distinguishes written procedure from externally enforced rules.
+
 The `docs` folder is the project’s institutional memory. Source code can show
 what the computer does, but it often cannot explain why a choice was made,
 which alternatives were rejected, or how a non-technical contributor should
@@ -287,8 +314,8 @@ change, not a later optional task.
 | `docs/CAMPUS_DATA_COLLECTION.md` | Guides future field correction and measured-data intake. It is not the runtime route dataset.                                                                                                                               |
 | `docs/PROJECT_MEMORY.md`         | Durable resume context: current source, major decisions, limitations, verification commands, and next approval boundary. Read it when resuming an interrupted step.                                                         |
 
-`docs/OWNERSHIP.md` explains the ownership scope, license alternatives,
-dependency and map-data rights, build checks, and recommended account actions.
+`docs/OWNERSHIP.md` explains original-work permissions and separate
+dependency and map-data rights.
 It connects the root `LICENSE` with package metadata and Vite output. Update
 it when ownership, licensing, source exposure, or deployment policy changes.
 
@@ -352,7 +379,26 @@ the screen from disagreeing about the selected route.
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `src/app/App.tsx`      | Composes the header, navigation panel, and map. It owns 2D/3D mode and passes route-planner state to both features. It lazy-loads `MapView`, so the large map code is requested separately.                  |
 | `src/app/App.test.tsx` | Checks that the route-planning heading and map region are present. It replaces the real map with a test substitute because browser map rendering does not belong in this basic application test.             |
-| `src/app/styles.css`   | Contains the global visual system and responsive layout. It also guarantees that the map host fills its panel. Change colors, spacing, typography, and layout here while checking desktop and mobile widths. |
+| `src/styles`           | Contains the global visual system and responsive layout. It also guarantees that the map host fills its panel. Change colors, spacing, typography, and layout here while checking desktop and mobile widths. |
+
+## The `src/styles` folder
+
+`building-details.css` adds popup, carousel, and scrollable-description rules.
+It reads popup dimensions and backdrop color from `theme.css` and is imported
+after `map.css`, before responsive adjustments.
+
+The stylesheet is organized by responsibility rather than keeping all appearance
+rules in one application file. `theme.css` is the first stop for named colors,
+fonts, layout widths, frame corners, button heights, and control positions.
+`global.css` handles browser defaults and focus, `layout.css` owns screen assembly,
+`navigation.css` owns form and route controls, `map.css` owns map overlays, and
+`responsive.css` preserves the 760-pixel phone layout. `main.tsx` imports them in
+that order, after MapLibre's stylesheet. See [the styling guide](STYLING.md).
+
+The map canvas draws its route colors and camera independently of HTML/CSS.
+`features/map/model/mapPresentation.ts` exposes those settings with descriptive
+names and units. Changing HTML legend colors also requires updating the matching
+map route colors; neither file changes routing decisions or GPS verification.
 
 ## The `src/composition` folder
 
@@ -472,6 +518,40 @@ Organizing by feature keeps related changes close together. It also discourages
 an oversized general components folder where unrelated files become difficult
 to find. Cross-feature communication happens through typed props, hooks, and
 contracts rather than hidden global variables.
+
+## The buildings feature and campus content
+
+`src/features/buildings` owns building information rather than navigation progress.
+Its `model/BuildingDetails.ts` describes a label, footprint, description, detail
+sections, and at least two image slots. `components/BuildingDetailsDialog.tsx`
+provides the native modal dialog, close behavior, focus restoration, and explicit
+Tab/Shift+Tab wrapping;
+`BuildingPhotoCarousel.tsx` provides manual slide selection and unavailable-image
+fallback. `BuildingDetailsDialog.test.tsx` checks these interactions. A carousel
+is an image area that changes the displayed image without leaving the popup.
+
+`src/data/campus/buildingDetails.ts` stores the three approved content records.
+It derives library, Sterry, and cafeteria outlines from the same OSM snapshot as
+the walking network, validates closed footprints and required points, and keeps
+image metadata separate from rendering. No actual photographs are configured.
+Descriptions do not invent opening hours or verified accessibility. Simplot's
+combined outline opens cafeteria information; its two route destinations still
+use their separate entrances.
+
+`MapBuilding.ts` is the small provider-independent selection contract. Composition
+passes the shapes to `MapLibreMapAdapter`; a GeoJSON fill layer makes them
+selectable despite the raster basemap. The adapter sends only a recognized ID via
+`MapAdapterCallbacks.onBuildingSelect`. `MapView.tsx` resolves that ID and mounts
+the dialog, leaving route state, navigation progress, and GPS unchanged. The
+adapter removes its click listener when destroyed. Keyboard selection controls
+become visible on focus so choosing a building does not require a pointer.
+
+`MapLibreBuildingSelection.test.ts` checks the three outlines, ID filtering, and
+listener removal. `MapView.test.tsx` checks that selection opens the right content
+without requesting GPS. A small dialog stub in `src/test/setup.ts` supplies jsdom's
+missing modal methods; real browser checks remain necessary for native focus and
+map clicks. See [BUILDING_DETAILS.md](BUILDING_DETAILS.md) for content editing,
+photo replacement, and popup styling.
 
 ## The navigation feature
 
@@ -642,7 +722,7 @@ readers understand controls and their current state.
 The main files for this step are `useRoutePlanner.ts` and `routePlanner.ts` for
 route outcomes, `NavigationPanel.tsx` for messages and keyboard interaction,
 `MapView.tsx` and `MapAdapter.ts` for map loading/error recovery,
-`MapLibreMapAdapter.ts` for provider callbacks, and `styles.css` for visible
+`MapLibreMapAdapter.ts` for provider callbacks, and `src/styles` for visible
 status treatment. The related tests are in `App.test.tsx`, `routePlanner.test.ts`,
 and `MapLibreMapAdapter.test.ts`.
 
@@ -1022,7 +1102,7 @@ states into instructions, a progress count, a status announcement, and the
 appropriate button. Its adjacent test file covers arrival, uncertainty,
 mismatch, stale/reused readings, failures, retries, and a late result after route
 replacement. `NavigationPanel.tsx` displays it only for a previewed route and
-passes the injected provider. `styles.css` supplies the notice, instruction, and
+passes the injected provider. `src/styles` supplies the notice, instruction, and
 disabled-button presentation. The existing map adapter remains unchanged.
 
 `useRoutePlanner.ts` now increments a route revision on each preview. A revision
@@ -1279,7 +1359,7 @@ Key files and connections:
   outcome selector and demo-specific explanatory text; the hook and the
   injected provider still decide actual progress.
 - `src/features/navigation/components/NavigationPanel.tsx` remounts the
-  navigation session only when `routeRevision` changes. `src/app/styles.css`
+  navigation session only when `routeRevision` changes. `src/styles`
   handles narrow layout, target size, and visible focus without routing logic.
 - The corresponding component tests in `src/app/App.test.tsx` and
   `CheckpointNavigation.test.tsx` protect route/session reset behavior.
@@ -1437,7 +1517,7 @@ request for short routes and a general preference for established walkways;
 it is not a safety or legal-access guarantee. `routeSteps.ts` joins successive
 straight graph segments so every OSM vertex does not become a new turn.
 
-The destination list can exceed a phone's screen. `styles.css` limits the
+The destination list can exceed a phone's screen. `src/styles` limits the
 suggestions box height and makes it vertically scrollable;
 `NavigationPanel.tsx` brings the active keyboard suggestion into view. The
 underlying search and selection logic is unchanged. Browser testing verified
@@ -1544,7 +1624,7 @@ entrance with a roughly southward bearing toward Sterry Hall. The app still
 does not render 3D building models. Both route fields begin empty, making a
 place choice explicit. `CheckpointNavigation.tsx` renders the walking Start
 button immediately after Preview route, before the longer instructions.
-`styles.css` uses provisional purple `#412D5E` for the page and primary
+`src/styles` uses provisional purple `#412D5E` for the page and primary
 controls. Public references attribute this value to an older College brand
 book (see the [secondary team-color listing](https://www.cfc1869.com/team/College%20of%20Idaho/)
 and [older College brand-book link](https://issuu.com/thecollegeofidaho/docs/cofi_brandbook_v17_high)),
@@ -1752,7 +1832,7 @@ and the three route-color meanings stay visible. `useCheckpointNavigation.ts`
 owns progress state and the one-request-per-click behavior, so hiding the menu
 did not alter location-check behavior.
 
-`src/app/styles.css` reduces phone padding and form-control height and removes
+`src/styles` reduces phone padding and form-control height and removes
 the old minimum height that pushed the map down. The map now starts higher on a
 390 x 844 phone viewport. The map note is positioned above map attribution so
 the two no longer compete for the bottom corner. These changes affect the
@@ -1838,10 +1918,63 @@ and dependency notices were present; its source-map URL returned HTTP 404.
 
 ### Step 36: Compact navigation presentation
 
-`src/app/styles.css` sets the outer `.wayfinder-layout` container's corner radius
+`src/styles` sets the outer `.wayfinder-layout` container's corner radius
 to zero at desktop and mobile widths. `CheckpointNavigation.tsx` omits the
 introductory simulation paragraph while retaining operational status messages.
 This is a presentation change; location providers and route state are unchanged.
+
+### Step 37: Repeatable releases
+
+The release guide is [docs/RELEASE_WORKFLOW.md](RELEASE_WORKFLOW.md). It describes
+the full procedure in numbered stages, with copyable commands, preview and phone
+checks, version records, and recovery instructions. A preview is a separate test
+website; production is the website visitors use. A pull request proposes a branch
+change before that change is accepted into `main`.
+
+`.github/workflows/quality.yml` installs packages using `npm ci`, which follows
+`package-lock.json`, then runs the existing quality checks on GitHub's Linux
+runner. `.node-version` selects Node.js 22. The `npm run check` command offers the
+same formatting, lint, TypeScript, test, and build checks locally. The workflow's
+read-only permissions and pinned action revisions limit its authority and make
+its external tooling identifiable. No application provider or runtime logic changes.
+
+The pull-request template records the preview URL, tested commit, results, and
+last working deployment. This makes a release reviewable and recoverable rather
+than depending on a contributor remembering what was tested. Automated checks
+cannot confirm physical route access or GPS accuracy; preview and field evidence
+remain separate. Account-level protection must be enabled to enforce passing
+checks before merging. Vercel's existing automatic `main` deployment is unchanged.
+
+References: [GitHub Node.js CI](https://docs.github.com/en/actions/tutorials/build-and-test-code/nodejs),
+[branch protection](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches),
+[Vercel Git deployments](https://vercel.com/docs/git), and
+[Instant Rollback](https://vercel.com/docs/instant-rollback).
+
+### Step 38: Editable theme and presentation settings
+
+The original stylesheet has been split into `src/styles` without changing the
+layout. Named variables at the top of `theme.css` provide an understandable edit
+surface. A typed `mapPresentation.ts` keeps WebGL colors and camera settings out
+of the adapter's lifecycle code. This separation keeps appearance changes local
+and avoids introducing a styling dependency. See [STYLING.md](STYLING.md) for
+the setting-to-file table and desktop/phone verification procedure.
+
+### Step 38A: Three clickable building details
+
+The library, Sterry Hall, and cafeteria footprints now open an accessible native
+dialog containing two manually controlled image slots above a scrollable details
+area. Photographs have not been supplied; placeholders explicitly identify that
+state. A third photo record adds a third slide without changing the component.
+
+Content, map selection, and popup rendering have separate responsibilities.
+Building selection extends the existing adapter callback boundary instead of
+introducing provider-specific code in the dialog. CSS variables control popup
+dimensions, and typed map settings control outline appearance. Browser checks
+cover actual clicks, slide changes, dismissal, and phone scrolling; automated tests
+cover the selection boundary and component behavior. The shared Simplot footprint
+does not alter its separate dining/residence entrances or route calculation.
+
+Source: [MapLibre polygon click example](https://maplibre.org/maplibre-gl-js/docs/examples/show-polygon-information-on-click/).
 
 ## Safe change recipes
 
@@ -1948,7 +2081,7 @@ labels so keyboard and assistive-technology users understand the controls.
 
 ### Change colors, spacing, or responsive layout
 
-Start in `src/app/styles.css`. Search for the component class, make the smallest
+Start in `src/styles`. Search for the component class, make the smallest
 relevant change, and inspect a wide and narrow window. The current mobile
 breakpoint is 760 pixels.
 
@@ -2028,7 +2161,7 @@ boundary and should be moved back behind the contract.
 1. Inspect `.map-view`, `.map-canvas`, and `.maplibregl-canvas` in browser
    developer tools. Their computed width and height must be greater than zero.
 2. Confirm MapLibre CSS is imported before application CSS in `main.tsx`.
-3. Confirm `styles.css` targets `.map-view > .map-canvas`.
+3. Confirm `src/styles` targets `.map-view > .map-canvas`.
 4. Check the console for worker or WebGL errors. WebGL is the browser graphics
    technology MapLibre uses to draw the map.
 5. Check the Network panel for failed style, tile, or worker requests.
@@ -2189,7 +2322,7 @@ historical context.
 ### ADR-009: Load vendor map CSS before application overrides
 
 - **Status:** Accepted
-- **Decision:** Import MapLibre CSS before `styles.css`, and use a specific
+- **Decision:** Import MapLibre CSS before `src/styles`, and use a specific
   full-size rule for `.map-view > .map-canvas`.
 - **Reason:** MapLibre CSS overrode host positioning, collapsed its height to
   zero, and made a correctly created canvas invisible.
@@ -2662,12 +2795,25 @@ historical context.
   This does not change GitHub visibility, guarantee ownership/enforcement,
   recall previous public copies, or perform a legal registration.
 
+### ADR-044: Review feature previews before production release
+
+- **Status:** Implemented as repository workflow and contributor procedure in
+  Step 37; hosted execution and account enforcement require separate verification.
+- **Decision:** Use one feature branch per change, a pull request targeting `main`,
+  the Quality checks job, preview review, and explicit release approval. Keep the
+  last working production deployment as the recovery reference.
+- **Reason:** Tests and build checks catch different errors from visual and
+  physical-device checks. A small, identifiable release is easier to recover.
+- **Consequence:** No long-lived staging branch, deployment credential, custom
+  backend, or automatic publishing script is needed. GitHub protection settings
+  must enforce the merge gate; a YAML workflow alone does not block direct pushes.
+
 ## Engineering principles in plain language
 
 ### Single responsibility
 
 Each module has one main reason to change. `mockLocations.ts` changes when
-sample places change; `styles.css` changes when presentation changes;
+sample places change; `src/styles` changes when presentation changes;
 `MapLibreMapAdapter.ts` changes when MapLibre behavior changes.
 
 ### Open/closed design

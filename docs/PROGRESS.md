@@ -731,6 +731,58 @@ Status: implemented and locally verified.
 - Browser code/data remain downloadable; the notice and build settings do not
   revoke existing copies or rights.
 
+## Step 37: Repeatable checks and release workflow
+
+- Added the GitHub Actions Quality workflow, Node.js 22 selection, local
+  `npm run check`, and pull-request checklist. The release guide covers routine
+  changes, preview review, versions, production checks, and recovery.
+- `package.json` pins Vercel's Node major to 22.x, matching `.node-version`.
+- The workflow passes actionlint 1.7.12 validation; all 94 original tests and
+  the local production build passed before hosted activation.
+
+- Hosted activation: pull request #1 runs the Quality workflow successfully;
+  Vercel provides a ready Preview deployment. GitHub `main` protection requires
+  Quality checks and Vercel, up-to-date changes, resolved conversations, and a
+  pull request. Force pushes and deletion are disabled; administrators are included.
+  Production has not been merged or promoted.
+
+## Step 38: Editable visual settings
+
+- Moved global presentation into `src/styles` by responsibility, preserving the
+  existing interface. `theme.css` centralizes named colors, font sizes, layout
+  dimensions, button heights, frame radius, and map-control offsets.
+- Added typed camera and route-color settings in `mapPresentation.ts` and a
+  contributor guide at `docs/STYLING.md`. No styling dependency was introduced.
+- Verification: all 94 existing tests and production build passed. Desktop and
+  phone viewport checks preserved panel layout, white branding, square frame,
+  and no horizontal phone overflow.
+
+## Step 38A: Three selectable buildings
+
+- Library, Sterry Hall, and cafeteria use their existing OSM footprints for map
+  selection. Typed adapter callbacks open a React-rendered native dialog without
+  changing route state or requesting location.
+- Added two labeled photo slots per building, manual slide controls, an explicit
+  missing/failed-image fallback, and a scrollable description. No approved photos
+  are present. Cafeteria text distinguishes its entrance from the residence hall.
+- Added dismissal, focus restoration, keyboard selection controls, adapter-listener
+  cleanup, and focused behavior tests. `docs/BUILDING_DETAILS.md` explains the files,
+  content updates, and how to supply real photographs.
+- Local verification: formatting, lint, TypeScript, 102 tests in 22 files,
+  production build, and whitespace checks pass. Browser checks cover all three
+  actual footprint clicks, slides, Escape, keyboard selection and focus return,
+  phone scrolling without horizontal overflow, and route preview/Next/Back after
+  opening details. The existing large map-bundle warning remains.
+- A production-build keyboard check found a Shift+Tab escape; explicit focus
+  wrapping and a regression test cover the correction. Hosted preview builds and
+  checks pass for the initial feature revision. Browser inspection of the hosted
+  preview requires Vercel login; equivalent interaction checks run against the
+  local production build. No production merge or promotion has occurred.
+- Hosted Quality and Vercel deployment both succeeded for `f948594`, including
+  the focus correction and Node version alignment. The clean local production-build
+  browser reported no errors or warnings; on/off-campus controls were tested using
+  simulated browser coordinates, not real GPS. Production `main` remains `a888b02`.
+
 ## Step 36: Compact navigation presentation
 
 - Set the outer navigation/map container corner radius to zero at desktop and

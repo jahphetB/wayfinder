@@ -12,6 +12,8 @@ import type { MapAdapter } from '@/features/map/contracts/MapAdapter'
 import type { DrivingHandoff } from '@/data/navigation/stadiumDrivingHandoff'
 import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
 import { LocationProviderError } from '@/features/navigation/contracts/LocationProviderError'
+import { campusBuildingDetails } from '@/data/campus/buildingDetails'
+import { BuildingDetailsDialog } from '@/features/buildings/components/BuildingDetailsDialog'
 
 interface MapViewProps {
   readonly origin: Location | undefined
@@ -44,6 +46,10 @@ export function MapView({
   const [retryVersion, setRetryVersion] = useState(0)
   const [isLocating, setIsLocating] = useState(false)
   const [locationMessage, setLocationMessage] = useState<string>()
+  const [selectedBuildingId, setSelectedBuildingId] = useState<string>()
+  const selectedBuilding = campusBuildingDetails.find(
+    ({ id }) => id === selectedBuildingId,
+  )
   const locationRequestId = useRef(0)
   const locationRequestInProgress = useRef(false)
 
@@ -73,6 +79,7 @@ export function MapView({
         },
         {
           onReady: () => setMapStatus('ready'),
+          onBuildingSelect: setSelectedBuildingId,
           onError: (error) => {
             setMapError(error.message)
             setMapStatus('error')
@@ -186,6 +193,28 @@ export function MapView({
   return (
     <section aria-label="Interactive map" className="map-view">
       <div className="map-canvas" ref={containerRef} />
+      <div
+        className="building-keyboard-access"
+        role="group"
+        aria-label="Building details"
+      >
+        {campusBuildingDetails.map((building) => (
+          <button
+            key={building.id}
+            type="button"
+            onClick={() => setSelectedBuildingId(building.id)}
+          >
+            {building.label} details
+          </button>
+        ))}
+      </div>
+      {selectedBuilding && (
+        <BuildingDetailsDialog
+          key={selectedBuilding.id}
+          building={selectedBuilding}
+          onClose={() => setSelectedBuildingId(undefined)}
+        />
+      )}
       {mapStatus === 'loading' && (
         <p className="map-status" role="status">
           Loading map…

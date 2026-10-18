@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import { createMapAdapter } from '@/composition/createMapAdapter'
@@ -53,6 +53,23 @@ function renderMap(provider: LocationProvider) {
 }
 
 describe('MapView location control', () => {
+  it('opens building details from the adapter without requesting location', async () => {
+    const requestCurrentLocation = vi.fn()
+    renderMap({ requestCurrentLocation })
+    const adapter = vi.mocked(createMapAdapter).mock.results.at(-1)
+      ?.value as MapAdapter
+    const callbacks = vi.mocked(adapter).initialize.mock.calls[0]?.[2]
+    act(() => callbacks?.onBuildingSelect?.('simplot-dining-hall'))
+    expect(
+      screen.getByRole('dialog', { name: 'Simplot Dining Hall (Cafeteria)' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/entrance near Blatchley Hall/)).toBeInTheDocument()
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Close building details' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(requestCurrentLocation).not.toHaveBeenCalled()
+  })
   it('requests real location only on click and focuses an on-campus reading', async () => {
     const requestCurrentLocation = vi.fn().mockResolvedValue(campusReading)
     const showUserLocation = renderMap({ requestCurrentLocation })

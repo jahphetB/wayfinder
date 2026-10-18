@@ -4,7 +4,44 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state after Step 36
+## Current state after implementation of Steps 37, 38, and 38A
+
+- Release procedure: `docs/RELEASE_WORKFLOW.md`; work on feature branches,
+  publish previews under standing approval, and merge only with release approval.
+  `npm run check` collects the existing quality commands. GitHub Actions reads
+  Node.js 22 from `.node-version`; `.github/pull_request_template.md` records
+  the tested revision, preview, release approval, and recovery target.
+- Preview branch: `chore/step-37-release-workflow`, pull request #1. Hosted Quality
+  checks and Vercel preview passed for the first revision. Main branch protection
+  now requires pull requests, Quality checks and Vercel success, an up-to-date
+  branch and resolved conversations, including administrators. No production merge.
+- Standing approval permits preview commits and pushes. Production merges and
+  promotions require approval. Announce every environment transition. Approved
+  scope includes Step 38 styling and three building popups (library, Sterry,
+  cafeteria). Physical tracking and location refinement remain later work.
+- Styling now lives in `src/styles`; `theme.css` owns labeled visual variables,
+  while `mapPresentation.ts` owns typed camera settings and map route colors.
+  See `docs/STYLING.md`. The old `src/app/styles.css` has been replaced.
+- Three selectable footprints: library `603509923`, Sterry `492831879`, and
+  Simplot `492831873`. Content is in `src/data/campus/buildingDetails.ts`.
+  Simplot's shared footprint opens cafeteria details; residence routing is unchanged.
+  Popups have two labeled photo placeholders because no approved photographs are
+  in the repository. Supply assets/metadata using `docs/BUILDING_DETAILS.md`.
+  No images were scraped, generated as campus photos, or hotlinked.
+- Map selection travels through `MapAdapterCallbacks.onBuildingSelect` into
+  `MapView` and the native React dialog. Route sessions and GPS are unaffected.
+  Approved feature implementation and local browser/build verification are
+  complete. The hosted preview requires Vercel login; final review by the owner
+  and production merge approval remain. Local checks pass 102 tests in 22 files;
+  the compiled preview was tested with simulated browser GPS, not physical GPS.
+- Vercel builds select Node.js 22.x via package engines, matching `.node-version`.
+  Modal keyboard focus explicitly wraps Tab/Shift+Tab; a regression test covers it.
+- Revision `f948594` passed hosted Quality checks and Vercel deployment. Preview:
+  `https://wayfinder-git-chore-step-37-release-workflow-jahphet.vercel.app`.
+  Its login protection is retained. Production `main` remains `a888b02`.
+- Model recommendations must name a specific model and reasoning level. Keep
+  public documentation factual; release instructions belong in the contributor
+  guide rather than owner-action lists in product/ownership files.
 
 - The outer navigation/map container has square corners on desktop and mobile.
   The introductory simulated-route paragraph is removed; simulated checkpoints

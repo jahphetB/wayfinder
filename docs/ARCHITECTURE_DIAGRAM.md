@@ -80,6 +80,13 @@ flowchart TB
         Tooling[TypeScript, ESLint, Prettier, Vite<br/>strict checks, no production source maps,<br/>copyright banner and dependency notices]
         VercelConfig[vercel.json<br/>Vite preset, checked build, dist output]
         GitHub[GitHub main<br/>approved source commits]
+        FeatureBranch[Feature branch and pull request<br/>isolated development and preview review]
+        Quality[.github/workflows/quality.yml<br/>locked install and existing quality commands]
+        ReleaseGuide[docs/RELEASE_WORKFLOW.md<br/>review, release, verification and recovery]
+        Theme[src/styles/theme.css<br/>named interface colors, fonts and layout values]
+        MapPresentation[mapPresentation.ts<br/>typed camera and route colors]
+        BuildingDetails[buildingDetails.ts<br/>three OSM footprints, descriptions and photo slots]
+        BuildingDialog[BuildingDetailsDialog and BuildingPhotoCarousel<br/>modal details and manual image slides]
         Handbook[README and docs<br/>architecture, progress, skills, decisions]
         OSMExport[User-supplied OSM XML snapshot<br/>reviewed source geometry]
         Importer[scripts/import_campus_osm.py<br/>filtered, reproducible source import]
@@ -131,6 +138,18 @@ flowchart TB
     Three --> GPU
     OSM --> MapLibre
     GitHub --> VercelConfig
+    FeatureBranch --> Quality
+    Theme --> App
+    MapPresentation --> Adapter
+    BuildingDetails --> CreateAdapter
+    BuildingDetails --> MapView
+    Adapter -->|recognized building ID callback| MapView
+    MapView --> BuildingDialog
+    Theme --> BuildingDialog
+    FeatureBranch -. separate test deployment .-> Vercel
+    ReleaseGuide -. governs release .-> FeatureBranch
+    FeatureBranch -. reviewed merge .-> GitHub
+    GitHub --> Quality
     VercelConfig -. builds dist .-> Vercel
     Vercel -. serves prototype .-> Index
     OSMExport --> Importer --> Snapshot
