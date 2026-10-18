@@ -1,0 +1,34 @@
+:root {
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background: var(--color-brand);
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(
+      circle at 85% 0%,
+      var(--color-page-glow),
+      transparent 31rem
+    ),
+    var(--color-brand);
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}

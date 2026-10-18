@@ -733,6 +733,22 @@ Status: implemented and locally verified.
 
 ## Step 37: Repeatable checks and release workflow
 
+- Hosted activation: pull request #1 runs the Quality workflow successfully;
+  Vercel provides a ready Preview deployment. GitHub `main` protection requires
+  Quality checks and Vercel, up-to-date changes, resolved conversations, and a
+  pull request. Force pushes and deletion are disabled; administrators are included.
+  Production has not been merged or promoted.
+
+## Step 38: Editable visual settings
+
+- Moved global presentation into `src/styles` by responsibility, preserving the
+  existing interface. `theme.css` centralizes named colors, font sizes, layout
+  dimensions, button heights, frame radius, and map-control offsets.
+- Added typed camera and route-color settings in `mapPresentation.ts` and a
+  contributor guide at `docs/STYLING.md`. No styling dependency was introduced.
+
+## Step 37 implementation record
+
 - Added the GitHub Actions Quality workflow for pull requests targeting `main`,
   `main` pushes, and manual runs. It installs locked dependencies and runs
   formatting, lint, TypeScript, tests, production build, and whitespace checks.

@@ -4,17 +4,24 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state after Step 37
+## Current state during Steps 37, 38, and 38A
 
 - Release procedure: `docs/RELEASE_WORKFLOW.md`; work on feature branches,
   publish previews only with push approval, and merge only with release approval.
   `npm run check` collects the existing quality commands. GitHub Actions reads
   Node.js 22 from `.node-version`; `.github/pull_request_template.md` records
   the tested revision, preview, release approval, and recovery target.
-- Step 37 is prepared on local `chore/step-37-release-workflow`. Publishing this
-  branch and running hosted checks require push approval. Do not claim GitHub
-  branch protection or Vercel settings were configured. Current production is
-  unaffected by this local branch. See the guide's enforcement section for setup.
+- Preview branch: `chore/step-37-release-workflow`, pull request #1. Hosted Quality
+  checks and Vercel preview passed for the first revision. Main branch protection
+  now requires pull requests, Quality checks and Vercel success, an up-to-date
+  branch and resolved conversations, including administrators. No production merge.
+- Standing approval permits preview commits and pushes. Production merges and
+  promotions require approval. Announce every environment transition. Approved
+  scope includes Step 38 styling and three building popups (library, Sterry,
+  cafeteria). Physical tracking and location refinement remain later work.
+- Styling now lives in `src/styles`; `theme.css` owns labeled visual variables,
+  while `mapPresentation.ts` owns typed camera settings and map route colors.
+  See `docs/STYLING.md`. The old `src/app/styles.css` has been replaced.
 - Model recommendations must name a specific model and reasoning level. Keep
   public documentation factual; release instructions belong in the contributor
   guide rather than owner-action lists in product/ownership files.

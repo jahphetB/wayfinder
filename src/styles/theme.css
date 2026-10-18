@@ -1,0 +1,97 @@
+/* Edit these named values to adjust the interface. Responsive breakpoint: responsive.css. */
+:root {
+  /* Brand, surfaces, text, borders, and map UI colors. */
+  --color-text: #281c38;
+  --color-brand: #412d5e;
+  --color-page-glow: #6a4b86;
+  --color-focus: #8e67bd;
+  --color-white: #fff;
+  --color-brand-accent: #ded6c9;
+  --color-frame-border: #d7cde0;
+  --color-frame-shadow: rgb(24 12 41 / 25%);
+  --color-panel: #fcfaff;
+  --color-eyebrow: #68438c;
+  --color-label: #574569;
+  --color-border: #d8cfe0;
+  --color-input-focus: #6b4a91;
+  --color-menu-shadow: rgb(35 20 52 / 18%);
+  --color-suggestion-text: #38274e;
+  --color-suggestion-hover: #f2ecf8;
+  --color-suggestion-selected-text: #2d1e43;
+  --color-suggestion-selected: #e8daf5;
+  --color-secondary: #593777;
+  --color-secondary-surface: #f8f3fb;
+  --color-button-shadow: rgb(65 45 94 / 20%);
+  --color-muted: #62586e;
+  --color-summary: #f4eff8;
+  --color-summary-text: #332148;
+  --color-error-border: #d77968;
+  --color-error-text: #7a2518;
+  --color-error-surface: #fff2ef;
+  --color-summary-muted: #665475;
+  --color-preview-stripe: rgb(255 255 255 / 38%);
+  --color-preview-start: #d9ead9;
+  --color-preview-middle: #c3e2cf;
+  --color-preview-end: #d8ebc8;
+  --color-preview-shadow: rgb(23 75 50 / 16%);
+  --color-preview-path: #216b44;
+  --color-preview-destination: #ef694c;
+  --color-preview-border: rgb(255 255 255 / 72%);
+  --color-preview-text: #28503a;
+  --color-preview-surface: rgb(255 255 255 / 78%);
+  --color-preview-card-shadow: rgb(28 82 51 / 12%);
+  --color-preview-muted: #64806d;
+  --color-map-background: #e8e0ed;
+  --color-status-surface: rgb(255 255 255 / 92%);
+  --color-overlay-shadow: rgb(20 60 38 / 18%);
+  --color-map-error: #fff8f6;
+  --color-toggle-border: rgb(255 255 255 / 74%);
+  --color-overlay-surface: rgb(255 255 255 / 88%);
+  --color-toggle-text: #594966;
+  --color-location-border: #d5cadf;
+  --color-location-surface: rgb(255 255 255 / 94%);
+  --color-note-shadow: rgb(20 60 38 / 15%);
+  --color-notice-surface: #fff4df;
+  --color-notice-text: #79420b;
+  --color-instruction: #f3edf8;
+  --color-route-completed: #7b8881;
+  --color-route-current: #087a45;
+  --color-route-upcoming: #d9872f;
+
+  /* Typography; rem values scale with the browser's default font size. */
+  --font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-size-eyebrow: 0.74rem;
+  --font-size-title: clamp(2rem, 4vw, 3rem);
+  --font-size-label: 0.73rem;
+  --font-size-input: 0.95rem;
+  --font-size-swap: 1.1rem;
+  --font-size-summary: 0.88rem;
+  --font-size-caption: 0.72rem;
+  --font-size-small: 0.78rem;
+  --font-size-body: 0.9rem;
+  --font-size-control: 0.8rem;
+  --font-size-section: 1.15rem;
+  --font-size-instruction: 1rem;
+  --font-size-notice: 0.82rem;
+  --font-size-title-mobile: clamp(1.7rem, 7vw, 2.15rem);
+
+  /* Layout dimensions and component padding. */
+  --layout-max-width: 1440px;
+  --layout-padding: 2rem clamp(1.25rem, 4vw, 4.5rem);
+  --layout-padding-mobile: 0.85rem;
+  --layout-min-height: 39rem;
+  --panel-min-width: 19rem;
+  --panel-max-width: 26rem;
+  --panel-padding: clamp(1.5rem, 3vw, 2.5rem);
+  --panel-padding-mobile: 1.2rem;
+  --map-min-height: 28rem;
+  --frame-radius: 0;
+  --button-height: 3.35rem;
+  --button-height-mobile: 3.1rem;
+
+  /* Overlay positions inside the map. */
+  --map-controls-top: 1.25rem;
+  --map-controls-right: 1.25rem;
+  --map-controls-left: 1.25rem;
+  --map-note-bottom: 3.25rem;
+}

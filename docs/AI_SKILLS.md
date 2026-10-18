@@ -382,3 +382,10 @@ stale.
   checksum-verified 1.7.12 Windows release in a temporary directory.
 - **YOTE / Reviewable releases:** Kept automated source checks, browser preview
   evidence, production verification, and dashboard enforcement distinct.
+
+#### Step 38 usage record
+
+- **OPENAI / Playwright skill:** Compared desktop presentation before and after
+  the stylesheet refactor and checked preserved control colors and layout.
+- **YOTE / Explicit presentation settings:** Grouped CSS variables by purpose,
+  separated stylesheet responsibilities, and labeled typed map-camera settings.

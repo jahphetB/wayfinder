@@ -5,6 +5,7 @@ import {
   type EaseToOptions,
   type MapOptions,
 } from 'maplibre-gl'
+import { mapPresentation } from '@/features/map/model/mapPresentation'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 
 import type { Coordinates, MapMode } from '@/domain/navigation/types'
@@ -130,13 +131,16 @@ export class MapLibreMapAdapter implements MapAdapter {
     this.options.campusLayer?.setVisible(mode === '3d')
     const session = this.content.navigationSession
     if (session?.status === 'navigating' || session?.status === 'arrived') {
-      this.focusNavigationSession(session, 450)
+      this.focusNavigationSession(
+        session,
+        mapPresentation.camera.modeDurationMilliseconds,
+      )
     } else {
       if (this.content.route || this.content.drivingHandoff) {
         this.cameraStateKey = undefined
         this.syncContent()
       } else if (this.overviewBounds) {
-        this.fitOverview(450)
+        this.fitOverview(mapPresentation.camera.modeDurationMilliseconds)
       } else {
         this.requireMap().easeTo({ ...cameraForMode(mode), duration: 450 })
       }
@@ -195,8 +199,8 @@ export class MapLibreMapAdapter implements MapAdapter {
     if (coordinates) {
       map.easeTo({
         center: [coordinates.longitude, coordinates.latitude],
-        zoom: 17,
-        duration: 600,
+        zoom: mapPresentation.camera.locationZoom,
+        duration: mapPresentation.camera.locationDurationMilliseconds,
       })
     }
   }
@@ -314,7 +318,7 @@ export class MapLibreMapAdapter implements MapAdapter {
         source: 'yote-driving-handoff',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#593777',
+          'line-color': mapPresentation.routeColors.handoff,
           'line-width': 6,
           'line-dasharray': [2, 1],
         },
@@ -330,12 +334,12 @@ export class MapLibreMapAdapter implements MapAdapter {
             'match',
             ['get', 'state'],
             'completed',
-            '#7b8881',
+            mapPresentation.routeColors.completed,
             'current',
-            '#087a45',
+            mapPresentation.routeColors.current,
             'upcoming',
-            '#d9872f',
-            '#155f3a',
+            mapPresentation.routeColors.upcoming,
+            mapPresentation.routeColors.preview,
           ],
           'line-width': [
             'match',
@@ -444,10 +448,10 @@ export class MapLibreMapAdapter implements MapAdapter {
 
     this.requireMap().easeTo({
       center: [center.longitude, center.latitude],
-      zoom: 18,
+      zoom: mapPresentation.camera.navigationZoom,
       bearing: calculateBearing(from, to),
       pitch: pitchForMode(this.mode),
-      offset: [0, 80],
+      offset: [0, mapPresentation.camera.navigationOffsetPixels],
       duration,
     })
   }
@@ -464,10 +468,13 @@ export class MapLibreMapAdapter implements MapAdapter {
   private fitOverview(duration: number): void {
     if (!this.overviewBounds) return
     this.requireMap().fitBounds(mapLibreBounds(this.overviewBounds), {
-      padding: 24,
-      maxZoom: 16,
+      padding: mapPresentation.camera.overviewPaddingPixels,
+      maxZoom: mapPresentation.camera.overviewMaxZoom,
       bearing: 0,
-      pitch: this.mode === '3d' ? 40 : 30,
+      pitch:
+        this.mode === '3d'
+          ? mapPresentation.camera.overviewPitch3d
+          : mapPresentation.camera.pitch2d,
       duration,
     })
   }
@@ -484,23 +491,28 @@ function mapLibreBounds(
 
 function cameraForMode(mode: MapMode): EaseToOptions {
   if (mode === '3d') {
-    return { bearing: -20, pitch: 60 }
+    return {
+      bearing: mapPresentation.camera.initialBearing3d,
+      pitch: mapPresentation.camera.pitch3d,
+    }
   }
 
   return { bearing: 0, pitch: pitchForMode(mode) }
 }
 
 function pitchForMode(mode: MapMode): number {
-  return mode === '3d' ? 60 : 30
+  return mode === '3d'
+    ? mapPresentation.camera.pitch3d
+    : mapPresentation.camera.pitch2d
 }
 
 function previewCameraOptions(mode: MapMode): object {
   return {
-    padding: 32,
-    maxZoom: 17.5,
+    padding: mapPresentation.camera.previewPaddingPixels,
+    maxZoom: mapPresentation.camera.previewMaxZoom,
     bearing: 0,
     pitch: pitchForMode(mode),
-    duration: 700,
+    duration: mapPresentation.camera.previewDurationMilliseconds,
   }
 }
 

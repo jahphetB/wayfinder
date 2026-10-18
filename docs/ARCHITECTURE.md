@@ -56,7 +56,7 @@ require rewriting the map library.
 If you only need to make a small content change, begin with
 [`src/data/navigation`](../src/data/navigation). If you need to change the
 screen, begin with [`src/features`](../src/features) and
-[`src/app/styles.css`](../src/app/styles.css). If the map itself is failing,
+[`src/styles`](../src/styles). If the map itself is failing,
 begin with [`src/features/map`](../src/features/map),
 [`src/composition/createMapAdapter.ts`](../src/composition/createMapAdapter.ts),
 and the [map troubleshooting section](#the-map-is-blank-or-invisible).
@@ -375,7 +375,22 @@ the screen from disagreeing about the selected route.
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `src/app/App.tsx`      | Composes the header, navigation panel, and map. It owns 2D/3D mode and passes route-planner state to both features. It lazy-loads `MapView`, so the large map code is requested separately.                  |
 | `src/app/App.test.tsx` | Checks that the route-planning heading and map region are present. It replaces the real map with a test substitute because browser map rendering does not belong in this basic application test.             |
-| `src/app/styles.css`   | Contains the global visual system and responsive layout. It also guarantees that the map host fills its panel. Change colors, spacing, typography, and layout here while checking desktop and mobile widths. |
+| `src/styles`           | Contains the global visual system and responsive layout. It also guarantees that the map host fills its panel. Change colors, spacing, typography, and layout here while checking desktop and mobile widths. |
+
+## The `src/styles` folder
+
+The stylesheet is organized by responsibility rather than keeping all appearance
+rules in one application file. `theme.css` is the first stop for named colors,
+fonts, layout widths, frame corners, button heights, and control positions.
+`global.css` handles browser defaults and focus, `layout.css` owns screen assembly,
+`navigation.css` owns form and route controls, `map.css` owns map overlays, and
+`responsive.css` preserves the 760-pixel phone layout. `main.tsx` imports them in
+that order, after MapLibre's stylesheet. See [the styling guide](STYLING.md).
+
+The map canvas draws its route colors and camera independently of HTML/CSS.
+`features/map/model/mapPresentation.ts` exposes those settings with descriptive
+names and units. Changing HTML legend colors also requires updating the matching
+map route colors; neither file changes routing decisions or GPS verification.
 
 ## The `src/composition` folder
 
@@ -665,7 +680,7 @@ readers understand controls and their current state.
 The main files for this step are `useRoutePlanner.ts` and `routePlanner.ts` for
 route outcomes, `NavigationPanel.tsx` for messages and keyboard interaction,
 `MapView.tsx` and `MapAdapter.ts` for map loading/error recovery,
-`MapLibreMapAdapter.ts` for provider callbacks, and `styles.css` for visible
+`MapLibreMapAdapter.ts` for provider callbacks, and `src/styles` for visible
 status treatment. The related tests are in `App.test.tsx`, `routePlanner.test.ts`,
 and `MapLibreMapAdapter.test.ts`.
 
@@ -1045,7 +1060,7 @@ states into instructions, a progress count, a status announcement, and the
 appropriate button. Its adjacent test file covers arrival, uncertainty,
 mismatch, stale/reused readings, failures, retries, and a late result after route
 replacement. `NavigationPanel.tsx` displays it only for a previewed route and
-passes the injected provider. `styles.css` supplies the notice, instruction, and
+passes the injected provider. `src/styles` supplies the notice, instruction, and
 disabled-button presentation. The existing map adapter remains unchanged.
 
 `useRoutePlanner.ts` now increments a route revision on each preview. A revision
@@ -1302,7 +1317,7 @@ Key files and connections:
   outcome selector and demo-specific explanatory text; the hook and the
   injected provider still decide actual progress.
 - `src/features/navigation/components/NavigationPanel.tsx` remounts the
-  navigation session only when `routeRevision` changes. `src/app/styles.css`
+  navigation session only when `routeRevision` changes. `src/styles`
   handles narrow layout, target size, and visible focus without routing logic.
 - The corresponding component tests in `src/app/App.test.tsx` and
   `CheckpointNavigation.test.tsx` protect route/session reset behavior.
@@ -1460,7 +1475,7 @@ request for short routes and a general preference for established walkways;
 it is not a safety or legal-access guarantee. `routeSteps.ts` joins successive
 straight graph segments so every OSM vertex does not become a new turn.
 
-The destination list can exceed a phone's screen. `styles.css` limits the
+The destination list can exceed a phone's screen. `src/styles` limits the
 suggestions box height and makes it vertically scrollable;
 `NavigationPanel.tsx` brings the active keyboard suggestion into view. The
 underlying search and selection logic is unchanged. Browser testing verified
@@ -1567,7 +1582,7 @@ entrance with a roughly southward bearing toward Sterry Hall. The app still
 does not render 3D building models. Both route fields begin empty, making a
 place choice explicit. `CheckpointNavigation.tsx` renders the walking Start
 button immediately after Preview route, before the longer instructions.
-`styles.css` uses provisional purple `#412D5E` for the page and primary
+`src/styles` uses provisional purple `#412D5E` for the page and primary
 controls. Public references attribute this value to an older College brand
 book (see the [secondary team-color listing](https://www.cfc1869.com/team/College%20of%20Idaho/)
 and [older College brand-book link](https://issuu.com/thecollegeofidaho/docs/cofi_brandbook_v17_high)),
@@ -1775,7 +1790,7 @@ and the three route-color meanings stay visible. `useCheckpointNavigation.ts`
 owns progress state and the one-request-per-click behavior, so hiding the menu
 did not alter location-check behavior.
 
-`src/app/styles.css` reduces phone padding and form-control height and removes
+`src/styles` reduces phone padding and form-control height and removes
 the old minimum height that pushed the map down. The map now starts higher on a
 390 x 844 phone viewport. The map note is positioned above map attribution so
 the two no longer compete for the bottom corner. These changes affect the
@@ -1861,7 +1876,7 @@ and dependency notices were present; its source-map URL returned HTTP 404.
 
 ### Step 36: Compact navigation presentation
 
-`src/app/styles.css` sets the outer `.wayfinder-layout` container's corner radius
+`src/styles` sets the outer `.wayfinder-layout` container's corner radius
 to zero at desktop and mobile widths. `CheckpointNavigation.tsx` omits the
 introductory simulation paragraph while retaining operational status messages.
 This is a presentation change; location providers and route state are unchanged.
@@ -1892,6 +1907,15 @@ References: [GitHub Node.js CI](https://docs.github.com/en/actions/tutorials/bui
 [branch protection](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches),
 [Vercel Git deployments](https://vercel.com/docs/git), and
 [Instant Rollback](https://vercel.com/docs/instant-rollback).
+
+### Step 38: Editable theme and presentation settings
+
+The original stylesheet has been split into `src/styles` without changing the
+layout. Named variables at the top of `theme.css` provide an understandable edit
+surface. A typed `mapPresentation.ts` keeps WebGL colors and camera settings out
+of the adapter's lifecycle code. This separation keeps appearance changes local
+and avoids introducing a styling dependency. See [STYLING.md](STYLING.md) for
+the setting-to-file table and desktop/phone verification procedure.
 
 ## Safe change recipes
 
@@ -1998,7 +2022,7 @@ labels so keyboard and assistive-technology users understand the controls.
 
 ### Change colors, spacing, or responsive layout
 
-Start in `src/app/styles.css`. Search for the component class, make the smallest
+Start in `src/styles`. Search for the component class, make the smallest
 relevant change, and inspect a wide and narrow window. The current mobile
 breakpoint is 760 pixels.
 
@@ -2078,7 +2102,7 @@ boundary and should be moved back behind the contract.
 1. Inspect `.map-view`, `.map-canvas`, and `.maplibregl-canvas` in browser
    developer tools. Their computed width and height must be greater than zero.
 2. Confirm MapLibre CSS is imported before application CSS in `main.tsx`.
-3. Confirm `styles.css` targets `.map-view > .map-canvas`.
+3. Confirm `src/styles` targets `.map-view > .map-canvas`.
 4. Check the console for worker or WebGL errors. WebGL is the browser graphics
    technology MapLibre uses to draw the map.
 5. Check the Network panel for failed style, tile, or worker requests.
@@ -2239,7 +2263,7 @@ historical context.
 ### ADR-009: Load vendor map CSS before application overrides
 
 - **Status:** Accepted
-- **Decision:** Import MapLibre CSS before `styles.css`, and use a specific
+- **Decision:** Import MapLibre CSS before `src/styles`, and use a specific
   full-size rule for `.map-view > .map-canvas`.
 - **Reason:** MapLibre CSS overrode host positioning, collapsed its height to
   zero, and made a correctly created canvas invisible.
@@ -2730,7 +2754,7 @@ historical context.
 ### Single responsibility
 
 Each module has one main reason to change. `mockLocations.ts` changes when
-sample places change; `styles.css` changes when presentation changes;
+sample places change; `src/styles` changes when presentation changes;
 `MapLibreMapAdapter.ts` changes when MapLibre behavior changes.
 
 ### Open/closed design

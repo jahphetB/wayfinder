@@ -87,6 +87,9 @@ Vercel Hobby is limited to [personal/non-commercial use](https://vercel.com/lega
 ## Project structure and data
 
 The interface uses square outer panel corners and compact navigation guidance.
+Colors, typography, panel sizing, and map-control offsets are listed in
+`src/styles/theme.css`. See the [styling guide](docs/STYLING.md) for examples
+and map-camera settings.
 
 UI, route logic, geographic data, and map-provider code have separate
 responsibilities. The [architecture handbook](docs/ARCHITECTURE.md) describes
