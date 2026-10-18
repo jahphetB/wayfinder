@@ -778,6 +778,10 @@ Status: implemented and locally verified.
   checks pass for the initial feature revision. Browser inspection of the hosted
   preview requires Vercel login; equivalent interaction checks run against the
   local production build. No production merge or promotion has occurred.
+- Hosted Quality and Vercel deployment both succeeded for `f948594`, including
+  the focus correction and Node version alignment. The clean local production-build
+  browser reported no errors or warnings; on/off-campus controls were tested using
+  simulated browser coordinates, not real GPS. Production `main` remains `a888b02`.
 
 ## Step 36: Compact navigation presentation
 

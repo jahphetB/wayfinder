@@ -36,6 +36,9 @@ verification record. `docs/ARCHITECTURE.md` is the full handbook;
   the compiled preview was tested with simulated browser GPS, not physical GPS.
 - Vercel builds select Node.js 22.x via package engines, matching `.node-version`.
   Modal keyboard focus explicitly wraps Tab/Shift+Tab; a regression test covers it.
+- Revision `f948594` passed hosted Quality checks and Vercel deployment. Preview:
+  `https://wayfinder-git-chore-step-37-release-workflow-jahphet.vercel.app`.
+  Its login protection is retained. Production `main` remains `a888b02`.
 - Model recommendations must name a specific model and reasoning level. Keep
   public documentation factual; release instructions belong in the contributor
   guide rather than owner-action lists in product/ownership files.

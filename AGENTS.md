@@ -47,6 +47,9 @@
 - Use strict TypeScript, descriptive naming, small modules, and explicit failure behavior.
 - Favor React composition for UI and classes for stateful infrastructure only when encapsulation is useful.
 - Keep map-provider dependencies behind typed contracts and compose implementations at the application boundary.
+- Keep interface styles in `src/styles`; expose meaningful visual settings in
+  `theme.css` and map-camera/route colors in `mapPresentation.ts`. Preserve the
+  current layout unless a visual change is part of the approved scope.
 - Avoid speculative abstractions and duplicate logic.
 
 ## Current technical documentation

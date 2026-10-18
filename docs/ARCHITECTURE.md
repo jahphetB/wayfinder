@@ -191,12 +191,15 @@ YoteWayfinder/
 ├── src/                          Application source code
 │   ├── app/                      Screen assembly and global presentation
 │   ├── composition/              Chooses concrete service implementations
+│   ├── data/campus/              Three building-detail content records
 │   ├── data/navigation/          Local route and campus content
 │   ├── data/scene/               One visual 3D prototype, not route data
 │   ├── domain/navigation/        Business meaning and validation
 │   ├── features/
+│   │   ├── buildings/            Building dialog, image slides, and content types
 │   │   ├── map/                  Interactive-map capability
 │   │   └── navigation/           Route-planning capability
+│   ├── styles/                   Named theme and responsibility-based styles
 │   └── test/                     Shared automated-test setup
 ├── dist/                         Generated production output
 ├── node_modules/                 Installed third-party packages
