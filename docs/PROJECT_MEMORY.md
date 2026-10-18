@@ -4,7 +4,20 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state after Step 36
+## Current state after Step 37
+
+- Release procedure: `docs/RELEASE_WORKFLOW.md`; work on feature branches,
+  publish previews only with push approval, and merge only with release approval.
+  `npm run check` collects the existing quality commands. GitHub Actions reads
+  Node.js 22 from `.node-version`; `.github/pull_request_template.md` records
+  the tested revision, preview, release approval, and recovery target.
+- Step 37 is prepared on local `chore/step-37-release-workflow`. Publishing this
+  branch and running hosted checks require push approval. Do not claim GitHub
+  branch protection or Vercel settings were configured. Current production is
+  unaffected by this local branch. See the guide's enforcement section for setup.
+- Model recommendations must name a specific model and reasoning level. Keep
+  public documentation factual; release instructions belong in the contributor
+  guide rather than owner-action lists in product/ownership files.
 
 - The outer navigation/map container has square corners on desktop and mobile.
   The introductory simulated-route paragraph is removed; simulated checkpoints

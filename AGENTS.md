@@ -7,6 +7,8 @@
 - Recommend concise or detailed reporting and ask for the user's preference for the next step.
 - Use two clearly labeled report parts: the completed-step report, then a brief
   next-step preview with its goal, plan, and model recommendation.
+- Name the exact recommended model and reasoning effort (for example,
+  GPT-6.1 Sol with medium reasoning); do not substitute generic agent descriptions.
 - Update `README.md`, `docs/PROGRESS.md`, and `docs/AI_SKILLS.md` with meaningful progress.
 - Update `docs/PROJECT_MEMORY.md` with the current source, decisions, limitations,
   and approval boundary after each meaningful step so interrupted work can resume.
@@ -23,6 +25,12 @@
 - Keep code organized by responsibility: UI, domain, data, infrastructure, and composition stay separate.
 
 ## Git workflow
+
+- Follow `docs/RELEASE_WORKFLOW.md`: work on a feature branch, verify, publish
+  an approved preview, review, then merge with explicit release approval.
+- Keep `main` for reviewed production changes. Record the tested preview commit
+  and working production deployment before release; do not claim hosted checks
+  or dashboard enforcement are active based on local files alone.
 
 - Commit each meaningful completed change with a focused conventional-style message.
 - Prefer several small, cohesive commits within a larger approved step when each

@@ -183,6 +183,7 @@ the shared state in the hook and `App.tsx`.
 
 ```text
 YoteWayfinder/
+├── .github/                      Automated checks and pull-request template
 ├── .codex/                       Project-scoped agent integrations
 ├── docs/                         Human-readable project records
 ├── scripts/                      Reproducible source-data imports
@@ -230,7 +231,24 @@ require a new session after the configuration changes. A personal Context7 key
 may provide higher limits, but it belongs in user-level configuration or a
 secure environment setting and must never be committed here.
 
+### The `.github` folder
+
+This folder holds instructions GitHub reads during development. It is not shipped
+to visitors. `workflows/quality.yml` is the automated inspection procedure: GitHub
+checks a pull request or a `main` push, installs the recorded packages, and runs
+the same quality commands used locally. `pull_request_template.md` gives proposed
+changes a consistent review form, including preview evidence and a recovery target.
+
+The workflow reads `.node-version` and commands from `package.json`; those commands
+use the existing compiler, lint, test, and bundling configuration. The template
+links to `docs/RELEASE_WORKFLOW.md`, which explains how a contributor uses these
+files together. GitHub branch protection must be configured separately to make
+checks a mandatory merge condition; committing this folder alone cannot enforce it.
+
 ## Root files
+
+`.node-version` selects Node.js 22 for the GitHub check runner. Local contributors
+and Vercel should use the same major version, as explained in the release guide.
 
 The project root is the control desk for the repository. Files here tell tools
 how to install, validate, build, and start the application. The root should not
@@ -268,6 +286,11 @@ is generated from dependencies and should not be edited by hand.
 
 ## The `docs` folder
 
+`docs/RELEASE_WORKFLOW.md` is the contributor release procedure. It connects local
+branches and checks to GitHub pull requests, Vercel test deployments, release
+approval, production verification, version tags, and recovery. Its repository
+settings section distinguishes written procedure from externally enforced rules.
+
 The `docs` folder is the project’s institutional memory. Source code can show
 what the computer does, but it often cannot explain why a choice was made,
 which alternatives were rejected, or how a non-technical contributor should
@@ -287,8 +310,8 @@ change, not a later optional task.
 | `docs/CAMPUS_DATA_COLLECTION.md` | Guides future field correction and measured-data intake. It is not the runtime route dataset.                                                                                                                               |
 | `docs/PROJECT_MEMORY.md`         | Durable resume context: current source, major decisions, limitations, verification commands, and next approval boundary. Read it when resuming an interrupted step.                                                         |
 
-`docs/OWNERSHIP.md` explains the ownership scope, license alternatives,
-dependency and map-data rights, build checks, and recommended account actions.
+`docs/OWNERSHIP.md` explains original-work permissions and separate
+dependency and map-data rights.
 It connects the root `LICENSE` with package metadata and Vite output. Update
 it when ownership, licensing, source exposure, or deployment policy changes.
 
@@ -1843,6 +1866,33 @@ to zero at desktop and mobile widths. `CheckpointNavigation.tsx` omits the
 introductory simulation paragraph while retaining operational status messages.
 This is a presentation change; location providers and route state are unchanged.
 
+### Step 37: Repeatable releases
+
+The release guide is [docs/RELEASE_WORKFLOW.md](RELEASE_WORKFLOW.md). It describes
+the full procedure in numbered stages, with copyable commands, preview and phone
+checks, version records, and recovery instructions. A preview is a separate test
+website; production is the website visitors use. A pull request proposes a branch
+change before that change is accepted into `main`.
+
+`.github/workflows/quality.yml` installs packages using `npm ci`, which follows
+`package-lock.json`, then runs the existing quality checks on GitHub's Linux
+runner. `.node-version` selects Node.js 22. The `npm run check` command offers the
+same formatting, lint, TypeScript, test, and build checks locally. The workflow's
+read-only permissions and pinned action revisions limit its authority and make
+its external tooling identifiable. No application provider or runtime logic changes.
+
+The pull-request template records the preview URL, tested commit, results, and
+last working deployment. This makes a release reviewable and recoverable rather
+than depending on a contributor remembering what was tested. Automated checks
+cannot confirm physical route access or GPS accuracy; preview and field evidence
+remain separate. Account-level protection must be enabled to enforce passing
+checks before merging. Vercel's existing automatic `main` deployment is unchanged.
+
+References: [GitHub Node.js CI](https://docs.github.com/en/actions/tutorials/build-and-test-code/nodejs),
+[branch protection](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches),
+[Vercel Git deployments](https://vercel.com/docs/git), and
+[Instant Rollback](https://vercel.com/docs/instant-rollback).
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks
@@ -2661,6 +2711,19 @@ historical context.
   trace; local development debugging remains. Browser bundles are inspectable.
   This does not change GitHub visibility, guarantee ownership/enforcement,
   recall previous public copies, or perform a legal registration.
+
+### ADR-044: Review feature previews before production release
+
+- **Status:** Implemented as repository workflow and contributor procedure in
+  Step 37; hosted execution and account enforcement require separate verification.
+- **Decision:** Use one feature branch per change, a pull request targeting `main`,
+  the Quality checks job, preview review, and explicit release approval. Keep the
+  last working production deployment as the recovery reference.
+- **Reason:** Tests and build checks catch different errors from visual and
+  physical-device checks. A small, identifiable release is easier to recover.
+- **Consequence:** No long-lived staging branch, deployment credential, custom
+  backend, or automatic publishing script is needed. GitHub protection settings
+  must enforce the merge gate; a YAML workflow alone does not block direct pushes.
 
 ## Engineering principles in plain language
 

@@ -731,6 +731,20 @@ Status: implemented and locally verified.
 - Browser code/data remain downloadable; the notice and build settings do not
   revoke existing copies or rights.
 
+## Step 37: Repeatable checks and release workflow
+
+- Added the GitHub Actions Quality workflow for pull requests targeting `main`,
+  `main` pushes, and manual runs. It installs locked dependencies and runs
+  formatting, lint, TypeScript, tests, production build, and whitespace checks.
+- Added `.node-version` for Node.js 22 and the local `npm run check` command.
+- Added a pull-request checklist and `docs/RELEASE_WORKFLOW.md` covering branch
+  creation, preview review, production release, versions, and recovery.
+- The workflow passes actionlint 1.7.12 validation. Local checks pass, including
+  all 94 tests in 20 files and the production build. The existing deferred map
+  bundle size warning remains.
+- Hosted Actions execution, GitHub branch protection, and Vercel dashboard
+  enforcement are separate from local verification and are not confirmed here.
+
 ## Step 36: Compact navigation presentation
 
 - Set the outer navigation/map container corner radius to zero at desktop and

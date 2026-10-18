@@ -51,12 +51,13 @@ Remove the setting or use `prototype` to restore simulated checkpoints.
 ## Production build and checks
 
 ```bash
-npm run format:check
-npm run lint
-npm run typecheck
-npm run test
-npm run build
+npm run check
+git diff --check
 ```
+
+Use Node.js 22 as specified in `.node-version`. `npm run check` runs formatting,
+lint, TypeScript, tests, and the production build. Pull requests targeting `main`
+are configured to run the same checks in GitHub Actions after publication.
 
 Vite generates the deployment files in `dist`. Production source maps are
 disabled. The build includes copyright banners and
@@ -72,6 +73,10 @@ documents its measured cost.
 4. Leave environment variables unset to use prototype navigation, then deploy.
 
 A connected Vercel project deploys new pushes to `main` automatically.
+Develop changes on feature branches, review their Vercel previews, and merge only
+after passing checks and release approval. The
+[release workflow](docs/RELEASE_WORKFLOW.md) covers repository enforcement,
+step-by-step updates, browser checks, versions, and recovery.
 `VITE_MAP_STYLE_URL` can select a compatible hosted MapLibre style.
 All `VITE_` values are included in browser code and must not contain secrets.
 
