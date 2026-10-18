@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import { createMapAdapter } from '@/composition/createMapAdapter'
@@ -53,6 +53,49 @@ function renderMap(provider: LocationProvider) {
 }
 
 describe('MapView location control', () => {
+  it('reports refinement progress, cancels, and discards a late result', async () => {
+    let complete: ((reading: typeof campusReading) => void) | undefined
+    const requestCurrentLocation = vi.fn<
+      LocationProvider['requestCurrentLocation']
+    >(
+      () =>
+        new Promise((resolve) => {
+          complete = resolve
+        }),
+    )
+    const showUserLocation = renderMap({ requestCurrentLocation })
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: 'Get your location' }))
+    const lookup = requestCurrentLocation.mock.calls[0]![0]
+    act(() => lookup.onProgress?.({ accuracyMeters: 45, readingCount: 1 }))
+    expect(screen.getByRole('status')).toHaveTextContent('about 45 m')
+    await user.click(
+      screen.getByRole('button', { name: 'Cancel location lookup' }),
+    )
+    expect(lookup.signal?.aborted).toBe(true)
+    expect(screen.getByRole('status')).toHaveTextContent('cancelled')
+    await act(async () => {
+      complete?.(campusReading)
+      await Promise.resolve()
+    })
+    expect(showUserLocation).not.toHaveBeenCalledWith(campusReading.coordinates)
+    expect(
+      screen.getByRole('button', { name: 'Get your location' }),
+    ).toBeEnabled()
+  })
+
+  it('aborts active lookup when the map unmounts', async () => {
+    const requestCurrentLocation = vi.fn<
+      LocationProvider['requestCurrentLocation']
+    >(() => new Promise(() => {}))
+    renderMap({ requestCurrentLocation })
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Get your location' }))
+    const signal = requestCurrentLocation.mock.calls[0]![0].signal
+    cleanup()
+    expect(signal?.aborted).toBe(true)
+  })
   it('opens building details from the adapter without requesting location', async () => {
     const requestCurrentLocation = vi.fn()
     renderMap({ requestCurrentLocation })

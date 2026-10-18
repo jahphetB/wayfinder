@@ -52,10 +52,12 @@ export function MapView({
   )
   const locationRequestId = useRef(0)
   const locationRequestInProgress = useRef(false)
+  const locationAbortController = useRef<AbortController | undefined>(undefined)
 
   useEffect(
     () => () => {
       locationRequestId.current += 1
+      locationAbortController.current?.abort()
     },
     [],
   )
@@ -145,19 +147,30 @@ export function MapView({
     if (locationRequestInProgress.current) return
     locationRequestInProgress.current = true
     const requestId = ++locationRequestId.current
+    const controller = new AbortController()
+    locationAbortController.current = controller
     setIsLocating(true)
-    setLocationMessage('Requesting your location…')
+    setLocationMessage(
+      'Finding your location… Allow location access if prompted.',
+    )
     adapterRef.current?.showUserLocation(undefined)
     try {
       const reading = await locationLookupProvider.requestCurrentLocation({
         expectedCoordinates: collegeOfIdahoCampus.center,
+        signal: controller.signal,
+        onProgress: ({ accuracyMeters }) => {
+          if (requestId === locationRequestId.current)
+            setLocationMessage(
+              `Improving your location… Best reported accuracy: about ${Math.ceil(accuracyMeters)} m.`,
+            )
+        },
       })
       if (requestId !== locationRequestId.current) return
       const status = classifyCampusLocation(reading)
       if (status === 'inside') {
         adapterRef.current?.showUserLocation(reading.coordinates)
         setLocationMessage(
-          'You appear within the mapped campus area. The blue dot is approximate.',
+          `You appear within the mapped campus area. The blue dot is approximate. Reported accuracy: about ${Math.ceil(reading.accuracyMeters)} m.`,
         )
       } else if (status === 'outside') {
         setLocationMessage(
@@ -186,9 +199,19 @@ export function MapView({
     } finally {
       if (requestId === locationRequestId.current) {
         locationRequestInProgress.current = false
+        locationAbortController.current = undefined
         setIsLocating(false)
       }
     }
+  }
+
+  function cancelLocationLookup(): void {
+    locationRequestId.current += 1
+    locationAbortController.current?.abort()
+    locationAbortController.current = undefined
+    locationRequestInProgress.current = false
+    setIsLocating(false)
+    setLocationMessage('Location request cancelled.')
   }
   return (
     <section aria-label="Interactive map" className="map-view">
@@ -254,6 +277,11 @@ export function MapView({
         >
           {isLocating ? 'Finding location…' : 'Get your location'}
         </button>
+        {isLocating && (
+          <button type="button" onClick={cancelLocationLookup}>
+            Cancel location lookup
+          </button>
+        )}
         {locationMessage && <p role="status">{locationMessage}</p>}
       </div>
       <p className="map-view-note">

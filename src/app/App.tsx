@@ -2,7 +2,7 @@ import { lazy, Suspense, useState } from 'react'
 import { NavigationPanel } from '@/features/navigation/components/NavigationPanel'
 import { useRoutePlanner } from '@/features/navigation/hooks/useRoutePlanner'
 import {
-  createBrowserLocationProvider,
+  createLocationLookupProvider,
   createLocationProvider,
 } from '@/composition/createLocationProvider'
 import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
@@ -19,7 +19,7 @@ export function App({
   readonly locationProvider?: LocationProvider
 }) {
   const [defaultLocationProvider] = useState(createLocationProvider)
-  const [browserLocationProvider] = useState(createBrowserLocationProvider)
+  const [browserLocationProvider] = useState(createLocationLookupProvider)
   const planner = useRoutePlanner()
   const [mapMode, setMapMode] = useState<'2d' | '3d'>('3d')
   const [navigationSession, setNavigationSession] =
