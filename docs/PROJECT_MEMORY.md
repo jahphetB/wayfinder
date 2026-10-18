@@ -4,7 +4,7 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state during Step 39 preview
+## Current state after Step 39 preview verification
 
 - Release procedure: `docs/RELEASE_WORKFLOW.md`; work on feature branches,
   publish previews under standing approval, and merge only with release approval.
@@ -48,6 +48,12 @@ verification record. `docs/ARCHITECTURE.md` is the full handbook;
   cancellation, permission denial, off-campus classification, no startup requests,
   four watches cleared after four requests, and no phone overflow. Physical GPS
   improvement still needs real-device comparison; production merge is pending.
+- PR #2: `https://github.com/jahphetB/wayfinder/pull/2`. Hosted Quality and Vercel
+  passed implementation revision `efd28ad`. Preview is public:
+  `https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app`.
+  Browser fixtures on the hosted build verified refinement, cancellation, denial,
+  a single-reading deadline fallback, no extra watchers from checkpoint buttons,
+  and no console errors/warnings. Production remains `de7e5e8`; merge requires approval.
 - Model recommendations must name a specific model and reasoning level. Keep
   public documentation factual; release instructions belong in the contributor
   guide rather than owner-action lists in product/ownership files.

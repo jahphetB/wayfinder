@@ -749,6 +749,11 @@ Status: implemented and locally verified.
   classification; all four started watches were cleared, with no startup lookup.
   Phone viewport had no horizontal overflow. These are simulated readings, not
   physical GPS measurements. The existing map-bundle size warning remains.
+- Hosted Quality and Vercel passed `efd28ad`. The Step 39 preview opened without
+  login; browser fixtures verified refinement, cancellation, denial, the 12-second
+  single-reading fallback, and unchanged navigation. Four watches started and four
+  were cleared; checkpoint actions started none. The preview console had no errors
+  or warnings. PR #2 awaits production approval; production remains `de7e5e8`.
 
 ## Step 37: Repeatable checks and release workflow
 
@@ -763,7 +768,7 @@ Status: implemented and locally verified.
   Vercel provides a ready Preview deployment. GitHub `main` protection requires
   Quality checks and Vercel, up-to-date changes, resolved conversations, and a
   pull request. Force pushes and deletion are disabled; administrators are included.
-  Production has not been merged or promoted.
+  This was initially preview-only; PR #1's later production release is recorded above.
 
 ## Step 38: Editable visual settings
 
