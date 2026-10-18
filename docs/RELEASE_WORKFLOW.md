@@ -43,7 +43,8 @@ tested version made available at the public production URL.
 ## Tools and automated checks
 
 Use Node.js 22, the family specified in `.node-version`. GitHub Actions reads
-this file; set the Vercel project's Node.js version to 22.x as well. The file
+this file; `package.json` also specifies `engines.node: 22.x` so Vercel builds
+use the same major version. Keep those settings aligned. The file
 selects a major version, not an identical patch version on every machine.
 Run `node --version` and `npm --version` when diagnosing environment differences.
 
@@ -327,3 +328,4 @@ Sources: [GitHub Node.js CI](https://docs.github.com/en/actions/tutorials/build-
 [protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches),
 [Vercel Git deployments](https://vercel.com/docs/git), and
 [Vercel Instant Rollback](https://vercel.com/docs/instant-rollback).
+Node version selection follows [Vercel's runtime documentation](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).

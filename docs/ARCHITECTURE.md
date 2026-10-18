@@ -248,7 +248,8 @@ checks a mandatory merge condition; committing this folder alone cannot enforce 
 ## Root files
 
 `.node-version` selects Node.js 22 for the GitHub check runner. Local contributors
-and Vercel should use the same major version, as explained in the release guide.
+use the same major version; `package.json` pins Vercel builds to 22.x through
+`engines.node`, as explained in the release guide.
 
 The project root is the control desk for the repository. Files here tell tools
 how to install, validate, build, and start the application. The root should not
@@ -520,7 +521,8 @@ contracts rather than hidden global variables.
 `src/features/buildings` owns building information rather than navigation progress.
 Its `model/BuildingDetails.ts` describes a label, footprint, description, detail
 sections, and at least two image slots. `components/BuildingDetailsDialog.tsx`
-provides the native modal dialog, close behavior, and focus restoration;
+provides the native modal dialog, close behavior, focus restoration, and explicit
+Tab/Shift+Tab wrapping;
 `BuildingPhotoCarousel.tsx` provides manual slide selection and unavailable-image
 fallback. `BuildingDetailsDialog.test.tsx` checks these interactions. A carousel
 is an image area that changes the displayed image without leaving the popup.

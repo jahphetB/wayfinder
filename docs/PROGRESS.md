@@ -736,6 +736,7 @@ Status: implemented and locally verified.
 - Added the GitHub Actions Quality workflow, Node.js 22 selection, local
   `npm run check`, and pull-request checklist. The release guide covers routine
   changes, preview review, versions, production checks, and recovery.
+- `package.json` pins Vercel's Node major to 22.x, matching `.node-version`.
 - The workflow passes actionlint 1.7.12 validation; all 94 original tests and
   the local production build passed before hosted activation.
 
@@ -767,11 +768,16 @@ Status: implemented and locally verified.
 - Added dismissal, focus restoration, keyboard selection controls, adapter-listener
   cleanup, and focused behavior tests. `docs/BUILDING_DETAILS.md` explains the files,
   content updates, and how to supply real photographs.
-- Local verification: formatting, lint, TypeScript, 101 tests in 22 files,
+- Local verification: formatting, lint, TypeScript, 102 tests in 22 files,
   production build, and whitespace checks pass. Browser checks cover all three
   actual footprint clicks, slides, Escape, keyboard selection and focus return,
   phone scrolling without horizontal overflow, and route preview/Next/Back after
   opening details. The existing large map-bundle warning remains.
+- A production-build keyboard check found a Shift+Tab escape; explicit focus
+  wrapping and a regression test cover the correction. Hosted preview builds and
+  checks pass for the initial feature revision. Browser inspection of the hosted
+  preview requires Vercel login; equivalent interaction checks run against the
+  local production build. No production merge or promotion has occurred.
 
 ## Step 36: Compact navigation presentation
 

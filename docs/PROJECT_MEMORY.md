@@ -30,8 +30,12 @@ verification record. `docs/ARCHITECTURE.md` is the full handbook;
   No images were scraped, generated as campus photos, or hotlinked.
 - Map selection travels through `MapAdapterCallbacks.onBuildingSelect` into
   `MapView` and the native React dialog. Route sessions and GPS are unaffected.
-  Approved feature implementation is complete; remaining work in this scope is
-  final preview verification and the production merge approval boundary.
+  Approved feature implementation and local browser/build verification are
+  complete. The hosted preview requires Vercel login; final review by the owner
+  and production merge approval remain. Local checks pass 102 tests in 22 files;
+  the compiled preview was tested with simulated browser GPS, not physical GPS.
+- Vercel builds select Node.js 22.x via package engines, matching `.node-version`.
+  Modal keyboard focus explicitly wraps Tab/Shift+Tab; a regression test covers it.
 - Model recommendations must name a specific model and reasoning level. Keep
   public documentation factual; release instructions belong in the contributor
   guide rather than owner-action lists in product/ownership files.
