@@ -19,11 +19,13 @@ flowchart TB
             Panel[NavigationPanel.tsx<br/>inputs, suggestions, route summary]
             PlannerHook[useRoutePlanner.ts<br/>shared planner state]
             PlannerModel[routePlanner.ts<br/>search and route outcomes]
-            LocationContract[LocationProvider.ts<br/>one-shot provider contract]
+            LocationContract[LocationProvider.ts<br/>single-result request, optional progress and cancel]
             ScenarioContract[PrototypeLocationScenario.ts<br/>optional test-result capability]
             NavigationControls[CheckpointNavigation.tsx<br/>Start navigation, Next Turn, recovery]
             CheckpointHook[useCheckpointNavigation.ts<br/>request guard and session state]
             BrowserProvider[BrowserLocationProvider.ts<br/>validated readings and typed failures]
+        RefinedProvider[RefinedBrowserLocationProvider.ts<br/>bounded lookup, progress and cleanup]
+        ReadingSelection[locationRefinement.ts and locationLookupPolicy.ts<br/>best recent reading and labeled tuning]
             PrototypeProvider[PrototypeLocationProvider.ts<br/>selectable checkpoint simulation]
         end
 
@@ -71,7 +73,7 @@ flowchart TB
 
     subgraph ExternalRuntime[External runtime and hosting]
         OSM[OpenStreetMap raster tiles<br/>prototype basemap]
-        BrowserGPS[Browser Geolocation API<br/>one-shot location requests]
+        BrowserGPS[Browser Geolocation API<br/>one-shot checkpoints and bounded lookup]
         Vercel[Vercel static hosting<br/>production prototype]
     end
 
@@ -125,7 +127,9 @@ flowchart TB
 
     MapView --> MapContract --> CreateAdapter --> Adapter
     MapView --> CampusPresence --> Campus
-    MapView -->|one-time browser reading| BrowserProvider
+    MapView -->|short user-triggered lookup| RefinedProvider
+    RefinedProvider --> ReadingSelection
+    RefinedProvider --> BrowserGPS
     MapView -->|blue dot and closer camera| MapContract
     Adapter -->|overview, preview fit, leg colors and turn camera| MapLibre
     Campus --> MapView
@@ -165,6 +169,7 @@ flowchart TB
     App --> CreateLocation
     CreateLocation --> PrototypeProvider
     CreateLocation --> BrowserProvider
+    CreateLocation --> RefinedProvider
     App -->|optional simulator capability| Panel
     Panel --> NavigationControls --> CheckpointHook
     NavigationControls --> ScenarioContract

@@ -399,3 +399,12 @@ stale.
 - **YOTE / Content separate from rendering:** Kept building descriptions and image
   metadata independent of the adapter and React popup, with honest missing-photo
   states and no new dependencies.
+
+#### Step 39 usage record
+
+- **EXTERNAL / Browser geolocation documentation:** Checked temporary position
+  subscriptions, watcher cleanup, and the meaning of reported accuracy.
+- **OPENAI / Playwright skill:** Verified the public production merge without
+  authentication and exercised refined lookup on the preview with browser fixtures.
+- **YOTE / Bounded acquisition:** Separated short lookup refinement from checkpoint
+  verification, kept selection pure, and tested cancellation and late-result guards.

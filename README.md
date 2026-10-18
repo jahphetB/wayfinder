@@ -14,7 +14,7 @@ OpenStreetMap-derived campus network; no routing backend is required.
 - Preview walking routes with distance, estimated time, and turn instructions.
 - Follow simulated checkpoints with Start navigation, Next Turn, and Back.
 - Switch between tilted 2D and 3D views, including one illustrative library model.
-- Request your location once to display an approximate position or an
+- Request a short refined location lookup to display an approximate position or an
   off-campus, uncertain, or unavailable-location message.
 - Preview a separate, illustrative stadium driving handoff.
 - Open library, Sterry Hall, and cafeteria details by selecting their outlined
@@ -38,7 +38,9 @@ selects another available port.
 
 Navigation uses simulated checkpoint readings by default, so routes can be
 tested without moving or granting location permission. The separate
-**Get your location** button requests one real browser reading when pressed.
+**Get your location** button briefly collects real browser readings when pressed
+and selects the best recent reported accuracy. It can be cancelled and stops
+listening after completion. See [location lookup](docs/LOCATION_LOOKUP.md).
 It requires HTTPS or localhost and browser permission. The campus-area check
 uses an approximate rectangle rather than a verified property boundary.
 

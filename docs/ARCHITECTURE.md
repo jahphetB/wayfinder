@@ -1976,6 +1976,37 @@ does not alter its separate dining/residence entrances or route calculation.
 
 Source: [MapLibre polygon click example](https://maplibre.org/maplibre-gl-js/docs/examples/show-polygon-information-on-click/).
 
+### Step 39: Short refined location lookup
+
+The separate Get your location action uses `RefinedBrowserLocationProvider.ts`.
+It briefly subscribes to browser position updates, validates readings, and asks
+`domain/navigation/locationRefinement.ts` to choose the best recent reported
+accuracy. The existing `BrowserLocationProvider.ts` still serves one-shot physical
+checkpoint checks; default navigation still uses the prototype simulator.
+
+`createLocationProvider.ts` constructs these providers independently, and `App.tsx`
+injects the refined lookup into `MapView.tsx`. The shared request contract adds
+optional progress and `AbortSignal` controls. An AbortSignal is a standard browser
+message that asks an operation to stop. MapView updates progress, offers Cancel,
+and aborts on unmount. Request IDs prevent a cancelled or late result from changing
+the map. Only the final selected position moves the camera.
+
+`locationLookupPolicy.ts` labels the 12-second collection budget, 15-second maximum
+reading age, 15-metre reported accuracy target, and two-distinct-reading minimum
+for early completion. If the target is not reached, the best usable reading at
+the deadline is returned. These are tuning values requiring phone testing, not
+guarantees of real-world precision. All exits clean up the subscription and timer.
+See [LOCATION_LOOKUP.md](LOCATION_LOOKUP.md) for settings, file connections, tests,
+and the manual verification procedure.
+
+### Production release of Steps 37, 38, and 38A
+
+Pull request #1 merged to `main` as `de7e5e8` after owner approval. Hosted Quality
+and Vercel checks passed. The public production URL returned the app without
+authentication, served the new build, and passed building-popup and route-control
+browser checks with no console errors. Later changes continue through a separate
+preview branch and require another production merge approval.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks

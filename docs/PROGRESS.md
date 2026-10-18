@@ -731,6 +731,25 @@ Status: implemented and locally verified.
 - Browser code/data remain downloadable; the notice and build settings do not
   revoke existing copies or rights.
 
+## Step 39: Refined user-triggered location lookup
+
+- Released Steps 37, 38, and 38A through approved pull request #1, merged as
+  `de7e5e8`. Hosted Quality and Vercel passed. The public production URL opened
+  without login and served the new bundle; building details and route navigation
+  passed browser checks with no console errors.
+- Added a separate refined lookup provider for Get your location. It collects
+  bounded browser updates, chooses the best recent reported accuracy, supports
+  cancellation/progress, and cleans up its watch, timer, and abort listener.
+- Centralized lookup policy and extracted pure reading selection. Existing
+  checkpoint providers, navigation simulation, route data, and path preferences
+  remain unchanged. See `docs/LOCATION_LOOKUP.md`.
+- Verification: formatting, lint, TypeScript, 116 tests in 24 files, production
+  build, and whitespace checks pass. Browser fixtures checked improvement from
+  80 m to 6 m reported accuracy, cancellation, permission denial, and off-campus
+  classification; all four started watches were cleared, with no startup lookup.
+  Phone viewport had no horizontal overflow. These are simulated readings, not
+  physical GPS measurements. The existing map-bundle size warning remains.
+
 ## Step 37: Repeatable checks and release workflow
 
 - Added the GitHub Actions Quality workflow, Node.js 22 selection, local

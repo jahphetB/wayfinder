@@ -4,21 +4,23 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state after implementation of Steps 37, 38, and 38A
+## Current state during Step 39 preview
 
 - Release procedure: `docs/RELEASE_WORKFLOW.md`; work on feature branches,
   publish previews under standing approval, and merge only with release approval.
   `npm run check` collects the existing quality commands. GitHub Actions reads
   Node.js 22 from `.node-version`; `.github/pull_request_template.md` records
   the tested revision, preview, release approval, and recovery target.
-- Preview branch: `chore/step-37-release-workflow`, pull request #1. Hosted Quality
-  checks and Vercel preview passed for the first revision. Main branch protection
+- Production: pull request #1 merged as `de7e5e8`. Hosted Quality and Vercel passed;
+  the public production URL serves the new build without login. Browser checks
+  passed for building details, route preview, Start/Next/Back, with no console errors.
+  Step 39 uses preview branch `feat/step-39-location-refinement`. Main protection
   now requires pull requests, Quality checks and Vercel success, an up-to-date
-  branch and resolved conversations, including administrators. No production merge.
+  branch and resolved conversations, including administrators.
 - Standing approval permits preview commits and pushes. Production merges and
   promotions require approval. Announce every environment transition. Approved
-  scope includes Step 38 styling and three building popups (library, Sterry,
-  cafeteria). Physical tracking and location refinement remain later work.
+  scope includes Step 39 refinement on preview; its production merge is not yet
+  approved. Movement tracking remains later work.
 - Styling now lives in `src/styles`; `theme.css` owns labeled visual variables,
   while `mapPresentation.ts` owns typed camera settings and map route colors.
   See `docs/STYLING.md`. The old `src/app/styles.css` has been replaced.
@@ -31,14 +33,21 @@ verification record. `docs/ARCHITECTURE.md` is the full handbook;
 - Map selection travels through `MapAdapterCallbacks.onBuildingSelect` into
   `MapView` and the native React dialog. Route sessions and GPS are unaffected.
   Approved feature implementation and local browser/build verification are
-  complete. The hosted preview requires Vercel login; final review by the owner
-  and production merge approval remain. Local checks pass 102 tests in 22 files;
+  complete and released. Vercel authentication protection was disabled by the
+  owner; production was verified publicly accessible. The prior release passed 102 tests;
   the compiled preview was tested with simulated browser GPS, not physical GPS.
 - Vercel builds select Node.js 22.x via package engines, matching `.node-version`.
   Modal keyboard focus explicitly wraps Tab/Shift+Tab; a regression test covers it.
-- Revision `f948594` passed hosted Quality checks and Vercel deployment. Preview:
-  `https://wayfinder-git-chore-step-37-release-workflow-jahphet.vercel.app`.
-  Its login protection is retained. Production `main` remains `a888b02`.
+- Step 39 adds a dedicated RefinedBrowserLocationProvider only for Get your location.
+  Default checkpoint simulation and one-shot browser checkpoints are unchanged.
+  Best recent reading selection is pure; settings are in locationLookupPolicy.ts.
+  Cancellation/progress are optional request controls, with unmount abort and
+  late-result guards in MapView. See docs/LOCATION_LOOKUP.md.
+- Step 39 local checks pass: 116 tests in 24 files, formatting, lint, TypeScript,
+  production build and whitespace. Browser fixtures confirmed progress/refinement,
+  cancellation, permission denial, off-campus classification, no startup requests,
+  four watches cleared after four requests, and no phone overflow. Physical GPS
+  improvement still needs real-device comparison; production merge is pending.
 - Model recommendations must name a specific model and reasoning level. Keep
   public documentation factual; release instructions belong in the contributor
   guide rather than owner-action lists in product/ownership files.
