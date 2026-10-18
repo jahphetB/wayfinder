@@ -10,7 +10,8 @@ buttons; those controls become visible when focused.
 The popup contains an image area with Previous and Next controls, followed by a
 separately scrollable description and detail sections. Close it using the close
 button, Escape, or the backdrop. Focus returns to the previous control when it
-closes. Opening details does not choose a route, advance navigation, or request GPS.
+closes. Tab and Shift+Tab wrap between the popup's controls and scrollable content.
+Opening details does not choose a route, advance navigation, or request GPS.
 
 There are two labeled photo slots for each building. No approved photographs have
 been supplied, so the slots display **Photo not added yet**. They are not pictures

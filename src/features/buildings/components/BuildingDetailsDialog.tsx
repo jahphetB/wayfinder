@@ -15,6 +15,7 @@ export function BuildingDetailsDialog({
     const dialog = dialogRef.current
     const previousFocus = document.activeElement
     dialog?.showModal()
+    dialog?.querySelector('button')?.focus()
     return () => {
       dialog?.close()
       if (previousFocus instanceof HTMLElement && previousFocus.isConnected)
@@ -27,6 +28,21 @@ export function BuildingDetailsDialog({
       ref={dialogRef}
       className="building-dialog"
       aria-labelledby={titleId}
+      onKeyDown={(event) => {
+        if (event.key !== 'Tab') return
+        const controls = event.currentTarget.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [tabindex="0"]',
+        )
+        const first = controls[0]
+        const last = controls[controls.length - 1]
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          last?.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
+          first?.focus()
+        }
+      }}
       onCancel={(event) => {
         event.preventDefault()
         onClose()

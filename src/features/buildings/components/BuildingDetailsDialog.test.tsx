@@ -68,4 +68,23 @@ describe('building details', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('Photo not added yet')).toBeInTheDocument()
   })
+
+  it('wraps keyboard focus between the first and last popup controls', async () => {
+    render(
+      <BuildingDetailsDialog
+        building={campusBuildingDetails[0]!}
+        onClose={vi.fn()}
+      />,
+    )
+    const first = screen.getByRole('button', { name: 'Close building details' })
+    const last = screen.getByRole('region', {
+      name: 'About Cruzen-Murray Library',
+    })
+    expect(first).toHaveFocus()
+    const user = userEvent.setup()
+    await user.tab({ shift: true })
+    expect(last).toHaveFocus()
+    await user.tab()
+    expect(first).toHaveFocus()
+  })
 })
