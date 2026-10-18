@@ -1,6 +1,12 @@
 // Camera distances are zoom levels, angles are degrees, and durations are milliseconds.
 // HTML control colors live in src/styles/theme.css; these colors are drawn by WebGL.
 export const mapPresentation = {
+  buildingSelection: {
+    color: '#68438c',
+    fillOpacity: 0.12,
+    outlineOpacity: 0.6,
+    outlineWidthPixels: 1.5,
+  },
   camera: {
     pitch2d: 30,
     pitch3d: 60,

@@ -94,4 +94,10 @@
   --map-controls-right: 1.25rem;
   --map-controls-left: 1.25rem;
   --map-note-bottom: 3.25rem;
+
+  /* Building details popup dimensions. */
+  --color-dialog-backdrop: rgb(24 12 41 / 55%);
+  --building-dialog-width: 28rem;
+  --building-photo-height: 12rem;
+  --building-description-height: 12rem;
 }

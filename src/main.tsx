@@ -8,6 +8,7 @@ import '@/styles/global.css'
 import '@/styles/layout.css'
 import '@/styles/navigation.css'
 import '@/styles/map.css'
+import '@/styles/building-details.css'
 import '@/styles/responsive.css'
 
 const rootElement = document.getElementById('root')

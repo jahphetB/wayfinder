@@ -379,6 +379,10 @@ the screen from disagreeing about the selected route.
 
 ## The `src/styles` folder
 
+`building-details.css` adds popup, carousel, and scrollable-description rules.
+It reads popup dimensions and backdrop color from `theme.css` and is imported
+after `map.css`, before responsive adjustments.
+
 The stylesheet is organized by responsibility rather than keeping all appearance
 rules in one application file. `theme.css` is the first stop for named colors,
 fonts, layout widths, frame corners, button heights, and control positions.
@@ -510,6 +514,39 @@ Organizing by feature keeps related changes close together. It also discourages
 an oversized general components folder where unrelated files become difficult
 to find. Cross-feature communication happens through typed props, hooks, and
 contracts rather than hidden global variables.
+
+## The buildings feature and campus content
+
+`src/features/buildings` owns building information rather than navigation progress.
+Its `model/BuildingDetails.ts` describes a label, footprint, description, detail
+sections, and at least two image slots. `components/BuildingDetailsDialog.tsx`
+provides the native modal dialog, close behavior, and focus restoration;
+`BuildingPhotoCarousel.tsx` provides manual slide selection and unavailable-image
+fallback. `BuildingDetailsDialog.test.tsx` checks these interactions. A carousel
+is an image area that changes the displayed image without leaving the popup.
+
+`src/data/campus/buildingDetails.ts` stores the three approved content records.
+It derives library, Sterry, and cafeteria outlines from the same OSM snapshot as
+the walking network, validates closed footprints and required points, and keeps
+image metadata separate from rendering. No actual photographs are configured.
+Descriptions do not invent opening hours or verified accessibility. Simplot's
+combined outline opens cafeteria information; its two route destinations still
+use their separate entrances.
+
+`MapBuilding.ts` is the small provider-independent selection contract. Composition
+passes the shapes to `MapLibreMapAdapter`; a GeoJSON fill layer makes them
+selectable despite the raster basemap. The adapter sends only a recognized ID via
+`MapAdapterCallbacks.onBuildingSelect`. `MapView.tsx` resolves that ID and mounts
+the dialog, leaving route state, navigation progress, and GPS unchanged. The
+adapter removes its click listener when destroyed. Keyboard selection controls
+become visible on focus so choosing a building does not require a pointer.
+
+`MapLibreBuildingSelection.test.ts` checks the three outlines, ID filtering, and
+listener removal. `MapView.test.tsx` checks that selection opens the right content
+without requesting GPS. A small dialog stub in `src/test/setup.ts` supplies jsdom's
+missing modal methods; real browser checks remain necessary for native focus and
+map clicks. See [BUILDING_DETAILS.md](BUILDING_DETAILS.md) for content editing,
+photo replacement, and popup styling.
 
 ## The navigation feature
 
@@ -1916,6 +1953,23 @@ surface. A typed `mapPresentation.ts` keeps WebGL colors and camera settings out
 of the adapter's lifecycle code. This separation keeps appearance changes local
 and avoids introducing a styling dependency. See [STYLING.md](STYLING.md) for
 the setting-to-file table and desktop/phone verification procedure.
+
+### Step 38A: Three clickable building details
+
+The library, Sterry Hall, and cafeteria footprints now open an accessible native
+dialog containing two manually controlled image slots above a scrollable details
+area. Photographs have not been supplied; placeholders explicitly identify that
+state. A third photo record adds a third slide without changing the component.
+
+Content, map selection, and popup rendering have separate responsibilities.
+Building selection extends the existing adapter callback boundary instead of
+introducing provider-specific code in the dialog. CSS variables control popup
+dimensions, and typed map settings control outline appearance. Browser checks
+cover actual clicks, slide changes, dismissal, and phone scrolling; automated tests
+cover the selection boundary and component behavior. The shared Simplot footprint
+does not alter its separate dining/residence entrances or route calculation.
+
+Source: [MapLibre polygon click example](https://maplibre.org/maplibre-gl-js/docs/examples/show-polygon-information-on-click/).
 
 ## Safe change recipes
 

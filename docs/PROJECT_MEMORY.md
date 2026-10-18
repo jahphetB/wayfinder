@@ -4,10 +4,10 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state during Steps 37, 38, and 38A
+## Current state after implementation of Steps 37, 38, and 38A
 
 - Release procedure: `docs/RELEASE_WORKFLOW.md`; work on feature branches,
-  publish previews only with push approval, and merge only with release approval.
+  publish previews under standing approval, and merge only with release approval.
   `npm run check` collects the existing quality commands. GitHub Actions reads
   Node.js 22 from `.node-version`; `.github/pull_request_template.md` records
   the tested revision, preview, release approval, and recovery target.
@@ -22,6 +22,16 @@ verification record. `docs/ARCHITECTURE.md` is the full handbook;
 - Styling now lives in `src/styles`; `theme.css` owns labeled visual variables,
   while `mapPresentation.ts` owns typed camera settings and map route colors.
   See `docs/STYLING.md`. The old `src/app/styles.css` has been replaced.
+- Three selectable footprints: library `603509923`, Sterry `492831879`, and
+  Simplot `492831873`. Content is in `src/data/campus/buildingDetails.ts`.
+  Simplot's shared footprint opens cafeteria details; residence routing is unchanged.
+  Popups have two labeled photo placeholders because no approved photographs are
+  in the repository. Supply assets/metadata using `docs/BUILDING_DETAILS.md`.
+  No images were scraped, generated as campus photos, or hotlinked.
+- Map selection travels through `MapAdapterCallbacks.onBuildingSelect` into
+  `MapView` and the native React dialog. Route sessions and GPS are unaffected.
+  Approved feature implementation is complete; remaining work in this scope is
+  final preview verification and the production merge approval boundary.
 - Model recommendations must name a specific model and reasoning level. Keep
   public documentation factual; release instructions belong in the contributor
   guide rather than owner-action lists in product/ownership files.

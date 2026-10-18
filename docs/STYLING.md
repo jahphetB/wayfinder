@@ -35,7 +35,8 @@ change a button's function. Preserve contrast and keyboard focus visibility.
 3. `layout.css`: outer frame, header, panel, and title layout.
 4. `navigation.css`: inputs, suggestions, route summaries, and checkpoint controls.
 5. `map.css`: map canvas, display controls, status, and note overlays.
-6. `responsive.css`: existing phone-specific adjustments at 760 CSS pixels.
+6. `building-details.css`: image gallery and scrollable building popup.
+7. `responsive.css`: existing phone-specific adjustments at 760 CSS pixels.
 
 Keep screen rules in these files, rather than adding inline styling to JSX.
 `responsive.css` owns the layout breakpoint because ordinary CSS custom properties

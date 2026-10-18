@@ -17,6 +17,9 @@ OpenStreetMap-derived campus network; no routing backend is required.
 - Request your location once to display an approximate position or an
   off-campus, uncertain, or unavailable-location message.
 - Preview a separate, illustrative stadium driving handoff.
+- Open library, Sterry Hall, and cafeteria details by selecting their outlined
+  buildings. Popups include image slides and scrollable information; photographs
+  have not been supplied, so the two photo slots show explicit placeholders.
 
 Routes, entrance connectors, access conditions, and model height are prototype
 data. They are not verified walking, accessibility, driving, or emergency
@@ -90,6 +93,8 @@ The interface uses square outer panel corners and compact navigation guidance.
 Colors, typography, panel sizing, and map-control offsets are listed in
 `src/styles/theme.css`. See the [styling guide](docs/STYLING.md) for examples
 and map-camera settings.
+The [building-details guide](docs/BUILDING_DETAILS.md) explains popup content,
+keyboard access, and replacing photo placeholders.
 
 UI, route logic, geographic data, and map-provider code have separate
 responsibilities. The [architecture handbook](docs/ARCHITECTURE.md) describes

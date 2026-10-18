@@ -30,6 +30,8 @@ describe('MapLibreMapAdapter', () => {
       addLayer,
       getLayer: vi.fn(),
       fitBounds: vi.fn(),
+      off: vi.fn(),
+      queryRenderedFeatures: vi.fn(() => []),
       remove: vi.fn(),
     }
     const adapter = new MapLibreMapAdapter({
@@ -86,6 +88,8 @@ describe('MapLibreMapAdapter', () => {
         addLayer: vi.fn(),
         getLayer: vi.fn(),
         fitBounds,
+        off: vi.fn(),
+        queryRenderedFeatures: vi.fn(() => []),
         remove: vi.fn(),
       })),
     })
@@ -144,6 +148,8 @@ describe('MapLibreMapAdapter', () => {
       addLayer: vi.fn(),
       getLayer: vi.fn(),
       fitBounds: vi.fn(),
+      off: vi.fn(),
+      queryRenderedFeatures: vi.fn(() => []),
       remove,
     }
     const createMap = vi.fn(() => mapInstance)
@@ -208,6 +214,8 @@ describe('MapLibreMapAdapter', () => {
       addLayer: vi.fn(),
       getLayer: vi.fn(),
       fitBounds: vi.fn(),
+      off: vi.fn(),
+      queryRenderedFeatures: vi.fn(() => []),
       remove: vi.fn(),
     }
     const onReady = vi.fn()
@@ -261,6 +269,8 @@ describe('MapLibreMapAdapter', () => {
       addLayer,
       getLayer: vi.fn(),
       fitBounds: vi.fn(),
+      off: vi.fn(),
+      queryRenderedFeatures: vi.fn(() => []),
       remove: vi.fn(),
     }
     const adapter = new MapLibreMapAdapter({
@@ -304,6 +314,8 @@ describe('MapLibreMapAdapter', () => {
       addLayer,
       getLayer: vi.fn(),
       fitBounds: vi.fn(),
+      off: vi.fn(),
+      queryRenderedFeatures: vi.fn(() => []),
       remove: vi.fn(),
     }
     const adapter = new MapLibreMapAdapter({
@@ -390,6 +402,8 @@ describe('MapLibreMapAdapter', () => {
       addLayer: vi.fn(),
       getLayer: vi.fn(),
       fitBounds,
+      off: vi.fn(),
+      queryRenderedFeatures: vi.fn(() => []),
       remove: vi.fn(),
     }
     const adapter = new MapLibreMapAdapter({
@@ -459,6 +473,8 @@ describe('MapLibreMapAdapter', () => {
       addLayer,
       getLayer: vi.fn(),
       fitBounds,
+      off: vi.fn(),
+      queryRenderedFeatures: vi.fn(() => []),
       remove: vi.fn(),
     }))
     const adapter = new MapLibreMapAdapter({

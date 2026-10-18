@@ -85,6 +85,8 @@ flowchart TB
         ReleaseGuide[docs/RELEASE_WORKFLOW.md<br/>review, release, verification and recovery]
         Theme[src/styles/theme.css<br/>named interface colors, fonts and layout values]
         MapPresentation[mapPresentation.ts<br/>typed camera and route colors]
+        BuildingDetails[buildingDetails.ts<br/>three OSM footprints, descriptions and photo slots]
+        BuildingDialog[BuildingDetailsDialog and BuildingPhotoCarousel<br/>modal details and manual image slides]
         Handbook[README and docs<br/>architecture, progress, skills, decisions]
         OSMExport[User-supplied OSM XML snapshot<br/>reviewed source geometry]
         Importer[scripts/import_campus_osm.py<br/>filtered, reproducible source import]
@@ -139,6 +141,11 @@ flowchart TB
     FeatureBranch --> Quality
     Theme --> App
     MapPresentation --> Adapter
+    BuildingDetails --> CreateAdapter
+    BuildingDetails --> MapView
+    Adapter -->|recognized building ID callback| MapView
+    MapView --> BuildingDialog
+    Theme --> BuildingDialog
     FeatureBranch -. separate test deployment .-> Vercel
     ReleaseGuide -. governs release .-> FeatureBranch
     FeatureBranch -. reviewed merge .-> GitHub

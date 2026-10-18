@@ -389,3 +389,13 @@ stale.
   the stylesheet refactor and checked preserved control colors and layout.
 - **YOTE / Explicit presentation settings:** Grouped CSS variables by purpose,
   separated stylesheet responsibilities, and labeled typed map-camera settings.
+
+#### Step 38A usage record
+
+- **EXTERNAL / Context7 and MapLibre documentation:** Used provider-owned GeoJSON
+  fill selection and lifecycle events behind the existing adapter contract.
+- **OPENAI / Playwright skill:** Checked actual footprint clicks for all three
+  buildings, slide controls, dismissal, and the scrollable phone dialog.
+- **YOTE / Content separate from rendering:** Kept building descriptions and image
+  metadata independent of the adapter and React popup, with honest missing-photo
+  states and no new dependencies.

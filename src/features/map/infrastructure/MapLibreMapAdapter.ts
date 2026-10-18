@@ -4,11 +4,13 @@ import {
   type CustomLayerInterface,
   type EaseToOptions,
   type MapOptions,
+  type MapMouseEvent,
 } from 'maplibre-gl'
 import { mapPresentation } from '@/features/map/model/mapPresentation'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 
 import type { Coordinates, MapMode } from '@/domain/navigation/types'
+import type { MapBuilding } from '@/features/map/contracts/MapBuilding'
 import type {
   MapAdapter,
   MapAdapterCallbacks,
@@ -22,6 +24,12 @@ export interface MapLibreMapInstance {
   on(event: 'load', listener: () => void): unknown
   on(event: 'resize', listener: () => void): unknown
   on(event: 'error', listener: (event: { error?: Error }) => void): unknown
+  on(event: 'click', listener: (event: MapMouseEvent) => void): unknown
+  off(event: 'click', listener: (event: MapMouseEvent) => void): unknown
+  queryRenderedFeatures(
+    point: MapMouseEvent['point'],
+    options: { layers: string[] },
+  ): readonly { readonly properties?: Record<string, unknown> }[]
   addSource(id: string, source: object): unknown
   getSource(id: string): unknown
   addLayer(layer: object): unknown
@@ -36,6 +44,7 @@ export interface MapLibreMapInstance {
 export type MapLibreMapFactory = (options: MapOptions) => MapLibreMapInstance
 
 export interface MapLibreMapAdapterOptions {
+  readonly buildings?: readonly MapBuilding[]
   readonly style: NonNullable<MapOptions['style']>
   readonly createMap?: MapLibreMapFactory
   readonly campusLayer?: CustomLayerInterface & {
@@ -66,6 +75,7 @@ export class MapLibreMapAdapter implements MapAdapter {
   private cameraStateKey: string | undefined
 
   private overviewBounds: MapBounds | undefined
+  private buildingClickListener: ((event: MapMouseEvent) => void) | undefined
 
   private readonly createMap: MapLibreMapFactory
 
@@ -103,6 +113,7 @@ export class MapLibreMapAdapter implements MapAdapter {
       this.isReady = true
       this.syncCampusLayer()
       this.syncContent()
+      this.initializeBuildingSelection(callbacks)
       if (!this.content.route && !this.content.drivingHandoff) {
         this.fitOverview(0)
       }
@@ -206,6 +217,9 @@ export class MapLibreMapAdapter implements MapAdapter {
   }
 
   destroy(): void {
+    if (this.buildingClickListener)
+      this.map?.off('click', this.buildingClickListener)
+    this.buildingClickListener = undefined
     this.map?.remove()
     this.map = undefined
     this.isReady = false
@@ -218,6 +232,62 @@ export class MapLibreMapAdapter implements MapAdapter {
     }
 
     return this.map
+  }
+
+  private initializeBuildingSelection(callbacks?: MapAdapterCallbacks): void {
+    const buildings = this.options.buildings
+    if (!buildings?.length || !callbacks?.onBuildingSelect) return
+    const map = this.requireMap()
+    map.addSource('yote-building-details', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: buildings.map((building) => ({
+          type: 'Feature',
+          properties: { id: building.id },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              building.footprint.map(({ longitude, latitude }) => [
+                longitude,
+                latitude,
+              ]),
+            ],
+          },
+        })),
+      },
+    })
+    map.addLayer({
+      id: 'yote-building-details-fill',
+      type: 'fill',
+      source: 'yote-building-details',
+      paint: {
+        'fill-color': mapPresentation.buildingSelection.color,
+        'fill-opacity': mapPresentation.buildingSelection.fillOpacity,
+      },
+    })
+    map.addLayer({
+      id: 'yote-building-details-outline',
+      type: 'line',
+      source: 'yote-building-details',
+      paint: {
+        'line-color': mapPresentation.buildingSelection.color,
+        'line-width': mapPresentation.buildingSelection.outlineWidthPixels,
+        'line-opacity': mapPresentation.buildingSelection.outlineOpacity,
+      },
+    })
+    this.buildingClickListener = (event) => {
+      const feature = map.queryRenderedFeatures(event.point, {
+        layers: ['yote-building-details-fill'],
+      })[0]
+      const id: unknown = feature?.properties?.id
+      if (
+        typeof id === 'string' &&
+        buildings.some((building) => building.id === id)
+      )
+        callbacks.onBuildingSelect?.(id)
+    }
+    map.on('click', this.buildingClickListener)
   }
 
   private syncContent(): void {

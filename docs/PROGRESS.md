@@ -733,6 +733,12 @@ Status: implemented and locally verified.
 
 ## Step 37: Repeatable checks and release workflow
 
+- Added the GitHub Actions Quality workflow, Node.js 22 selection, local
+  `npm run check`, and pull-request checklist. The release guide covers routine
+  changes, preview review, versions, production checks, and recovery.
+- The workflow passes actionlint 1.7.12 validation; all 94 original tests and
+  the local production build passed before hosted activation.
+
 - Hosted activation: pull request #1 runs the Quality workflow successfully;
   Vercel provides a ready Preview deployment. GitHub `main` protection requires
   Quality checks and Vercel, up-to-date changes, resolved conversations, and a
@@ -746,20 +752,26 @@ Status: implemented and locally verified.
   dimensions, button heights, frame radius, and map-control offsets.
 - Added typed camera and route-color settings in `mapPresentation.ts` and a
   contributor guide at `docs/STYLING.md`. No styling dependency was introduced.
+- Verification: all 94 existing tests and production build passed. Desktop and
+  phone viewport checks preserved panel layout, white branding, square frame,
+  and no horizontal phone overflow.
 
-## Step 37 implementation record
+## Step 38A: Three selectable buildings
 
-- Added the GitHub Actions Quality workflow for pull requests targeting `main`,
-  `main` pushes, and manual runs. It installs locked dependencies and runs
-  formatting, lint, TypeScript, tests, production build, and whitespace checks.
-- Added `.node-version` for Node.js 22 and the local `npm run check` command.
-- Added a pull-request checklist and `docs/RELEASE_WORKFLOW.md` covering branch
-  creation, preview review, production release, versions, and recovery.
-- The workflow passes actionlint 1.7.12 validation. Local checks pass, including
-  all 94 tests in 20 files and the production build. The existing deferred map
-  bundle size warning remains.
-- Hosted Actions execution, GitHub branch protection, and Vercel dashboard
-  enforcement are separate from local verification and are not confirmed here.
+- Library, Sterry Hall, and cafeteria use their existing OSM footprints for map
+  selection. Typed adapter callbacks open a React-rendered native dialog without
+  changing route state or requesting location.
+- Added two labeled photo slots per building, manual slide controls, an explicit
+  missing/failed-image fallback, and a scrollable description. No approved photos
+  are present. Cafeteria text distinguishes its entrance from the residence hall.
+- Added dismissal, focus restoration, keyboard selection controls, adapter-listener
+  cleanup, and focused behavior tests. `docs/BUILDING_DETAILS.md` explains the files,
+  content updates, and how to supply real photographs.
+- Local verification: formatting, lint, TypeScript, 101 tests in 22 files,
+  production build, and whitespace checks pass. Browser checks cover all three
+  actual footprint clicks, slides, Escape, keyboard selection and focus return,
+  phone scrolling without horizontal overflow, and route preview/Next/Back after
+  opening details. The existing large map-bundle warning remains.
 
 ## Step 36: Compact navigation presentation
 
