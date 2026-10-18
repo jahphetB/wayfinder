@@ -2,7 +2,8 @@
 
 ## Delivery cadence
 
-- Complete one user-approved meaningful step at a time, then stop for approval.
+- Complete the user-approved scope, including grouped steps when explicitly approved,
+  then stop before the next unapproved step.
 - After every step, explain completed work, verification, key files and their connections, and technical terms when first introduced.
 - Recommend concise or detailed reporting and ask for the user's preference for the next step.
 - Use two clearly labeled report parts: the completed-step report, then a brief
@@ -35,7 +36,10 @@
 - Commit each meaningful completed change with a focused conventional-style message.
 - Prefer several small, cohesive commits within a larger approved step when each
   unit can be independently verified and documented.
-- Do not push commits until the user explicitly approves that push and a remote is configured.
+- Commits and pushes to the preview feature branch have standing user approval.
+  Ask before merging into `main` or promoting a deployment to production.
+- Explicitly announce whether work targets preview or production and announce
+  every transition between them. A preview push is not a production release.
 - Keep build, lint, type-check, formatting, and relevant tests passing before committing.
 
 ## Engineering expectations

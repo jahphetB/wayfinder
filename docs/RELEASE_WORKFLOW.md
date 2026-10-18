@@ -30,8 +30,9 @@ tested version made available at the public production URL.
 3. Open a pull request into `main`. Require passing checks and review of the
    latest preview before merging. A newer commit invalidates earlier test evidence
    for affected behavior.
-4. Keep publication permissions explicit: approval to implement or make local
-   commits does not authorize pushing, merging, or promoting a deployment.
+4. Preview-branch commits and pushes have standing approval. Merging into `main`
+   or promoting to production requires explicit release approval. Announce which
+   environment is being worked on and every preview/production transition.
 5. Do not force-push, rewrite shared history, or commit secrets, `.env.local`,
    `node_modules`, or `dist`. Browser-visible `VITE_` values cannot hold secrets.
 6. Record the tested commit, preview URL, and last working production deployment.
@@ -147,7 +148,7 @@ Repeat for cohesive verified units. Do not blindly stage unrelated user edits.
 
 ## 3. Publish a preview
 
-After push approval, publish the feature branch, not `main`:
+Publish the feature branch under standing preview approval, not `main`:
 
 ```powershell
 git push -u origin feat/building-details
@@ -160,7 +161,7 @@ it does not replace the production site. GitHub Actions and Vercel have separate
 statuses: require both a passing Quality job and a ready preview.
 
 If a check fails, open its log, fix the cause on the same feature branch, verify,
-commit, and push with authorization. Wait for the newest checks and re-test the
+commit, and push the preview update. Wait for the newest checks and re-test the
 newest preview. Do not merge an older successful revision over newer failures.
 
 ## 4. Review the preview
@@ -252,7 +253,7 @@ git revert REPLACE_WITH_FAULTY_SQUASH_COMMIT
 ```
 
 Replace the uppercase placeholder with the reviewed commit ID. Resolve any
-conflicts, run the checks, publish the branch with authorization, and use the
+conflicts, run the checks, publish the preview branch, and use the
 normal review/release process. `git revert` adds history; it does not erase it.
 If the dashboard cannot roll back, this corrective release is the fallback.
 
