@@ -731,6 +731,16 @@ Status: implemented and locally verified.
 - Browser code/data remain downloadable; the notice and build settings do not
   revoke existing copies or rights.
 
+## Step 36: Compact navigation presentation
+
+- Set the outer navigation/map container corner radius to zero at desktop and
+  mobile widths. Other control styling is unchanged.
+- Removed the introductory simulated-route paragraph from checkpoint navigation.
+  Location providers, route calculations, and checkpoint behavior are unchanged.
+- Verification: formatting, lint, TypeScript, production build, and all 94 tests
+  pass. Browser checks covered route preview and navigation, square corners,
+  removed copy, and phone layout without horizontal overflow or console errors.
+
 ## Step 35: Public documentation and deployment verification
 
 - Condensed the README into features, setup, checks, deployment, architecture,

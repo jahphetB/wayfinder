@@ -66,7 +66,7 @@ select:focus-visible {
   min-height: 39rem;
   overflow: hidden;
   border: 1px solid #d7cde0;
-  border-radius: 1.75rem;
+  border-radius: 0;
   background: #fff;
   box-shadow: 0 22px 60px rgb(24 12 41 / 25%);
 }
@@ -498,7 +498,7 @@ form {
     margin-bottom: 1rem;
   }
   .wayfinder-layout {
-    border-radius: 1.25rem;
+    border-radius: 0;
     grid-template-columns: 1fr;
     min-height: 0;
   }

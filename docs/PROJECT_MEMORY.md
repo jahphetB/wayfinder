@@ -4,7 +4,11 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state after Step 35
+## Current state after Step 36
+
+- The outer navigation/map container has square corners on desktop and mobile.
+  The introductory simulated-route paragraph is removed; simulated checkpoints
+  and their operational status messages remain unchanged.
 
 - The app is an illustrative campus-route prototype that opens with a
   tilted 3D camera framing mapped campus facilities and stadium. One library mesh

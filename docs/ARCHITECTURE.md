@@ -1836,6 +1836,13 @@ on-campus/off-campus readings at desktop and phone viewport sizes. The map
 rendered without console errors or warnings. The deployed application banner
 and dependency notices were present; its source-map URL returned HTTP 404.
 
+### Step 36: Compact navigation presentation
+
+`src/app/styles.css` sets the outer `.wayfinder-layout` container's corner radius
+to zero at desktop and mobile widths. `CheckpointNavigation.tsx` omits the
+introductory simulation paragraph while retaining operational status messages.
+This is a presentation change; location providers and route state are unchanged.
+
 ## Safe change recipes
 
 These recipes identify normal starting points. Always run quality checks

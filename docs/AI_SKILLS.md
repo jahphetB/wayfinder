@@ -364,3 +364,10 @@ stale.
   check the deployed prototype at desktop and phone viewport sizes.
 - **YOTE / Public documentation:** Kept ownership terms and setup concise,
   with architecture and verified implementation history in their dedicated files.
+
+#### Step 36 usage record
+
+- **OPENAI / Playwright skill:** Browser verification of the compact navigation
+  presentation at desktop and phone viewport sizes.
+- **YOTE / Scoped presentation changes:** Updated responsive container styling
+  and introductory copy without changing navigation behavior.

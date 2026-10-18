@@ -81,6 +81,8 @@ Vercel Hobby is limited to [personal/non-commercial use](https://vercel.com/lega
 
 ## Project structure and data
 
+The interface uses square outer panel corners and compact navigation guidance.
+
 UI, route logic, geographic data, and map-provider code have separate
 responsibilities. The [architecture handbook](docs/ARCHITECTURE.md) describes
 the folders, files, data flow, and debugging procedures. The

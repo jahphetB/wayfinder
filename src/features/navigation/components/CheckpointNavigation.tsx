@@ -90,12 +90,7 @@ export function CheckpointNavigation({
               : 'Start navigation'}
         </button>
       )}
-      {simulating ? (
-        <p className="prototype-notice">
-          Prototype routes are illustrative; location checks are simulated so
-          you can try navigation without moving.
-        </p>
-      ) : (
+      {!simulating && (
         <p className="prototype-notice">
           Prototype paths and checkpoints are illustrative and may not match
           campus walkways.
