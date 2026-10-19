@@ -65,10 +65,10 @@ export function MapView({
   useEffect(() => {
     if (!containerRef.current) return
 
-    const adapter = createMapAdapter()
-    adapterRef.current = adapter
+    let adapter: MapAdapter | undefined
 
     try {
+      adapter = createMapAdapter()
       adapter.initialize(
         containerRef.current,
         {
@@ -88,7 +88,10 @@ export function MapView({
           },
         },
       )
+      adapterRef.current = adapter
     } catch (error) {
+      adapter?.destroy()
+      adapter = undefined
       const message =
         error instanceof Error ? error.message : 'The map could not start.'
       void Promise.resolve().then(() => {
@@ -98,7 +101,7 @@ export function MapView({
     }
 
     return () => {
-      adapter.destroy()
+      adapter?.destroy()
       adapterRef.current = undefined
     }
   }, [retryVersion])

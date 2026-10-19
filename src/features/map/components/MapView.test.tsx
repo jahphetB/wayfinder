@@ -53,6 +53,41 @@ function renderMap(provider: LocationProvider) {
 }
 
 describe('MapView location control', () => {
+  it('shows a recoverable map error when initialization fails', async () => {
+    const setMode = vi.fn()
+    const setContent = vi.fn()
+    const destroy = vi.fn()
+    const adapter: MapAdapter = {
+      initialize: vi.fn(() => {
+        throw new Error('WebGL is unavailable')
+      }),
+      setMode,
+      setContent,
+      showUserLocation: vi.fn(),
+      destroy,
+    }
+    vi.mocked(createMapAdapter).mockReturnValue(adapter)
+    render(
+      <MapView
+        origin={undefined}
+        destination={undefined}
+        route={undefined}
+        navigationSession={undefined}
+        drivingHandoff={undefined}
+        mode="3d"
+        onModeChange={vi.fn()}
+        locationLookupProvider={{ requestCurrentLocation: vi.fn() }}
+      />,
+    )
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Map unavailable: WebGL is unavailable',
+    )
+    expect(setMode).not.toHaveBeenCalled()
+    expect(setContent).not.toHaveBeenCalled()
+    expect(destroy).toHaveBeenCalledTimes(1)
+  })
+
   it('reports refinement progress, cancels, and discards a late result', async () => {
     let complete: ((reading: typeof campusReading) => void) | undefined
     const requestCurrentLocation = vi.fn<
