@@ -2189,6 +2189,14 @@ boundary and should be moved back behind the contract.
 
 ### The map is blank or invisible
 
+The October 2026 VirtualBox report showed `Map adapter must be initialized before
+use` after map construction failed. `MapView.tsx` previously stored the adapter
+before initialization; its later mode effect then called `setMode` on a map that
+did not exist, crashing the page. The adapter is now published to other effects
+only after successful initialization. Failure leaves the existing error and
+retry control visible. This prevents the secondary crash; inspect the first
+MapLibre/WebGL error in the affected browser to identify why construction failed.
+
 1. Inspect `.map-view`, `.map-canvas`, and `.maplibregl-canvas` in browser
    developer tools. Their computed width and height must be greater than zero.
 2. Confirm MapLibre CSS is imported before application CSS in `main.tsx`.

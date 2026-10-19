@@ -14,6 +14,7 @@ OpenStreetMap-derived campus network; no routing backend is required.
 - Preview walking routes with distance, estimated time, and turn instructions.
 - Follow simulated checkpoints with Start navigation, Next Turn, and Back.
 - Switch between tilted 2D and 3D views, including one illustrative library model.
+- Show a retryable map error when graphics initialization fails.
 - Request a short refined location lookup to display an approximate position or an
   off-campus, uncertain, or unavailable-location message.
 - Preview a separate, illustrative stadium driving handoff.

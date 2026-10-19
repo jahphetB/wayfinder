@@ -6,6 +6,15 @@ verification record. `docs/ARCHITECTURE.md` is the full handbook;
 
 ## Current state after Step 39 preview verification
 
+- Before Step 40, a VirtualBox Xubuntu Chrome user reported a purple screen and
+  `Map adapter must be initialized before use`. A failed MapLibre construction
+  left the adapter reference set; a later mode effect called `setMode` on it.
+  `MapView.tsx` now exposes the adapter only after successful initialization,
+  releases a failed construction, and retains the map error/retry UI. The focused
+  regression test is in `MapView.test.tsx`; local checks pass with 117 tests.
+  The initial graphics failure itself remains unverified on that VM. This fix
+  belongs to the Step 39 preview branch until a production merge is approved.
+
 - Release procedure: `docs/RELEASE_WORKFLOW.md`; work on feature branches,
   publish previews under standing approval, and merge only with release approval.
   `npm run check` collects the existing quality commands. GitHub Actions reads

@@ -1,5 +1,14 @@
 # Progress Log
 
+## Map startup recovery before Step 40
+
+- Fixed a startup exception reported in a VirtualBox Xubuntu Chrome browser.
+  If map construction fails, the adapter is released and the existing map error
+  and retry control remain visible instead of crashing the React interface.
+- Added a regression test for construction failure. Formatting, lint, TypeScript,
+  117 tests in 24 files, and production build pass. The underlying browser
+  graphics limitation has not been independently diagnosed on that virtual machine.
+
 ## Step 1: Project foundation and quality controls
 
 Status: complete

@@ -50,6 +50,12 @@ stale.
 
 ## Yotes Wayfinder project practices
 
+### Map startup recovery usage record
+
+- **YOTE / Lifecycle failure diagnosis:** Traced the reported exception through
+  map construction and React effects; added a regression test for failed startup
+  and kept the recovery message visible.
+
 ### Step 30 usage record
 
 - **OPENAI / OpenAI Docs:** Consulted official model-selection documentation.
