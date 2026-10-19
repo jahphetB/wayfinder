@@ -167,6 +167,11 @@ newest preview. Do not merge an older successful revision over newer failures.
 
 ## 4. Review the preview
 
+For a campus pilot or wider launch, attach the G01–G12 results and evidence record
+from [release readiness](RELEASE_READINESS.md#release-evidence-record). A green
+Quality job does not close performance, accessibility, route-field-review,
+privacy, service-capacity or recovery gates. Record unmeasured gates as pending.
+
 Use desktop and a real phone where the change matters. A narrow desktop browser
 window checks layout; it does not measure actual phone performance or GPS.
 

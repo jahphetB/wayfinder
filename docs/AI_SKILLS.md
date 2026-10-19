@@ -50,6 +50,24 @@ stale.
 
 ## Yotes Wayfinder project practices
 
+### Release readiness assessment usage record
+
+- **OPENAI / Security best practices skill:** Reviewed React/TypeScript data
+  handling, public response headers and dependencies; recorded scoped findings
+  with evidence, impact and remediation.
+- **OPENAI / Playwright skill:** Exercised hosted mobile flows and injected
+  module, graphics, tile and geolocation failures in isolated browser tabs.
+- **OPENAI / OpenAI Docs skill:** Consulted official reasoning/model-selection
+  guidance for the next work-package recommendation.
+- **EXTERNAL / Lighthouse and axe-core:** Collected mobile lab timings and
+  accessibility findings without adding runtime or project dependencies.
+- **EXTERNAL / Context7, W3C, OWASP, Google SRE and provider documentation:**
+  Checked WebGL2 behavior, accessibility/performance standards, operational
+  targets, tile policies, billing units and recovery eligibility.
+- **YOTE / Evidence-based release gates:** Distinguished prototype demonstration,
+  independent navigation pilot and wider launch; recorded failing and unmeasured
+  gates rather than treating a successful build as release approval.
+
 ### Map startup recovery usage record
 
 - **YOTE / Lifecycle failure diagnosis:** Traced the reported exception through

@@ -1,5 +1,24 @@
 # Progress Log
 
+## Release readiness assessment before Step 40
+
+- Assessed preview `8132dbc` against WCAG 2.2 AA, Core Web Vitals, applicable
+  frontend security guidance, service capacity and recovery criteria. Production
+  remains `de7e5e8`; no release promotion was performed.
+- Local checks pass: 117 tests / 24 files and production build. Current npm audit
+  reports zero known advisories. GitHub protections and hosted checks were verified.
+- Three mobile Lighthouse runs show LCP 2.13–4.15 s and TBT 688–1,016 ms;
+  a separate controlled map-ready proxy measured 5.99 s. These are desktop lab
+  simulations, not physical-phone or field performance evidence.
+- Browser probes confirmed graceful WebGL2 failure and explicit location-error
+  messages, but an aborted deferred map module blanks the page. axe found search
+  list semantics and attribution-link issues. Real-device, privacy/diagnostic,
+  route-review, service-budget and recovery gates remain open.
+- `docs/RELEASE_READINESS.md` defines 12 measurable pilot/public gates, evidence
+  procedures and a proposed remediation sequence. The scoped security findings
+  are in `docs/security_best_practices_report.md`. Independent navigation pilot
+  and wider launch are on hold; supervised prototype testing can continue.
+
 ## Map startup recovery before Step 40
 
 - Fixed a startup exception reported in a VirtualBox Xubuntu Chrome browser.

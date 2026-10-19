@@ -4,7 +4,38 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state after Step 39 preview verification
+## Current state after release readiness assessment
+
+- User accepts WebGL2 as the supported production/prototype requirement and wants
+  the existing unsupported-browser message retained. VM setup is outside app
+  remediation. Release-readiness assessment now takes priority before Step 40.
+- Assessed app revision `8132dbc` on preview; production `de7e5e8` still serves
+  `index-DVYzLa7U.js`. PR #2 open, checks green, main protections verified. No
+  production merge approval was given in the readiness request.
+- Full quality gate passes with 117 tests / 24 files; current full npm audit zero
+  advisories. Three Lighthouse 12.8.2 mobile runs: LCP 2.164/2.133/4.150 s,
+  TBT 1,016/855/688 ms, CLS 0.0019; third run scores 65/96/100. First two category
+  selections were malformed by shell comma handling; metrics are present.
+- Extra 390×844 probe at 4× CPU/150 ms/204,800 bytes/s: map control-ready proxy
+  5.986 s, 10 long tasks (max 890 ms); no physical-device or field percentile claim.
+- Release blockers reproduced: aborting MapView chunk blanks the whole page
+  (App has Suspense but no error boundary); axe 4.14.0 flags listbox/li/button
+  option relationships and color-only attribution link. Attribution also lacks
+  an OSM copyright link. WebGL2 failure retains error/planner; simulated permission
+  denied/unavailable/timeout recover. Tile 503 shows raw URL and disables controls.
+- `docs/RELEASE_READINESS.md` is the acceptance/evidence reference (G01–G12,
+  R01–R10); `docs/security_best_practices_report.md` covers missing live browser
+  headers and manual dependency monitoring. Hold independent navigation pilot and
+  wider launch until gates pass. Current app is suitable for supervised testing.
+- Proposed next work: failure containment/accessibility, then measured mobile
+  optimization, privacy/monitoring, service/data acceptance, recovery/pilot. This
+  sequence is proposed for approval; do not implement tracking or buy providers
+  automatically. Request next OSM corrections before pilot route field acceptance,
+  after software hardening. Current prototype data can support earlier work.
+- Assessment only changes documentation. Raw diagnostics stay ignored under
+  output/playwright/readiness-*. No telemetry, dependencies, headers or production
+  settings were changed; no load test or rollback performed. Standing preview
+  commit/push approval continues; production merge requires explicit approval.
 
 - Before Step 40, a VirtualBox Xubuntu Chrome user reported a purple screen and
   `Map adapter must be initialized before use`. A failed MapLibre construction

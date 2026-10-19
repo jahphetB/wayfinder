@@ -2178,6 +2178,23 @@ boundary and should be moved back behind the contract.
 
 ## Troubleshooting guide
 
+### Release readiness evidence
+
+The [release assessment](RELEASE_READINESS.md) records the October 18 review at
+`8132dbc`, its mobile/failure/accessibility evidence, and G01–G12 acceptance
+criteria for pilot and public release. The [security review](security_best_practices_report.md)
+records the scoped browser-protection and dependency-monitoring findings.
+These are verification records and proposed hardening requirements; they do not
+activate telemetry, add another map renderer, or promote preview to production.
+
+The review demonstrated that a rejected deferred `MapView` import propagates
+through `App.tsx` because Suspense handles waiting but does not contain errors.
+It also identified invalid search list/option semantics in `NavigationPanel.tsx`,
+and startup long tasks in the combined map/3D module. Correctness of the current
+typed boundaries does not remove the need for those browser and device gates.
+Route accuracy, client behavior, provider availability, and release recovery
+require separate evidence; production HTTP 200 alone measures only the app shell.
+
 ### Nothing appears in the browser
 
 1. Read the URL printed by `npm run dev`; Vite may choose port 5174 if 5173 is

@@ -8,6 +8,9 @@ OpenStreetMap-derived campus network; no routing backend is required.
 [Architecture handbook](docs/ARCHITECTURE.md) ·
 [Progress](docs/PROGRESS.md)
 
+Release requirements and the current verification record are documented in the
+[release readiness assessment](docs/RELEASE_READINESS.md).
+
 ## Features
 
 - Search among 50 mapped buildings, courts, parking areas, and landmarks.
