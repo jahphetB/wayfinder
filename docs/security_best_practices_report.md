@@ -6,6 +6,24 @@ React/TypeScript and public HTTP review supporting the
 OWASP certification. Account settings, operating-system location providers and
 third-party internal systems were not audited.
 
+## October 21 dependency follow-up
+
+A network-refreshed audit found four package findings in the prior lockfile,
+including high-severity Vite and source-map-js findings and moderate Vitest/mocker
+findings. The earlier sandbox zero-finding result was cached and must not be used
+as current registry clearance. The production-only audit reported zero findings;
+the affected packages are development/build/test dependencies in this project.
+This does not establish that a public production visitor could exploit them.
+
+Preview maintenance updates Vite 8.3.0→8.3.5, Vitest 5.0.1→5.0.5, and transitive
+source-map-js 1.2.1→1.2.2. A fresh full `npm audit --prefer-online --json` reports
+zero findings after installation. No advisory fix was forced across major app
+dependencies. Browser-header and ongoing monitoring findings below remain open.
+
+References: [Vite/launch-editor advisory](https://github.com/advisories/GHSA-587h-7wmj-h5pm),
+[source-map-js advisory](https://github.com/advisories/GHSA-68fv-2mgg-jv7q), and
+[Vitest mock registration advisory](https://github.com/advisories/GHSA-qxg6-89mg-rqv8).
+
 ## Summary
 
 No demonstrated critical or high-severity exploitable vulnerability was found

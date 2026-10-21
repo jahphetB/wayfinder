@@ -61,12 +61,15 @@ Remove the setting or use `prototype` to restore simulated checkpoints.
 
 ```bash
 npm run check
+npm audit --prefer-online
 git diff --check
 ```
 
 Use Node.js 22 as specified in `.node-version`. `npm run check` runs formatting,
 lint, TypeScript, tests, and the production build. Pull requests targeting `main`
 are configured to run the same checks in GitHub Actions after publication.
+Run the separate advisory audit with registry access; cached results do not
+establish whether newly published vulnerabilities affect the installed lockfile.
 
 Vite generates the deployment files in `dist`. Production source maps are
 disabled. The build includes copyright banners and

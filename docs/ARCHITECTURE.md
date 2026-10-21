@@ -2178,6 +2178,31 @@ boundary and should be moved back behind the contract.
 
 ## Troubleshooting guide
 
+### Vercel settings show Node 22.x overriding 24.x
+
+`package.json` selects Node 22.x and `.node-version` selects 22 for development
+and CI. Vercel gives the package engine range precedence over its dashboard
+preference. A deployment showing 22.x beside a struck-through 24.x therefore
+indicates an override, not a failed deployment or a browser requirement.
+Node 22 remains supported as of the October 21 review. Vercel selects compatible
+minor/patch releases within the configured major line for new deployments.
+
+This app builds static assets into `dist`; its browser runs map and route logic.
+Build CPU/memory affects compilation, while function CPU/region, Fluid Compute
+and cold-start settings concern server functions. The repository does not define
+such a backend. Disabled deployment authentication matches public app access;
+it does not replace app security review. Optional concurrent builds and a custom
+domain are not prerequisites for correct navigation.
+
+The October 21 registry audit required network access: a cached sandbox result
+missed development-tool advisories. Targeted Vite 8.3.5, Vitest 5.0.5 and
+source-map-js 1.2.2 updates cleared the fresh audit. Keep the live registry audit
+separate from checks of application behavior and from paused feature work.
+
+References: [Vercel Node overrides](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions),
+[Fluid Compute](https://vercel.com/docs/fluid-compute), and
+[Node release status](https://nodejs.org/en/about/previous-releases).
+
 ### Release readiness evidence
 
 The [release assessment](RELEASE_READINESS.md) records the October 18 review at

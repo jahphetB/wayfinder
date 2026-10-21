@@ -54,12 +54,20 @@ set instead of updating it. After obtaining the source, run:
 ```powershell
 npm ci
 npm run check
+npm audit --prefer-online
 git diff --check
 ```
 
 `npm run check` runs formatting, lint, TypeScript, tests, and a production build,
 stopping at the first failure. The individual commands remain available in
 `package.json`. Fix failures rather than skipping checks to get a green result.
+
+The separate advisory audit requires current registry access. Restricted/offline
+environments may return cached results or fail; neither establishes current
+security clearance. Record a network-refreshed full audit, and use
+`npm audit --omit=dev --prefer-online` to distinguish bundled production
+dependencies from development tooling. Review targeted fixes and the lockfile;
+do not use `npm audit fix --force` as a substitute for compatibility checks.
 
 `.github/workflows/quality.yml` runs the same checks as separate named steps
 after `npm ci` on pull requests targeting `main` and on pushes to `main`. It also

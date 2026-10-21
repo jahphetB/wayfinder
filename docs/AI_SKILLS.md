@@ -50,6 +50,18 @@ stale.
 
 ## Yotes Wayfinder project practices
 
+### October 21 maintenance usage record
+
+- **OPENAI / Playwright skill:** Verified public production controls and
+  phone-width layout in an isolated browser, including console inspection.
+- **EXTERNAL / Context7 and official Vercel/Node documentation:** Distinguished
+  build/runtime preferences, package engine overrides and optional platform cards.
+- **EXTERNAL / npm and GitHub advisories:** Checked fresh registry results,
+  affected versions, production-versus-development scope and fixed releases.
+- **YOTE / Scoped dependency maintenance:** Updated vulnerable build/test tools
+  and their locked dependencies without changing product behavior or bypassing
+  preview/production approval boundaries. Cached audits are not live clearance.
+
 ### Release readiness assessment usage record
 
 - **OPENAI / Security best practices skill:** Reviewed React/TypeScript data

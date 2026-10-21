@@ -4,7 +4,28 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state after release readiness assessment
+## Current state after October 21 maintenance
+
+- User explicitly wants to wait before deciding on page-failure recovery and
+  search accessibility. Do not implement those changes or movement tracking.
+  Current request authorizes reviewing Vercel screenshots and necessary fixes.
+- Production `de7e5e8` is publicly accessible and passed fresh map/route/dialog/
+  phone-width smoke checks with no console errors/warnings. Preview was `61f759c`
+  with hosted Quality/Vercel passing before this maintenance; PR #2 remains open.
+- Screenshot warning: package.json engines 22.x overrides Vercel dashboard 24.x.
+  Node 22 remains supported; build queue, function CPU/region, Fluid Compute,
+  disabled login protection and skew/cold-start options are not deployment failures.
+  No dashboard settings were changed; public access is intentional.
+- Important audit correction: sandbox npm audit returned cached zero findings.
+  A network-enabled --prefer-online audit found four dev-tool findings (two high,
+  two moderate); production-only audit reported zero. Updated Vite 8.3.0→8.3.5,
+  Vitest 5.0.1→5.0.5, source-map-js 1.2.1→1.2.2 through reviewed lockfile changes.
+  Fresh full audit now zero. Require live registry access for advisory clearance;
+  do not present cached audit output as a current security result.
+- Updated tooling passes formatting, lint, TypeScript, 117 tests / 24 files and
+  production build. CSS hash unchanged; new JS hashes reflect the bundler update.
+- This is targeted preview dependency maintenance. No app source, style or campus
+  data changed. Do not merge main/promote production without explicit approval.
 
 - User accepts WebGL2 as the supported production/prototype requirement and wants
   the existing unsupported-browser message retained. VM setup is outside app

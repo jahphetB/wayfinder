@@ -10,6 +10,13 @@ monitoring, and field validation have gaps. A publicly reachable URL is not a
 release-readiness approval. This assessment does not certify WCAG or security
 conformance.
 
+October 21 maintenance follow-up: a network-refreshed audit found development-tool
+advisories that the earlier cached audit did not expose. Targeted Vite/Vitest and
+source-map-js updates clear the refreshed audit on preview; see the
+[security follow-up](security_best_practices_report.md#october-21-dependency-follow-up).
+The historical browser measurements below are not a re-test of this maintenance
+build, and the other release gates remain open.
+
 ## Contents
 
 - [Scope and standards](#scope-and-standards)

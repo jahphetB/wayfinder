@@ -1,5 +1,24 @@
 # Progress Log
 
+## October 21: Vercel configuration review and tooling security updates
+
+- Confirmed public production still serves `de7e5e8`; preview `61f759c` passed
+  GitHub Quality and Vercel. Production smoke checks passed map modes, route
+  preview, Start/Next/Back, building dialog/slides and phone-width layout, with
+  no console errors or warnings and no login prompt.
+- Vercel's Node 22/24 display reflects the package's 22.x override of the
+  dashboard's 24.x preference. Other cards are optional platform features or
+  function settings, not evidence of a failed static deployment.
+- A network-refreshed dependency audit superseded the cached zero-finding result:
+  four development-tool findings (two high, two moderate), with none reported by
+  the production-only audit. Updated Vite to 8.3.5, Vitest to 5.0.5, and transitive
+  source-map-js to 1.2.2. The refreshed full audit now reports zero findings.
+- Verification after the updates: formatting, lint, TypeScript, all 117 tests in
+  24 files and production build pass. The existing map-bundle size warning remains.
+- No application behavior, styles, navigation data or Vercel account settings
+  were changed. Page-failure recovery and search accessibility remain outside
+  this maintenance change; production promotion requires separate approval.
+
 ## Release readiness assessment before Step 40
 
 - Assessed preview `8132dbc` against WCAG 2.2 AA, Core Web Vitals, applicable
