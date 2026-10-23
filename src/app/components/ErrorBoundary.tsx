@@ -1,21 +1,21 @@
 import { Component, type ReactNode } from 'react'
 
 interface ErrorBoundaryProps {
-  readonly children: ReactNode
-  readonly fallback: ReactNode
+	readonly children: ReactNode
+	readonly fallback: ReactNode
 }
 
 export class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  { readonly hasError: boolean }
+	ErrorBoundaryProps,
+	{ readonly hasError: boolean }
 > {
-  state = { hasError: false }
+	state = { hasError: false }
 
-  static getDerivedStateFromError(): { readonly hasError: boolean } {
-    return { hasError: true }
-  }
+	static getDerivedStateFromError(): { readonly hasError: boolean } {
+		return { hasError: true }
+	}
 
-  render(): ReactNode {
-    return this.state.hasError ? this.props.fallback : this.props.children
-  }
+	render(): ReactNode {
+		return this.state.hasError ? this.props.fallback : this.props.children
+	}
 }

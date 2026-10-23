@@ -1,8 +1,8 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import type {
-  Location,
-  LocationSearchResult,
-  NavigationSession,
+	Location,
+	LocationSearchResult,
+	NavigationSession,
 } from '@/domain/navigation/types'
 import { useRoutePlanner } from '../hooks/useRoutePlanner'
 import type { RoutePlanState } from '../model/routePlanner'
@@ -10,271 +10,271 @@ import type { LocationProvider } from '../contracts/LocationProvider'
 import { CheckpointNavigation } from './CheckpointNavigation'
 
 interface FieldProps {
-  readonly label: string
-  readonly query: string
-  readonly suggestions: readonly LocationSearchResult[]
-  readonly onChange: (value: string) => void
-  readonly onSelect: (location: Location) => void
+	readonly label: string
+	readonly query: string
+	readonly suggestions: readonly LocationSearchResult[]
+	readonly onChange: (value: string) => void
+	readonly onSelect: (location: Location) => void
 }
 function LocationField({
-  label,
-  query,
-  suggestions,
-  onChange,
-  onSelect,
+	label,
+	query,
+	suggestions,
+	onChange,
+	onSelect,
 }: FieldProps) {
-  const [open, setOpen] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(-1)
-  const listboxId = useId()
-  const listboxRef = useRef<HTMLUListElement>(null)
-  const hasOptions = open && suggestions.length > 0
+	const [open, setOpen] = useState(false)
+	const [activeIndex, setActiveIndex] = useState(-1)
+	const listboxId = useId()
+	const listboxRef = useRef<HTMLUListElement>(null)
+	const hasOptions = open && suggestions.length > 0
 
-  useEffect(() => {
-    if (!open || activeIndex < 0) return
-    listboxRef.current?.children
-      .item(activeIndex)
-      ?.scrollIntoView?.({ block: 'nearest' })
-  }, [activeIndex, open])
+	useEffect(() => {
+		if (!open || activeIndex < 0) return
+		listboxRef.current?.children
+			.item(activeIndex)
+			?.scrollIntoView?.({ block: 'nearest' })
+	}, [activeIndex, open])
 
-  function selectSuggestion(location: Location): void {
-    onSelect(location)
-    setOpen(false)
-    setActiveIndex(-1)
-  }
+	function selectSuggestion(location: Location): void {
+		onSelect(location)
+		setOpen(false)
+		setActiveIndex(-1)
+	}
 
-  function moveActiveSuggestion(direction: 1 | -1): void {
-    if (suggestions.length === 0) return
+	function moveActiveSuggestion(direction: 1 | -1): void {
+		if (suggestions.length === 0) return
 
-    setOpen(true)
-    setActiveIndex((currentIndex) => {
-      const nextIndex = currentIndex + direction
-      if (nextIndex < 0) return suggestions.length - 1
-      return nextIndex % suggestions.length
-    })
-  }
+		setOpen(true)
+		setActiveIndex((currentIndex) => {
+			const nextIndex = currentIndex + direction
+			if (nextIndex < 0) return suggestions.length - 1
+			return nextIndex % suggestions.length
+		})
+	}
 
-  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      moveActiveSuggestion(1)
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault()
-      moveActiveSuggestion(-1)
-    } else if (event.key === 'Enter' && open && activeIndex >= 0) {
-      const suggestion = suggestions[activeIndex]
-      if (!suggestion) return
-      event.preventDefault()
-      selectSuggestion(suggestion.location)
-    } else if (event.key === 'Escape') {
-      event.preventDefault()
-      setOpen(false)
-      setActiveIndex(-1)
-    }
-  }
+	function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
+		if (event.key === 'ArrowDown') {
+			event.preventDefault()
+			moveActiveSuggestion(1)
+		} else if (event.key === 'ArrowUp') {
+			event.preventDefault()
+			moveActiveSuggestion(-1)
+		} else if (event.key === 'Enter' && open && activeIndex >= 0) {
+			const suggestion = suggestions[activeIndex]
+			if (!suggestion) return
+			event.preventDefault()
+			selectSuggestion(suggestion.location)
+		} else if (event.key === 'Escape') {
+			event.preventDefault()
+			setOpen(false)
+			setActiveIndex(-1)
+		}
+	}
 
-  return (
-    <div className="location-field">
-      <label>
-        {label}
-        <input
-          aria-label={label}
-          aria-activedescendant={
-            hasOptions && suggestions[activeIndex]
-              ? `${listboxId}-option-${activeIndex}`
-              : undefined
-          }
-          aria-autocomplete="list"
-          aria-controls={hasOptions ? listboxId : undefined}
-          aria-describedby={`${listboxId}-help`}
-          aria-expanded={hasOptions}
-          onBlur={() => {
-            setOpen(false)
-            setActiveIndex(-1)
-          }}
-          onChange={(event) => {
-            onChange(event.target.value)
-            setOpen(true)
-            setActiveIndex(-1)
-          }}
-          onFocus={() => {
-            setOpen(true)
-            setActiveIndex(-1)
-          }}
-          onKeyDown={handleKeyDown}
-          role="combobox"
-          value={query}
-        />
-      </label>
-      <p className="visually-hidden" id={`${listboxId}-help`}>
-        Type to search. Use Up and Down arrows to review suggestions, Enter to
-        select, and Escape to close.
-      </p>
-      <p className="visually-hidden" aria-live="polite" aria-atomic="true">
-        {open &&
-          (suggestions.length === 0
-            ? `No matching ${label.toLowerCase()} locations.`
-            : `${suggestions.length} ${label.toLowerCase()} suggestions available.`)}
-      </p>
-      {open && suggestions.length === 0 && (
-        <p className="suggestions">No matching locations.</p>
-      )}
-      {hasOptions && (
-        <ul
-          aria-label={`${label} suggestions`}
-          className="suggestions"
-          id={listboxId}
-          ref={listboxRef}
-          role="listbox"
-        >
-          {suggestions.map(({ location }, index) => (
-            <li
-              id={`${listboxId}-option-${index}`}
-              key={location.id}
-              aria-selected={activeIndex === index}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => selectSuggestion(location)}
-              role="option"
-              tabIndex={-1}
-            >
-              {location.label}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  )
+	return (
+		<div className="location-field">
+			<label>
+				{label}
+				<input
+					aria-label={label}
+					aria-activedescendant={
+						hasOptions && suggestions[activeIndex]
+							? `${listboxId}-option-${activeIndex}`
+							: undefined
+					}
+					aria-autocomplete="list"
+					aria-controls={hasOptions ? listboxId : undefined}
+					aria-describedby={`${listboxId}-help`}
+					aria-expanded={hasOptions}
+					onBlur={() => {
+						setOpen(false)
+						setActiveIndex(-1)
+					}}
+					onChange={(event) => {
+						onChange(event.target.value)
+						setOpen(true)
+						setActiveIndex(-1)
+					}}
+					onFocus={() => {
+						setOpen(true)
+						setActiveIndex(-1)
+					}}
+					onKeyDown={handleKeyDown}
+					role="combobox"
+					value={query}
+				/>
+			</label>
+			<p className="visually-hidden" id={`${listboxId}-help`}>
+				Type to search. Use Up and Down arrows to review suggestions, Enter to
+				select, and Escape to close.
+			</p>
+			<p className="visually-hidden" aria-live="polite" aria-atomic="true">
+				{open &&
+					(suggestions.length === 0
+						? `No matching ${label.toLowerCase()} locations.`
+						: `${suggestions.length} ${label.toLowerCase()} suggestions available.`)}
+			</p>
+			{open && suggestions.length === 0 && (
+				<p className="suggestions">No matching locations.</p>
+			)}
+			{hasOptions && (
+				<ul
+					aria-label={`${label} suggestions`}
+					className="suggestions"
+					id={listboxId}
+					ref={listboxRef}
+					role="listbox"
+				>
+					{suggestions.map(({ location }, index) => (
+						<li
+							id={`${listboxId}-option-${index}`}
+							key={location.id}
+							aria-selected={activeIndex === index}
+							onMouseDown={(event) => event.preventDefault()}
+							onClick={() => selectSuggestion(location)}
+							role="option"
+							tabIndex={-1}
+						>
+							{location.label}
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	)
 }
 function RouteSummary({
-  planState,
-  origin,
-  destination,
+	planState,
+	origin,
+	destination,
 }: {
-  planState: RoutePlanState
-  origin: Location | undefined
-  destination: Location | undefined
+	planState: RoutePlanState
+	origin: Location | undefined
+	destination: Location | undefined
 }) {
-  if (planState.status === 'invalid-location')
-    return (
-      <p className="route-summary-error" role="alert">
-        Choose a suggestion for both locations before previewing a route.
-      </p>
-    )
+	if (planState.status === 'invalid-location')
+		return (
+			<p className="route-summary-error" role="alert">
+				Choose a suggestion for both locations before previewing a route.
+			</p>
+		)
 
-  if (planState.status === 'route-unavailable')
-    return (
-      <p className="route-summary-error" role="alert">
-        A walking route is not available for this location pair yet.
-      </p>
-    )
+	if (planState.status === 'route-unavailable')
+		return (
+			<p className="route-summary-error" role="alert">
+				A walking route is not available for this location pair yet.
+			</p>
+		)
 
-  if (planState.status === 'empty' || !origin || !destination)
-    return (
-      <p className="route-summary-empty">
-        {destination?.id === 'simplot-stadium'
-          ? 'Select a start, then preview the prototype stadium drive from a mapped campus exit.'
-          : 'Select locations, then preview a walking route.'}
-      </p>
-    )
+	if (planState.status === 'empty' || !origin || !destination)
+		return (
+			<p className="route-summary-empty">
+				{destination?.id === 'simplot-stadium'
+					? 'Select a start, then preview the prototype stadium drive from a mapped campus exit.'
+					: 'Select locations, then preview a walking route.'}
+			</p>
+		)
 
-  if (planState.status === 'driving-handoff') {
-    return (
-      <section aria-live="polite" className="route-summary driving-handoff">
-        <p>Prototype driving handoff</p>
-        <strong>{destination.label}</strong>
-        <span>
-          This preview starts at {planState.handoff.exitLabel}, not at your
-          selected start. It does not provide a verified driving route from your
-          location.
-        </span>
-        <ol>
-          {planState.handoff.instructions.map((instruction) => (
-            <li key={instruction}>{instruction}</li>
-          ))}
-        </ol>
-        <span>
-          Check road signs, access, and parking on site. Car navigation and GPS
-          checkpoints are not available for this preview.
-        </span>
-        <span>{planState.handoff.accessNotice}</span>
-      </section>
-    )
-  }
+	if (planState.status === 'driving-handoff') {
+		return (
+			<section aria-live="polite" className="route-summary driving-handoff">
+				<p>Prototype driving handoff</p>
+				<strong>{destination.label}</strong>
+				<span>
+					This preview starts at {planState.handoff.exitLabel}, not at your
+					selected start. It does not provide a verified driving route from your
+					location.
+				</span>
+				<ol>
+					{planState.handoff.instructions.map((instruction) => (
+						<li key={instruction}>{instruction}</li>
+					))}
+				</ol>
+				<span>
+					Check road signs, access, and parking on site. Car navigation and GPS
+					checkpoints are not available for this preview.
+				</span>
+				<span>{planState.handoff.accessNotice}</span>
+			</section>
+		)
+	}
 
-  const { route } = planState
+	const { route } = planState
 
-  return (
-    <section aria-live="polite" className="route-summary">
-      <p>Walking route</p>
-      <strong>
-        {origin.label} to {destination.label}
-      </strong>
-      <div>
-        <b>{route.estimatedDurationMinutes} min</b>
-        <span>{(route.distanceMeters / 1000).toFixed(1)} km</span>
-      </div>
-    </section>
-  )
+	return (
+		<section aria-live="polite" className="route-summary">
+			<p>Walking route</p>
+			<strong>
+				{origin.label} to {destination.label}
+			</strong>
+			<div>
+				<b>{route.estimatedDurationMinutes} min</b>
+				<span>{(route.distanceMeters / 1000).toFixed(1)} km</span>
+			</div>
+		</section>
+	)
 }
 export function NavigationPanel({
-  planner,
-  locationProvider,
-  onNavigationSessionChange,
+	planner,
+	locationProvider,
+	onNavigationSessionChange,
 }: {
-  readonly planner: ReturnType<typeof useRoutePlanner>
-  readonly locationProvider: LocationProvider
-  readonly onNavigationSessionChange: (session: NavigationSession) => void
+	readonly planner: ReturnType<typeof useRoutePlanner>
+	readonly locationProvider: LocationProvider
+	readonly onNavigationSessionChange: (session: NavigationSession) => void
 }) {
-  return (
-    <section className="navigation-panel">
-      <p className="eyebrow">Route planner</p>
-      <h1>Find your way on campus</h1>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          planner.planRoute()
-        }}
-      >
-        <LocationField
-          label="Start"
-          onChange={(value) => planner.changeQuery('origin', value)}
-          onSelect={(location) => planner.selectLocation('origin', location)}
-          query={planner.originQuery}
-          suggestions={planner.originSuggestions}
-        />
-        <button
-          aria-label="Swap start and destination"
-          className="swap-locations"
-          onClick={planner.swapLocations}
-          type="button"
-        >
-          ↕
-        </button>
-        <LocationField
-          label="Destination"
-          onChange={(value) => planner.changeQuery('destination', value)}
-          onSelect={(location) =>
-            planner.selectLocation('destination', location)
-          }
-          query={planner.destinationQuery}
-          suggestions={planner.destinationSuggestions}
-        />
-        <button className="route-action" type="submit">
-          Preview route
-        </button>
-      </form>
-      {planner.plannedRoute && (
-        <CheckpointNavigation
-          key={planner.routeRevision}
-          route={planner.plannedRoute}
-          provider={locationProvider}
-          onSessionChange={onNavigationSessionChange}
-        />
-      )}
-      <RouteSummary
-        destination={planner.destination}
-        origin={planner.origin}
-        planState={planner.routePlanState}
-      />
-    </section>
-  )
+	return (
+		<section className="navigation-panel">
+			<p className="eyebrow">Route planner</p>
+			<h1>Find your way on campus</h1>
+			<form
+				onSubmit={(event) => {
+					event.preventDefault()
+					planner.planRoute()
+				}}
+			>
+				<LocationField
+					label="Start"
+					onChange={(value) => planner.changeQuery('origin', value)}
+					onSelect={(location) => planner.selectLocation('origin', location)}
+					query={planner.originQuery}
+					suggestions={planner.originSuggestions}
+				/>
+				<button
+					aria-label="Swap start and destination"
+					className="swap-locations"
+					onClick={planner.swapLocations}
+					type="button"
+				>
+					↕
+				</button>
+				<LocationField
+					label="Destination"
+					onChange={(value) => planner.changeQuery('destination', value)}
+					onSelect={(location) =>
+						planner.selectLocation('destination', location)
+					}
+					query={planner.destinationQuery}
+					suggestions={planner.destinationSuggestions}
+				/>
+				<button className="route-action" type="submit">
+					Preview route
+				</button>
+			</form>
+			{planner.plannedRoute && (
+				<CheckpointNavigation
+					key={planner.routeRevision}
+					route={planner.plannedRoute}
+					provider={locationProvider}
+					onSessionChange={onNavigationSessionChange}
+				/>
+			)}
+			<RouteSummary
+				destination={planner.destination}
+				origin={planner.origin}
+				planState={planner.routePlanState}
+			/>
+		</section>
+	)
 }

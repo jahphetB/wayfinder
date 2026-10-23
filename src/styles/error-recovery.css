@@ -1,32 +1,32 @@
 .failure-recovery {
-  display: grid;
-  align-content: center;
-  padding: 1.5rem;
+	display: grid;
+	align-content: center;
+	padding: 1.5rem;
 }
 
 .page-recovery {
-  min-height: 100vh;
+	min-height: 100vh;
 }
 
 .recovery-panel {
-  width: min(100%, 32rem);
-  margin-inline: auto;
-  padding: 1.5rem;
-  color: var(--color-text);
-  background: var(--color-panel);
+	width: min(100%, 32rem);
+	margin-inline: auto;
+	padding: 1.5rem;
+	color: var(--color-text);
+	background: var(--color-panel);
 }
 
 .recovery-panel h2 {
-  margin-top: 0;
+	margin-top: 0;
 }
 
 .recovery-panel button {
-  min-height: 2.75rem;
-  padding: 0.65rem 1rem;
-  border: 0;
-  border-radius: 0.5rem;
-  color: var(--color-white);
-  background: var(--color-brand);
-  font: inherit;
-  font-weight: 700;
+	min-height: 2.75rem;
+	padding: 0.65rem 1rem;
+	border: 0;
+	border-radius: 0.5rem;
+	color: var(--color-white);
+	background: var(--color-brand);
+	font: inherit;
+	font-weight: 700;
 }

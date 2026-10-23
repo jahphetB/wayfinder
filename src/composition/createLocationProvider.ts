@@ -4,23 +4,23 @@ import { PrototypeLocationProvider } from '@/features/navigation/infrastructure/
 import { RefinedBrowserLocationProvider } from '@/features/navigation/infrastructure/RefinedBrowserLocationProvider'
 
 export function createLocationProvider(): LocationProvider {
-  if (import.meta.env.VITE_LOCATION_MODE !== 'browser') {
-    return new PrototypeLocationProvider()
-  }
+	if (import.meta.env.VITE_LOCATION_MODE !== 'browser') {
+		return new PrototypeLocationProvider()
+	}
 
-  return createBrowserLocationProvider()
+	return createBrowserLocationProvider()
 }
 
 export function createBrowserLocationProvider(): LocationProvider {
-  return new BrowserLocationProvider(
-    typeof navigator === 'undefined' ? undefined : navigator.geolocation,
-    globalThis.isSecureContext === true,
-  )
+	return new BrowserLocationProvider(
+		typeof navigator === 'undefined' ? undefined : navigator.geolocation,
+		globalThis.isSecureContext === true,
+	)
 }
 
 export function createLocationLookupProvider(): LocationProvider {
-  return new RefinedBrowserLocationProvider(
-    typeof navigator === 'undefined' ? undefined : navigator.geolocation,
-    globalThis.isSecureContext === true,
-  )
+	return new RefinedBrowserLocationProvider(
+		typeof navigator === 'undefined' ? undefined : navigator.geolocation,
+		globalThis.isSecureContext === true,
+	)
 }

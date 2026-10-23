@@ -2,52 +2,52 @@ import { createWalkingGraph } from './factories'
 import { findWalkingRoute } from './walkingRoutes'
 
 describe('findWalkingRoute', () => {
-  const graph = createWalkingGraph({
-    nodes: [
-      { id: 'entrance', coordinates: { latitude: 43.65, longitude: -116.68 } },
-      { id: 'quad', coordinates: { latitude: 43.651, longitude: -116.679 } },
-      { id: 'library', coordinates: { latitude: 43.652, longitude: -116.679 } },
-    ],
-    edges: [
-      {
-        id: 'entrance-to-quad',
-        fromNodeId: 'entrance',
-        toNodeId: 'quad',
-        distanceMeters: 100,
-      },
-      {
-        id: 'quad-to-library',
-        fromNodeId: 'quad',
-        toNodeId: 'library',
-        distanceMeters: 150,
-      },
-    ],
-  })
+	const graph = createWalkingGraph({
+		nodes: [
+			{ id: 'entrance', coordinates: { latitude: 43.65, longitude: -116.68 } },
+			{ id: 'quad', coordinates: { latitude: 43.651, longitude: -116.679 } },
+			{ id: 'library', coordinates: { latitude: 43.652, longitude: -116.679 } },
+		],
+		edges: [
+			{
+				id: 'entrance-to-quad',
+				fromNodeId: 'entrance',
+				toNodeId: 'quad',
+				distanceMeters: 100,
+			},
+			{
+				id: 'quad-to-library',
+				fromNodeId: 'quad',
+				toNodeId: 'library',
+				distanceMeters: 150,
+			},
+		],
+	})
 
-  it('converts a shortest walking path into a renderable route', () => {
-    const route = findWalkingRoute(graph, 'entrance', 'library')
+	it('converts a shortest walking path into a renderable route', () => {
+		const route = findWalkingRoute(graph, 'entrance', 'library')
 
-    expect(route).toMatchObject({
-      id: 'entrance-to-library',
-      originLocationId: 'entrance',
-      destinationLocationId: 'library',
-      distanceMeters: 250,
-      estimatedDurationMinutes: 4,
-    })
-    expect(route?.coordinates).toEqual([
-      { latitude: 43.65, longitude: -116.68 },
-      { latitude: 43.651, longitude: -116.679 },
-      { latitude: 43.652, longitude: -116.679 },
-    ])
-    expect(route?.steps).toHaveLength(2)
-    expect(route?.steps.map((step) => step.checkpoint.kind)).toEqual([
-      'turn',
-      'destination',
-    ])
-  })
+		expect(route).toMatchObject({
+			id: 'entrance-to-library',
+			originLocationId: 'entrance',
+			destinationLocationId: 'library',
+			distanceMeters: 250,
+			estimatedDurationMinutes: 4,
+		})
+		expect(route?.coordinates).toEqual([
+			{ latitude: 43.65, longitude: -116.68 },
+			{ latitude: 43.651, longitude: -116.679 },
+			{ latitude: 43.652, longitude: -116.679 },
+		])
+		expect(route?.steps).toHaveLength(2)
+		expect(route?.steps.map((step) => step.checkpoint.kind)).toEqual([
+			'turn',
+			'destination',
+		])
+	})
 
-  it('returns no route when the locations are the same or disconnected', () => {
-    expect(findWalkingRoute(graph, 'entrance', 'entrance')).toBeUndefined()
-    expect(findWalkingRoute(graph, 'entrance', 'unknown')).toBeUndefined()
-  })
+	it('returns no route when the locations are the same or disconnected', () => {
+		expect(findWalkingRoute(graph, 'entrance', 'entrance')).toBeUndefined()
+		expect(findWalkingRoute(graph, 'entrance', 'unknown')).toBeUndefined()
+	})
 })
