@@ -52,6 +52,24 @@ function renderPendingMap() {
 }
 
 describe('map lifecycle recovery', () => {
+  it('distinguishes lost graphics from an unsupported browser', async () => {
+    const pending = createPendingAdapter()
+    vi.mocked(createMapAdapter).mockReturnValue(pending.adapter)
+    renderPendingMap()
+    await act(async () => {
+      pending.callbacks()?.onReady?.()
+      pending
+        .callbacks()
+        ?.onError?.(new Error('WebGL graphics context was lost'))
+      await Promise.resolve()
+    })
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'The map graphics were interrupted',
+    )
+    expect(screen.getByRole('alert')).not.toHaveTextContent(
+      'Enable graphics acceleration',
+    )
+  })
   it('times out, ignores stale readiness, and replays content and mode on explicit retry', async () => {
     vi.useFakeTimers()
     const first = createPendingAdapter()

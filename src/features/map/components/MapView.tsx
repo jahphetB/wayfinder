@@ -83,9 +83,12 @@ export function MapView({
       adapter?.destroy()
       adapter = undefined
       const message =
-        error instanceof Error && /webgl|graphics context/i.test(error.message)
-          ? 'WebGL2 graphics are required. Enable graphics acceleration or try a browser and device that support WebGL2.'
-          : 'The map could not finish loading. Check your connection and try again.'
+        error instanceof Error && /context.*lost/i.test(error.message)
+          ? 'The map graphics were interrupted. Try the map again.'
+          : error instanceof Error &&
+              /webgl|graphics context/i.test(error.message)
+            ? 'WebGL2 graphics are required. Enable graphics acceleration or try a browser and device that support WebGL2.'
+            : 'The map could not finish loading. Check your connection and try again.'
       void Promise.resolve().then(() => {
         if (!active) return
         setMapError(message)
