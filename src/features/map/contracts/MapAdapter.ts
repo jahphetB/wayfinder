@@ -24,6 +24,7 @@ export interface MapAdapterCallbacks {
   readonly onBuildingSelect?: (buildingId: string) => void
   readonly onReady?: () => void
   readonly onError?: (error: Error) => void
+  readonly onWarning?: () => void
 }
 
 export interface MapAdapter {

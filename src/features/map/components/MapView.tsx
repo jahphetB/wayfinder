@@ -14,6 +14,7 @@ import type { LocationProvider } from '@/features/navigation/contracts/LocationP
 import { LocationProviderError } from '@/features/navigation/contracts/LocationProviderError'
 import { campusBuildingDetails } from '@/data/campus/buildingDetails'
 import { BuildingDetailsDialog } from '@/features/buildings/components/BuildingDetailsDialog'
+import { recoverySettings } from '@/app/recoverySettings'
 
 interface MapViewProps {
   readonly origin: Location | undefined
@@ -43,6 +44,7 @@ export function MapView({
   const initialMode = useRef(mode)
   const [mapStatus, setMapStatus] = useState<MapStatus>('loading')
   const [mapError, setMapError] = useState<string | undefined>()
+  const [mapWarning, setMapWarning] = useState(false)
   const [retryVersion, setRetryVersion] = useState(0)
   const [isLocating, setIsLocating] = useState(false)
   const [locationMessage, setLocationMessage] = useState<string>()
@@ -66,6 +68,30 @@ export function MapView({
     if (!containerRef.current) return
 
     let adapter: MapAdapter | undefined
+    let active = true
+    let failed = false
+    const timer = window.setTimeout(
+      () => fail(new Error('Map initialization timed out')),
+      recoverySettings.mapInitializationTimeoutMilliseconds,
+    )
+
+    function fail(error: unknown): void {
+      if (!active || failed) return
+      failed = true
+      window.clearTimeout(timer)
+      adapterRef.current = undefined
+      adapter?.destroy()
+      adapter = undefined
+      const message =
+        error instanceof Error && /webgl|graphics context/i.test(error.message)
+          ? 'WebGL2 graphics are required. Enable graphics acceleration or try a browser and device that support WebGL2.'
+          : 'The map could not finish loading. Check your connection and try again.'
+      void Promise.resolve().then(() => {
+        if (!active) return
+        setMapError(message)
+        setMapStatus('error')
+      })
+    }
 
     try {
       adapter = createMapAdapter()
@@ -80,27 +106,28 @@ export function MapView({
           overviewBounds: collegeOfIdahoCampus.overviewBounds,
         },
         {
-          onReady: () => setMapStatus('ready'),
-          onBuildingSelect: setSelectedBuildingId,
-          onError: (error) => {
-            setMapError(error.message)
-            setMapStatus('error')
+          onReady: () => {
+            if (!active || failed) return
+            window.clearTimeout(timer)
+            setMapStatus('ready')
           },
+          onBuildingSelect: (id) => {
+            if (active && !failed) setSelectedBuildingId(id)
+          },
+          onWarning: () => {
+            if (active && !failed) setMapWarning(true)
+          },
+          onError: fail,
         },
       )
-      adapterRef.current = adapter
+      if (!failed) adapterRef.current = adapter
     } catch (error) {
-      adapter?.destroy()
-      adapter = undefined
-      const message =
-        error instanceof Error ? error.message : 'The map could not start.'
-      void Promise.resolve().then(() => {
-        setMapError(message)
-        setMapStatus('error')
-      })
+      fail(error)
     }
 
     return () => {
+      active = false
+      window.clearTimeout(timer)
       adapter?.destroy()
       adapterRef.current = undefined
     }
@@ -143,6 +170,7 @@ export function MapView({
   function retryMap(): void {
     setMapStatus('loading')
     setMapError(undefined)
+    setMapWarning(false)
     setRetryVersion((version) => version + 1)
   }
 
@@ -251,6 +279,17 @@ export function MapView({
           <p>Map unavailable: {mapError}</p>
           <button onClick={retryMap} type="button">
             Try map again
+          </button>
+        </div>
+      )}
+      {mapWarning && mapStatus === 'ready' && (
+        <div className="map-imagery-warning" role="status">
+          <p>
+            Some map imagery could not load. Route lines may still be visible,
+            but the background may be incomplete.
+          </p>
+          <button type="button" onClick={retryMap}>
+            Retry map imagery
           </button>
         </div>
       )}

@@ -23,7 +23,11 @@ export interface MapLibreMapInstance {
   easeTo(options: EaseToOptions): unknown
   on(event: 'load', listener: () => void): unknown
   on(event: 'resize', listener: () => void): unknown
-  on(event: 'error', listener: (event: { error?: Error }) => void): unknown
+  on(
+    event: 'error',
+    listener: (event: { error?: Error; tile?: unknown }) => void,
+  ): unknown
+  on(event: 'webglcontextlost', listener: () => void): unknown
   on(event: 'click', listener: (event: MapMouseEvent) => void): unknown
   off(event: 'click', listener: (event: MapMouseEvent) => void): unknown
   queryRenderedFeatures(
@@ -109,36 +113,64 @@ export class MapLibreMapAdapter implements MapAdapter {
         : { bearing: initialView.bearing }),
       ...maxBounds,
     })
-    this.map.on('load', () => {
-      this.isReady = true
-      this.syncCampusLayer()
-      this.syncContent()
-      this.initializeBuildingSelection(callbacks)
-      if (!this.content.route && !this.content.drivingHandoff) {
-        this.fitOverview(0)
+    const map = this.map
+    const safely = (action: () => void): void => {
+      if (this.map !== map) return
+      try {
+        action()
+      } catch (error) {
+        callbacks?.onError?.(
+          error instanceof Error ? error : new Error('Map rendering failed'),
+        )
       }
-      callbacks?.onReady?.()
-    })
-    this.map.on('error', (event) => {
+    }
+    map.on('load', () =>
+      safely(() => {
+        this.isReady = true
+        this.syncCampusLayer()
+        this.syncContent()
+        this.initializeBuildingSelection(callbacks)
+        if (!this.content.route && !this.content.drivingHandoff) {
+          if (this.overviewBounds) this.fitOverview(0)
+          else if (this.mode !== initialView.mode) {
+            map.easeTo({ ...cameraForMode(this.mode), duration: 0 })
+          }
+        }
+        callbacks?.onReady?.()
+      }),
+    )
+    map.on('error', (event) => {
+      if (this.map !== map) return
+      if (event.tile) {
+        callbacks?.onWarning?.()
+        return
+      }
       callbacks?.onError?.(
         event.error ?? new Error('MapLibre could not load the map.'),
       )
     })
-    this.map.on('resize', () => {
-      if (!this.isReady) return
-      if (!this.content.route && !this.content.drivingHandoff) {
-        this.fitOverview(0)
-        return
-      }
-      this.cameraStateKey = undefined
-      this.syncContent()
+    map.on('webglcontextlost', () => {
+      if (this.map === map)
+        callbacks?.onError?.(new Error('WebGL graphics context was lost'))
     })
+    map.on('resize', () =>
+      safely(() => {
+        if (!this.isReady) return
+        if (!this.content.route && !this.content.drivingHandoff) {
+          this.fitOverview(0)
+          return
+        }
+        this.cameraStateKey = undefined
+        this.syncContent()
+      }),
+    )
   }
 
   setMode(mode: MapMode): void {
     this.requireMap()
     if (mode === this.mode) return
     this.mode = mode
+    if (!this.isReady) return
     this.options.campusLayer?.setVisible(mode === '3d')
     const session = this.content.navigationSession
     if (session?.status === 'navigating' || session?.status === 'arrived') {
@@ -220,10 +252,11 @@ export class MapLibreMapAdapter implements MapAdapter {
     if (this.buildingClickListener)
       this.map?.off('click', this.buildingClickListener)
     this.buildingClickListener = undefined
-    this.map?.remove()
+    const map = this.map
     this.map = undefined
     this.isReady = false
     this.overviewBounds = undefined
+    map?.remove()
   }
 
   private requireMap(): MapLibreMapInstance {

@@ -81,7 +81,7 @@ describe('MapView location control', () => {
     )
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Map unavailable: WebGL is unavailable',
+      'WebGL2 graphics are required',
     )
     expect(setMode).not.toHaveBeenCalled()
     expect(setContent).not.toHaveBeenCalled()

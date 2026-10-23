@@ -138,11 +138,12 @@ describe('MapLibreMapAdapter', () => {
   })
 
   it('creates a 3D map and changes to 2D mode through its provider boundary', () => {
+    const on = vi.fn()
     const easeTo = vi.fn()
     const remove = vi.fn()
     const mapInstance: MapLibreMapInstance = {
       easeTo,
-      on: vi.fn(),
+      on,
       addSource: vi.fn(),
       getSource: vi.fn(),
       addLayer: vi.fn(),
@@ -168,6 +169,10 @@ describe('MapLibreMapAdapter', () => {
         northeast: { latitude: 43.66, longitude: -116.68 },
       },
     })
+    const load = on.mock.calls.find(
+      ([event]) => event === 'load',
+    )?.[1] as () => void
+    load()
     adapter.setMode('2d')
     adapter.destroy()
 
@@ -220,6 +225,7 @@ describe('MapLibreMapAdapter', () => {
     }
     const onReady = vi.fn()
     const onError = vi.fn()
+    const onWarning = vi.fn()
     const adapter = new MapLibreMapAdapter({
       style: 'https://example.test/style.json',
       createMap: vi.fn(() => mapInstance),
@@ -232,7 +238,7 @@ describe('MapLibreMapAdapter', () => {
         zoom: 15,
         mode: '3d',
       },
-      { onReady, onError },
+      { onReady, onError, onWarning },
     )
 
     const loadListener = on.mock.calls.find(
@@ -240,14 +246,69 @@ describe('MapLibreMapAdapter', () => {
     )?.[1] as () => void
     const errorListener = on.mock.calls.find(
       ([event]) => event === 'error',
-    )?.[1] as (event: { error: Error }) => void
+    )?.[1] as (event: { error: Error; tile?: object }) => void
 
     loadListener()
-    const error = new Error('Tile request failed')
+    errorListener({ error: new Error('Tile request failed'), tile: {} })
+    expect(onWarning).toHaveBeenCalledTimes(1)
+    expect(onError).not.toHaveBeenCalled()
+    const error = new Error('Style request failed')
     errorListener({ error })
 
     expect(onReady).toHaveBeenCalledTimes(1)
     expect(onError).toHaveBeenCalledWith(error)
+    adapter.destroy()
+    loadListener()
+    errorListener({ error })
+    expect(onReady).toHaveBeenCalledTimes(1)
+    expect(onError).toHaveBeenCalledTimes(1)
+  })
+
+  it('contains asynchronous load errors and reports graphics context loss', () => {
+    const on = vi.fn()
+    const failure = new Error('Layer construction failed')
+    const onError = vi.fn()
+    const adapter = new MapLibreMapAdapter({
+      style: 'https://example.test/style.json',
+      createMap: () => ({
+        easeTo: vi.fn(),
+        on,
+        addSource: vi.fn(() => {
+          throw failure
+        }),
+        getSource: vi.fn(),
+        addLayer: vi.fn(),
+        getLayer: vi.fn(),
+        fitBounds: vi.fn(),
+        off: vi.fn(),
+        queryRenderedFeatures: () => [],
+        remove: vi.fn(),
+      }),
+    })
+    adapter.initialize(
+      document.createElement('div'),
+      {
+        center: { latitude: 43.654, longitude: -116.676 },
+        zoom: 16,
+        mode: '3d',
+      },
+      { onError },
+    )
+    const load = on.mock.calls.find(
+      ([event]) => event === 'load',
+    )?.[1] as () => void
+    expect(() => load()).not.toThrow()
+    expect(onError).toHaveBeenCalledWith(failure)
+    const lost = on.mock.calls.find(
+      ([event]) => event === 'webglcontextlost',
+    )?.[1] as () => void
+    lost()
+    expect(onError).toHaveBeenLastCalledWith(
+      expect.objectContaining({ message: 'WebGL graphics context was lost' }),
+    )
+    adapter.destroy()
+    lost()
+    expect(onError).toHaveBeenCalledTimes(2)
   })
 
   it('adds the campus layer after load and hides it in 2D mode', () => {
