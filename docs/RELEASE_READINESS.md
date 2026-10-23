@@ -9,7 +9,7 @@ is historical; its former G01–G12 gates are retired.
 - Candidate: **0.1.0-rc.1**, application/security source **`191819e`**.
 - Preview branch: `feat/step-39-location-refinement`; [pull request #2](https://github.com/jahphetB/wayfinder/pull/2).
 - [Preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/)
-  publication and hosted evidence are recorded below after deployment.
+  is published; hosted verification is recorded below.
 - [Production](https://wayfinder-umber.vercel.app/) remains
   **`de7e5e81794661dec2f67ad7856e57055a535453`**. It is the prior production
   source/deployment reference, not the new guide candidate.
@@ -96,6 +96,25 @@ issues, service usage/terms and costs, then adapt proportionately.
 
 ## Hosted candidate evidence
 
-Pending publication of the documentation/candidate commit. Hosted CI, actual headers
-and critical flows must be checked on that exact preview, separately from local
-results. Production remains unchanged until explicit approval.
+Preview source **`da4291939a907806f086525eccfe8b990b8458e6`** passed hosted
+**Quality checks** and **Vercel**. [Deployment record](https://vercel.com/jahphet/wayfinder/FgV9ekvjtff6As7Lwhi4UQNEm3MK).
+The public preview returned HTTP 200 without authentication and served the exact
+candidate index/map/worker assets, all HTTP 200. The expected CSP, MIME, framing,
+referrer and Permissions Policy headers were present.
+
+Fresh hosted browser checks at 390 px verified keyboard search, library→cafeteria
+preview, Start/Next/Back, 2D/3D, snapshot refinement/cleanup, building dialog open/
+close, correct credit/profile link and no horizontal overflow. There were zero
+page errors or normal CSP violations; two requested watchers were both cleared.
+The Vercel feedback toolbar was suppressed only for the app test request.
+
+Production was independently rechecked: HTTP 200, old `index-DVYzLa7U.js`, main
+still `de7e5e8`. Known-good recovery deployment:
+[wayfinder-gd3rcclh7-jahphet.vercel.app](https://wayfinder-gd3rcclh7-jahphet.vercel.app/)
+([Vercel record](https://vercel.com/jahphet/wayfinder/AZmj2JpmTACqdwdBdA8fAj794gw3)).
+No production rollback or promotion occurred.
+
+Main protection was checked: pull request required, strict up-to-date **Quality
+checks** and **Vercel** required, admin enforcement on, force push/deletion off.
+Documentation-only follow-up commits do not change candidate runtime assets;
+the latest head's hosted status and final smoke result are recorded in PR #2.

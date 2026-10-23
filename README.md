@@ -8,6 +8,11 @@ network; no routing backend, account or database is required.
 [Product definition](docs/PRODUCT_PLAN.md) ·
 [Architecture handbook](docs/ARCHITECTURE.md) · [Progress](docs/PROGRESS.md)
 
+The manual-guide release candidate is available in
+[preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/).
+The public production site retains the previous version until release review is
+complete. [Candidate evidence](docs/RELEASE_READINESS.md) distinguishes the builds.
+
 ## Using the guide
 
 1. Select Start and Destination, then **Preview route**.

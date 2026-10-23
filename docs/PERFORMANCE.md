@@ -40,6 +40,12 @@ was added, and geographic data was not changed to improve scores.
 
 ## Repeatable checks
 
+Final emulated high-density check requested 3× at 390 × 844; the canvas rendered
+at the configured 2× ratio. Reduced-motion preference was detected. Twenty mode
+changes plus manual Start/Next/Back completed without page errors or horizontal
+overflow. This verifies configuration/control behavior, not real-phone sharpness
+or a smoothness/frame-rate guarantee.
+
 Record exact candidate, viewport, pixel ratio, browser, CPU/network profile and
 whether the cache is warm. Sample startup separately from a settled map's camera
 motion. Check controls and request cleanup during repeated Next/Back/mode actions,

@@ -69,6 +69,10 @@ as implementation history, not current requirements.
   documents, skills and state reference. Old state/security assessments are
   archived with explicit superseded labels. Production `de7e5e8` remains unchanged.
   Candidate acceptance/evidence: [release readiness](RELEASE_READINESS.md).
+- Hosted source `da42919` passes Quality/Vercel and serves expected candidate
+  assets/headers publicly. Hosted browser checks confirm search, manual controls,
+  snapshots, modes, dialog and footer with zero page/CSP errors. Production still
+  serves its old build; recovery deployment and protected-main checks are recorded.
 
 ## October 22: page-failure recovery and search accessibility
 

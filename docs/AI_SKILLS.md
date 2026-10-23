@@ -10,6 +10,9 @@ This file records AI-related skills, tools, and project practices used during de
 - **Project-developed / evidence-bounded release:** retain source and deployment
   IDs, distinguish desktop emulation from physical devices, and preserve useful
   geographic provenance without imposing a new full-survey launch gate.
+- **OpenAI / OpenAI Docs:** official model-selection guidance supports the
+  task-specific next-step model/effort recommendation. It is contributor tooling,
+  not an AI feature, API call or runtime dependency in the campus guide.
 
 - **OpenAI / Playwright:** baseline and revised startup/camera profiles, snapshot
   and manual-control journeys, permission/network failures, and accessibility checks.

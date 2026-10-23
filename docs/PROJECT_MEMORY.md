@@ -121,6 +121,15 @@ High-density/reduced-motion browser check: requested 3Ã—, actual canvas ratio 2Ã
 20 mode switches and manual Next/Back complete with no page errors/overflow.
 Gradient/translucent contrast calculations are recorded in release readiness.
 
-Final hosted source/status evidence belongs in `RELEASE_READINESS.md` and PR #2.
+Hosted `da42919` passes Quality/Vercel; preview HTTP 200 serves the expected
+`index-BpnDDqZL.js` and `MapView-DWqyvSSc.js` with actual security headers.
+Fresh hosted manual/snapshot/dialog/footer check: zero page/CSP errors, zero
+startup location requests, two watches started/cleared, no 390 px overflow.
+Main protection verified: PR + strict Quality/Vercel, admin enforcement on,
+force/delete off. Production independently remains de7e5e8/old index-DVYzLa7U.js.
+Recovery deployment: https://wayfinder-gd3rcclh7-jahphet.vercel.app/ (Vercel ID
+AZmj2JpmTACqdwdBdA8fAj794gw3). No rollback/promotion performed.
+
+Hosted source/status evidence is in `RELEASE_READINESS.md` and PR #2.
 Do not infer deployed state from the local version number. Stop before production
 merge/promotion; short supported-device review and explicit approval remain.
