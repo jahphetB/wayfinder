@@ -10,10 +10,10 @@ import { collegeOfIdahoCampus } from '@/data/navigation/collegeOfIdahoCampus'
 import { classifyCampusLocation } from '@/data/navigation/classifyCampusLocation'
 import type { MapAdapter } from '@/features/map/contracts/MapAdapter'
 import type { DrivingHandoff } from '@/data/navigation/stadiumDrivingHandoff'
-import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
-import { LocationProviderError } from '@/features/navigation/contracts/LocationProviderError'
 import { campusBuildingDetails } from '@/data/campus/buildingDetails'
 import { BuildingDetailsDialog } from '@/features/buildings/components/BuildingDetailsDialog'
+import type { LocationSnapshot } from '@/features/navigation/hooks/useLocationSnapshot'
+import { LocationSnapshotControl } from '@/features/navigation/components/LocationSnapshotControl'
 import { recoverySettings } from '@/app/recoverySettings'
 
 interface MapViewProps {
@@ -24,7 +24,7 @@ interface MapViewProps {
 	readonly mode: MapMode
 	readonly drivingHandoff: DrivingHandoff | undefined
 	readonly onModeChange: (mode: MapMode) => void
-	readonly locationLookupProvider: LocationProvider
+	readonly snapshot: LocationSnapshot
 }
 
 type MapStatus = 'loading' | 'ready' | 'error'
@@ -37,7 +37,7 @@ export function MapView({
 	mode,
 	drivingHandoff,
 	onModeChange,
-	locationLookupProvider,
+	snapshot,
 }: MapViewProps) {
 	const containerRef = useRef<HTMLDivElement>(null)
 	const adapterRef = useRef<MapAdapter | undefined>(undefined)
@@ -46,22 +46,9 @@ export function MapView({
 	const [mapError, setMapError] = useState<string | undefined>()
 	const [mapWarning, setMapWarning] = useState(false)
 	const [retryVersion, setRetryVersion] = useState(0)
-	const [isLocating, setIsLocating] = useState(false)
-	const [locationMessage, setLocationMessage] = useState<string>()
 	const [selectedBuildingId, setSelectedBuildingId] = useState<string>()
 	const selectedBuilding = campusBuildingDetails.find(
 		({ id }) => id === selectedBuildingId,
-	)
-	const locationRequestId = useRef(0)
-	const locationRequestInProgress = useRef(false)
-	const locationAbortController = useRef<AbortController | undefined>(undefined)
-
-	useEffect(
-		() => () => {
-			locationRequestId.current += 1
-			locationAbortController.current?.abort()
-		},
-		[],
 	)
 
 	useEffect(() => {
@@ -170,6 +157,27 @@ export function MapView({
 		adapterRef.current?.setMode(mode)
 	}, [mode, retryVersion])
 
+	const walkthroughActive = Boolean(
+		navigationSession && navigationSession.status !== 'awaiting-start',
+	)
+	useEffect(() => {
+		const reading = snapshot.reading
+		const coordinates =
+			reading && classifyCampusLocation(reading) !== 'outside'
+				? reading.coordinates
+				: undefined
+		if (mapStatus === 'ready')
+			adapterRef.current?.showUserLocation(coordinates, {
+				focus: snapshot.trigger === 'locate' && !walkthroughActive,
+			})
+	}, [
+		snapshot.reading,
+		snapshot.trigger,
+		mapStatus,
+		retryVersion,
+		walkthroughActive,
+	])
+
 	function retryMap(): void {
 		setMapStatus('loading')
 		setMapError(undefined)
@@ -177,76 +185,6 @@ export function MapView({
 		setRetryVersion((version) => version + 1)
 	}
 
-	async function locateUser(): Promise<void> {
-		if (locationRequestInProgress.current) return
-		locationRequestInProgress.current = true
-		const requestId = ++locationRequestId.current
-		const controller = new AbortController()
-		locationAbortController.current = controller
-		setIsLocating(true)
-		setLocationMessage(
-			'Finding your location… Allow location access if prompted.',
-		)
-		adapterRef.current?.showUserLocation(undefined)
-		try {
-			const reading = await locationLookupProvider.requestCurrentLocation({
-				expectedCoordinates: collegeOfIdahoCampus.center,
-				signal: controller.signal,
-				onProgress: ({ accuracyMeters }) => {
-					if (requestId === locationRequestId.current)
-						setLocationMessage(
-							`Improving your location… Best reported accuracy: about ${Math.ceil(accuracyMeters)} m.`,
-						)
-				},
-			})
-			if (requestId !== locationRequestId.current) return
-			const status = classifyCampusLocation(reading)
-			if (status === 'inside') {
-				adapterRef.current?.showUserLocation(reading.coordinates)
-				setLocationMessage(
-					`You appear within the mapped campus area. The blue dot is approximate. Reported accuracy: about ${Math.ceil(reading.accuracyMeters)} m.`,
-				)
-			} else if (status === 'outside') {
-				setLocationMessage(
-					'You appear to be off campus. The map remains focused on campus.',
-				)
-			} else {
-				setLocationMessage(
-					'Your location is too close to the mapped area edge, or not precise enough, to tell whether you are on campus.',
-				)
-			}
-		} catch (error) {
-			if (requestId !== locationRequestId.current) return
-			const code =
-				error instanceof LocationProviderError ? error.code : 'unavailable'
-			const messages = {
-				'permission-denied':
-					'Location permission was denied. Allow it in your browser settings and try again.',
-				timeout: 'Finding your location took too long. Please try again.',
-				unavailable:
-					'Your location is unavailable. Check your device settings and try again.',
-				unsupported: 'This browser does not support location requests.',
-				'insecure-context':
-					'Location requires HTTPS or localhost. Open the app securely and try again.',
-			}
-			setLocationMessage(messages[code])
-		} finally {
-			if (requestId === locationRequestId.current) {
-				locationRequestInProgress.current = false
-				locationAbortController.current = undefined
-				setIsLocating(false)
-			}
-		}
-	}
-
-	function cancelLocationLookup(): void {
-		locationRequestId.current += 1
-		locationAbortController.current?.abort()
-		locationAbortController.current = undefined
-		locationRequestInProgress.current = false
-		setIsLocating(false)
-		setLocationMessage('Location request cancelled.')
-	}
 	return (
 		<section aria-label="Interactive map" className="map-view">
 			<div className="map-canvas" ref={containerRef} />
@@ -316,26 +254,12 @@ export function MapView({
 					3D
 				</button>
 			</div>
-			<div className="map-location-control">
-				<button
-					disabled={mapStatus !== 'ready' || isLocating}
-					onClick={() => void locateUser()}
-					type="button"
-				>
-					{isLocating ? 'Finding location…' : 'Get your location'}
-				</button>
-				{isLocating && (
-					<button type="button" onClick={cancelLocationLookup}>
-						Cancel location lookup
-					</button>
-				)}
-				{locationMessage && <p role="status">{locationMessage}</p>}
-			</div>
+			<LocationSnapshotControl snapshot={snapshot} />
 			<p className="map-view-note">
 				{mapStatus === 'error'
 					? 'Fix the connection or graphics error, then try the map again.'
-					: navigationSession?.status === 'arrived'
-						? 'Arrival is shown on the map.'
+					: navigationSession?.status === 'completed'
+						? 'Route walkthrough complete; physical arrival is not verified.'
 						: navigationSession?.status === 'navigating'
 							? 'The camera is following the current route leg.'
 							: route

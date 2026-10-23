@@ -1,5 +1,8 @@
 /* Edit these named values to adjust the interface. Responsive breakpoint: responsive.css. */
 :root {
+	--color-snapshot-fill: #b8ed9a;
+	--color-snapshot-outline: #245233;
+	--footer-inline-padding: clamp(0.85rem, 4vw, 4.5rem);
 	/* Brand, surfaces, text, borders, and map UI colors. */
 	--color-text: #281c38;
 	--color-brand: #412d5e;

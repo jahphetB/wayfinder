@@ -1,0 +1,38 @@
+.site-footer {
+	width: min(100%, 1440px);
+	margin-inline: auto;
+	padding: 0.75rem var(--footer-inline-padding) 1.25rem;
+	color: var(--color-white);
+	font-size: var(--font-size-small);
+}
+.site-credit {
+	margin: 0;
+	text-align: center;
+}
+.site-footer a {
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+}
+.privacy-disclosure {
+	max-width: 48rem;
+	margin: 0.75rem auto 0;
+}
+.privacy-disclosure summary {
+	width: fit-content;
+	margin-inline: auto;
+	padding: 0.5rem;
+	cursor: pointer;
+}
+.privacy-content {
+	padding: 0.75rem 1rem;
+	color: var(--color-text);
+	background: var(--color-panel);
+	line-height: 1.6;
+}
+.privacy-content p:first-child {
+	margin-top: 0;
+}
+.privacy-content p:last-child {
+	margin-bottom: 0;
+}

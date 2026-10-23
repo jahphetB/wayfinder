@@ -12,6 +12,7 @@ import '@/styles/navigation.css'
 import '@/styles/map.css'
 import '@/styles/building-details.css'
 import '@/styles/error-recovery.css'
+import '@/styles/footer.css'
 import '@/styles/responsive.css'
 
 const rootElement = document.getElementById('root')

@@ -53,45 +53,13 @@ export interface LocationReading {
 	readonly capturedAtMilliseconds: number
 }
 
-export interface CheckpointVerificationPolicy {
-	readonly confirmationRadiusMeters: number
-	readonly maximumReadingAgeMilliseconds: number
-}
-
-interface CheckpointVerificationBase {
-	readonly checkpointId: string
-	readonly distanceMeters: number
-	readonly accuracyMeters: number
-}
-
-export type CheckpointVerification =
-	| (CheckpointVerificationBase & { readonly status: 'confirmed' })
-	| (CheckpointVerificationBase & {
-			readonly status: 'uncertain'
-			readonly reason:
-				'stale-reading' | 'future-reading' | 'accuracy-overlaps-checkpoint'
-	  })
-	| (CheckpointVerificationBase & {
-			readonly status: 'mismatched'
-			readonly reason: 'outside-checkpoint'
-	  })
-
-export type NavigationCheckpointKind = RouteCheckpointKind | 'origin'
-
-export interface NavigationCheckpoint {
-	readonly id: string
-	readonly kind: NavigationCheckpointKind
-	readonly coordinates: Coordinates
-}
-
 export type NavigationSessionStatus =
-	'awaiting-start' | 'navigating' | 'arrived'
+	'awaiting-start' | 'navigating' | 'completed'
 
 export interface NavigationSession {
 	readonly route: Route
 	readonly status: NavigationSessionStatus
 	readonly currentStepIndex: number
-	readonly lastVerification?: CheckpointVerification
 }
 
 export interface WalkingGraphNode {

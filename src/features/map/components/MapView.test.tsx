@@ -10,6 +10,7 @@ import type {
 import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
 import { LocationProviderError } from '@/features/navigation/contracts/LocationProviderError'
 import { MapView } from './MapView'
+import { useLocationSnapshot } from '@/features/navigation/hooks/useLocationSnapshot'
 
 vi.mock('@/composition/createMapAdapter', () => ({ createMapAdapter: vi.fn() }))
 
@@ -37,18 +38,22 @@ function renderMap(provider: LocationProvider) {
 		destroy: vi.fn(),
 	} satisfies MapAdapter)
 
-	render(
-		<MapView
-			origin={undefined}
-			destination={undefined}
-			route={undefined}
-			navigationSession={undefined}
-			drivingHandoff={undefined}
-			mode="3d"
-			onModeChange={vi.fn()}
-			locationLookupProvider={provider}
-		/>,
-	)
+	function MapHarness() {
+		const snapshot = useLocationSnapshot(provider, 'map-test')
+		return (
+			<MapView
+				origin={undefined}
+				destination={undefined}
+				route={undefined}
+				navigationSession={undefined}
+				drivingHandoff={undefined}
+				mode="3d"
+				onModeChange={vi.fn()}
+				snapshot={snapshot}
+			/>
+		)
+	}
+	render(<MapHarness />)
 	return showUserLocation
 }
 
@@ -76,7 +81,15 @@ describe('MapView location control', () => {
 				drivingHandoff={undefined}
 				mode="3d"
 				onModeChange={vi.fn()}
-				locationLookupProvider={{ requestCurrentLocation: vi.fn() }}
+				snapshot={{
+					scope: 'test',
+					status: 'idle',
+					message: '',
+					isLocating: false,
+					retained: false,
+					request: vi.fn(),
+					cancel: vi.fn(),
+				}}
 			/>,
 		)
 
@@ -100,22 +113,24 @@ describe('MapView location control', () => {
 		)
 		const showUserLocation = renderMap({ requestCurrentLocation })
 		const user = userEvent.setup()
-		await user.click(screen.getByRole('button', { name: 'Get your location' }))
+		await user.click(screen.getByRole('button', { name: 'Get my location' }))
 		const lookup = requestCurrentLocation.mock.calls[0]![0]
 		act(() => lookup.onProgress?.({ accuracyMeters: 45, readingCount: 1 }))
-		expect(screen.getByRole('status')).toHaveTextContent('about 45 m')
+		expect(screen.getByText(/Improving snapshot/)).toHaveTextContent(
+			'about 45 m',
+		)
 		await user.click(
 			screen.getByRole('button', { name: 'Cancel location lookup' }),
 		)
 		expect(lookup.signal?.aborted).toBe(true)
-		expect(screen.getByRole('status')).toHaveTextContent('cancelled')
+		expect(screen.getByText(/lookup cancelled/)).toHaveTextContent('cancelled')
 		await act(async () => {
 			complete?.(campusReading)
 			await Promise.resolve()
 		})
 		expect(showUserLocation).not.toHaveBeenCalledWith(campusReading.coordinates)
 		expect(
-			screen.getByRole('button', { name: 'Get your location' }),
+			screen.getByRole('button', { name: 'Get my location' }),
 		).toBeEnabled()
 	})
 
@@ -126,7 +141,7 @@ describe('MapView location control', () => {
 		renderMap({ requestCurrentLocation })
 		await userEvent
 			.setup()
-			.click(screen.getByRole('button', { name: 'Get your location' }))
+			.click(screen.getByRole('button', { name: 'Get my location' }))
 		const signal = requestCurrentLocation.mock.calls[0]![0].signal
 		cleanup()
 		expect(signal?.aborted).toBe(true)
@@ -155,14 +170,17 @@ describe('MapView location control', () => {
 		expect(requestCurrentLocation).not.toHaveBeenCalled()
 		await userEvent
 			.setup()
-			.click(screen.getByRole('button', { name: 'Get your location' }))
+			.click(screen.getByRole('button', { name: 'Get my location' }))
 
 		await waitFor(() =>
 			expect(showUserLocation).toHaveBeenLastCalledWith(
 				campusReading.coordinates,
+				{ focus: true },
 			),
 		)
-		expect(screen.getByRole('status')).toHaveTextContent('mapped campus area')
+		expect(
+			screen.getByText('Approximate campus snapshot, not live movement.'),
+		).toBeInTheDocument()
 	})
 
 	it('warns when clearly off campus without moving the map', async () => {
@@ -174,12 +192,10 @@ describe('MapView location control', () => {
 		})
 		await userEvent
 			.setup()
-			.click(screen.getByRole('button', { name: 'Get your location' }))
+			.click(screen.getByRole('button', { name: 'Get my location' }))
 
-		expect(
-			await screen.findByText(/appear to be off campus/),
-		).toBeInTheDocument()
-		expect(showUserLocation).toHaveBeenCalledWith(undefined)
+		expect(await screen.findByText(/appear off campus/)).toBeInTheDocument()
+		expect(showUserLocation).toHaveBeenCalledWith(undefined, { focus: false })
 		expect(showUserLocation).not.toHaveBeenCalledWith(expect.any(Object))
 	})
 
@@ -191,7 +207,7 @@ describe('MapView location control', () => {
 		})
 		await userEvent
 			.setup()
-			.click(screen.getByRole('button', { name: 'Get your location' }))
+			.click(screen.getByRole('button', { name: 'Get my location' }))
 
 		expect(await screen.findByText(/permission was denied/)).toBeInTheDocument()
 	})

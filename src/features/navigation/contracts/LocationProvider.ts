@@ -1,8 +1,7 @@
-import type { Coordinates, LocationReading } from '@/domain/navigation/types'
+import type { LocationReading } from '@/domain/navigation/types'
 
 export interface LocationRequest {
-	readonly expectedCoordinates: Coordinates
-	/** Optional lookup controls; checkpoint providers retain their one-shot behavior. */
+	/** A single button-triggered bounded snapshot request. */
 	readonly signal?: AbortSignal
 	readonly onProgress?: (progress: {
 		readonly accuracyMeters: number
@@ -11,6 +10,5 @@ export interface LocationRequest {
 }
 
 export interface LocationProvider {
-	readonly mode?: 'browser' | 'prototype-simulation'
 	requestCurrentLocation(request: LocationRequest): Promise<LocationReading>
 }

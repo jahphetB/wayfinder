@@ -9,6 +9,53 @@ Next only. GPS never gates progression; completion does not claim arrival. The
 current geographic baseline is accepted with honest provenance. Earlier step
 guides are implementation history, not requirements for a live navigation app.
 
+### Manual walkthrough and snapshot data flow
+
+`App.tsx` owns independent pieces of state: the selected route, the illustrated
+walkthrough session and one last-checked real-location snapshot. Start navigating
+and Next update the walkthrough immediately, then request a snapshot. Back changes
+only the walkthrough. A denied, slow, stale or uncertain location cannot stop the
+illustration. `domain/navigation/navigationSession.ts` now accepts no location
+reading at all; it only implements awaiting-start, navigating and completed states.
+This makes independence enforceable in the function interface, not just UI wording.
+
+`RouteWalkthrough.tsx` replaces the former GPS-gated checkpoint component/hook.
+It presents the current instruction and manual controls. Completed means the
+illustration finished, never that a person physically arrived. Route step geometry
+still uses an internal checkpoint coordinate as a geographic endpoint; this is
+not a location-verification gate. The fake-location provider, its scenario
+controller, one-shot checkpoint provider and obsolete GPS-gating tests were retired.
+
+`useLocationSnapshot.ts` is the single owner of acquisition across all three
+allowed buttons. `createLocationProvider.ts` constructs the bounded real browser
+provider, not an environment-selected simulation. The hook aborts older acquisition
+before a newer action, invalidates callbacks when the route changes and checks
+reading freshness before replacing the previous snapshot. The provider owns
+watcher/timer cleanup. This separation keeps browser integration out of domain
+progression. There is no watcher running between requested lookups and no trail.
+
+`LocationSnapshotControl.tsx` presents the independent button, cancellation,
+absolute Last checked time, approximate accuracy and retained-snapshot messages.
+The provider supplies real readings even while the user stays at a desk. The
+light-green outlined point is separate from orange route endpoints and colored
+illustrated legs. `MapView.tsx` passes an explicit camera-focus option to
+`MapAdapter.showUserLocation`; walkthrough-triggered refreshes update the point
+without taking over the route camera. Off-campus snapshots receive an explanation
+rather than moving the bounded campus view outside its area.
+
+`SiteFooter.tsx` supplies the requested trademark/developer credit and a native
+expandable privacy disclosure. Native details/summary elements provide keyboard
+behavior without a modal or extra library. `footer.css` places this content in
+normal document flow after the map, never above controls or attribution.
+`theme.css` exposes snapshot and footer colors/dimensions. All source indentation
+uses tabs, enforced by Prettier in a separate formatting-only commit.
+
+Focused tests cover manual completion without successful location, Back's lack
+of acquisition, request replacement, cancelled/route-stale callbacks, stale
+reading rejection, retained snapshots, provider cleanup and map recovery. Real
+browser checks supplement jsdom, which does not implement every native keyboard
+default. The current OSM baseline/provenance and routing preferences are unchanged.
+
 This is the living handbook for Yotes Wayfinder. It explains what the project
 does, how its pieces fit together, where common changes belong, and how to
 investigate problems. It is written so that a reader does not need a software

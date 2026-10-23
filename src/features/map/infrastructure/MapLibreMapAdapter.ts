@@ -173,7 +173,7 @@ export class MapLibreMapAdapter implements MapAdapter {
 		if (!this.isReady) return
 		this.options.campusLayer?.setVisible(mode === '3d')
 		const session = this.content.navigationSession
-		if (session?.status === 'navigating' || session?.status === 'arrived') {
+		if (session?.status === 'navigating' || session?.status === 'completed') {
 			this.focusNavigationSession(
 				session,
 				mapPresentation.camera.modeDurationMilliseconds,
@@ -195,7 +195,10 @@ export class MapLibreMapAdapter implements MapAdapter {
 		if (this.isReady) this.syncContent()
 	}
 
-	showUserLocation(coordinates: Coordinates | undefined): void {
+	showUserLocation(
+		coordinates: Coordinates | undefined,
+		options: { readonly focus: boolean } = { focus: true },
+	): void {
 		const map = this.requireMap()
 		if (!this.isReady) return
 		const data = {
@@ -232,14 +235,14 @@ export class MapLibreMapAdapter implements MapAdapter {
 				type: 'circle',
 				source: 'yote-user-location',
 				paint: {
-					'circle-radius': 8,
-					'circle-color': '#1674c5',
-					'circle-stroke-color': '#ffffff',
+					'circle-radius': 6,
+					'circle-color': '#b8ed9a',
+					'circle-stroke-color': '#245233',
 					'circle-stroke-width': 2,
 				},
 			})
 		}
-		if (coordinates) {
+		if (coordinates && options.focus) {
 			map.easeTo({
 				center: [coordinates.longitude, coordinates.latitude],
 				zoom: mapPresentation.camera.locationZoom,
@@ -495,7 +498,7 @@ export class MapLibreMapAdapter implements MapAdapter {
 		if (cameraStateKey === this.cameraStateKey) return
 		this.cameraStateKey = cameraStateKey
 
-		if (session?.status === 'navigating' || session?.status === 'arrived') {
+		if (session?.status === 'navigating' || session?.status === 'completed') {
 			this.focusNavigationSession(session, 700)
 		} else if (this.content.route) {
 			const longitudes = this.content.route.coordinates.map(
@@ -530,21 +533,21 @@ export class MapLibreMapAdapter implements MapAdapter {
 	): void {
 		const route = session.route
 		const step =
-			session.status === 'arrived'
+			session.status === 'completed'
 				? route.steps.at(-1)
 				: route.steps[session.currentStepIndex]
 		if (!step) return
 
 		const from =
-			session.status === 'arrived'
+			session.status === 'completed'
 				? step.coordinates.at(-2)
 				: step.coordinates[0]
 		const to =
-			session.status === 'arrived'
+			session.status === 'completed'
 				? step.coordinates.at(-1)
 				: step.coordinates[1]
 		const center =
-			session.status === 'arrived'
+			session.status === 'completed'
 				? step.coordinates.at(-1)
 				: step.coordinates[0]
 		if (!from || !to || !center) return
@@ -624,7 +627,7 @@ function routeLegState(
 	stepIndex: number,
 ): 'preview' | 'completed' | 'current' | 'upcoming' {
 	if (!session || session.status === 'awaiting-start') return 'preview'
-	if (session.status === 'arrived') return 'completed'
+	if (session.status === 'completed') return 'completed'
 	if (stepIndex < session.currentStepIndex) return 'completed'
 	if (stepIndex === session.currentStepIndex) return 'current'
 	return 'upcoming'

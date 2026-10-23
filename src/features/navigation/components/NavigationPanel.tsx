@@ -6,8 +6,8 @@ import type {
 } from '@/domain/navigation/types'
 import { useRoutePlanner } from '../hooks/useRoutePlanner'
 import type { RoutePlanState } from '../model/routePlanner'
-import type { LocationProvider } from '../contracts/LocationProvider'
-import { CheckpointNavigation } from './CheckpointNavigation'
+import { RouteWalkthrough } from './RouteWalkthrough'
+import { startNavigationSession } from '@/domain/navigation/navigationSession'
 
 interface FieldProps {
 	readonly label: string
@@ -217,12 +217,14 @@ function RouteSummary({
 }
 export function NavigationPanel({
 	planner,
-	locationProvider,
-	onNavigationSessionChange,
+	navigationSession,
+	onNext,
+	onBack,
 }: {
 	readonly planner: ReturnType<typeof useRoutePlanner>
-	readonly locationProvider: LocationProvider
-	readonly onNavigationSessionChange: (session: NavigationSession) => void
+	readonly navigationSession: NavigationSession | undefined
+	readonly onNext: () => void
+	readonly onBack: () => void
 }) {
 	return (
 		<section className="navigation-panel">
@@ -263,11 +265,13 @@ export function NavigationPanel({
 				</button>
 			</form>
 			{planner.plannedRoute && (
-				<CheckpointNavigation
+				<RouteWalkthrough
 					key={planner.routeRevision}
-					route={planner.plannedRoute}
-					provider={locationProvider}
-					onSessionChange={onNavigationSessionChange}
+					session={
+						navigationSession ?? startNavigationSession(planner.plannedRoute)
+					}
+					onNext={onNext}
+					onBack={onBack}
 				/>
 			)}
 			<RouteSummary

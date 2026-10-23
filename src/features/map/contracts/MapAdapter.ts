@@ -35,7 +35,10 @@ export interface MapAdapter {
 	): void
 	setMode(mode: MapMode): void
 	setContent(content: MapContent): void
-	showUserLocation(coordinates: Coordinates | undefined): void
+	showUserLocation(
+		coordinates: Coordinates | undefined,
+		options?: { readonly focus: boolean },
+	): void
 	destroy(): void
 }
 

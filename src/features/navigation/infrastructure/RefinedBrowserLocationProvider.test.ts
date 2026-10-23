@@ -2,7 +2,7 @@ import { vi } from 'vitest'
 import { RefinedBrowserLocationProvider } from './RefinedBrowserLocationProvider'
 import { locationLookupPolicy } from '../model/locationLookupPolicy'
 
-const request = { expectedCoordinates: { latitude: 43.65, longitude: -116.68 } }
+const request = {}
 const now = 1_000_000
 const position = (
 	accuracy: number,

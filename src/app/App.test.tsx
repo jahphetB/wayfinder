@@ -35,6 +35,30 @@ async function selectLibraryAndDining(
 }
 
 describe('App', () => {
+	it('advances immediately while location is pending or denied and never calls Back a location trigger', async () => {
+		const user = userEvent.setup()
+		const provider = {
+			requestCurrentLocation: vi
+				.fn()
+				.mockRejectedValue(new Error('Permission denied')),
+		}
+		render(<App locationProvider={provider} />)
+		await selectLibraryAndDining(user)
+		await user.click(screen.getByRole('button', { name: 'Preview route' }))
+		expect(provider.requestCurrentLocation).not.toHaveBeenCalled()
+		await user.click(screen.getByRole('button', { name: 'Start navigating' }))
+		expect(screen.getByText(/Step 1 of/)).toBeVisible()
+		await user.click(screen.getByRole('button', { name: 'Next' }))
+		expect(screen.getByText(/Step 2 of/)).toBeVisible()
+		expect(provider.requestCurrentLocation).toHaveBeenCalledTimes(2)
+		await user.click(screen.getByRole('button', { name: 'Back' }))
+		expect(provider.requestCurrentLocation).toHaveBeenCalledTimes(2)
+		while (screen.queryByRole('button', { name: 'Next' }))
+			await user.click(screen.getByRole('button', { name: 'Next' }))
+		expect(screen.getByText(/Route walkthrough complete/)).toHaveTextContent(
+			'does not confirm your physical arrival',
+		)
+	}, 15_000)
 	it('keeps keyboard focus on search and connects its active descendant to the actual option', async () => {
 		const user = userEvent.setup()
 		render(<App />)
@@ -86,22 +110,22 @@ describe('App', () => {
 		render(<App locationProvider={{ requestCurrentLocation }} />)
 		await selectLibraryAndDining(user)
 		expect(
-			screen.queryByRole('button', { name: 'Start navigation' }),
+			screen.queryByRole('button', { name: 'Start navigating' }),
 		).not.toBeInTheDocument()
 		await user.click(screen.getByRole('button', { name: 'Preview route' }))
 		expect(requestCurrentLocation).not.toHaveBeenCalled()
-		await user.click(screen.getByRole('button', { name: 'Start navigation' }))
+		await user.click(screen.getByRole('button', { name: 'Start navigating' }))
 		expect(screen.getByText(/Step 1 of \d+/)).toBeInTheDocument()
 		expect(
 			screen.getByRole('region', { name: 'Interactive map' }),
 		).toHaveAttribute('data-navigation-step', '0')
 		await user.click(screen.getByRole('button', { name: 'Preview route' }))
 		expect(
-			screen.getByRole('button', { name: 'Start navigation' }),
+			screen.getByRole('button', { name: 'Start navigating' }),
 		).toBeInTheDocument()
 		await user.clear(screen.getByRole('combobox', { name: 'Start' }))
 		expect(
-			screen.queryByRole('region', { name: 'Checkpoint navigation' }),
+			screen.queryByRole('region', { name: 'Route walkthrough' }),
 		).not.toBeInTheDocument()
 	})
 	it('renders the route-planning workspace', () => {
@@ -152,18 +176,18 @@ describe('App', () => {
 		expect(screen.getByText('Walking route')).toBeInTheDocument()
 	})
 
-	it('lets prototype users advance simulated checkpoints without exposing demo controls', async () => {
+	it('lets users advance the walkthrough without physical location checks', async () => {
 		const user = userEvent.setup()
 		render(<App />)
 
 		await selectLibraryAndDining(user)
 		await user.click(screen.getByRole('button', { name: 'Preview route' }))
 		expect(screen.queryByLabelText('Demo checkpoint result')).toBeNull()
-		await user.click(screen.getByRole('button', { name: 'Start navigation' }))
+		await user.click(screen.getByRole('button', { name: 'Start navigating' }))
 
 		expect(screen.getByText(/Step 1 of \d+/)).toBeInTheDocument()
 		expect(screen.getByRole('status')).toHaveTextContent(
-			'simulate the next checkpoint',
+			'Next advances the illustration',
 		)
 	})
 
@@ -204,7 +228,7 @@ describe('App', () => {
 		await selectLibraryAndDining(user)
 		await user.click(screen.getByRole('button', { name: 'Preview route' }))
 		const preview = screen.getByRole('button', { name: 'Preview route' })
-		const start = screen.getByRole('button', { name: 'Start navigation' })
+		const start = screen.getByRole('button', { name: 'Start navigating' })
 		expect(
 			preview.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING,
 		).toBeTruthy()
@@ -216,7 +240,7 @@ describe('App', () => {
 		await user.click(preview)
 		expect(screen.getByText('Prototype driving handoff')).toBeInTheDocument()
 		expect(
-			screen.queryByRole('button', { name: 'Start navigation' }),
+			screen.queryByRole('button', { name: 'Start navigating' }),
 		).toBeNull()
 	})
 })

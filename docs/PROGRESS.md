@@ -10,6 +10,21 @@
 - Approved routine implementation/verification steps proceed on preview. No paid
   service, telemetry, new major dependency or production promotion is authorized.
 
+### Manual walkthrough and snapshot implementation
+
+- Replaced GPS-gated progress and fake expected-location readings with pure manual
+  walkthrough transitions. Start navigating and Next request real snapshots but
+  advance independently. Back never requests location. Completion is not arrival.
+- Shared scoped acquisition cancels the preceding lookup before replacement,
+  aborts on route change/unmount and rejects late/stale results. UI retains and
+  labels an older snapshot when a refresh fails. No trail or persistence added.
+- Added Last checked time, light-green outlined point, independent Get my location,
+  compact Wayfinder™ developer footer and expandable privacy disclosure.
+- Tab indentation was saved separately after the original 127-test baseline passed.
+  The revised suite has 109 tests; obsolete GPS-gating/simulation tests were replaced
+  with manual-progress and snapshot tests. Full checks/build pass; refreshed audit
+  reports zero advisories. Browser journey verification is being recorded next.
+
 ## October 22: page-failure recovery and search accessibility
 
 - Added page-level and deferred-map React error boundaries with readable,

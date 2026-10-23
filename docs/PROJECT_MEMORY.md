@@ -26,7 +26,23 @@ needs explicit approval.
 - Routine package steps are approved without repeated pauses. Commit/push preview,
   give brief progress, and stop for production approval with real-device checks.
   Use tabs for source indentation and semantic classes/IDs.
-- Step 1 records this contract; implementation steps 2–6 are pending. Historical
+- Step 1 committed as `1f9730d`; formatting-only tabs committed as `6b26a98`
+  after all original 127 tests and full checks passed. Baseline profile before
+  behavior changes: 4× CPU emulation, map-ready proxy 4.796 s; a rapid preview /
+  Start / Next / 2D sequence had 29 sampled frames over 4.5 s, 20 gaps >50 ms,
+  max gap 583 ms. Not a school-computer or physical-phone measurement.
+- Steps 2–3 implementation is in progress: App owns one real bounded snapshot
+  hook; manual domain state is awaiting-start/navigating/completed. Old GPS-gated
+  hook, fake-location provider, one-shot provider and obsolete tests were removed.
+  New snapshot requests abort previous work synchronously (no overlap), navigation
+  never waits, route changes cancel and ignore late readings. Map circle updates
+  have explicit camera-focus control. Footer and native privacy disclosure added.
+  Full checks/build now pass with 109 tests / 26 files (obsolete gating tests were
+  replaced, not merely removed from a failing run); fresh audit zero. Browser:
+  no acquisition on load, Start/Next advance with pending/denied location, Back
+  makes no request, completion is honest, 11 watches started/cleared with none
+  active after route edit, native privacy keyboard toggle passes. Steps 4–6 pending.
+  Historical
   records below describe superseded behavior and must not override this contract.
 
 This reference summarizes the current implementation, source data, and

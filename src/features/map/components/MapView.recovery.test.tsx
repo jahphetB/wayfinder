@@ -46,7 +46,15 @@ function renderPendingMap() {
 			drivingHandoff={undefined}
 			mode="2d"
 			onModeChange={vi.fn()}
-			locationLookupProvider={{ requestCurrentLocation: vi.fn() }}
+			snapshot={{
+				scope: 'test',
+				status: 'idle',
+				message: '',
+				isLocating: false,
+				retained: false,
+				request: vi.fn(),
+				cancel: vi.fn(),
+			}}
 		/>,
 	)
 }
