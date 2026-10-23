@@ -168,6 +168,9 @@ describe('MapView location control', () => {
 		const showUserLocation = renderMap({ requestCurrentLocation })
 
 		expect(requestCurrentLocation).not.toHaveBeenCalled()
+		expect(
+			screen.getByRole('group', { name: 'Map display mode' }),
+		).toBeInTheDocument()
 		await userEvent
 			.setup()
 			.click(screen.getByRole('button', { name: 'Get my location' }))

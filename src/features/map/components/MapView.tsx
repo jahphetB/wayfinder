@@ -236,7 +236,11 @@ export function MapView({
 					</button>
 				</div>
 			)}
-			<div aria-label="Map display mode" className="map-mode-toggle">
+			<div
+				role="group"
+				aria-label="Map display mode"
+				className="map-mode-toggle"
+			>
 				<button
 					aria-pressed={mode === '2d'}
 					disabled={mapStatus !== 'ready'}
