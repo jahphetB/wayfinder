@@ -3,10 +3,18 @@ import { fileURLToPath } from 'node:url'
 
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
+import deployment from './vercel.json' with { type: 'json' }
 
 const projectRoot = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
+	preview: {
+		headers: Object.fromEntries(
+			deployment.headers.flatMap((rule) =>
+				rule.headers.map(({ key, value }) => [key, value]),
+			),
+		),
+	},
 	plugins: [react()],
 	resolve: {
 		alias: {

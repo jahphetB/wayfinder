@@ -6,6 +6,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17 14 * * 1'
 
 permissions:
   contents: read
@@ -32,6 +34,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
+      - name: Review current dependency advisories
+        run: npm audit --audit-level=high --prefer-online
       - name: Check formatting
         run: npm run format:check
       - name: Lint
