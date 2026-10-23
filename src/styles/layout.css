@@ -5,6 +5,7 @@
 	padding: var(--layout-padding);
 }
 .page-header {
+	flex-wrap: wrap;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;

@@ -19,6 +19,7 @@ describe('building selection boundary', () => {
 			off,
 			queryRenderedFeatures,
 			addSource,
+			stop: vi.fn(),
 			easeTo: vi.fn(),
 			getSource: vi.fn(),
 			addLayer: vi.fn(),

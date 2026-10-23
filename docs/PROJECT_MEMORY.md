@@ -41,7 +41,13 @@ needs explicit approval.
   replaced, not merely removed from a failing run); fresh audit zero. Browser:
   no acquisition on load, Start/Next advance with pending/denied location, Back
   makes no request, completion is honest, 11 watches started/cleared with none
-  active after route edit, native privacy keyboard toggle passes. Steps 4–6 pending.
+  active after route edit, native privacy keyboard toggle passes. Committed `7ab3a8d`.
+- Step 4 changes pass full checks/build (109 tests): stop previous camera intent,
+  centralized 1500/1300/1000/900 ms durations + smoothstep easing, skip unchanged
+  source payloads, no active-walkthrough recenter on resize, 2× pixel-ratio cap.
+  Revised constrained probe 4.772 s map-ready, max startup task 746 ms, 36 sampled
+  frames/23 gaps >50 ms/max483 ms over 4.5 s. Not a controlled speedup or physical
+  school-device result. `PERFORMANCE.md` records details. Steps 5–6 remain.
   Historical
   records below describe superseded behavior and must not override this contract.
 

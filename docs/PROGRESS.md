@@ -25,6 +25,19 @@
   with manual-progress and snapshot tests. Full checks/build pass; refreshed audit
   reports zero advisories. Browser journey verification is being recorded next.
 
+### Camera compatibility and targeted performance
+
+- Profiled before optimizing. Added explicit camera cancellation, centralized
+  deliberate durations/easing, unchanged-source suppression and a tunable 2×
+  pixel-ratio cap. Active walkthrough resizing and snapshot refresh do not take
+  over the camera. Header wrapping avoids clipped guide text on narrow screens.
+- Full checks/build pass with 109 tests. Adapter regressions verify latest camera
+  intent, unchanged payloads and independent snapshot updates.
+- Revised 4× CPU probe: 4.772 s map-ready proxy, largest startup task 746 ms and
+  largest sampled rapid-transition frame interval 483 ms. Constrained animation
+  remains uneven; differing layout/cache preclude a claimed speedup. Full details
+  and limitations are in `PERFORMANCE.md`. Physical school/phone checks remain.
+
 ## October 22: page-failure recovery and search accessibility
 
 - Added page-level and deferred-map React error boundaries with readable,

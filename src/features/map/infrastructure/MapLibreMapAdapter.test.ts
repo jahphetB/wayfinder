@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { mapPresentation } from '@/features/map/model/mapPresentation'
 import { collegeOfIdahoWalkingGraph } from '@/data/navigation/collegeOfIdahoWalkingGraph'
 import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
 import { stadiumDrivingHandoff } from '@/data/navigation/stadiumDrivingHandoff'
@@ -19,6 +20,7 @@ describe('MapLibreMapAdapter', () => {
 		const easeTo = vi.fn()
 		const setData = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
+			stop: vi.fn(),
 			easeTo,
 			on,
 			addSource,
@@ -81,6 +83,7 @@ describe('MapLibreMapAdapter', () => {
 		const adapter = new MapLibreMapAdapter({
 			style: 'https://example.test/style.json',
 			createMap: vi.fn(() => ({
+				stop: vi.fn(),
 				easeTo: vi.fn(),
 				on,
 				addSource: vi.fn(),
@@ -125,7 +128,7 @@ describe('MapLibreMapAdapter', () => {
 				[-116.6807, 43.65065],
 				[-116.66985, 43.65565],
 			],
-			expect.objectContaining({ pitch: 30, duration: 450 }),
+			expect.objectContaining({ pitch: 30, duration: 1000 }),
 		)
 		resize()
 		expect(fitBounds).toHaveBeenLastCalledWith(
@@ -142,6 +145,7 @@ describe('MapLibreMapAdapter', () => {
 		const easeTo = vi.fn()
 		const remove = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
+			stop: vi.fn(),
 			easeTo,
 			on,
 			addSource: vi.fn(),
@@ -192,7 +196,8 @@ describe('MapLibreMapAdapter', () => {
 		)
 		expect(easeTo).toHaveBeenCalledWith({
 			bearing: 0,
-			duration: 450,
+			duration: 1000,
+			easing: mapPresentation.camera.easing,
 			pitch: 30,
 		})
 		expect(remove).toHaveBeenCalledTimes(1)
@@ -212,6 +217,7 @@ describe('MapLibreMapAdapter', () => {
 	it('reports MapLibre readiness and errors through adapter callbacks', () => {
 		const on = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
+			stop: vi.fn(),
 			easeTo: vi.fn(),
 			on,
 			addSource: vi.fn(),
@@ -271,6 +277,7 @@ describe('MapLibreMapAdapter', () => {
 		const adapter = new MapLibreMapAdapter({
 			style: 'https://example.test/style.json',
 			createMap: () => ({
+				stop: vi.fn(),
 				easeTo: vi.fn(),
 				on,
 				addSource: vi.fn(() => {
@@ -323,6 +330,7 @@ describe('MapLibreMapAdapter', () => {
 			setVisible,
 		}
 		const mapInstance: MapLibreMapInstance = {
+			stop: vi.fn(),
 			easeTo: vi.fn(),
 			on,
 			addSource: vi.fn(),
@@ -359,11 +367,13 @@ describe('MapLibreMapAdapter', () => {
 
 	it('styles route legs by progress and focuses the camera along the current leg', () => {
 		const on = vi.fn()
+		const stop = vi.fn()
 		const easeTo = vi.fn()
 		const addLayer = vi.fn()
 		const setRouteData = vi.fn()
 		const setLocationData = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
+			stop,
 			easeTo,
 			on,
 			addSource: vi.fn(),
@@ -442,20 +452,50 @@ describe('MapLibreMapAdapter', () => {
 				zoom: 18,
 				pitch: 60,
 				offset: [0, 80],
-				duration: 700,
+				duration: 1300,
 			}),
 		)
 
 		adapter.setMode('2d')
 		expect(easeTo).toHaveBeenLastCalledWith(
-			expect.objectContaining({ pitch: 30, duration: 450 }),
+			expect.objectContaining({ pitch: 30, duration: 1000 }),
 		)
+		const cameraCalls = easeTo.mock.calls.length
+		const routeUpdates = setRouteData.mock.calls.length
+		const pointUpdates = setLocationData.mock.calls.length
+		adapter.setContent({
+			origin: undefined,
+			destination: undefined,
+			route,
+			navigationSession: { ...navigationSession },
+		})
+		expect(setRouteData).toHaveBeenCalledTimes(routeUpdates)
+		expect(setLocationData).toHaveBeenCalledTimes(pointUpdates)
+		const resize = on.mock.calls.find(
+			([event]) => event === 'resize',
+		)?.[1] as () => void
+		resize()
+		adapter.showUserLocation(
+			{ latitude: 43.6544, longitude: -116.6768 },
+			{ focus: false },
+		)
+		expect(easeTo).toHaveBeenCalledTimes(cameraCalls)
+		expect(stop).toHaveBeenCalledTimes(cameraCalls)
+		adapter.setContent({
+			origin: undefined,
+			destination: undefined,
+			route,
+			navigationSession: { ...navigationSession, currentStepIndex: 2 },
+		})
+		expect(easeTo).toHaveBeenCalledTimes(cameraCalls + 1)
+		expect(stop).toHaveBeenCalledTimes(cameraCalls + 1)
 	})
 
 	it('fits a preview again when the map canvas is resized', () => {
 		const on = vi.fn()
 		const fitBounds = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
+			stop: vi.fn(),
 			easeTo: vi.fn(),
 			on,
 			addSource: vi.fn(),
@@ -516,7 +556,8 @@ describe('MapLibreMapAdapter', () => {
 				maxZoom: 17.5,
 				bearing: 0,
 				pitch: 30,
-				duration: 700,
+				duration: 1500,
+				easing: mapPresentation.camera.easing,
 			},
 		)
 	})
@@ -527,6 +568,7 @@ describe('MapLibreMapAdapter', () => {
 		const addLayer = vi.fn()
 		const fitBounds = vi.fn()
 		const createMap = vi.fn((): MapLibreMapInstance => ({
+			stop: vi.fn(),
 			easeTo: vi.fn(),
 			on,
 			addSource,

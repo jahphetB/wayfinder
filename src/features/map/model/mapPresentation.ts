@@ -1,6 +1,13 @@
 // Camera distances are zoom levels, angles are degrees, and durations are milliseconds.
 // HTML control colors live in src/styles/theme.css; these colors are drawn by WebGL.
 export const mapPresentation = {
+	rendering: { maximumPixelRatio: 2 },
+	snapshot: {
+		color: '#b8ed9a',
+		outline: '#245233',
+		radiusPixels: 6,
+		haloRadiusPixels: 10,
+	},
 	buildingSelection: {
 		color: '#68438c',
 		fillOpacity: 0.12,
@@ -16,12 +23,15 @@ export const mapPresentation = {
 		overviewMaxZoom: 16,
 		previewPaddingPixels: 32,
 		previewMaxZoom: 17.5,
-		previewDurationMilliseconds: 700,
-		modeDurationMilliseconds: 450,
+		previewDurationMilliseconds: 1500,
+		navigationDurationMilliseconds: 1300,
+		modeDurationMilliseconds: 1000,
 		locationZoom: 17,
-		locationDurationMilliseconds: 600,
+		locationDurationMilliseconds: 900,
 		navigationZoom: 18,
 		navigationOffsetPixels: 80,
+		easing: (progress: number): number =>
+			progress * progress * (3 - 2 * progress),
 	},
 	routeColors: {
 		completed: '#7b8881',
