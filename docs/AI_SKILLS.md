@@ -2,6 +2,18 @@
 
 This file records AI-related skills, tools, and project practices used during delivery. Brands distinguish their origin.
 
+## October 23: manual-guide release package
+
+- **OpenAI / Playwright:** baseline and revised startup/camera profiles, snapshot
+  and manual-control journeys, permission/network failures, and accessibility checks.
+- **OpenAI / security-best-practices:** focused browser protections and privacy
+  handling for the existing React frontend; no reporting SDK or backend added.
+- **External / Context7:** current MapLibre camera/reduced-motion/performance and
+  hosting documentation. Installed source confirms version-specific behavior.
+- **Project-developed / independent walkthrough and snapshot:** route illustration
+  never waits for device location. Explicit button-triggered, scoped requests stop
+  on completion/cancellation and cannot update another route.
+
 ## October 22: recovery and search accessibility
 
 - **OpenAI / Playwright:** browser failure injection, keyboard flows, phone-width

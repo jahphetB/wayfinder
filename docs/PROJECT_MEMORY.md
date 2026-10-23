@@ -1,5 +1,34 @@
 # Project state reference
 
+## Authoritative product update: manual campus guide
+
+`PRODUCT_PLAN.md` supersedes earlier live-navigation/GPS-gated assumptions and
+the earlier requirement that simulation be development-only. The approved package
+starts on preview `9cd4529`. Production remains `de7e5e8`; merging/promoting still
+needs explicit approval.
+
+- Start navigating and Next advance the illustration regardless of physical
+  location or GPS success. Both request a real snapshot; Get my location also
+  requests one. Back does not. No automatic location requests, progression,
+  rerouting, location-selected origins or movement-following feature.
+- Snapshots use the bounded provider, a light-green outlined circle and Last
+  checked time; no trails, persistence or location-history upload. Preserve manual
+  controls on failure, identify retained older readings, prevent overlap and
+  cancel/discard route-stale results. Completion is a walkthrough, not arrival.
+- Current OSM data is the accepted baseline with honest provenance. Future exports
+  and 3D updates are incremental, not prerequisites. No comprehensive survey gate.
+- Profile camera/startup before targeted optimization; slower transitions alone
+  do not fix dropped frames. Centralize easing/durations, cancel competing motion,
+  respect reduced motion and retain the established presentation.
+- Add footer Wayfinder™ · Developed by Yaphet (GitHub profile link), practical
+  privacy/security/dependency/accessibility/recovery checks and a tested candidate.
+  No paid services, external telemetry or major dependencies are authorized.
+- Routine package steps are approved without repeated pauses. Commit/push preview,
+  give brief progress, and stop for production approval with real-device checks.
+  Use tabs for source indentation and semantic classes/IDs.
+- Step 1 records this contract; implementation steps 2–6 are pending. Historical
+  records below describe superseded behavior and must not override this contract.
+
 This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.

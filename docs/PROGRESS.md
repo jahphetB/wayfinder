@@ -1,5 +1,15 @@
 # Progress Log
 
+## October 23: manual campus-guide product definition
+
+- Adopted `PRODUCT_PLAN.md`: manual walkthrough progression and independent,
+  button-requested real-location snapshots, with no GPS gate or movement-following
+  feature. The current geographic baseline is accepted with honest provenance.
+- Replaced superseded launch gates with practical guide-release acceptance;
+  retained the previous review in `history/RELEASE_READINESS_PRE_GUIDE.md`.
+- Approved routine implementation/verification steps proceed on preview. No paid
+  service, telemetry, new major dependency or production promotion is authorized.
+
 ## October 22: page-failure recovery and search accessibility
 
 - Added page-level and deferred-map React error boundaries with readable,

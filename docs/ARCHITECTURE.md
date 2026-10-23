@@ -1,5 +1,14 @@
 # Yotes Wayfinder Architecture Handbook
 
+## Current product contract
+
+[Product definition](PRODUCT_PLAN.md) supersedes historical GPS-gated checkpoint
+and live-movement proposals in this handbook. The release target is a manual route
+walkthrough with real-location snapshots on Get my location, Start navigating and
+Next only. GPS never gates progression; completion does not claim arrival. The
+current geographic baseline is accepted with honest provenance. Earlier step
+guides are implementation history, not requirements for a live navigation app.
+
 This is the living handbook for Yotes Wayfinder. It explains what the project
 does, how its pieces fit together, where common changes belong, and how to
 investigate problems. It is written so that a reader does not need a software

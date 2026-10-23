@@ -4,6 +4,11 @@ A responsive campus navigation prototype built with React, TypeScript,
 MapLibre, and Three.js. Walking routes are calculated locally from an
 OpenStreetMap-derived campus network; no routing backend is required.
 
+The [current product definition](docs/PRODUCT_PLAN.md) is a manual campus guide
+with button-requested location snapshots. It supersedes older GPS-gated navigation
+assumptions. The implementation is being updated on preview; production promotion
+requires a separate approved release.
+
 [Open the prototype](https://wayfinder-umber.vercel.app/) ·
 [Architecture handbook](docs/ARCHITECTURE.md) ·
 [Progress](docs/PROGRESS.md)
