@@ -7,6 +7,9 @@ import {
 } from '@/composition/createLocationProvider'
 import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
 import type { NavigationSession } from '@/domain/navigation/types'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { FailureRecovery } from './components/FailureRecovery'
+import { MapLoadingFallback } from './components/MapLoadingFallback'
 
 const MapView = lazy(async () => {
   const module = await import('@/features/map/components/MapView')
@@ -47,22 +50,20 @@ export function App({
           locationProvider={activeLocationProvider}
           onNavigationSessionChange={setNavigationSession}
         />
-        <Suspense
-          fallback={
-            <section aria-label="Interactive map" className="map-view" />
-          }
-        >
-          <MapView
-            locationLookupProvider={browserLocationProvider}
-            destination={planner.destination}
-            mode={mapMode}
-            onModeChange={setMapMode}
-            origin={planner.origin}
-            route={planner.plannedRoute}
-            drivingHandoff={planner.drivingHandoff}
-            navigationSession={currentNavigationSession}
-          />
-        </Suspense>
+        <ErrorBoundary fallback={<FailureRecovery scope="map" />}>
+          <Suspense fallback={<MapLoadingFallback />}>
+            <MapView
+              locationLookupProvider={browserLocationProvider}
+              destination={planner.destination}
+              mode={mapMode}
+              onModeChange={setMapMode}
+              origin={planner.origin}
+              route={planner.plannedRoute}
+              drivingHandoff={planner.drivingHandoff}
+              navigationSession={currentNavigationSession}
+            />
+          </Suspense>
+        </ErrorBoundary>
       </section>
     </main>
   )
