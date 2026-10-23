@@ -40,8 +40,22 @@ contains no feedback-script injection, with **all five security headers exactly
 matching the previous candidate**. No skip-toolbar request header or weakened CSP
 is used for the revised candidate's final hosted verification.
 
-Hosted source/check/browser evidence for this refinement is recorded after
-publication below and in PR #2. Production remains unchanged.
+Hosted source **`2f9c97fafaa7973183067588862ed46e714eeb47`** passes
+[Quality checks](https://github.com/jahphetB/wayfinder/actions/runs/40010136597/job/120608088698)
+and [Vercel](https://vercel.com/jahphet/wayfinder/J6NX96gBv2Q2LNoxwLxmFSvGmF88).
+An ordinary fresh-browser session, without CSP bypass or toolbar-suppression
+headers, serves the revised assets and verifies search, preview, Start/Next/Back,
+view modes, building dialog and retained-snapshot feedback after denial.
+Both actions have equal dimensions; mobile actions are below the canvas, whose
+height remains 448 px. The desktop canvas is about 1350 px wide. No horizontal
+overflow, page errors, console errors, policy violations or `vercel.live` requests
+were observed. Four requested temporary watchers were all cleared; no startup
+location request occurred. These location readings were browser fixtures, not
+new physical GPS measurements.
+
+Main independently remains `de7e5e8`; no production promotion occurred. A final
+documentation-only follow-up records this evidence without changing runtime
+assets. Its latest hosted status is recorded in PR #2.
 
 ## Essential acceptance checks and evidence
 
@@ -57,7 +71,7 @@ October 23, 2026; Chromium desktop automation and emulation unless stated otherw
 | Narrow layout and footer               | Reviewed 320/390 screenshots; no horizontal overflow. Credit/privacy are in normal document flow, not over map attribution. Native privacy keyboard toggle works.                                                                                                                                                                                                          |
 | Camera and constrained rendering       | Explicit previous-animation cancellation, no queued app camera intents, no active-walkthrough resize reset, unchanged-source suppression, snapshot focus isolation. Centralized deliberate durations/easing. Actual 3× density emulation renders at configured 2× cap; reduced-motion preference detected; 20 mode changes + manual controls complete without page errors. |
 | Browser protections                    | Same header source used by Vercel and local production preview. Fresh enforced-policy context loads map with no normal policy violations and blocks injected inline script. No inline/eval script allowance; geolocation remains self-only.                                                                                                                                |
-| Dependency and build quality           | Full checks pass: 111 tests / 27 files, formatting, lint, strict TypeScript and production build. Fresh network-refreshed full audit: zero known findings. CI audit added; weekly schedule takes effect only after main merge.                                                                                                                                             |
+| Dependency and build quality           | Full checks pass: 113 tests / 27 files, formatting, lint, strict TypeScript and production build. Fresh network-refreshed full audit: zero known findings. CI audit added; weekly schedule takes effect only after main merge.                                                                                                                                             |
 | Data provenance and truthful limits    | Existing geographic baseline/digest retained, no semantic graph changes. Inferred connectors, access and stadium handoff remain explicitly limited. A new export/full survey is not a blanket gate.                                                                                                                                                                        |
 | Release/recovery procedure             | [Workflow](RELEASE_WORKFLOW.md) records feature/preview/main approval, version/source identity, known-good production reference, live smoke check and rollback/revert procedure. No hosted rollback rehearsal is claimed.                                                                                                                                                  |
 

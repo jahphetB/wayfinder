@@ -108,7 +108,14 @@ No current data has been falsely promoted to surveyed/accessibility-certified.
   Graphics retry preserves Step 2, manual Next works during failure, shortcuts/
   dialog work, and two requested watchers are cleared. Three axe scans have zero
   automated violations, with gradient contrast requiring manual review.
-  Hosted verification is recorded in RELEASE_READINESS.md and PR #2.
+  Hosted `2f9c97f` passes Quality/Vercel; actual candidate assets are served.
+  A normal fresh-browser check (no CSP bypass/skip-toolbar headers) verifies
+  search, preview, manual controls, modes, dialog and denied-refresh retention;
+  four requested watchers all clear. No startup location request, console/page
+  error, policy violation or vercel.live request. Mobile actions are below canvas,
+  equal-size and unobstructive; desktop canvas about 1350 px. Main still de7e5e8.
+  RELEASE_READINESS.md and PR #2 record evidence; final docs-only follow-up has
+  identical runtime assets and does not authorize production release.
 - Preview toolbar was switched Off in Vercel by the owner; a normal HTTP response
   confirms no feedback-script injection. All five security headers match the
   prior candidate exactly. Do not reintroduce skip-toolbar headers for the final

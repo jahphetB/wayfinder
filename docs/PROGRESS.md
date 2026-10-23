@@ -24,6 +24,10 @@
   console-error suppression was introduced. Production remains unchanged.
 - Architecture, styling, release workflow and security explanation reflect the
   new structure. Browser/deployment results are recorded in release readiness.
+- Hosted `2f9c97f` passes Quality/Vercel. Ordinary browser requests, without toolbar
+  suppression or CSP bypass, show no feedback-script requests, console/page errors
+  or policy violations. Search, route/manual controls, modes, dialog, retained
+  snapshot feedback and four-watch cleanup pass. Main remains `de7e5e8`.
 
 ## October 23: manual campus-guide product definition
 
