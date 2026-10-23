@@ -17,8 +17,15 @@ source-map-js updates clear the refreshed audit on preview; see the
 The historical browser measurements below are not a re-test of this maintenance
 build, and the other release gates remain open.
 
+October 22 recovery/accessibility follow-up: the first remediation package now
+contains map-download/rendering failures and corrects the reproduced search and
+attribution defects on preview. See the [new evidence](#page-recovery-and-search-accessibility-follow-up);
+the original findings below remain a historical baseline, not a description of
+the corrected preview. Production promotion and broader launch remain separate.
+
 ## Contents
 
+- [Page recovery and search accessibility follow-up](#page-recovery-and-search-accessibility-follow-up)
 - [Scope and standards](#scope-and-standards)
 - [Evidence and limitations](#evidence-and-limitations)
 - [Findings](#findings)
@@ -32,6 +39,54 @@ build, and the other release gates remain open.
 - [Release evidence record](#release-evidence-record)
 - [Remediation sequence](#remediation-sequence)
 - [References](#references)
+
+## Page recovery and search accessibility follow-up
+
+Date: October 22, 2026, America/Denver. Scope: R01–R03 and bounded map loading /
+partial imagery behavior. Tests use a local production build and a Chromium
+browser, not a physical phone or screen reader. No map-service load test occurred.
+
+Tested application source: `9a86be5` on preview branch
+`feat/step-39-location-refinement` (PR #2). No production promotion was performed.
+
+| Check                                               | Observed result                                                                                                                                                                  |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Aborted deferred map download                       | Recovery message and reload action appear; planner remains editable. Selecting the library still works. No uncaught page exception.                                              |
+| Explicit reload after removing the injected failure | Map opens again; fields reset as the recovery message states.                                                                                                                    |
+| Stalled deferred map download                       | Recovery appears about 20.03 seconds after the loading status; focus stays in the planner input.                                                                                 |
+| Stalled map initialization                          | Loading ends with a retryable error. A selected library-to-Sterry route remains available and is displayed after retry.                                                          |
+| WebGL2 unavailable                                  | Clear graphics requirement and retry action; planner stays visible, with no uncaught page exception.                                                                             |
+| All imagery requests return HTTP 503                | Partial-imagery warning appears, and ready map controls remain usable. Retry after restoring the requests clears the warning.                                                    |
+| Keyboard search                                     | Focus stays on the input; the active-descendant ID identifies the actual selected option. Enter selects, Escape closes, Tab leaves, and no-match searches announce their result. |
+| Route regression                                    | Library-to-Sterry preview, Start, Next, Back and a 2D mode change work.                                                                                                          |
+| Attribution                                         | OpenStreetMap copyright link is present and underlined, with visible keyboard focus.                                                                                             |
+
+Additional checks: all 50 options remain scrollable at 320 and 390 pixels, and
+the active option scrolls into view without document horizontal overflow. The
+library dialog opens by keyboard and returns focus on Escape. A simulated
+WebGL context loss using the browser's `WEBGL_lose_context` extension produces
+the interruption message and a pointer-reachable retry; retry rebuilds the map
+and retains the selected route. MapLibre emits an expected custom-layer warning
+during this deliberate graphics-loss test; no uncaught page exception occurred.
+
+axe-core 4.14.0 using WCAG 2 A/AA, 2.1 AA and 2.2 AA tags reports **zero
+automated violations** in the initial screen, open search, no-results search,
+active navigation, library dialog and failed-module fallback states. Some checks are marked
+incomplete, including contrast over rendered map content and generated map
+semantics; these are not automatic passes. This is regression evidence, not a
+WCAG conformance claim. Manual screen-reader and physical-device checks remain
+required by G04/G05.
+
+The automated suite has 127 passing tests across 27 files; formatting, lint,
+strict TypeScript and production build pass. The map module remains about
+1.59 MB uncompressed, and Vite still reports the existing large-chunk warning.
+The mobile startup and field-performance gates have not been requalified.
+
+These changes introduce no telemetry, location persistence or additional runtime
+dependency. Boundaries cannot recover an entry JavaScript file that never runs.
+Map retries preserve planner state, whereas a full-page reload intentionally
+resets it. The module and initialization phases each have a separate 20-second
+deadline. Keep independent pilot and public launch on hold for the other gates.
 
 ## Scope and standards
 

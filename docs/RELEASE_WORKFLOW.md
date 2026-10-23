@@ -203,6 +203,35 @@ Record device/browser, tested revision, results, and known limitations in the pu
 request. Mark inapplicable checks explicitly with a reason rather than claiming
 they passed. Do not include users' precise coordinates in public reports.
 
+### Recovery and search regression procedure
+
+Before releasing map loading or search changes, test the production build, not
+only the development server. Run `npm run check`, then `npm run preview` and open
+the printed local URL. Test the hosted preview as well before production approval.
+
+1. In browser developer tools, block the `MapView-*.js` request and reload. Check
+   the recovery message, editable planner and explicit reload action. Remove the
+   block before using **Reload page**; fields should reset and the map should load.
+2. Delay that module beyond 20 seconds to check bounded download recovery. Delay
+   map imagery requests separately to check initialization timeout. Select a
+   route, remove the delay, and use **Try map again**; the route should remain.
+3. Simulate tile HTTP 503 responses without sending load to the tile service.
+   Check the incomplete-imagery warning, usable controls and explicit imagery
+   retry. Check unavailable WebGL2 and graphics-context loss where tooling allows.
+4. Test each search with Up/Down, Enter, Escape and Tab, including an unmatched
+   query and the full scrolling list. Focus must remain on the input while
+   reviewing options, with no keyboard trap or hidden additional Tab stops.
+5. Inspect the accessibility tree: the input's active-descendant ID must name an
+   option directly owned by its listbox. Run automated accessibility checks with
+   search closed/open/empty, a route active, the details dialog, and recovery.
+   Inspect incomplete results and manually check a screen reader and real phone.
+
+Record revision, browser/device, injected failures and results using the
+[readiness evidence record](RELEASE_READINESS.md#release-evidence-record).
+Developer-tool simulations are not proof of physical-device performance or
+real-world navigation accuracy. Do not perform failure injection against other
+users' sessions or stress public map servers.
+
 ## 5. Release to production
 
 Before merging, confirm the latest checks and preview review pass, release approval

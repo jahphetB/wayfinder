@@ -14,6 +14,8 @@ flowchart TB
         Index[index.html<br/>HTML host]
         Main[src/main.tsx<br/>React entry]
         App[src/app/App.tsx<br/>screen composition and map mode]
+        Recovery[ErrorBoundary and FailureRecovery<br/>page and deferred-map containment, explicit reload]
+        Loading[MapLoadingFallback and recoverySettings<br/>bounded module download and map startup]
 
         subgraph NavigationUI[Navigation feature]
             Panel[NavigationPanel.tsx<br/>inputs, suggestions, route summary]
@@ -97,6 +99,11 @@ flowchart TB
     end
 
     User --> Index --> Main --> App
+    Main --> Recovery
+    App --> Recovery
+    App --> Loading
+    Loading -. shared timeout settings .-> MapView
+    MapContract -. fatal error or partial imagery warning .-> MapView
     App --> Panel
     App --> MapView
     NavigationControls --> App

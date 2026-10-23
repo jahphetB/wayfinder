@@ -17,7 +17,10 @@ Release requirements and the current verification record are documented in the
 - Preview walking routes with distance, estimated time, and turn instructions.
 - Follow simulated checkpoints with Start navigation, Next Turn, and Back.
 - Switch between tilted 2D and 3D views, including one illustrative library model.
-- Show a retryable map error when graphics initialization fails.
+- Keep the planner visible if the map module fails, with an explicit page-reload
+  action. Map startup has a bounded wait and a separate retry action.
+- Search by keyboard with announced results and correctly associated options.
+- Show a warning for incomplete map imagery without disabling a working map.
 - Request a short refined location lookup to display an approximate position or an
   off-campus, uncertain, or unavailable-location message.
 - Preview a separate, illustrative stadium driving handoff.

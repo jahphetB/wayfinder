@@ -1,5 +1,34 @@
 # Progress Log
 
+## October 22: page-failure recovery and search accessibility
+
+- Added page-level and deferred-map React error boundaries with readable,
+  explicitly triggered reload recovery. The planner survives a failed map
+  module. Reloading deliberately resets route/navigation state; it never loops.
+- Labeled separate 20-second download and initialization deadlines. Map retry
+  releases the failed instance, replays route/mode, and ignores stale callbacks.
+  Tile failures warn without disabling an otherwise ready map; graphics errors
+  retain the WebGL2 requirement and avoid displaying raw provider URLs.
+- Corrected direct listbox/option relationships, active-descendant targets,
+  input-held keyboard focus, Tab/Escape behavior, result announcements and empty
+  searches without changing the planner layout. Added the OpenStreetMap copyright
+  link and non-color-only attribution styling.
+- Automated checks pass with 127 tests in 27 files and a production build.
+  Browser failure injection verifies abort, stalled downloads/startup, WebGL2
+  failure, tile HTTP 503, explicit reload and route-preserving map retry. axe
+  reports no automated WCAG violations in the checked search and recovery states;
+  manual checks and the other readiness gates remain open.
+- Browser testing also exposed a narrow-screen recovery obstruction from the
+  keyboard-only building panel; shortcuts now appear only while the map is ready,
+  and the error panel uses the available map width.
+- The final graphics-loss test confirms a distinct interruption message rather
+  than implying that an already working browser lacks WebGL2. Keyboard dialog
+  focus and the full 50-place list pass at phone widths; simulated graphics loss
+  recovers with the selected route intact. Application source: `9a86be5`.
+- Preview-only delivery. Production `de7e5e8` is not promoted by this work.
+  Details: [handbook](ARCHITECTURE.md#page-failure-recovery-and-accessible-search)
+  and [readiness evidence](RELEASE_READINESS.md#page-recovery-and-search-accessibility-follow-up).
+
 ## October 21: Vercel configuration review and tooling security updates
 
 - Confirmed public production still serves `de7e5e8`; preview `61f759c` passed

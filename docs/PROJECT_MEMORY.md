@@ -4,11 +4,45 @@ This reference summarizes the current implementation, source data, and
 verification record. `docs/ARCHITECTURE.md` is the full handbook;
 `docs/PROGRESS.md` records implementation history.
 
-## Current state after October 21 maintenance
+## Current scope: October 22 recovery and accessibility
 
-- User explicitly wants to wait before deciding on page-failure recovery and
-  search accessibility. Do not implement those changes or movement tracking.
-  Current request authorizes reviewing Vercel screenshots and necessary fixes.
+- The user approved page-failure recovery and search accessibility, superseding
+  the earlier hold below. Scope is the first release-hardening package: R01–R03,
+  bounded map loading, partial imagery warnings, and focused regression tests.
+- Work remains on preview branch `feat/step-39-location-refinement`, PR #2. Main
+  and production remain `de7e5e8`. No production promotion is authorized.
+- Root and deferred-map error boundaries use explicit reload; reload clears
+  route progress. Map-only failure leaves the planner editable. Separate module
+  download and initialization deadlines are 20 seconds each in recoverySettings.
+- Fatal map events release the adapter and allow retry; partial tile failures
+  warn without disabling a ready map. Late callbacks are ignored, WebGL2 remains
+  required, and raw provider URLs are not displayed in recovery messages.
+- Search now uses direct listbox/options, input-held focus, active-descendant
+  references on the actual option, non-tabbable suggestions, and polite result
+  announcements. Attribution links are underlined with an OSM copyright link.
+- This package does not authorize mobile optimization, tracking, a provider
+  subscription, privacy/monitoring integrations, or a pilot/public launch. The
+  remaining G01–G12 evidence gates still apply. No new OSM data is required for
+  this package; request corrections before route field acceptance.
+- Handbook section: `ARCHITECTURE.md#page-failure-recovery-and-accessible-search`.
+  Release evidence: `RELEASE_READINESS.md#page-recovery-and-search-accessibility-follow-up`.
+- Application commits: `54af495` boundaries, `8ab6c72` lifecycle/warnings,
+  `630dfa2` search/attribution, `7bcaab6` mobile retry obstruction,
+  `9a86be5` graphics-loss explanation. Full checks pass: 127 tests / 27 files.
+- Local browser evidence: aborted module preserves planner, 20.03-second stalled
+  module recovery preserves input focus, stalled map retry retains route, 503
+  imagery warns, unsupported WebGL2 stays contained, explicit graphics-loss retry
+  works. Search has 50 scrollable options at 320/390 px, no document overflow,
+  and dialog Escape restores focus. axe 4.14.0 reports no automated violations
+  in tested states; incomplete contrast/semantics need manual review.
+- Final built hashes: initial `index-CxQlDF54.js`, map `MapView-aJ9NQiYa.js`,
+  CSS `index-CXyr3eq7.css`; worker remains `maplibre-gl-worker-DEn6RsMw.js`.
+
+## Historical state after October 21 maintenance
+
+- At that time, the user wanted to wait before deciding on page-failure recovery
+  and search accessibility; that hold is superseded by the October 22 approval.
+  Movement tracking remains outside the approved recovery/accessibility package.
 - Production `de7e5e8` is publicly accessible and passed fresh map/route/dialog/
   phone-width smoke checks with no console errors/warnings. Preview was `61f759c`
   with hosted Quality/Vercel passing before this maintenance; PR #2 remains open.

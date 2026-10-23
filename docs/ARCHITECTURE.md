@@ -12,6 +12,8 @@ work together, that decision should be recorded here.
 
 ## Table of contents
 
+- [Page-failure recovery and accessible search](#page-failure-recovery-and-accessible-search)
+
 1. [Start here](#start-here)
 2. [What the application does today](#what-the-application-does-today)
 3. [The architecture in one picture](#the-architecture-in-one-picture)
@@ -38,6 +40,119 @@ work together, that decision should be recorded here.
 23. [Engineering principles in plain language](#engineering-principles-in-plain-language)
 24. [Glossary](#glossary)
 25. [How to maintain this handbook](#how-to-maintain-this-handbook)
+
+## Page-failure recovery and accessible search
+
+### What a person sees when something fails
+
+The interface has two **error boundaries**: React components that replace a
+failed part of the screen with a readable recovery message instead of allowing
+that failure to remove the whole application. `src/main.tsx` wraps the complete
+application for unexpected rendering failures. `src/app/App.tsx` wraps only the
+deferred map, so a failed map download or rendering error leaves the route
+planner and its selected locations available. A deferred module is code
+downloaded separately when needed, rather than included in the first bundle.
+
+`src/app/components/ErrorBoundary.tsx` supplies the small shared boundary class.
+A class is appropriate here because React's native boundary mechanism uses
+class lifecycle methods; it does not justify converting the rest of the UI to
+classes. `FailureRecovery.tsx` supplies the user-facing explanation, focuses its
+heading for keyboard users, and offers **Reload page**. This is an explicit user
+action, not an automatic refresh loop. Map failure does not steal keyboard focus
+from someone already editing the planner; page-level recovery focuses its heading.
+Reloading clears the current route and
+navigation progress, as the message explains. A reload also obtains the current
+HTML entry point when an old page references a map file from an earlier release.
+It cannot repair a persistent server, network, or graphics problem.
+
+`MapLoadingFallback.tsx` displays a loading status during that download and
+replaces an indefinitely stalled download with recovery after 20 seconds.
+`src/app/recoverySettings.ts` labels both the module-download timeout and the
+separate 20-second map-initialization timeout. Each phase gets its own deadline;
+they are not a combined 20-second end-to-end performance guarantee. The timeout
+stops waiting in the interface; it does not cancel the browser's module request.
+`src/styles/error-recovery.css` styles the two fallbacks using the existing theme.
+
+### The map's separate recovery path
+
+An error boundary does not catch every asynchronous event. MapLibre reports
+network and graphics events outside React rendering. `MapLibreMapAdapter.ts`
+therefore catches errors in its load/resize work and reports them through
+`MapAdapter.ts`. The contract now distinguishes a fatal `onError` from a
+nonfatal `onWarning` for a failed imagery tile. A tile is one small image used
+to assemble the map background. A tile failure does not necessarily invalidate
+the locally calculated route, but the interface warns that the background may
+be incomplete. **Retry map imagery** rebuilds the map on request; the warning
+is retained until retry rather than claiming the imagery has recovered.
+
+`MapView.tsx` owns the initialization deadline, releases a failed map, disables
+unavailable controls, and exposes **Try map again**. The planner's route, map
+mode, and navigation session remain outside this map instance and are replayed
+when it is recreated. A location dot is not persisted across recreation; request
+location again if needed. Cleanup cancels deadlines, and instance guards ignore
+late callbacks from destroyed maps. Changing display mode before readiness only
+updates the intended mode; provider operations wait for a usable style.
+
+Graphics-context loss also enters this explicit retry path. WebGL2 remains a
+requirement in both map modes; unsupported browsers receive a clear explanation,
+not a second renderer. User-facing map failures use fixed descriptions rather
+than raw provider URLs, which can contain credentials or other implementation
+details. Developer diagnostics may still appear in browser tools. No remote
+error reporting, location storage, or new dependency is introduced here.
+Keyboard-only building shortcuts are exposed only while the map is ready, so
+their expanded focus panel cannot obstruct recovery controls on narrow screens.
+
+These boundaries require the initial JavaScript and CSS to load. They cannot
+display React recovery if the browser never downloads or runs the entry bundle.
+They also do not replace release rollback, service monitoring, or field tests.
+
+### Search semantics and keyboard behavior
+
+`NavigationPanel.tsx` keeps each search field's DOM focus on its input. **DOM
+focus** means the element receiving keyboard input. Its `aria-activedescendant`
+points to the exact list item carrying `role="option"` and `aria-selected`, not
+to a wrapper around an unrelated button. ARIA is metadata that tells assistive
+technology what a custom control means. The list directly owns its options;
+options are not additional stops in the normal Tab sequence.
+
+Up/Down reviews suggestions, Enter selects one, Escape closes the list, and Tab
+moves on without forcing a selection. Editing clears the active option. The
+existing scrolling list follows the highlighted item. Search instructions and
+result counts use visually hidden text; a polite live region announces updated
+counts or no matches without interrupting speech. `global.css` supplies that
+hidden-text utility, while `navigation.css` preserves the existing option style.
+Actual screen-reader behavior still needs manual testing; automated checks do
+not establish complete accessibility conformance.
+
+`createMapAdapter.ts` now supplies an explicit OpenStreetMap copyright link in
+the attribution. `map.css` underlines attribution links and supplies visible
+keyboard focus, rather than distinguishing links by color alone. This is fixed,
+trusted attribution markup, not user-supplied HTML.
+
+### Verification and change locations
+
+- `ErrorBoundary.test.tsx` checks rendering containment, focus, the module
+  deadline, and timer cleanup. `App.recovery.test.tsx` rejects the actual lazy
+  import boundary and checks that search remains editable.
+- `MapView.recovery.test.tsx` covers initialization timeout, explicit retry,
+  mode/content replay, stale callbacks, partial imagery, and sanitized failures.
+  Adapter tests cover tile versus fatal events and asynchronous event failures.
+- `App.test.tsx` checks keyboard selection, the active-option relationship,
+  Escape, Tab, empty results, and the existing route/navigation interactions.
+- Browser failure-injection and automated accessibility evidence is recorded in
+  [the release readiness follow-up](RELEASE_READINESS.md#page-recovery-and-search-accessibility-follow-up).
+
+The design applies **single responsibility** (each module has one focused job),
+**dependency inversion** (the interface consumes provider-neutral callbacks),
+and React composition (small components assembled without a new framework).
+Timeouts are labeled settings rather than scattered numbers. No campus geometry,
+pathfinding policy, deployment setting, or navigation simulation mode changes.
+
+Primary references: [React error boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary),
+[React lazy and rejected imports](https://react.dev/reference/react/lazy),
+[WAI-ARIA combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/),
+[MapLibre map events](https://maplibre.org/maplibre-gl-js/docs/API/interfaces/MapEventType/),
+and [OpenStreetMap attribution](https://www.openstreetmap.org/copyright).
 
 ## Start here
 
@@ -375,17 +490,25 @@ navigation panel and map receive information from that same source. This is a
 single source of truth: one authoritative copy of state prevents two parts of
 the screen from disagreeing about the selected route.
 
-| File                   | Importance and relationship to other files                                                                                                                                                                   |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/app/App.tsx`      | Composes the header, navigation panel, and map. It owns 2D/3D mode and passes route-planner state to both features. It lazy-loads `MapView`, so the large map code is requested separately.                  |
-| `src/app/App.test.tsx` | Checks that the route-planning heading and map region are present. It replaces the real map with a test substitute because browser map rendering does not belong in this basic application test.             |
-| `src/styles`           | Contains the global visual system and responsive layout. It also guarantees that the map host fills its panel. Change colors, spacing, typography, and layout here while checking desktop and mobile widths. |
+| File                            | Importance and relationship to other files                                                                                                                                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/App.tsx`               | Composes the header, navigation panel, and map. It owns 2D/3D mode and passes route-planner state to both features. It lazy-loads `MapView`, so the large map code is requested separately.                                 |
+| `src/app/App.test.tsx`          | Checks that the route-planning heading and map region are present. It replaces the real map with a test substitute because browser map rendering does not belong in this basic application test.                            |
+| `src/app/App.recovery.test.tsx` | Rejects the deferred map module and verifies that the real planner remains editable.                                                                                                                                        |
+| `src/app/components/`           | Contains `ErrorBoundary.tsx`, `FailureRecovery.tsx`, `MapLoadingFallback.tsx`, and their focused boundary tests. These separate failure containment, recovery presentation, and download waiting from route-planning logic. |
+| `src/app/recoverySettings.ts`   | Names the module-download and map-initialization deadlines shared by the fallback, map lifecycle, and regression tests.                                                                                                     |
+| `src/styles`                    | Contains the global visual system and responsive layout. It also guarantees that the map host fills its panel. Change colors, spacing, typography, and layout here while checking desktop and mobile widths.                |
 
 ## The `src/styles` folder
 
 `building-details.css` adds popup, carousel, and scrollable-description rules.
 It reads popup dimensions and backdrop color from `theme.css` and is imported
 after `map.css`, before responsive adjustments.
+
+`error-recovery.css` styles page and deferred-map recovery using existing theme
+colors. It is loaded after building details and before responsive rules. Search
+options remain styled in `navigation.css`; reusable hidden announcement text is
+defined in `global.css`.
 
 The stylesheet is organized by responsibility rather than keeping all appearance
 rules in one application file. `theme.css` is the first stop for named colors,

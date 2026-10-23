@@ -2,6 +2,23 @@
 
 This file records AI-related skills, tools, and project practices used during delivery. Brands distinguish their origin.
 
+## October 22: recovery and search accessibility
+
+- **OpenAI / Playwright:** browser failure injection, keyboard flows, phone-width
+  layouts, and automated accessibility diagnostics against the built application.
+  The skill is development guidance, not a shipped runtime dependency.
+- **External / Context7 and primary documentation:** React error boundaries/lazy
+  imports, MapLibre error-event behavior, and the WAI-ARIA combobox pattern inform
+  the implementation. The installed MapLibre source confirms tile-error metadata.
+- **Project-developed / bounded recovery:** contain deferred-map rendering
+  failures separately from the planner, label download/startup deadlines, ignore
+  callbacks from discarded instances, and require deliberate recovery actions.
+- **Project-developed / accessible search contract:** keep focus on the input,
+  identify the actual active option, announce counts, and test Escape/Tab and
+  no-match behavior without adding a UI framework.
+
+This work adds no runtime dependencies, remote telemetry, or location persistence.
+
 ## OpenAI
 
 | Skill or capability            | Used in        | Purpose                                                                                                                        |
