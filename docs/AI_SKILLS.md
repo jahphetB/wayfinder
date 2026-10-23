@@ -4,6 +4,13 @@ This file records AI-related skills, tools, and project practices used during de
 
 ## October 23: manual-guide release package
 
+- **Project-developed / enforced-policy verification:** test actual CSP in a
+  fresh non-bypass context; isolate accessibility-tool injection in its own
+  bypass context. An automation bypass must never be mistaken for a policy pass.
+- **Project-developed / evidence-bounded release:** retain source and deployment
+  IDs, distinguish desktop emulation from physical devices, and preserve useful
+  geographic provenance without imposing a new full-survey launch gate.
+
 - **OpenAI / Playwright:** baseline and revised startup/camera profiles, snapshot
   and manual-control journeys, permission/network failures, and accessibility checks.
 - **OpenAI / security-best-practices:** focused browser protections and privacy

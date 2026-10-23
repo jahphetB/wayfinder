@@ -56,12 +56,65 @@ reading rejection, retained snapshots, provider cleanup and map recovery. Real
 browser checks supplement jsdom, which does not implement every native keyboard
 default. The current OSM baseline/provenance and routing preferences are unchanged.
 
+### Camera, browser security and release decisions
+
+**ADR-045: Manual progress and explicit snapshots replace GPS gates.** The pure
+session has no location argument, so a slow/denied lookup cannot prevent progress.
+One hook owns the last reading and cancellation across three allowed actions;
+its route scope prevents old results from changing a new route. This supersedes
+ADR-022, ADR-025, ADR-027, ADR-029 and the simulator portion of ADR-041. Browser
+integration remains injected, without a fake production-location provider.
+
+**ADR-046: Optimize camera work from evidence, not animation duration alone.**
+`mapPresentation.ts` centralizes smoothstep easing and preview/leg/mode/location
+durations of 1500/1300/1000/900 milliseconds. The adapter explicitly stops the
+previous animation before newer camera intent, skips semantically unchanged
+GeoJSON source updates, avoids active-walkthrough resize recentering, and caps
+canvas pixel ratio at 2. Pixel ratio is the number of rendered pixels per CSS
+layout pixel; the cap limits high-density-screen rendering work. Nonessential
+animations honor reduced-motion preference. Snapshot refresh during a walkthrough
+never issues a competing camera transition. See [profiling evidence](PERFORMANCE.md):
+constrained emulation still drops frames, so no universal smoothness is claimed.
+
+**ADR-047: One tested browser-policy source for hosting and local preview.**
+`vercel.json` defines Content Security Policy (CSP), framing/MIME/referrer protections
+and permitted browser capabilities. CSP is an allowlist for resources a browser
+may execute/load. Scripts/workers stay same-origin, with no inline/eval scripts.
+Only MapLibre's positioning style attributes need an inline-style exception.
+`vite.config.ts` reuses the same headers for production preview; a fresh browser
+test proves an inserted inline script is blocked while the map works. New map
+providers require reviewing the allowlist, attribution and privacy together.
+The optional Vercel preview toolbar is not a reason to broaden script policy.
+
+`browserSecurity.test.ts` protects these constraints. Quality CI adds a fresh
+high/critical advisory audit and a weekly schedule; the schedule only starts
+after that workflow is on main. No telemetry is added. The footer disclosure
+describes tab-memory snapshots and ordinary hosting/map/browser-service requests.
+The current candidate is 0.1.0-rc.1, not an approved production release.
+
+**ADR-048: Practical guide-release evidence supersedes live-navigation gates.**
+`PRODUCT_PLAN.md`, `RELEASE_READINESS.md` and `RELEASE_WORKFLOW.md` define the
+supported rollout contract. The accepted geographic baseline retains source IDs,
+digest and honest uncertainty; future exports follow the importer/test pipeline.
+Earlier G01–G12 gates and checkpoint policies are historical, not rollout blockers
+for this manual guide. Explicit production approval and a known-good recovery
+target remain mandatory. No paid service/backend/monitoring platform is introduced.
+
+Primary references: [MapLibre camera options](https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/AnimationOptions/),
+[map options](https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapOptions/),
+[MDN CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP),
+[Vercel headers](https://vercel.com/docs/project-configuration/vercel-json#headers),
+and [preview toolbar management](https://vercel.com/docs/vercel-toolbar/managing-toolbar).
+Context7 and the installed MapLibre source informed the version-specific choices.
+
 This is the living handbook for Yotes Wayfinder. It explains what the project
 does, how its pieces fit together, where common changes belong, and how to
 investigate problems. It is written so that a reader does not need a software
 engineering background to understand the overall system.
 
-The handbook describes the application as it exists today. It is intentionally
+The current folder guide and top-level contract describe today's application.
+Numbered implementation steps and older decision records preserve history where
+explicitly superseded. The handbook is intentionally
 updated as the project grows instead of trying to predict every future feature.
 Whenever an architectural decision changes how multiple parts of the project
 work together, that decision should be recorded here.
@@ -69,6 +122,8 @@ work together, that decision should be recorded here.
 ## Table of contents
 
 - [Page-failure recovery and accessible search](#page-failure-recovery-and-accessible-search)
+- [Current manual-guide data flow](#manual-walkthrough-and-snapshot-data-flow)
+- [Camera, browser security and release decisions](#camera-browser-security-and-release-decisions)
 
 1. [Start here](#start-here)
 2. [What the application does today](#what-the-application-does-today)
@@ -144,8 +199,9 @@ is retained until retry rather than claiming the imagery has recovered.
 `MapView.tsx` owns the initialization deadline, releases a failed map, disables
 unavailable controls, and exposes **Try map again**. The planner's route, map
 mode, and navigation session remain outside this map instance and are replayed
-when it is recreated. A location dot is not persisted across recreation; request
-location again if needed. Cleanup cancels deadlines, and instance guards ignore
+when it is recreated. The App-owned last snapshot is replayed after map readiness;
+its original Last checked time is retained, with no new location request. Cleanup
+cancels deadlines, and instance guards ignore
 late callbacks from destroyed maps. Changing display mode before readiness only
 updates the intended mode; provider operations wait for a usable style.
 
@@ -240,10 +296,10 @@ checks whether the browser-ready application can be produced.
 
 ## What the application does today
 
-Previewed routes also offer explicit **Start navigation** and **Next Turn**
-location checks, instructions, retry messages, and arrival. See the
-[Step 16 guide](#step-16-browser-location-and-checkpoint-navigation) for the
-complete browser-location flow and its prototype limitations.
+Previewed routes offer **Start navigating**, **Next** and **Back** for an
+illustrated manual walkthrough. Start/Next request real snapshots independently;
+they never wait for permission, physical movement or proximity. Completion is not
+arrival. See the [current data flow](#manual-walkthrough-and-snapshot-data-flow).
 
 The current version is focused on The College of Idaho in Caldwell, Idaho. It
 offers 50 searchable places on a local walking graph imported from the user's
@@ -278,8 +334,9 @@ check showed the former N.L. Terteling Library listing as permanently closed,
 so it is labeled as a former building, not presented as the current library. This is intentionally a
 narrow claim: no public source reviewed in Steps 11 or 12 proves the exact
 walking edges, their distances, temporary closures, travel directions, or
-accessibility. Those routing facts remain illustrative until an authorized
-campus reviewer checks them.
+accessibility. Those routing facts are not independently verified. The current
+geographic baseline is accepted for guide release preparation; another export or
+comprehensive survey is not a blanket software-release prerequisite.
 
 MapLibre GL JS draws the interactive map. MapLibre is a rendering engine: it
 turns map data into the pixels, labels, markers, and lines seen in the browser.
@@ -532,7 +589,7 @@ assembles the screen, and `test` configures shared test behavior.
 | File                | Importance and relationship to other files                                                                                                                                                                   |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `src/main.tsx`      | The browser entry point. It finds the HTML root, starts React in strict mode, imports MapLibre CSS before application CSS, and renders `App`. If nothing appears, this is one of the first files to inspect. |
-| `src/vite-env.d.ts` | Teaches TypeScript about the optional `VITE_MAP_STYLE_URL` and typed `VITE_LOCATION_MODE` settings. Add future `VITE_...` settings here so their names and types are checked.                                |
+| `src/vite-env.d.ts` | Types the optional public `VITE_MAP_STYLE_URL` setting. There is no simulation-mode environment variable.                                                                                                    |
 
 ## The `src/app` folder
 
@@ -594,7 +651,7 @@ provider implementation, not every caller.
 | File                                        | Importance and relationship to other files                                                                                                                                                                                                                                                                                                                                                                               |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `src/composition/createMapAdapter.ts`       | Creates the concrete MapLibre adapter and its style, and supplies one footprint-based Three.js library layer. By default it defines an OpenStreetMap raster basemap; `VITE_MAP_STYLE_URL` can replace that style without changing `MapView`. This is the dependency-injection boundary. Dependency injection means supplying a needed implementation from outside instead of constructing it throughout the application. |
-| `src/composition/createLocationProvider.ts` | Selects the prototype simulator by default or the browser adapter when `VITE_LOCATION_MODE=browser`, keeping that choice outside components and domain rules.                                                                                                                                                                                                                                                            |
+| `src/composition/createLocationProvider.ts` | Constructs the real bounded snapshot provider at the application boundary; domain and UI do not choose browser implementations.                                                                                                                                                                                                                                                                                          |
 
 ## The `src/domain` folder
 
@@ -749,23 +806,22 @@ Contracts describe capabilities the feature may use without choosing a browser
 or service implementation. The browser adapter implements this contract without
 importing the Geolocation API into domain calculations.
 
-| File                                                             | Importance and relationship to other files                                                                                                                                       |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/navigation/contracts/LocationProvider.ts`          | Defines one asynchronous `requestCurrentLocation` operation returning the domain reading shape. The browser adapter constructs a validated reading.                              |
-| `src/features/navigation/contracts/LocationProviderError.ts`     | Shares typed failure categories between the browser adapter, hook, and recovery interface.                                                                                       |
-| `src/features/navigation/contracts/PrototypeLocationScenario.ts` | Defines the small prototype-only scenario capability. Its type guard lets App expose the simulator control without making the browser provider pretend to support test outcomes. |
+| File                                                         | Importance and relationship to other files                                                                                                          |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/navigation/contracts/LocationProvider.ts`      | Defines one asynchronous `requestCurrentLocation` operation returning the domain reading shape. The browser adapter constructs a validated reading. |
+| `src/features/navigation/contracts/LocationProviderError.ts` | Shares typed failure categories between the browser adapter, hook, and recovery interface.                                                          |
 
 ### `src/features/navigation/infrastructure`
 
 This folder isolates browser location access from route calculations and screen
-presentation. `BrowserLocationProvider.ts` converts browser results to validated
-readings; `PrototypeLocationProvider.ts` generates a reading at the expected
-checkpoint without accessing a device. In Step 19, it also owns the selected
-prototype result—expected, uncertain, wrong, stale, or unavailable. Their
-adjacent tests verify both boundaries.
-The [Step 16 file guide](#files-folders-and-connections) explains the physical
-adapter, and the [Step 17 guide](#step-17-prototype-location-simulator) explains
-simulation and its connections.
+presentation. `RefinedBrowserLocationProvider.ts` implements a bounded real
+snapshot: collect recent candidates briefly, select a useful reading, then clear
+the watcher and timer. Its tests verify deadlines, permission failure, candidate
+selection and cancellation. It never advances the illustrated route.
+
+The old one-shot checkpoint and fake-location providers are removed. Composition
+always constructs the bounded real provider. A watcher is a temporary browser
+callback subscription, not permission to collect continuously.
 
 ### `src/features/navigation/model`
 
@@ -782,9 +838,10 @@ A React hook is a reusable stateful function. The hook acts as the navigation
 feature’s controller: components ask it to change queries, select locations,
 swap endpoints, or plan a route.
 
-| File                                               | Importance and relationship to other files                                                                                                                                                 |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/features/navigation/hooks/useRoutePlanner.ts` | Owns origin, destination, query text, suggestions, and planned route. It reads mock data, calls model functions, and returns a small public interface used by `App` and `NavigationPanel`. |
+| File                                                   | Importance and relationship to other files                                                                                                                                                 |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/features/navigation/hooks/useRoutePlanner.ts`     | Owns origin, destination, query text, suggestions, and planned route. It reads mock data, calls model functions, and returns a small public interface used by `App` and `NavigationPanel`. |
+| `src/features/navigation/hooks/useLocationSnapshot.ts` | Owns the single shared snapshot, cancellation, request replacement, freshness and retained reading. App supplies route scope; the UI/map consume the result.                               |
 
 ### `src/features/navigation/components`
 
@@ -792,9 +849,11 @@ Components are visible building blocks rendered by React. Navigation components
 focus on what the person sees and does, delegating route logic to the hook and
 model.
 
-| File                                                     | Importance and relationship to other files                                                                                                                                                                                                                                                                         |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/features/navigation/components/NavigationPanel.tsx` | Renders both location fields, suggestions, swap button, preview action, and route summary. It receives the planner object instead of constructing a second one, preserving shared state with the map. It also remounts checkpoint navigation when a prototype scenario changes, ensuring each demo starts cleanly. |
+| File                                                             | Importance and relationship to other files                                                                                                                                               |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/navigation/components/NavigationPanel.tsx`         | Renders searches, swap, preview, summary and the manual RouteWalkthrough. App supplies one planner/session and action callbacks; no second planner or location gate is constructed here. |
+| `src/features/navigation/components/RouteWalkthrough.tsx`        | Presents manual Start navigating, Next, Back and truthful walkthrough completion; App updates the independent domain session.                                                            |
+| `src/features/navigation/components/LocationSnapshotControl.tsx` | Presents Get my location, cancellation, Last checked and retained/uncertain/off-campus feedback from the shared snapshot hook.                                                           |
 
 ## The map feature
 
@@ -879,6 +938,12 @@ deleted and rebuilt. Hosting systems deploy this output, but human changes must
 be made in `src` or configuration and then rebuilt.
 
 ## Implementation step guides
+
+These numbered guides preserve implementation history. Steps 15–20 and 30–39
+describe retired checkpoint verification/simulation behavior. Their historical
+file names and environment variables are not instructions for the current guide.
+The [current product contract](#current-product-contract) and
+[current diagram](ARCHITECTURE_DIAGRAM.md) take precedence.
 
 Each completed implementation step receives a focused guide here. These guides
 are an easier starting point than reading the entire handbook when you only need
@@ -2262,22 +2327,18 @@ and named review exist.
 This small process prevents a helpful public-map correction from silently
 turning into an unverified directions claim.
 
-### Change checkpoint verification policy
+### Change snapshot lookup policy
 
-1. Begin in `src/domain/navigation/locationVerification.ts` and identify whether
-   the change affects radius, reading freshness, or classification boundaries.
-2. Base a production change on documented campus field tests across representative
-   devices and locations; do not tune it from one convenient reading.
-3. Preserve the three outcomes. Poor accuracy that overlaps a boundary must stay
-   uncertain rather than being forced into confirmed or mismatched.
-4. Add boundary tests for the smallest accepted and rejected values and for stale
-   readings.
-5. Update ADR-025 and the Step 15 guide with the evidence and consequences.
-6. Later, test the complete browser flow without introducing continuous tracking.
+Change `src/features/navigation/model/locationLookupPolicy.ts` and its focused tests.
+The bounded lookup uses a 12-second deadline, accepts readings up to 15 seconds
+old and may finish early after two distinct useful readings. These values improve
+a requested snapshot; they must never become a proximity gate or background poller.
 
-The current 20-meter radius and 30-second maximum age are prototype defaults.
-They are not campus-approved guarantees and should remain visibly described as
-provisional until field evidence supports a release decision.
+Check `locationRefinement.ts`, provider tests and `useLocationSnapshot.test.tsx`
+together. Preserve cancellation, no overlapping watchers, route-stale guards and
+clear retained-reading feedback. Device tests are needed before claiming accuracy
+improvement. `locationVerification.ts` retains reading validation and distance
+calculation, not the old checkpoint-verification policy.
 
 ### Change visible wording
 
@@ -2309,17 +2370,17 @@ Do not put provider URLs inside `MapView.tsx`. Keeping them in composition
 preserves the adapter boundary. Confirm that any tile service permits expected
 usage and provides required attribution.
 
-### Deploy the current prototype
+### Deploy the current guide
 
-Import `jahphetB/wayfinder` into Vercel from GitHub. Use the repository root;
-`vercel.json` supplies the framework, checked build command, and output folder.
-Do not set `VITE_LOCATION_MODE=browser` for this prototype release. After the
-first deployment, verify map tiles, route preview, navigation simulation,
-2D/3D mode, and the one-shot location control on the HTTPS site. If a build
-fails, inspect Vercel's build log, then reproduce with `npm run build` locally.
-If the page loads without a map, check the browser console and OpenStreetMap
-tile requests before changing the map adapter. Approved `main` pushes trigger
-further production deployments after import.
+Use [the release workflow](RELEASE_WORKFLOW.md): verified feature branch, hosted
+preview, explicit approval, reviewed main merge and live production verification.
+`vercel.json` supplies Vite/build/output and tested headers. No location-mode
+environment variable is needed. A preview push is not a production release.
+
+Test the HTTPS build's search, manual walkthrough, snapshot failures, 2D/3D,
+privacy/footer and recovery. Record the latest source SHA and known-good production
+deployment before approval. Provider-origin changes require reviewing CSP and
+privacy/attribution together.
 
 ### Add a future 3D building model
 
@@ -3118,7 +3179,7 @@ speculative frameworks for features that have not been approved.
 | Build                 | Turning source files into optimized files suitable for hosting.                                                      |
 | Bundle                | Browser-ready files assembled from source and dependencies.                                                          |
 | Component             | A reusable visible part of a React interface.                                                                        |
-| Checkpoint            | The expected geographic endpoint of a route step, later usable for progress verification.                            |
+| Checkpoint            | Internal geographic endpoint of a route step; not a GPS verification gate in this guide.                             |
 | Corroborated fact     | A limited fact checked beyond the project's own mock record; it is not automatically an approved instruction.        |
 | Contract or interface | A checked description of operations or data another module must provide.                                             |
 | Data minimization     | Keeping only the information needed for a feature and discarding unnecessary sensitive detail.                       |

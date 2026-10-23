@@ -1,120 +1,98 @@
 # Frontend security and privacy review
 
-Reviewed October 18, 2026; source revision `8132dbc`. This is a focused static
-React/TypeScript and public HTTP review supporting the
-[release assessment](RELEASE_READINESS.md). It is not a penetration test or an
-OWASP certification. Account settings, operating-system location providers and
-third-party internal systems were not audited.
+## Scope and current candidate
 
-## October 21 dependency follow-up
+October 23, 2026; manual-campus-guide candidate `0.1.0-rc.1`.
+This is a focused React/TypeScript, browser-policy and dependency review, not a
+penetration test, guarantee of security or OWASP certification. The
+[earlier review](history/SECURITY_PRE_GUIDE.md) preserves prior findings.
+Candidate fixes do not protect production until the approved release is deployed.
 
-A network-refreshed audit found four package findings in the prior lockfile,
-including high-severity Vite and source-map-js findings and moderate Vitest/mocker
-findings. The earlier sandbox zero-finding result was cached and must not be used
-as current registry clearance. The production-only audit reported zero findings;
-the affected packages are development/build/test dependencies in this project.
-This does not establish that a public production visitor could exploit them.
+## Browser protections implemented
 
-Preview maintenance updates Vite 8.3.0→8.3.5, Vitest 5.0.1→5.0.5, and transitive
-source-map-js 1.2.1→1.2.2. A fresh full `npm audit --prefer-online --json` reports
-zero findings after installation. No advisory fix was forced across major app
-dependencies. Browser-header and ongoing monitoring findings below remain open.
+`vercel.json` defines the response policy, and `vite.config.ts` applies those same
+headers to local production preview. `browserSecurity.test.ts` checks the
+intended constraints; fresh-browser runtime checks verify enforcement.
 
-References: [Vite/launch-editor advisory](https://github.com/advisories/GHSA-587h-7wmj-h5pm),
-[source-map-js advisory](https://github.com/advisories/GHSA-68fv-2mgg-jv7q), and
-[Vitest mock registration advisory](https://github.com/advisories/GHSA-qxg6-89mg-rqv8).
+- Content Security Policy (CSP): scripts and workers only from this origin, no
+  inline/eval scripts, no objects/frames, self-only base and form actions.
+  Default map imagery/connections allow only the application's origin and
+  `https://tile.openstreetmap.org`; images also allow data/blob URLs.
+- MapLibre uses inline style attributes for positioning. The policy permits those
+  attributes, not inline scripts or unrestricted remote stylesheets.
+- `frame-ancestors 'none'` plus X-Frame-Options DENY prevent embedding the app.
+- X-Content-Type-Options nosniff discourages treating responses as another type.
+- Strict-origin-when-cross-origin referrer policy limits cross-site referrer
+  detail while retaining the origin required by OSM's tile policy.
+- Permissions Policy permits geolocation only for the app origin, and disables
+  camera/microphone. It does not grant location permission automatically.
 
-## Summary
+In a fresh non-bypass browser context, the map loads with no normal policy
+violations; a deliberately inserted inline script is blocked. Normal manual
+walkthrough and snapshot/error flows also work with the policy enforced.
+Automated accessibility injection uses a separate tool-only CSP-bypass context;
+deployed headers were not weakened to enable that tool.
 
-No demonstrated critical or high-severity exploitable vulnerability was found
-in the reviewed app paths. The locked dependency audit reported zero known
-vulnerabilities on this date. Browser protections and operational dependency
-monitoring have gaps. Zero reported advisories does not prove that software is
-free from vulnerabilities.
+The optional Vercel preview feedback toolbar is outside the application's
+allowlist. Automated hosted checks suppress its injection with
+`x-vercel-skip-toolbar: 1`; ordinary previews may report its blocked script.
+Do not widen production script policy for optional preview tooling.
+A new `VITE_MAP_STYLE_URL` or map vendor requires reviewing resource origins,
+attribution, referrer behavior and privacy together.
 
-The app uses normal React text rendering, same-origin compiled scripts, a locked
-dependency tree, and no account/session backend. Searches found no raw HTML
-injection, dynamic code execution, application Web Storage, location uploads, or
-third-party application analytics. No secret values were printed or added to
-this report. Future reporting or map vendors will need a fresh data-flow review.
+## Dependencies and build
 
-## Medium severity
+A fresh network-refreshed full npm audit reported zero known findings on
+October 23. This is time-specific evidence, not proof that packages are flawless.
+Earlier tooling findings were fixed by targeted Vite/Vitest/source-map-js updates;
+this package adds no new major runtime dependency.
 
-### SEC-01: Browser protections absent from the public app response
+Quality CI runs `npm audit --audit-level=high --prefer-online` alongside existing
+checks and declares a weekly schedule. The schedule starts when the workflow
+reaches main; configuration alone is not proof of a completed scheduled scan.
+Findings require severity/reachability and lockfile review, not force upgrades.
 
-- Rule IDs: REACT-HEADERS-001, REACT-CSP-001.
-- Location: `vercel.json:1–6`; `index.html`; live production `/` response.
-- Evidence: the Vercel configuration defines only framework/build/output. The
-  inspected HTTP 200 response included HTTPS/HSTS and HTML revalidation but
-  lacked Content-Security-Policy, X-Content-Type-Options, X-Frame-Options,
-  Referrer-Policy and Permissions-Policy. No equivalent meta policy was present.
-- Impact: the browser has fewer defenses against unexpected script execution,
-  framing/clickjacking, content-type confusion and inappropriate capability use.
-  No working script-injection exploit was identified; this is a missing defense,
-  not evidence that user data has been stolen.
-- Fix: define tested response headers centrally. Constrain scripts, workers,
-  styles, tile/style connections, framing and permitted capabilities to the
-  app's actual requirements. Preserve geolocation for this origin and the origin
-  referrer needed by OSM. Test a CSP in report-only mode before enforcement,
-  reviewing any required style allowances without weakening script policy.
-- Mitigation: retain safe React rendering, locked self-hosted JavaScript and
-  existing narrow data inputs while protections are added.
-- False-positive boundary: this was verified on the live response; a header
-  present only on a different deployment would not protect this production URL.
+Production source maps remain off, package metadata remains UNLICENSED, original
+ownership banners remain, and third-party notices are included in the build.
+These ownership measures do not prevent copying browser-delivered code.
+No secret was added, printed or used as a browser configuration value.
 
-## Low severity
+## Location privacy and error boundaries
 
-### SEC-02: Dependency audit is manual rather than part of continuing checks
+Only Get my location, Start navigating and Next request a snapshot. The bounded
+provider stops temporary collection on completion, cancellation, replacement,
+route change, timeout or unmount. One hook ignores late/stale results.
+Only the last reading is retained in tab memory; there is no application
+location-history storage/upload, movement trail, analytics or remote error
+collection. Reloading/closing clears application state.
 
-- Rule ID: REACT-SUPPLY-001.
-- Location: `.github/workflows/quality.yml:1–66`; `package.json:12–21`.
-- Evidence: the current CI runs locked install, formatting, lint, TypeScript,
-  tests, build and whitespace checks. It does not run a dependency advisory
-  audit or scheduled vulnerability scan. The one-time `npm audit --json` was
-  clean; the VM's earlier reported advisory cannot be identified from its count.
-- Impact: an advisory disclosed after release may go unnoticed even while
-  Quality checks remain green.
-- Fix: add an appropriate recurring advisory check and review process, with
-  separate treatment for bundled production code and development tooling. Review
-  fixes and the lockfile; do not run automatic force upgrades in production.
-- Mitigation: run a fresh audit on every release candidate and triage the actual
-  advisory, affected version and reachable behavior.
-- False-positive boundary: private GitHub security/Dependabot settings were not
-  inspected; they may provide additional scanning outside this workflow.
+The native footer disclosure describes this behavior and ordinary Vercel/tile
+requests. Those services see web-request metadata, including IP and viewed map
+area. Browser/OS location acquisition is outside this application's internal
+control. Do not describe this as anonymous or zero-third-party-data processing.
 
-## Privacy and disclosure observations
+Page/deferred-map error boundaries, separate bounded map-loading deadlines,
+generic sanitized map messages and explicit retry/reload prevent known map
+failures from blanking the whole application. Browser failure injection covers
+module download failure, graphics loss, partial tile failure and unsupported
+WebGL2. Unsupported graphics still require a supported browser/device; this
+release does not add a fallback renderer.
 
-Precise lookup readings are handled in
-`RefinedBrowserLocationProvider.ts:31–115` and displayed through
-`MapView.tsx:174`. The provider clears temporary candidate readings after
-completion; the displayed point remains in application/map memory. No code was
-found that sends it to an application backend or persists it across reloads.
-Tile requests can still disclose the viewed geographic area to the map provider.
-These facts must be reflected in the pilot's accessible privacy explanation.
+## Boundaries and residual risks
 
-`MapView.tsx:251` displays `mapError` directly. A tested tile failure included its
-request URL in that message. URLs could contain a future public provider key or
-sensitive parameters; sanitize them before display and reporting. The current
-default tile URL contains no key, and no private-key leak was demonstrated.
+- No user accounts, sessions, routing backend, database or uploaded content.
+- React text rendering remains the default; no new raw HTML or eval path.
+- A concrete unsafe route/access defect must be corrected or excluded; the
+  accepted geographic baseline is not an independently certified survey.
+- Community map tiles provide no reserved capacity or availability guarantee.
+- Physical-device performance/GPS and manual screen-reader behavior are not
+  established by fixtures or automated audits.
+- No production rollback, destructive probe, public-service load test or account
+  security-setting change was performed.
+- Future telemetry, vendors, photos, backend or persistent data need a fresh review
+  of consent, minimal data, retention, input handling and credentials.
 
-Before adding error collection, validate a narrow event schema, remove precise
-location/search/route data and URL queries, disable session replay, and inspect
-the resulting vendor-side event. A privacy explanation alone does not replace
-that verification. Proposed diagnostic gates and retention are in the release
-assessment; no new data collection is enabled by this review.
-
-## Verification and scope limits
-
-- Full local quality check: 117 tests / 24 files and production build pass.
-- Current full dependency audit: zero known advisories; no dependency changes made.
-- Runtime header check: public production HTML, HTTP 200, no login redirect.
-- Browser failure injection: location denial/unavailability/timeout recover;
-  unsupported WebGL2 retains its message; a failed map-module download blanks
-  the page. The latter is a high-priority availability defect, not a demonstrated
-  confidentiality exploit.
-- No destructive probes, load tests, credential attacks, production rollback,
-  or changes to provider accounts were performed.
-
-References: [OWASP ASVS](https://owasp.org/projects/asvs),
-[OWASP CSP guidance](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html),
-and [MDN CSP guide](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP).
+References: [OWASP CSP guidance](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html),
+[MDN CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP),
+[OSM tile policy](https://operations.osmfoundation.org/policies/tiles/),
+[Vercel toolbar](https://vercel.com/docs/vercel-toolbar/managing-toolbar).

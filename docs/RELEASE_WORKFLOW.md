@@ -1,373 +1,235 @@
-# Development and release workflow
+# Development, release and recovery workflow
 
-This is the contributor procedure for changing, testing, publishing, and
-recovering Yotes Wayfinder. It applies to application code, styles, geographic
-data, dependencies, environment settings, and documentation. A release is a
-tested version made available at the public production URL.
+This procedure applies to code, styling, geographic data, dependencies and hosting
+configuration. The product contract is [PRODUCT_PLAN.md](PRODUCT_PLAN.md); the
+practical acceptance checks are [RELEASE_READINESS.md](RELEASE_READINESS.md).
+Earlier GPS checkpoint and G01–G12 launch gates are superseded.
 
 ## Contents
 
-- [Rules](#rules)
-- [Tools and automated checks](#tools-and-automated-checks)
-- [Configure repository enforcement](#configure-repository-enforcement)
-- [1. Start an isolated change](#1-start-an-isolated-change)
+- [Rules and environments](#rules-and-environments)
+- [1. Isolate the change](#1-isolate-the-change)
 - [2. Implement and verify](#2-implement-and-verify)
-- [3. Publish a preview](#3-publish-a-preview)
-- [4. Review the preview](#4-review-the-preview)
-- [5. Release to production](#5-release-to-production)
-- [6. Check production](#6-check-production)
-- [Recover a broken release](#recover-a-broken-release)
-- [Versions and release records](#versions-and-release-records)
-- [Special cases](#special-cases)
-- [Terms and references](#terms-and-references)
+- [3. Publish and review preview](#3-publish-and-review-preview)
+- [4. Approve and release](#4-approve-and-release)
+- [5. Verify production](#5-verify-production)
+- [Recover a failed release](#recover-a-failed-release)
+- [Data, dependency and configuration changes](#data-dependency-and-configuration-changes)
+- [Versions and evidence](#versions-and-evidence)
 
-## Rules
+## Rules and environments
 
-1. Keep `main` as the production branch. Use a separate branch for each cohesive
-   change; do not develop directly on `main`.
-2. Commit small, verified changes with descriptive messages such as
-   `fix(map): preserve route camera after mode switch`.
-3. Open a pull request into `main`. Require passing checks and review of the
-   latest preview before merging. A newer commit invalidates earlier test evidence
-   for affected behavior.
-4. Preview-branch commits and pushes have standing approval. Merging into `main`
-   or promoting to production requires explicit release approval. Announce which
-   environment is being worked on and every preview/production transition.
-5. Do not force-push, rewrite shared history, or commit secrets, `.env.local`,
-   `node_modules`, or `dist`. Browser-visible `VITE_` values cannot hold secrets.
-6. Record the tested commit, preview URL, and last working production deployment.
-   Keep recovery possible before releasing.
-7. A successful build is not proof that routes, GPS, or the interface work.
-   Perform the relevant browser and physical-device checks below.
+- Work on a feature branch. Keep `main` for reviewed production changes.
+- Commit cohesive verified units; preview commits and pushes have standing approval.
+  Announce work on preview and every change of target environment.
+- A merge to `main` or production promotion needs explicit release approval.
+  No force pushes, rewritten shared history or bypass of required checks.
+- Record the reviewed source commit and preview URL, plus the known-good production
+  deployment/commit before release. A newer commit requires affected checks again.
+- Never commit secrets, `.env.local`, `node_modules` or `dist`.
+  Browser-visible `VITE_` settings cannot contain secrets.
+- Local configuration files do not prove dashboard enforcement. Check hosted
+  status and branch rules separately; green deployment is not browser verification.
 
-## Tools and automated checks
+The public production URL is https://wayfinder-umber.vercel.app/.
+The current feature preview is
+https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/.
+Preview is a separate website, not a release to existing production visitors.
 
-Use Node.js 22, the family specified in `.node-version`. GitHub Actions reads
-this file; `package.json` also specifies `engines.node: 22.x` so Vercel builds
-use the same major version. Keep those settings aligned. The file
-selects a major version, not an identical patch version on every machine.
-Run `node --version` and `npm --version` when diagnosing environment differences.
+## 1. Isolate the change
 
-`package-lock.json` records dependency versions. `npm ci` installs that recorded
-set instead of updating it. After obtaining the source, run:
-
-```powershell
-npm ci
-npm run check
-npm audit --prefer-online
-git diff --check
-```
-
-`npm run check` runs formatting, lint, TypeScript, tests, and a production build,
-stopping at the first failure. The individual commands remain available in
-`package.json`. Fix failures rather than skipping checks to get a green result.
-
-The separate advisory audit requires current registry access. Restricted/offline
-environments may return cached results or fail; neither establishes current
-security clearance. Record a network-refreshed full audit, and use
-`npm audit --omit=dev --prefer-online` to distinguish bundled production
-dependencies from development tooling. Review targeted fixes and the lockfile;
-do not use `npm audit fix --force` as a substitute for compatibility checks.
-
-`.github/workflows/quality.yml` runs the same checks as separate named steps
-after `npm ci` on pull requests targeting `main` and on pushes to `main`. It also
-supports a manual run after the workflow is on the default branch. The job is
-named **Quality checks**. Superseded runs are cancelled to avoid wasting runner
-time. The workflow has read-only repository permissions and no deployment secrets.
-Whitespace checks compare the proposed commits with their base revision; a manual
-run checks the latest commit. Full Git history is fetched for those comparisons.
-Actions are pinned to reviewed commit IDs; update their ID and version comment
-together after checking the official release. npm's cache saves downloads, not
-the installed `node_modules` folder.
-
-The workflow checks source and build behavior on Linux. Local verification on
-Windows does not prove that the hosted workflow has passed. It must run on GitHub
-after publication. It does not perform real-device GPS testing or browser tests.
-
-## Configure repository enforcement
-
-These are repository/hosting settings, not settings a committed Markdown or YAML
-file can enforce. Do not report them as enabled without checking the dashboards.
-
-After publishing the workflow branch and opening its pull request, let
-**Quality checks** run once so GitHub can offer it as a required status check.
-In GitHub repository **Settings > Branches**, add a protection rule for `main`
-(or an equivalent branch ruleset):
-
-- Require a pull request before merging.
-- Require the **Quality checks** status from GitHub Actions. The interface may
-  show it under the workflow name **Quality**.
-- Require the branch to be up to date before merging and require resolved review
-  conversations. Check and review the resulting revision again after updating.
-- Block force pushes and deletion; apply the rule to administrators/bypass users
-  where the account settings permit.
-- For a solo maintainer, do not require a second person's approving review unless
-  that reviewer exists. The author cannot approve their own pull request. Record
-  the owner's preview/release approval in the pull request instead.
-
-Availability of protection features depends on GitHub plan and repository
-visibility. Without enforcement, this remains a contributor procedure and users
-with write access may bypass it. Vercel can build in parallel with Quality checks;
-the workflow alone does not prevent production publication after a direct push.
-
-In Vercel, verify the Git integration points to this repository, production branch
-is `main`, root is the repository root, framework is Vite, build is `npm run build`,
-and output is `dist`. Non-production branches should create Preview deployments.
-Keep Preview and Production environment values deliberate and separately checked;
-an environment difference can make an otherwise identical build behave differently.
-
-## 1. Start an isolated change
-
-Check the working directory and preserve any unfinished changes before switching
-branches. `git status` should be clean for the following sequence:
+Preserve unfinished work and inspect the current branch before switching. With a
+clean working tree, start an appropriately named feature/fix/docs branch:
 
 ```powershell
 git status --short --branch
 git switch main
 git pull --ff-only origin main
-git switch -c feat/building-details
+git switch -c fix/describe-the-change
 ```
 
-`feat/building-details` is an example name; use `fix/...`, `chore/...`, or `docs/...`
-as appropriate. `--ff-only` updates without creating an unexpected merge commit.
-If it fails because histories differ, inspect the history instead of resetting.
+If fast-forward fails, inspect history; do not reset away another contributor's work.
 
 ## 2. Implement and verify
 
-Keep the approved scope small. Add or update tests for changed logic and integration
-boundaries; visual-only changes generally need browser checks rather than new tests
-that merely repeat CSS values. Preserve UI, domain, data, and provider boundaries.
-
-Run `npm run check` and `git diff --check`. For user-interface changes, also run
-`npm run dev` and inspect the exact URL Vite prints. Check `npm run preview` when
-behavior may differ in the production build. Update the relevant architecture,
-progress, and contributor records with facts about implemented behavior.
-
-Review `git diff` and stage only files belonging to the change:
+Use Node.js 22.x as recorded in `.node-version` and package engines. Install the
+recorded dependency tree with `npm ci`, not an uncontrolled dependency upgrade.
 
 ```powershell
-git diff
-git add src/features/map/components/MapView.tsx
-git diff --cached
-git commit -m "feat(map): add building selection"
+npm ci
+npm run check
+npm audit --audit-level=high --prefer-online
+git diff --check
 ```
 
-The path and message above are examples, not changes to run for every release.
-Repeat for cohesive verified units. Do not blindly stage unrelated user edits.
+`npm run check` runs formatting, linting, TypeScript, tests and a production
+build. A network-refreshed audit is separate evidence: cached/offline zero findings
+are not current advisory clearance. Review findings and targeted lockfile changes;
+do not use `npm audit fix --force` to bypass compatibility analysis.
 
-## 3. Publish a preview
+Keep UI, domain, data, infrastructure and composition separate. Add focused
+regressions for changed behavior and update the handbook, diagrams, progress and
+project memory when their facts change. Source indentation uses tabs. Theme and
+camera settings belong in `theme.css` and `mapPresentation.ts`.
 
-Publish the feature branch under standing preview approval, not `main`:
+Review/stage only related files, then make a focused commit. Do not include
+unrelated user edits just because they are present.
 
-```powershell
-git push -u origin feat/building-details
-```
+## 3. Publish and review preview
 
-On GitHub choose **Compare & pull request**, target `main`, and fill in the
-repository's pull-request template. Open the Vercel Preview URL provided by the
-integration and record its exact commit. A preview is a separate test website;
-it does not replace the production site. GitHub Actions and Vercel have separate
-statuses: require both a passing Quality job and a ready preview.
+Push the feature branch and open/update its pull request into `main`.
+GitHub's **Quality checks** and Vercel's preview build are separate statuses; both
+must pass on the newest commit. Quality runs on pull requests and main pushes.
+The candidate adds a high/critical advisory audit and a weekly scheduled run.
+Scheduled execution starts only after that workflow reaches the default branch;
+a committed schedule is not evidence that the hosted scan has run.
 
-If a check fails, open its log, fix the cause on the same feature branch, verify,
-commit, and push the preview update. Wait for the newest checks and re-test the
-newest preview. Do not merge an older successful revision over newer failures.
+Open the preview in a fresh tab and record the actual deployed revision. For the
+manual guide, check:
 
-## 4. Review the preview
+1. No location request on page load. Search is empty and the map loads.
+2. Choose library to cafeteria or Sterry, Preview route, Start navigating, Next,
+   Back and finish. Steps advance immediately even with pending/denied location.
+   Completion says walkthrough complete, not physical arrival.
+3. Only Get my location, Start navigating and Next acquire location. Each bounded
+   lookup cleans up. Rapid Next replaces the prior lookup, route edits cancel it,
+   and a late result cannot change another route. Back makes no request.
+4. Check Last checked, contrasting green circle, denied/unavailable/stale feedback,
+   retained older snapshot and off-campus/uncertain feedback. No trail or storage.
+5. Check 2D/3D, deliberate camera changes, repeated controls and reduced motion.
+   Snapshot updates must not interrupt an active walkthrough camera.
+6. Check keyboard search (arrows/Enter/Escape/Tab), full-list scrolling, focus,
+   building dialog, footer/privacy, readable labels and no narrow-screen overflow.
+   Automated accessibility results do not replace screen-reader/device checks.
+7. Check normal operation under the actual response headers. Vite's production
+   preview uses `vercel.json` headers; the development server does not enforce
+   them because its debug connection differs. Do not weaken script policy for tools.
+8. Inspect unexpected console errors and failed app requests. Do not publish
+   exact user coordinates or sensitive query strings in evidence.
 
-For a campus pilot or wider launch, attach the G01–G12 results and evidence record
-from [release readiness](RELEASE_READINESS.md#release-evidence-record). A green
-Quality job does not close performance, accessibility, route-field-review,
-privacy, service-capacity or recovery gates. Record unmeasured gates as pending.
+Vercel may inject its optional feedback toolbar into previews. The narrow app CSP
+does not permit that third-party script. Automated app checks use request header
+`x-vercel-skip-toolbar: 1` rather than broadening the app policy. This does not
+change authentication protection or production configuration.
 
-Use desktop and a real phone where the change matters. A narrow desktop browser
-window checks layout; it does not measure actual phone performance or GPS.
+### Failure/recovery regression checks
 
-- Open a fresh tab, confirm the map loads, fields are initially empty, and the
-  browser reports no unexpected console errors.
-- Select library to Sterry Hall, preview a route, and verify distance, instructions,
-  and route visibility. Check another affected pair for geographic changes.
-- Switch 2D/3D and confirm the route remains. Start simulated navigation, use Next
-  and Back, and complete the route. Verify unavailable-route behavior when relevant.
-- Check Get your location on a phone with permission granted and denied. Confirm
-  on-campus/off-campus/uncertain results where practical; simulation is not GPS evidence.
-- Check search scrolling, keyboard focus, button reachability, readable labels,
-  and no horizontal overflow on phone widths.
-- For map changes, verify visible attribution, entrances, formal-path preference,
-  and any affected stadium handoff. Do not claim verified access or accessibility
-  from visual inspection alone.
-- Check a tab opened before the update as well as a fresh tab. Current sessions
-  can continue running older code; refreshing generally loads the newer app.
+Use local production preview and browser interception, not load against public
+tile servers. For map/recovery changes:
 
-Record device/browser, tested revision, results, and known limitations in the pull
-request. Mark inapplicable checks explicitly with a reason rather than claiming
-they passed. Do not include users' precise coordinates in public reports.
+- Block `MapView-*.js`: planner remains editable, recovery offers Reload page.
+  Remove the block before reload and confirm recovery. Reload intentionally clears
+  transient route/snapshot state.
+- Delay the module and map startup separately: each has its own 20-second deadline.
+  Remove the fault and explicitly retry. Map-only retry preserves the selected route.
+- Return fixture HTTP 503 responses for tiles: incomplete-imagery warning and retry,
+  while controls remain available. Do not repeatedly hit the real service.
+- Simulate unavailable WebGL2 and graphics-context loss: clear unsupported/error
+  message, no page crash; supported-context retry restores route display.
+- Deny location and leave it pending: manual progression still works, cancellation
+  stops temporary acquisition, old snapshot is identified if retained.
+- Re-test search with open/no-results/full-list states. Focus stays on the input;
+  active-descendant IDs name direct listbox options; Tab exits without hidden stops.
 
-### Recovery and search regression procedure
+For axe injection, use an isolated tool-only CSP-bypass context. Test the real
+enforced policy separately in a fresh non-bypass context. Never weaken deployed
+headers merely to make the audit script execute.
 
-Before releasing map loading or search changes, test the production build, not
-only the development server. Run `npm run check`, then `npm run preview` and open
-the printed local URL. Test the hosted preview as well before production approval.
+### Short physical-device check
 
-1. In browser developer tools, block the `MapView-*.js` request and reload. Check
-   the recovery message, editable planner and explicit reload action. Remove the
-   block before using **Reload page**; fields should reset and the map should load.
-2. Delay that module beyond 20 seconds to check bounded download recovery. Delay
-   map imagery requests separately to check initialization timeout. Select a
-   route, remove the delay, and use **Try map again**; the route should remain.
-3. Simulate tile HTTP 503 responses without sending load to the tile service.
-   Check the incomplete-imagery warning, usable controls and explicit imagery
-   retry. Check unavailable WebGL2 and graphics-context loss where tooling allows.
-4. Test each search with Up/Down, Enter, Escape and Tab, including an unmatched
-   query and the full scrolling list. Focus must remain on the input while
-   reviewing options, with no keyboard trap or hidden additional Tab stops.
-5. Inspect the accessibility tree: the input's active-descendant ID must name an
-   option directly owned by its listbox. Run automated accessibility checks with
-   search closed/open/empty, a route active, the details dialog, and recovery.
-   Inspect incomplete results and manually check a screen reader and real phone.
+Before broadening an invited rollout, check a supported real phone and the affected
+school computer: initial load, preview/Next/Back/2D/3D responsiveness, permission
+allow/deny, Last checked updates, readable controls and footer. Try reduced motion.
+Record device/browser and observed problems. Physical walking is not required to
+complete a walkthrough; GPS quality needs an actual-device check, not a fixture.
 
-Record revision, browser/device, injected failures and results using the
-[readiness evidence record](RELEASE_READINESS.md#release-evidence-record).
-Developer-tool simulations are not proof of physical-device performance or
-real-world navigation accuracy. Do not perform failure injection against other
-users' sessions or stress public map servers.
+## 4. Approve and release
 
-## 5. Release to production
+Record candidate version, tested preview commit, checks and known limitations in
+the pull request. Confirm the previous working deployment is recoverable. Obtain
+explicit approval for the exact release; announce the preview-to-production transition.
 
-Before merging, confirm the latest checks and preview review pass, release approval
-is recorded, and the previous working production URL and commit are saved in the
-pull request. For functional releases, prepare the version record below on the
-feature branch before its final checks; version edits trigger another review.
+Use the reviewed pull request's **Squash and merge** into `main`. If required
+checks or up-to-date rules block it, resolve through the feature branch and repeat
+affected verification. Do not force-push or promote a preview as a shortcut.
 
-Use GitHub's **Squash and merge** to combine the branch into one identifiable
-release change on `main`. Individual development commits remain in the pull-request
-history. If GitHub requires an update first, merge the current `origin/main` into
-the feature branch, resolve conflicts carefully, and repeat checks and review.
-Do not force-push to resolve a conflict.
+The Vercel Git integration normally builds `main` automatically. Watch both the
+main Quality run and Vercel deployment; no additional production promotion is
+authorized merely because a feature branch was pushed.
 
-The connected Vercel project normally builds and publishes `main` automatically.
-The Quality job also runs on `main`; monitor both. Do not manually promote the
-feature preview as an alternate route around the agreed merge/check process.
+## 5. Verify production
 
-## 6. Check production
+Wait for Ready and passing main checks. Verify the deployed commit, open the public
+domain fresh, then smoke-test map, search, preview, manual controls and the changed
+feature. Check the actual security headers and absence of authentication prompts.
+Record version, source/deployment IDs, results and the recovery target.
 
-Wait for Vercel to report **Ready** and GitHub's Quality job to pass for the merged
-commit. Verify the deployment's commit in Vercel and open
-`https://wayfinder-umber.vercel.app/` in a fresh tab. Repeat a short check of map
-load, search, route preview, navigation controls, and the changed feature on desktop
-and phone. A green deployment status does not confirm these interactions.
+Existing tabs may run older code until refreshed. There is no service worker,
+forced reload, database migration or live configuration service in this release.
+Never claim a fresh build has updated every already-open tab.
 
-Record the production URL, deployed commit, verification results, and release
-version in the pull request or GitHub release. A rollback target must be a known
-working deployment, not simply the immediately preceding one.
+## Recover a failed release
 
-After the merged version is verified, update the local checkout:
+For a serious regression, use the recorded known-good production deployment, not
+simply the immediately preceding one. In Vercel, **Instant Rollback** can restore an
+eligible prior deployment. Confirm its exact commit and repeat the essential live
+checks. Dashboard eligibility/settings must be checked when used; this procedure
+does not claim a hosted rollback rehearsal has occurred.
 
-```powershell
-git switch main
-git pull --ff-only origin main
-```
+A rollback changes the served build, not Git history or external accounts. Vercel
+may pause automatic domain assignment afterward; inspect its displayed state
+before expecting a later merge to publish. Restore normal release behavior only
+with a reviewed fix and approval.
 
-Because a squash merge creates a different commit, `git branch -d` may refuse to
-delete the original local branch. Keeping it is safe; do not force-delete it without
-first verifying that all its changes exist in `main`.
-
-## Recover a broken release
-
-For a serious user-facing regression, use Vercel's deployment dashboard to select
-the recorded working production deployment and choose **Instant Rollback**, where
-available for the account and eligible deployment. Confirm the chosen commit and
-check the production URL after recovery. Preserve working deployments so they
-remain recovery candidates. Rollback availability can vary by plan and deployment.
-
-Vercel can pause automatic domain assignment after a rollback. Check its displayed
-state before expecting the next merge to publish; explicitly restore normal
-production promotion after the fix is verified. A dashboard rollback changes the
-served build, not Git history or external service settings.
-
-Then fix the source through a branch and pull request. Alternatively, use a new
-commit that reverses the faulty squash-merge commit:
+If rollback is unavailable, prepare a corrective branch or a source revert:
 
 ```powershell
 git switch main
 git pull --ff-only origin main
 git switch -c fix/revert-release
-git revert REPLACE_WITH_FAULTY_SQUASH_COMMIT
+git revert REPLACE_WITH_REVIEWED_FAULTY_SQUASH_COMMIT
 ```
 
-Replace the uppercase placeholder with the reviewed commit ID. Resolve any
-conflicts, run the checks, publish the preview branch, and use the
-normal review/release process. `git revert` adds history; it does not erase it.
-If the dashboard cannot roll back, this corrective release is the fallback.
+Resolve conflicts, verify, publish preview and obtain approval through the same
+workflow. Revert adds a new reversal commit; it does not erase shared history.
+A static rollback restores bundled campus data but not external service settings.
 
-A static-build rollback restores that build's bundled campus data. It does not
-restore provider accounts, remote APIs, changed secrets, or future databases.
-Record and recover those separately if later architecture introduces them.
+## Data, dependency and configuration changes
 
-## Versions and release records
+**Geographic data:** preserve source/digest, use the OSM importer, inspect generated
+diffs and test affected graph connections/routes. The current dataset is accepted;
+a future export or comprehensive survey is not a blanket software-release gate.
+Keep inferred connectors and access limitations honest.
 
-The package currently remains `0.0.0`; adding this procedure does not declare a
-new public release. Before a deliberate functional release, choose its version
-on the branch. For example, a first named prototype release could use:
+**Dependencies:** review advisory severity, reachable behavior and production versus
+development packages. Make targeted updates with compatibility tests. Align Node
+engines, lockfile, workflow and hosting settings where relevant.
 
-```powershell
-npm version 0.1.0 --no-git-tag-version
-```
+**Map provider:** default imagery is best-effort OSM, not reserved capacity.
+Do not load-test it. Before broad promotion, review observed traffic, usage policy,
+attribution and cost limits. A changed tile/style host needs an explicit CSP
+allowlist and privacy review; `VITE_MAP_STYLE_URL` does not bypass the policy.
 
-This updates `package.json` and `package-lock.json` without committing or tagging.
-Review and commit both, re-run checks, then follow preview and production review.
-For later versions use `npm version patch --no-git-tag-version` for fixes or
-`npm version minor --no-git-tag-version` for additions. Pre-1.0 versions signal
-an evolving prototype; explain changed behavior in release notes regardless of
-the version number. Documentation-only changes do not require a version bump.
+**Headers/environment:** test the deployed policy and browser behavior, not just
+JSON strings. Keep self-hosted scripts/workers and the narrow style-attribute
+exception required by MapLibre. No paid service or telemetry is implied.
 
-After production verification, create an annotated tag on the exact deployed
-`main` commit and publish it only with approval:
+## Versions and evidence
 
-```powershell
-git tag -a v0.1.0 DEPLOYED_MAIN_COMMIT -m "Prototype release 0.1.0"
-git push origin v0.1.0
-```
+The prepared candidate is `0.1.0-rc.1`; it is not a production release. A release
+candidate is a named build proposed for review. Keep package and lockfile versions
+aligned. A source SHA identifies exact code independently of the version label.
 
-Use the actual version and deployed commit, not the sample placeholders. Published
-tags must not be moved to different commits. A GitHub release can attach concise
-notes: user-visible changes, known limitations, verified commit, deployment URL,
-and checks performed. This workflow does not publish npm packages or automatically
-deploy tags.
+After an approved production release and live verification, an annotated immutable
+tag may identify the deployed main commit. Use the actual version and commit;
+never move published tags. No tag or npm package publication is automatic here.
 
-## Special cases
+Release evidence records: source SHA, version, preview and production URLs,
+hosted statuses, local checks, browser/device conditions, injected failures,
+limitations, explicit approval and known-good recovery target. Keep precise
+locations and credentials out of public evidence.
 
-**Campus-data updates:** preserve the source and digest, run the documented OSM
-import, inspect changed entrances and network connections, test affected routes,
-and release through the same branch/preview process. Keep uncertain access data
-labelled. See [the collection guide](CAMPUS_DATA_COLLECTION.md).
-
-**Dependencies and runtime:** change these separately from unrelated feature work.
-Review the lockfile, action release IDs, Node version, and Vercel setting together.
-Do not change them just to silence a build warning.
-
-**Urgent fixes:** keep the branch, checks, preview, and recorded approval. Use a
-small corrective change or restore production first. Urgency is not permission
-to rewrite shared history or skip knowing which version is live.
-
-**Open tabs and future backends:** this app currently has no service worker or
-database migration process. Existing tabs may still run the previous JavaScript;
-do not force reload during a walk. If persistent offline caching or a backend is
-introduced, design compatible data/API changes and update this procedure first.
-
-## Terms and references
-
-- **Branch:** an independent line of work based on a saved source revision.
-- **Pull request (PR):** a proposed branch change with review, checks, and history.
-- **Continuous integration (CI):** automatic checks each time a proposed change is
-  submitted or updated. It is not automatic proof of real-world correctness.
-- **Preview / production:** the test deployment / public deployment used by visitors.
-- **Commit / tag:** a saved source revision / a named reference to a revision.
-- **Rollback / revert:** restore a served deployment / add a source commit that
-  reverses an earlier change.
-
-Sources: [GitHub Node.js CI](https://docs.github.com/en/actions/tutorials/build-and-test-code/nodejs),
-[protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches),
-[Vercel Git deployments](https://vercel.com/docs/git), and
-[Vercel Instant Rollback](https://vercel.com/docs/instant-rollback).
-Node version selection follows [Vercel's runtime documentation](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
+References: [GitHub protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches),
+[Vercel Git deployments](https://vercel.com/docs/git),
+[Instant Rollback](https://vercel.com/docs/instant-rollback), and
+[Toolbar management](https://vercel.com/docs/vercel-toolbar/managing-toolbar).

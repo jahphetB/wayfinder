@@ -1,5 +1,10 @@
 # Campus Geometry Collection Packet
 
+The current imported dataset is the accepted campus-guide baseline. This packet
+supports later incremental corrections; a new export, full survey, walkway widths
+or building heights are not prerequisites for finishing the current software
+release. Source observations and inferred access remain honestly distinguished.
+
 This packet is for replacing illustrative map geometry in small, reviewable
 batches. Its initial example forms cover Cruzen-Murray Library, Blatchley Hall,
 Simplot Dining Hall, Simplot Residence Hall, and Sterry Hall.

@@ -1,345 +1,126 @@
-# Project state reference
+# Current project state
 
-## Authoritative product update: manual campus guide
+## Product authority and delivery boundary
 
-`PRODUCT_PLAN.md` supersedes earlier live-navigation/GPS-gated assumptions and
-the earlier requirement that simulation be development-only. The approved package
-starts on preview `9cd4529`. Production remains `de7e5e8`; merging/promoting still
-needs explicit approval.
+The October 23 manual-campus-guide definition in [PRODUCT_PLAN.md](PRODUCT_PLAN.md)
+supersedes GPS-gated checkpoints, simulation-mode selection and former live-navigation
+launch gates. The previous state record is archived in
+[history/PROJECT_MEMORY_PRE_GUIDE.md](history/PROJECT_MEMORY_PRE_GUIDE.md);
+historical proposals do not override this file.
 
-- Start navigating and Next advance the illustration regardless of physical
-  location or GPS success. Both request a real snapshot; Get my location also
-  requests one. Back does not. No automatic location requests, progression,
-  rerouting, location-selected origins or movement-following feature.
-- Snapshots use the bounded provider, a light-green outlined circle and Last
-  checked time; no trails, persistence or location-history upload. Preserve manual
-  controls on failure, identify retained older readings, prevent overlap and
-  cancel/discard route-stale results. Completion is a walkthrough, not arrival.
-- Current OSM data is the accepted baseline with honest provenance. Future exports
-  and 3D updates are incremental, not prerequisites. No comprehensive survey gate.
-- Profile camera/startup before targeted optimization; slower transitions alone
-  do not fix dropped frames. Centralize easing/durations, cancel competing motion,
-  respect reduced motion and retain the established presentation.
-- Add footer Wayfinder™ · Developed by Yaphet (GitHub profile link), practical
-  privacy/security/dependency/accessibility/recovery checks and a tested candidate.
-  No paid services, external telemetry or major dependencies are authorized.
-- Routine package steps are approved without repeated pauses. Commit/push preview,
-  give brief progress, and stop for production approval with real-device checks.
-  Use tabs for source indentation and semantic classes/IDs.
-- Step 1 committed as `1f9730d`; formatting-only tabs committed as `6b26a98`
-  after all original 127 tests and full checks passed. Baseline profile before
-  behavior changes: 4× CPU emulation, map-ready proxy 4.796 s; a rapid preview /
-  Start / Next / 2D sequence had 29 sampled frames over 4.5 s, 20 gaps >50 ms,
-  max gap 583 ms. Not a school-computer or physical-phone measurement.
-- Steps 2–3 implementation is in progress: App owns one real bounded snapshot
-  hook; manual domain state is awaiting-start/navigating/completed. Old GPS-gated
-  hook, fake-location provider, one-shot provider and obsolete tests were removed.
-  New snapshot requests abort previous work synchronously (no overlap), navigation
-  never waits, route changes cancel and ignore late readings. Map circle updates
-  have explicit camera-focus control. Footer and native privacy disclosure added.
-  Full checks/build now pass with 109 tests / 26 files (obsolete gating tests were
-  replaced, not merely removed from a failing run); fresh audit zero. Browser:
-  no acquisition on load, Start/Next advance with pending/denied location, Back
-  makes no request, completion is honest, 11 watches started/cleared with none
-  active after route edit, native privacy keyboard toggle passes. Committed `7ab3a8d`.
-- Step 4 changes pass full checks/build (109 tests): stop previous camera intent,
-  centralized 1500/1300/1000/900 ms durations + smoothstep easing, skip unchanged
-  source payloads, no active-walkthrough recenter on resize, 2× pixel-ratio cap.
-  Revised constrained probe 4.772 s map-ready, max startup task 746 ms, 36 sampled
-  frames/23 gaps >50 ms/max483 ms over 4.5 s. Not a controlled speedup or physical
-  school-device result. `PERFORMANCE.md` records details. Steps 5–6 remain.
-  Historical
-  records below describe superseded behavior and must not override this contract.
+- Work targets preview branch `feat/step-39-location-refinement`, PR #2.
+- Production remains `de7e5e81794661dec2f67ad7856e57055a535453` at
+  https://wayfinder-umber.vercel.app/ until an explicitly approved release.
+- Preview: https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/.
+- Routine grouped package work and feature-branch commits/pushes are approved.
+  Main merge/promotion still requires approval. No production switch has occurred.
+- Use tabs, semantic classes/IDs, focused commits and brief progress reports.
+  Keep public explanatory documents factual. README uses neutral campus wording.
+- No new paid provider, major dependency, backend or telemetry is authorized.
 
-This reference summarizes the current implementation, source data, and
-verification record. `docs/ARCHITECTURE.md` is the full handbook;
-`docs/PROGRESS.md` records implementation history.
+## Implemented behavior
 
-## Current scope: October 22 recovery and accessibility
+1. Select Start/Destination and Preview route. Start navigating/Next advance the
+   manual illustrated session immediately and each request a fresh real snapshot.
+   Back changes only the illustration. Get my location independently requests one.
+2. No location request on page load, timers, mode changes, Back or between actions.
+   The bounded watcher improves a requested snapshot then clears; it is not live
+   movement-following. No automatic advancement/reroute/GPS-selected origin.
+3. Last checked absolute time and approximate accuracy label the outlined green
+   circle. A failed refresh clearly retains the previous point/time. No trail,
+   persistence, location-history upload, analytics or remote error collection.
+4. One hook aborts the preceding request before replacement and invalidates
+   route-stale results. Manual progression never depends on location success,
+   physical movement or checkpoint proximity. Completion is not physical arrival.
+5. Campus/stadium bounds, route summaries, formal-first routing, colored legs,
+   tilted modes, library mesh and three building dialogs remain. Photo slots are
+   honest placeholders. The stadium handoff remains separate illustrative driving
+   guidance, not car turn-by-turn navigation.
 
-- The user approved page-failure recovery and search accessibility, superseding
-  the earlier hold below. Scope is the first release-hardening package: R01–R03,
-  bounded map loading, partial imagery warnings, and focused regression tests.
-- Work remains on preview branch `feat/step-39-location-refinement`, PR #2. Main
-  and production remain `de7e5e8`. No production promotion is authorized.
-- Root and deferred-map error boundaries use explicit reload; reload clears
-  route progress. Map-only failure leaves the planner editable. Separate module
-  download and initialization deadlines are 20 seconds each in recoverySettings.
-- Fatal map events release the adapter and allow retry; partial tile failures
-  warn without disabling a ready map. Late callbacks are ignored, WebGL2 remains
-  required, and raw provider URLs are not displayed in recovery messages.
-- Search now uses direct listbox/options, input-held focus, active-descendant
-  references on the actual option, non-tabbable suggestions, and polite result
-  announcements. Attribution links are underlined with an OSM copyright link.
-- This package does not authorize mobile optimization, tracking, a provider
-  subscription, privacy/monitoring integrations, or a pilot/public launch. The
-  remaining G01–G12 evidence gates still apply. No new OSM data is required for
-  this package; request corrections before route field acceptance.
-- Handbook section: `ARCHITECTURE.md#page-failure-recovery-and-accessible-search`.
-  Release evidence: `RELEASE_READINESS.md#page-recovery-and-search-accessibility-follow-up`.
-- Application commits: `54af495` boundaries, `8ab6c72` lifecycle/warnings,
-  `630dfa2` search/attribution, `7bcaab6` mobile retry obstruction,
-  `9a86be5` graphics-loss explanation. Full checks pass: 127 tests / 27 files.
-- Local browser evidence: aborted module preserves planner, 20.03-second stalled
-  module recovery preserves input focus, stalled map retry retains route, 503
-  imagery warns, unsupported WebGL2 stays contained, explicit graphics-loss retry
-  works. Search has 50 scrollable options at 320/390 px, no document overflow,
-  and dialog Escape restores focus. axe 4.14.0 reports no automated violations
-  in tested states; incomplete contrast/semantics need manual review.
-- Final built hashes: initial `index-CxQlDF54.js`, map `MapView-aJ9NQiYa.js`,
-  CSS `index-CXyr3eq7.css`; worker remains `maplibre-gl-worker-DEn6RsMw.js`.
+## Key ownership and file connections
 
-## Historical state after October 21 maintenance
+- `App.tsx` composes planner, manual session and one shared snapshot hook.
+  `RouteWalkthrough.tsx` renders manual actions; `navigationSession.ts` is pure
+  progression logic with no location input.
+- `useLocationSnapshot.ts` owns request replacement, cancellation, freshness and
+  retained-reading UI state. `createLocationProvider.ts` creates only the bounded
+  `RefinedBrowserLocationProvider`. `locationLookupPolicy.ts` labels tunable
+  12-second/15-second-age/15-metre/two-reading limits.
+- Removed obsolete CheckpointNavigation/useCheckpointNavigation, fake-location
+  provider/scenario contract, one-shot checkpoint provider and gating tests.
+  Route geometry's internal checkpoint field remains a step endpoint, not a GPS gate.
+- `LocationSnapshotControl.tsx` displays independent lookup, time and feedback.
+  `MapView.tsx` passes explicit focus intent to `MapAdapter.showUserLocation`.
+  Snapshot updates do not interrupt an active route camera.
+- `MapLibreMapAdapter.ts` stops the previous camera before newer intent, skips
+  unchanged worker-source data, and avoids active-walkthrough resize recentering.
+  `mapPresentation.ts` centralizes easing, durations and a 2× pixel-ratio cap.
+  Reduced-motion behavior remains nonessential motion, honoring MapLibre preferences.
+- `SiteFooter.tsx` and `footer.css` provide normal-flow developer credit and
+  keyboard-operable privacy disclosure, not an overlay above attribution.
+- `vercel.json` owns narrow browser headers. Vite production preview reads the
+  same values; dev HMR is not constrained by that production policy.
+  `browserSecurity.test.ts` guards the policy. CI adds current high/critical
+  advisory checking and weekly schedule (schedule starts only on main).
+- `ARCHITECTURE_DIAGRAM.md` shows current data/state/service and release boundaries.
 
-- At that time, the user wanted to wait before deciding on page-failure recovery
-  and search accessibility; that hold is superseded by the October 22 approval.
-  Movement tracking remains outside the approved recovery/accessibility package.
-- Production `de7e5e8` is publicly accessible and passed fresh map/route/dialog/
-  phone-width smoke checks with no console errors/warnings. Preview was `61f759c`
-  with hosted Quality/Vercel passing before this maintenance; PR #2 remains open.
-- Screenshot warning: package.json engines 22.x overrides Vercel dashboard 24.x.
-  Node 22 remains supported; build queue, function CPU/region, Fluid Compute,
-  disabled login protection and skew/cold-start options are not deployment failures.
-  No dashboard settings were changed; public access is intentional.
-- Important audit correction: sandbox npm audit returned cached zero findings.
-  A network-enabled --prefer-online audit found four dev-tool findings (two high,
-  two moderate); production-only audit reported zero. Updated Vite 8.3.0→8.3.5,
-  Vitest 5.0.1→5.0.5, source-map-js 1.2.1→1.2.2 through reviewed lockfile changes.
-  Fresh full audit now zero. Require live registry access for advisory clearance;
-  do not present cached audit output as a current security result.
-- Updated tooling passes formatting, lint, TypeScript, 117 tests / 24 files and
-  production build. CSS hash unchanged; new JS hashes reflect the bundler update.
-- This is targeted preview dependency maintenance. No app source, style or campus
-  data changed. Do not merge main/promote production without explicit approval.
+## Source data and future replacement
 
-- User accepts WebGL2 as the supported production/prototype requirement and wants
-  the existing unsupported-browser message retained. VM setup is outside app
-  remediation. Release-readiness assessment now takes priority before Step 40.
-- Assessed app revision `8132dbc` on preview; production `de7e5e8` still serves
-  `index-DVYzLa7U.js`. PR #2 open, checks green, main protections verified. No
-  production merge approval was given in the readiness request.
-- Full quality gate passes with 117 tests / 24 files; current full npm audit zero
-  advisories. Three Lighthouse 12.8.2 mobile runs: LCP 2.164/2.133/4.150 s,
-  TBT 1,016/855/688 ms, CLS 0.0019; third run scores 65/96/100. First two category
-  selections were malformed by shell comma handling; metrics are present.
-- Extra 390×844 probe at 4× CPU/150 ms/204,800 bytes/s: map control-ready proxy
-  5.986 s, 10 long tasks (max 890 ms); no physical-device or field percentile claim.
-- Release blockers reproduced: aborting MapView chunk blanks the whole page
-  (App has Suspense but no error boundary); axe 4.14.0 flags listbox/li/button
-  option relationships and color-only attribution link. Attribution also lacks
-  an OSM copyright link. WebGL2 failure retains error/planner; simulated permission
-  denied/unavailable/timeout recover. Tile 503 shows raw URL and disables controls.
-- `docs/RELEASE_READINESS.md` is the acceptance/evidence reference (G01–G12,
-  R01–R10); `docs/security_best_practices_report.md` covers missing live browser
-  headers and manual dependency monitoring. Hold independent navigation pilot and
-  wider launch until gates pass. Current app is suitable for supervised testing.
-- Proposed next work: failure containment/accessibility, then measured mobile
-  optimization, privacy/monitoring, service/data acceptance, recovery/pilot. This
-  sequence is proposed for approval; do not implement tracking or buy providers
-  automatically. Request next OSM corrections before pilot route field acceptance,
-  after software hardening. Current prototype data can support earlier work.
-- Assessment only changes documentation. Raw diagnostics stay ignored under
-  output/playwright/readiness-*. No telemetry, dependencies, headers or production
-  settings were changed; no load test or rollback performed. Standing preview
-  commit/push approval continues; production merge requires explicit approval.
+Current accepted baseline is user-supplied `map (1).osm`, SHA-256
+`03B9BD752A588BFF7CB04A87B06D417736E1BFBC49091AFD9EF8452A88C0B40C`.
+XML is not fetched at runtime or committed. Import with
+`python scripts/import_campus_osm.py path/to/map.osm`, inspect generated
+`campusOsmNetwork.json`, source IDs and digest, validate graph and affected routes,
+then use the normal preview/release procedure.
 
-- Before Step 40, a VirtualBox Xubuntu Chrome user reported a purple screen and
-  `Map adapter must be initialized before use`. A failed MapLibre construction
-  left the adapter reference set; a later mode effect called `setMode` on it.
-  `MapView.tsx` now exposes the adapter only after successful initialization,
-  releases a failed construction, and retains the map error/retry UI. The focused
-  regression test is in `MapView.test.tsx`; local checks pass with 117 tests.
-  The initial graphics failure itself remains unverified on that VM. This fix
-  belongs to the Step 39 preview branch until a production merge is approved.
+Curated destination references live in `collegeOfIdahoWalkingGraphData.ts`;
+`buildCampusWalkingGraph.ts` joins the snapshot; the graph loader validates it;
+`mockLocations.ts` derives 50 search places. Domain routing minimizes informal
+distance first, then weighted distance (main formal paths count at 90% for
+selection; displayed metres remain physical). Data, routing, rendering and UI stay
+separate. No future export or full campus survey is a blanket software-release gate.
 
-- Release procedure: `docs/RELEASE_WORKFLOW.md`; work on feature branches,
-  publish previews under standing approval, and merge only with release approval.
-  `npm run check` collects the existing quality commands. GitHub Actions reads
-  Node.js 22 from `.node-version`; `.github/pull_request_template.md` records
-  the tested revision, preview, release approval, and recovery target.
-- Production: pull request #1 merged as `de7e5e8`. Hosted Quality and Vercel passed;
-  the public production URL serves the new build without login. Browser checks
-  passed for building details, route preview, Start/Next/Back, with no console errors.
-  Step 39 uses preview branch `feat/step-39-location-refinement`. Main protection
-  now requires pull requests, Quality checks and Vercel success, an up-to-date
-  branch and resolved conversations, including administrators.
-- Standing approval permits preview commits and pushes. Production merges and
-  promotions require approval. Announce every environment transition. Approved
-  scope includes Step 39 refinement on preview; its production merge is not yet
-  approved. Movement tracking remains later work.
-- Styling now lives in `src/styles`; `theme.css` owns labeled visual variables,
-  while `mapPresentation.ts` owns typed camera settings and map route colors.
-  See `docs/STYLING.md`. The old `src/app/styles.css` has been replaced.
-- Three selectable footprints: library `603509923`, Sterry `492831879`, and
-  Simplot `492831873`. Content is in `src/data/campus/buildingDetails.ts`.
-  Simplot's shared footprint opens cafeteria details; residence routing is unchanged.
-  Popups have two labeled photo placeholders because no approved photographs are
-  in the repository. Supply assets/metadata using `docs/BUILDING_DETAILS.md`.
-  No images were scraped, generated as campus photos, or hotlinked.
-- Map selection travels through `MapAdapterCallbacks.onBuildingSelect` into
-  `MapView` and the native React dialog. Route sessions and GPS are unaffected.
-  Approved feature implementation and local browser/build verification are
-  complete and released. Vercel authentication protection was disabled by the
-  owner; production was verified publicly accessible. The prior release passed 102 tests;
-  the compiled preview was tested with simulated browser GPS, not physical GPS.
-- Vercel builds select Node.js 22.x via package engines, matching `.node-version`.
-  Modal keyboard focus explicitly wraps Tab/Shift+Tab; a regression test covers it.
-- Step 39 adds a dedicated RefinedBrowserLocationProvider only for Get your location.
-  Default checkpoint simulation and one-shot browser checkpoints are unchanged.
-  Best recent reading selection is pure; settings are in locationLookupPolicy.ts.
-  Cancellation/progress are optional request controls, with unmount abort and
-  late-result guards in MapView. See docs/LOCATION_LOOKUP.md.
-- Step 39 local checks pass: 116 tests in 24 files, formatting, lint, TypeScript,
-  production build and whitespace. Browser fixtures confirmed progress/refinement,
-  cancellation, permission denial, off-campus classification, no startup requests,
-  four watches cleared after four requests, and no phone overflow. Physical GPS
-  improvement still needs real-device comparison; production merge is pending.
-- PR #2: `https://github.com/jahphetB/wayfinder/pull/2`. Hosted Quality and Vercel
-  passed implementation revision `efd28ad`. Preview is public:
-  `https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app`.
-  Browser fixtures on the hosted build verified refinement, cancellation, denial,
-  a single-reading deadline fallback, no extra watchers from checkpoint buttons,
-  and no console errors/warnings. Production remains `de7e5e8`; merge requires approval.
-- Model recommendations must name a specific model and reasoning level. Keep
-  public documentation factual; release instructions belong in the contributor
-  guide rather than owner-action lists in product/ownership files.
+Known inherited limits: inferred entrance/outline connectors, provisional court
+numbering/approaches, private-drive stadium handoff, unreviewed access/slope and
+illustrative library height. A Hayman parking/basketball tag conflict and duplicate
+stadium outlines are documented source ambiguities, not newly verified facts.
+No current data has been falsely promoted to surveyed/accessibility-certified.
 
-- The outer navigation/map container has square corners on desktop and mobile.
-  The introductory simulated-route paragraph is removed; simulated checkpoints
-  and their operational status messages remain unchanged.
+## Candidate and verification record
 
-- The app is an illustrative campus-route prototype that opens with a
-  tilted 3D camera framing mapped campus facilities and stadium. One library mesh
-  uses its OSM footprint and an illustrative 8 m height; the former inaccurate
-  Hendren block remains removed. 2D hides the mesh without changing routes.
-  The route fields start empty. It has 50 searchable places and a MapLibre
-  display, but walking routes are calculated by project-owned domain code.
-- Navigation uses simulated one-shot checkpoints by default so it can be
-  tested without moving. `VITE_LOCATION_MODE=browser` enables physical
-  location requests for later field testing. It is not on by default.
-- The user is mostly satisfied with current 2D accuracy and will provide
-  corrections later. Building height, walkway width, slope, accessibility
-  classification, realistic 3D models, and safe-access claims remain deferred
-  or unverified. Do not present routes as official guidance.
-- Most path geometry comes from the user's observed OSM export. The invented
-  Campus Entrance and its long link are removed because there is no fixed
-  gate. Off-path entrances and outline-derived destination points have
-  illustrative connectors, not access guarantees.
-- Anderson uses the resident-used entrance; JAAC activities and swimming pool
-  have distinct described entrances. Both locations must be chosen before
-  previewing. Start navigation follows Preview route for walking directions.
-  Nearby turns can share one explicit instruction and Next action.
-- Eight sports courts are searchable and walking-routable: tennis, pickleball,
-  basketball, and beach volleyball. Court numbers are provisional OSM-outline
-  labels, not official names. Standard volleyball has no distinct tag here.
-  Beach Volleyball Court 2 uses its OSM-tagged main gate; the other seven
-  courts still use provisional outline approaches. Even the mapped gate has
-  an inferred link to the walking network.
-  Page purple `#412D5E` is provisional pending a current institutional guide.
-- Simplot Stadium is a separate prototype driving handoff from a mapped campus
-  driveway to a west-side parking approach. It is not a car route from the
-  chosen origin and has no car checkpoints. Both candidate driveways are
-  tagged private; permission, turns, parking, and venue entrance need review.
+Candidate version: `0.1.0-rc.1`. Source changes through `16b29a8` include:
+`1f9730d` contract, `6b26a98` tabs-only, `7ab3a8d` manual guide/snapshots,
+`f9fd134` measured camera/source changes, `16b29a8` tested headers/audits/version.
+`191819e` adds the small map-mode semantic group correction from axe review.
 
-## Current source and replacement flow
+Local full checks: 111 tests / 27 files, strict types, lint, formatting and build.
+Network-refreshed full npm audit: zero known findings on October 23.
+Browser fixtures under enforced CSP: zero on-load requests, valid two-reading
+refinement to 6 m, immediate Start/Next while pending, Back makes none, denied
+refresh retains older reading, completion is truthful, route edit cancels;
+10 watches started/10 cleared/zero active. 320/390 widths have no horizontal overflow.
+Native privacy disclosure works by keyboard.
 
-- Current source: user-supplied `map (1).osm`, originally in Downloads.
-  SHA-256: `03B9BD752A588BFF7CB04A87B06D417736E1BFBC49091AFD9EF8452A88C0B40C`.
-  See `docs/OSM_EXPORT_REVIEW.md` for counts, prior snapshot, and gaps.
-- Source XML is not committed and is not fetched at runtime. To review a new
-  export, preserve it, compare source/digest, then run
-  `python scripts/import_campus_osm.py path/to/map.osm`. Review the generated
-  `src/data/navigation/campusOsmNetwork.json` diff before committing.
-- `src/data/navigation/collegeOfIdahoWalkingGraphData.ts` curates labels and
-  referenced OSM building/entrance/POI IDs. `buildCampusWalkingGraph.ts`
-  turns imported segments plus those references into graph data.
-  `collegeOfIdahoWalkingGraph.ts` validates the release; `mockLocations.ts`
-  derives search choices. `walkingRoutes.ts` and `pathfinding.ts` choose a
-  path; `routeSteps.ts` creates turns; the map adapter only draws the result.
-- Routing minimizes informal distance first, so formal walking ways outrank
-  informal shortcuts. Among otherwise comparable formal paths, a described
-  main footway counts at 90% of its physical length for selection. Displayed
-  metres remain physical length. This is not an access or safety ranking.
-- Ten described parking destinations are included. Way `1006303601` says
-  Hayman parking but has basketball-pitch tags; confirm that classification.
-  Two Simplot Stadium outlines exist; one provisional destination uses
-  `327890065`. Confirm it with the user before treating either as verified.
-- The same XML digest now imports 11 sport-tagged pitch outlines and five
-  selected road ways. `stadiumDrivingHandoff.ts` validates the road chain;
-  `routePlanner.ts` returns a distinct handoff state; MapLibre draws a dashed
-  layer apart from pedestrian routes. See the source audit's fifth batch.
-- The sixth source audit records the court-gate check and official-source
-  corroboration. The College's athletics directions support Cleveland then
-  24th to Simplot Stadium, not the private campus driveway or a venue door.
-  Hayman parking/basketball classification still needs the user's observation.
-- `src/data/scene/libraryPrototypeBuilding.ts` derives one visual library
-  outline from the existing snapshot. `createMapAdapter.ts` attaches it through
-  `MapLibreGeoreferencedBuildingLayer.ts`; no 3D model influences routing.
-  Activating Three.js raised the deferred map bundle from about 275.95 to
-  417.01 kB gzip. Benchmark before adding more models or photo assets.
-- `collegeOfIdahoCampus.ts` now defines separate overview and pan bounds.
-  `MapView.tsx` passes them through the adapter contract. MapLibre re-fits
-  the overview on resize, fits route previews with a small margin, and gives
-  2D a readable 30-degree tilt. A rectangular basemap still reveals nearby
-  streets. No additional 3D buildings are planned until the user resumes that
-  phase explicitly.
-- Step 30 adds a one-time **Get your location** control. It uses a separate
-  real browser provider even when route checkpoints are simulated, and never
-  advances navigation. A clear mapped-area reading shows an approximate blue
-  dot and moves the camera closer; outside/uncertain/failure messages remain
-  explicit. `classifyCampusLocation.ts` uses the coarse overview rectangle
-  plus GPS accuracy, not a verified property boundary. No continuous tracking
-  or server-side location storage was added.
-- Step 31 measured the unchanged production app at a 390 x 844 Chromium
-  viewport with emulated 150 ms latency, 200,000 bytes/s download, and 4x CPU
-  slowdown. First contentful paint was 2.428-2.652 s across three reloads;
-  local assets finished around 6.8-7.0 s and the last observed OSM tile around
-  8.75-9.23 s in repeat runs. This is not a real-phone test or measured map-ready
-  event. The large 418.21 kB gzip map bundle remains a concern; do not add more
-  models or change bundling without a measured, approved reason. Phone layout
-  places most of the map below the initial fold; bring that to UI/UX review.
-- Step 32 renamed the visible product to **Yotes Wayfinder**, set the heading
-  to “Find your way on campus,” and removed the subtitle, “Walk the route”
-  heading, and visible demo-result selector. Expected checkpoint results are
-  still simulated by default, so the user can preview and step through a route
-  without moving. The route summary keeps its origin, destination, duration,
-  and distance; the Completed / Current leg / Upcoming legend and Back/Next
-  controls remain. Mobile layout now places the map higher on the page.
-- Step 33 added root `vercel.json` to pin Vite, `npm run build`, and `dist`.
-  No router, backend, route data, map behavior, or location mode changed. The
-  repository can be imported into Vercel without adding environment variables.
-  The hosted prototype is at `https://wayfinder-umber.vercel.app/`.
-  The connected Vercel project publishes `main` pushes automatically.
-  OpenStreetMap community tiles remain best-effort; navigation is illustrative.
-- Step 34 responds to the owner's request to protect the app. Root `LICENSE`
-  reserves rights in original materials using the current Git identity
-  `jahphetB`; ordinary hosted-app use and third-party/existing rights remain.
-  Package metadata says `UNLICENSED`; no open-source reuse grant was adopted.
-  Production source maps are off. Vite adds ownership banners and generates
-  `dist/THIRD_PARTY_LICENSES.md`; `.env` patterns are ignored. See
-  `docs/OWNERSHIP.md` for ownership scope and third-party terms.
-- Step 35 condensed public documentation and removed account advice and
-  conversational planning from explanatory files. Public documents describe
-  current behavior, setup, architecture, terms, and verification evidence.
+Fresh non-bypass context: map works with no normal policy violations; injected
+inline script is blocked. Recovery fixtures pass blocked map chunk + reload,
+graphics loss + route-preserving retry, tile 503 warning + usable controls, and
+clear unsupported-WebGL2 message with usable planner. axe checks use an isolated
+tool-only bypass context; they do not weaken deployed policy. Initial/search/
+no-results/walkthrough/dialog/privacy scans show no automated violations.
+Axe manual-review findings led to the map-mode role fix; gradient/translucent
+contrast and assistive-technology behavior require separate human review.
 
-## Verification record
+Baseline and revised 4× CPU probes are in `PERFORMANCE.md`. Revised map-ready
+proxy 4.772 s, max startup task 746 ms, sampled worst rapid-transition interval
+483 ms. Layout/cache differ, so no controlled speedup claim. Emulated animation
+remains uneven; physical school computer and phone have not been retested here.
+No universal smoothness claim, provider-capacity reservation, hosted rollback
+rehearsal or accessibility certification is made.
 
-The repository checks are `npm run format:check`, `npm run lint`,
-`npm run typecheck`, `npm run test`, `npm run build`, and `git diff --check`.
-Step 34 passed all 94 tests in 20 files and confirmed that the build contains
-no source maps, includes ownership banners, and publishes dependency notices.
+High-density/reduced-motion browser check: requested 3×, actual canvas ratio 2×;
+20 mode switches and manual Next/Back complete with no page errors/overflow.
+Gradient/translucent contrast calculations are recorded in release readiness.
 
-The README uses neutral product wording. Detailed architecture, source
-provenance, progress, and AI-tool records have dedicated documents. Explanatory
-documents omit owner to-do lists, account-management advice, and conversational
-planning. The contributor workflow is defined in `AGENTS.md`.
-
-Step 35 passed formatting, lint, TypeScript, the 94 tests, and production build.
-Vercel reported deployment success for `9da260f`; the public site served
-`index-BTJ4wUCh.js` with the copyright banner and dependency notices, while
-the corresponding `.map` URL returned 404. Browser verification covered a
-library-to-Sterry route through arrival, Next/Back, 2D/3D, and simulated
-on-campus/off-campus readings at desktop/phone viewport sizes. The map
-rendered, the phone page had no horizontal overflow, and the console reported
-no errors or warnings. This is a browser check using simulated GPS, not a
-physical navigation or real-phone performance test.
+Final hosted source/status evidence belongs in `RELEASE_READINESS.md` and PR #2.
+Do not infer deployed state from the local version number. Stop before production
+merge/promotion; short supported-device review and explicit approval remain.

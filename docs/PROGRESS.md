@@ -2,6 +2,10 @@
 
 ## October 23: manual campus-guide product definition
 
+The current manual-guide contract supersedes older checkpoint/simulation and
+G01–G12 launch proposals in this historical log. Those older entries are retained
+as implementation history, not current requirements.
+
 - Adopted `PRODUCT_PLAN.md`: manual walkthrough progression and independent,
   button-requested real-location snapshots, with no GPS gate or movement-following
   feature. The current geographic baseline is accepted with honest provenance.
@@ -23,7 +27,8 @@
 - Tab indentation was saved separately after the original 127-test baseline passed.
   The revised suite has 109 tests; obsolete GPS-gating/simulation tests were replaced
   with manual-progress and snapshot tests. Full checks/build pass; refreshed audit
-  reports zero advisories. Browser journey verification is being recorded next.
+  reports zero advisories. Browser verification confirms no on-load acquisition,
+  immediate manual progress, truthful completion and complete watcher cleanup.
 
 ### Camera compatibility and targeted performance
 
@@ -37,6 +42,33 @@
   largest sampled rapid-transition frame interval 483 ms. Constrained animation
   remains uneven; differing layout/cache preclude a claimed speedup. Full details
   and limitations are in `PERFORMANCE.md`. Physical school/phone checks remain.
+
+### Release candidate, security and browser verification
+
+- Named candidate `0.1.0-rc.1`; final application/security source `191819e`.
+  Full quality checks pass with 111 tests / 27 files and the production build.
+  The fresh full dependency audit reports zero known advisories.
+- Enforced a narrow shared CSP/header configuration in Vercel and local production
+  preview. Fresh non-bypass browser checks show normal map operation and blocked
+  inline script injection. Added CI advisory audit and weekly schedule; recurring
+  execution begins only when the workflow reaches main.
+- Browser fixtures: 10 watches started/cleared, zero active after route edit;
+  successful two-fix refinement, retained older reading on denial, pending-location
+  manual completion, Back without acquisition and no load requests. No page errors
+  on the normal flow. These are not physical GPS measurements.
+- Rechecked failed map module/reload, context-loss retry with route preserved,
+  tile 503 warnings/usable controls and unsupported-WebGL2 feedback. At 320/390
+  widths there is no horizontal overflow; privacy toggle works by keyboard.
+- Automated accessibility scans show zero violations in six guide/search/dialog/
+  privacy states. Manual-review findings prompted a semantic map-control group;
+  conservative contrast calculations and remaining human checks are documented.
+- 3× density emulation honors the 2× rendering cap; reduced-motion preference and
+  20 repeated mode changes/manual controls work. Physical school/phone smoothness
+  is still unverified, and constrained frames remain uneven.
+- Updated the current diagram, handbook, release/recovery guide, source-data
+  documents, skills and state reference. Old state/security assessments are
+  archived with explicit superseded labels. Production `de7e5e8` remains unchanged.
+  Candidate acceptance/evidence: [release readiness](RELEASE_READINESS.md).
 
 ## October 22: page-failure recovery and search accessibility
 
