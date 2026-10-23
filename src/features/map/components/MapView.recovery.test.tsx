@@ -77,6 +77,9 @@ describe('map lifecycle recovery', () => {
     expect(second.adapter.setMode).toHaveBeenCalledWith('2d')
     act(() => second.callbacks()?.onReady?.())
     expect(screen.getByRole('button', { name: '2D' })).toBeEnabled()
+    expect(
+      screen.getByRole('group', { name: 'Building details' }),
+    ).toBeInTheDocument()
     expect(vi.getTimerCount()).toBe(0)
   })
 
@@ -101,6 +104,9 @@ describe('map lifecycle recovery', () => {
     expect(screen.getByRole('alert')).not.toHaveTextContent('secret')
     expect(first.adapter.destroy).toHaveBeenCalledTimes(1)
     expect(screen.getByRole('button', { name: '2D' })).toBeDisabled()
+    expect(
+      screen.queryByRole('group', { name: 'Building details' }),
+    ).not.toBeInTheDocument()
     view.unmount()
     expect(first.adapter.destroy).toHaveBeenCalledTimes(1)
   })

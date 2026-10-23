@@ -92,6 +92,7 @@
   transform: translate(-50%, -50%);
 }
 .map-status-error {
+  width: min(22rem, calc(100% - 2rem));
   display: grid;
   gap: 0.75rem;
   border: 1px solid var(--color-error-border);

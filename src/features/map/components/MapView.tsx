@@ -247,21 +247,23 @@ export function MapView({
   return (
     <section aria-label="Interactive map" className="map-view">
       <div className="map-canvas" ref={containerRef} />
-      <div
-        className="building-keyboard-access"
-        role="group"
-        aria-label="Building details"
-      >
-        {campusBuildingDetails.map((building) => (
-          <button
-            key={building.id}
-            type="button"
-            onClick={() => setSelectedBuildingId(building.id)}
-          >
-            {building.label} details
-          </button>
-        ))}
-      </div>
+      {mapStatus === 'ready' && (
+        <div
+          className="building-keyboard-access"
+          role="group"
+          aria-label="Building details"
+        >
+          {campusBuildingDetails.map((building) => (
+            <button
+              key={building.id}
+              type="button"
+              onClick={() => setSelectedBuildingId(building.id)}
+            >
+              {building.label} details
+            </button>
+          ))}
+        </div>
+      )}
       {selectedBuilding && (
         <BuildingDetailsDialog
           key={selectedBuilding.id}
