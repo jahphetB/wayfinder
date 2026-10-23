@@ -35,6 +35,47 @@ async function selectLibraryAndDining(
 }
 
 describe('App', () => {
+  it('keeps keyboard focus on search and connects its active descendant to the actual option', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const input = screen.getByRole('combobox', { name: 'Start' })
+    await user.click(input)
+    await user.keyboard('{ArrowDown}')
+    const activeId = input.getAttribute('aria-activedescendant')
+    expect(activeId).toBeTruthy()
+    const activeOption = document.getElementById(activeId!)
+    expect(activeOption).toHaveAttribute('role', 'option')
+    expect(activeOption).toHaveAttribute('aria-selected', 'true')
+    expect(activeOption).toHaveAttribute('tabindex', '-1')
+    expect(activeOption?.parentElement).toHaveAttribute('role', 'listbox')
+    expect(input).toHaveFocus()
+    await user.keyboard('{Escape}')
+    expect(input).toHaveAttribute('aria-expanded', 'false')
+    expect(input).not.toHaveAttribute('aria-activedescendant')
+    expect(input).toHaveFocus()
+    await user.keyboard('{ArrowUp}')
+    expect(input).toHaveAttribute('aria-expanded', 'true')
+    await user.tab()
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Swap/ })).toHaveFocus()
+  })
+
+  it('announces empty results and resets the active option after editing', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const input = screen.getByRole('combobox', { name: 'Start' })
+    await user.click(input)
+    await user.keyboard('{ArrowDown}')
+    await user.type(input, 'NoSuchCampusPlace')
+    expect(input).not.toHaveAttribute('aria-activedescendant')
+    expect(input).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByText('No matching start locations.')).toHaveAttribute(
+      'aria-live',
+      'polite',
+    )
+    await user.keyboard('{ArrowDown}{Enter}')
+    expect(input).toHaveValue('NoSuchCampusPlace')
+  })
   it('mounts navigation only after preview and resets it when editing the route', async () => {
     const user = userEvent.setup()
     const requestCurrentLocation = vi.fn().mockResolvedValue({

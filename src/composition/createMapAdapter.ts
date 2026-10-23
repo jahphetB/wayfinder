@@ -15,7 +15,8 @@ const defaultMapStyle = {
       tileSize: 256,
       minzoom: 0,
       maxzoom: 19,
-      attribution: '© OpenStreetMap contributors',
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>',
     },
   },
   layers: [

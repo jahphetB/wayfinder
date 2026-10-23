@@ -27,6 +27,7 @@ function LocationField({
   const [activeIndex, setActiveIndex] = useState(-1)
   const listboxId = useId()
   const listboxRef = useRef<HTMLUListElement>(null)
+  const hasOptions = open && suggestions.length > 0
 
   useEffect(() => {
     if (!open || activeIndex < 0) return
@@ -65,6 +66,7 @@ function LocationField({
       event.preventDefault()
       selectSuggestion(suggestion.location)
     } else if (event.key === 'Escape') {
+      event.preventDefault()
       setOpen(false)
       setActiveIndex(-1)
     }
@@ -77,13 +79,14 @@ function LocationField({
         <input
           aria-label={label}
           aria-activedescendant={
-            open && activeIndex >= 0
+            hasOptions && suggestions[activeIndex]
               ? `${listboxId}-option-${activeIndex}`
               : undefined
           }
           aria-autocomplete="list"
-          aria-controls={open ? listboxId : undefined}
-          aria-expanded={open}
+          aria-controls={hasOptions ? listboxId : undefined}
+          aria-describedby={`${listboxId}-help`}
+          aria-expanded={hasOptions}
           onBlur={() => {
             setOpen(false)
             setActiveIndex(-1)
@@ -102,7 +105,20 @@ function LocationField({
           value={query}
         />
       </label>
-      {open && (
+      <p className="visually-hidden" id={`${listboxId}-help`}>
+        Type to search. Use Up and Down arrows to review suggestions, Enter to
+        select, and Escape to close.
+      </p>
+      <p className="visually-hidden" aria-live="polite" aria-atomic="true">
+        {open &&
+          (suggestions.length === 0
+            ? `No matching ${label.toLowerCase()} locations.`
+            : `${suggestions.length} ${label.toLowerCase()} suggestions available.`)}
+      </p>
+      {open && suggestions.length === 0 && (
+        <p className="suggestions">No matching locations.</p>
+      )}
+      {hasOptions && (
         <ul
           aria-label={`${label} suggestions`}
           className="suggestions"
@@ -111,16 +127,16 @@ function LocationField({
           role="listbox"
         >
           {suggestions.map(({ location }, index) => (
-            <li id={`${listboxId}-option-${index}`} key={location.id}>
-              <button
-                aria-selected={activeIndex === index}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => selectSuggestion(location)}
-                role="option"
-                type="button"
-              >
-                {location.label}
-              </button>
+            <li
+              id={`${listboxId}-option-${index}`}
+              key={location.id}
+              aria-selected={activeIndex === index}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => selectSuggestion(location)}
+              role="option"
+              tabIndex={-1}
+            >
+              {location.label}
             </li>
           ))}
         </ul>
