@@ -40,6 +40,8 @@ This app does not persist or upload location history.
 - Library, Sterry Hall and cafeteria details, image slots and scrollable content.
 - A separate illustrative stadium driving handoff, not car turn-by-turn guidance.
 - Accessible search and explicit map-download/graphics/network recovery.
+- Unobstructed map canvas, outside-map controls and equal-size Back/Next actions
+  beneath the map on mobile, with a wider desktop workspace.
 - Compact developer credit and an expandable location/privacy explanation.
 
 The current geographic dataset is the accepted guide baseline. Some inferred

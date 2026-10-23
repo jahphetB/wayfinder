@@ -88,7 +88,37 @@ No current data has been falsely promoted to surveyed/accessibility-certified.
 
 ## Candidate and verification record
 
-Candidate version: `0.1.0-rc.1`. Source changes through `16b29a8` include:
+### Pre-merge UI refinement
+
+- Approved follow-up: equal-size Back/Next, remove canvas-obstructing app controls,
+  use desktop side space better, mobile Back/Next below map, remove optional
+  Vercel feedback-script warning without weakening CSP. This does not authorize merge.
+- App now places one RouteWalkthrough after the map workspace in DOM order.
+  CSS Grid puts planner/walkthrough left and map right on desktop; mobile order
+  is planner→map→walkthrough. NavigationPanel owns Start only, next to Preview.
+  Manual session/snapshot behavior and data are unchanged.
+- MapView owns toolbar, viewport and information areas. Mode/location/status/retry
+  controls and expandable building shortcuts are outside the canvas; attribution
+  stays on it. Mobile canvas minimum stays 28 rem; desktop is 32 rem, 1800 px
+  shell cap, 24-rem planner cap and reduced horizontal padding. Named theme
+  settings replace retired map-overlay offsets. Back/Next share equal sizing.
+- Full checks pass with 113 tests / 27 files. Added App and MapView regressions.
+  Application commit `75f7259`. Browser geometry confirms equal buttons/no canvas
+  overlap at 1920/390/320; desktop canvas about 1350 px wide, mobile 448 px tall.
+  Graphics retry preserves Step 2, manual Next works during failure, shortcuts/
+  dialog work, and two requested watchers are cleared. Three axe scans have zero
+  automated violations, with gradient contrast requiring manual review.
+  Hosted verification is recorded in RELEASE_READINESS.md and PR #2.
+- Preview toolbar was switched Off in Vercel by the owner; a normal HTTP response
+  confirms no feedback-script injection. All five security headers match the
+  prior candidate exactly. Do not reintroduce skip-toolbar headers for the final
+  ordinary-visitor verification. No vercel.json/security-policy change is needed.
+- Still preview only; commit/push standing approval applies. Stop before main merge.
+
+### Earlier manual-guide candidate history
+
+Candidate version remains `0.1.0-rc.1`; exact source commits distinguish preview
+revisions. Source changes through `16b29a8` included:
 `1f9730d` contract, `6b26a98` tabs-only, `7ab3a8d` manual guide/snapshots,
 `f9fd134` measured camera/source changes, `16b29a8` tested headers/audits/version.
 `191819e` adds the small map-mode semantic group correction from axe review.

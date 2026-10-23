@@ -6,16 +6,42 @@ is historical; its former G01–G12 gates are retired.
 
 ## Candidate and deployment record
 
-- Candidate: **0.1.0-rc.1**, application/security source **`191819e`**.
+- Candidate: **0.1.0-rc.1**, revised application source **`75f7259`**.
 - Preview branch: `feat/step-39-location-refinement`; [pull request #2](https://github.com/jahphetB/wayfinder/pull/2).
 - [Preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/)
   is published; hosted verification is recorded below.
 - [Production](https://wayfinder-umber.vercel.app/) remains
   **`de7e5e81794661dec2f67ad7856e57055a535453`**. It is the prior production
   source/deployment reference, not the new guide candidate.
-- Local candidate assets: `index-BpnDDqZL.js`, `MapView-DWqyvSSc.js`.
+- Local candidate assets: `index-c_h3i-oI.js`, `MapView-X0X1_6k8.js`.
   Commit/deployment IDs, not the version label alone, identify reviewed builds.
 - Production merge/promotion is not authorized by publishing this candidate.
+
+## Pre-merge layout and toolbar verification
+
+The approved UI refinement retains manual/snapshot behavior and the same security
+policy. Full local checks pass with **113 tests / 27 files**, including two new
+regressions for the shared walkthrough and outside-canvas controls.
+
+Browser geometry checks at 1920, 390 and 320 px confirm equal Back/Next dimensions,
+no horizontal overflow and no app buttons intersecting the canvas. At 1920 px the
+map is about 1350 px wide; mobile canvas height remains 448 px. Desktop instructions
+stay beside the map; mobile instruction/control coordinates are below its bottom.
+Building shortcuts/dialog work outside the canvas. Browser fixtures make no
+startup location requests and clear both requested watchers. Graphics-loss recovery
+keeps the manual Step 2 state; Next remains usable while the map is failed.
+
+Three additional axe scans (initial toolbar, expanded shortcuts, building dialog)
+report zero automated violations; gradient contrast remains a manual-review item.
+Actual phone/school-device performance is still separate from emulation.
+
+Vercel Preview toolbar injection is disabled. An ordinary public HTTP response
+contains no feedback-script injection, with **all five security headers exactly
+matching the previous candidate**. No skip-toolbar request header or weakened CSP
+is used for the revised candidate's final hosted verification.
+
+Hosted source/check/browser evidence for this refinement is recorded after
+publication below and in PR #2. Production remains unchanged.
 
 ## Essential acceptance checks and evidence
 
@@ -96,6 +122,11 @@ issues, service usage/terms and costs, then adapt proportionately.
 
 ## Hosted candidate evidence
 
+### Initial manual-guide candidate history
+
+The following record predates the pre-merge UI refinement; it is not evidence that
+the old runtime assets are the latest candidate.
+
 Preview source **`da4291939a907806f086525eccfe8b990b8458e6`** passed hosted
 **Quality checks** and **Vercel**. [Deployment record](https://vercel.com/jahphet/wayfinder/FgV9ekvjtff6As7Lwhi4UQNEm3MK).
 The public preview returned HTTP 200 without authentication and served the exact
@@ -116,5 +147,6 @@ No production rollback or promotion occurred.
 
 Main protection was checked: pull request required, strict up-to-date **Quality
 checks** and **Vercel** required, admin enforcement on, force push/deletion off.
-Documentation-only follow-up commits do not change candidate runtime assets;
-the latest head's hosted status and final smoke result are recorded in PR #2.
+The initial documentation-only follow-up did not change those runtime assets.
+The later UI refinement intentionally has new assets; its latest hosted status
+and smoke result are recorded separately in PR #2 and this document.

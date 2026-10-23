@@ -20,7 +20,11 @@ reading at all; it only implements awaiting-start, navigating and completed stat
 This makes independence enforceable in the function interface, not just UI wording.
 
 `RouteWalkthrough.tsx` replaces the former GPS-gated checkpoint component/hook.
-It presents the current instruction and manual controls. Completed means the
+App renders one active instruction/control section as a sibling after the map
+workspace. Named CSS Grid regions place it beside the map on desktop and beneath
+the map on mobile. `NavigationPanel.tsx` retains only the Start navigating action
+after Preview route. No hidden duplicate Back/Next buttons or duplicated session
+state are needed. Completed means the
 illustration finished, never that a person physically arrived. Route step geometry
 still uses an internal checkpoint coordinate as a geographic endpoint; this is
 not a location-verification gate. The fake-location provider, its scenario
@@ -57,6 +61,29 @@ browser checks supplement jsdom, which does not implement every native keyboard
 default. The current OSM baseline/provenance and routing preferences are unchanged.
 
 ### Camera, browser security and release decisions
+
+**ADR-049: Give controls their own space rather than covering map geometry.**
+`MapView.tsx` separates `.map-toolbar`, `.map-viewport` and `.map-information`.
+Location and mode actions, snapshot feedback, retry/status messages, notes and
+expandable building shortcuts stay outside the canvas. Map attribution remains
+visible in its required map position. The canvas retains a meaningful minimum
+height even when feedback or instructions expand. `theme.css` labels the desktop
+width/padding, desktop/mobile canvas heights, toolbar padding and shared action-bar
+width. These CSS variables are reusable visual settings, not routing parameters.
+
+`App.tsx` owns the planner, map workspace and one walkthrough. CSS Grid rearranges
+those same regions at the mobile breakpoint rather than rendering separate desktop
+and phone control sets. Back and Next use equal grid columns/common sizing; their
+event handlers are unchanged. This preserves single responsibility: layout decides
+placement, domain functions decide progress, and the provider only supplies a
+requested snapshot. See [styling guide](STYLING.md#unobstructed-map-and-responsive-walkthrough).
+
+Vercel's optional Preview toolbar injection is disabled at hosting configuration.
+Normal public preview responses no longer include its feedback script, and all
+five browser security headers match the prior candidate exactly. No `vercel.live`
+allowlist or new inline-script permission was added. Hosting settings are not
+enforced by this Markdown file: repeat the ordinary-response/browser check after
+reconfiguration, without a toolbar-suppression request header.
 
 **ADR-045: Manual progress and explicit snapshots replace GPS gates.** The pure
 session has no location argument, so a slow/denied lookup cannot prevent progress.
@@ -849,11 +876,11 @@ Components are visible building blocks rendered by React. Navigation components
 focus on what the person sees and does, delegating route logic to the hook and
 model.
 
-| File                                                             | Importance and relationship to other files                                                                                                                                               |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/features/navigation/components/NavigationPanel.tsx`         | Renders searches, swap, preview, summary and the manual RouteWalkthrough. App supplies one planner/session and action callbacks; no second planner or location gate is constructed here. |
-| `src/features/navigation/components/RouteWalkthrough.tsx`        | Presents manual Start navigating, Next, Back and truthful walkthrough completion; App updates the independent domain session.                                                            |
-| `src/features/navigation/components/LocationSnapshotControl.tsx` | Presents Get my location, cancellation, Last checked and retained/uncertain/off-campus feedback from the shared snapshot hook.                                                           |
+| File                                                             | Importance and relationship to other files                                                                                                                                            |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/features/navigation/components/NavigationPanel.tsx`         | Renders searches, swap, preview, summary and Start navigating. App supplies one planner/session and the start callback; active instructions/Back/Next are composed separately by App. |
+| `src/features/navigation/components/RouteWalkthrough.tsx`        | Presents one active instruction, legend, Next/Back and truthful completion. App owns session state; CSS Grid places this section beside the desktop map and beneath the mobile map.   |
+| `src/features/navigation/components/LocationSnapshotControl.tsx` | Presents Get my location, cancellation, Last checked and retained/uncertain/off-campus feedback from the shared snapshot hook.                                                        |
 
 ## The map feature
 

@@ -107,10 +107,14 @@ manual guide, check:
 8. Inspect unexpected console errors and failed app requests. Do not publish
    exact user coordinates or sensitive query strings in evidence.
 
-Vercel may inject its optional feedback toolbar into previews. The narrow app CSP
-does not permit that third-party script. Automated app checks use request header
-`x-vercel-skip-toolbar: 1` rather than broadening the app policy. This does not
-change authentication protection or production configuration.
+Vercel's optional feedback toolbar is disabled for this project's Preview
+environment. Verify a normal preview response does not include
+`vercel.live/_next-live/feedback/feedback.js`, and check the browser without a
+toolbar-suppression request header. Keep the existing CSP unchanged: allowing a
+new script origin is not the remedy. Vercel's documented automation-only
+`x-vercel-skip-toolbar` header can isolate tests when required elsewhere, but a
+test using it does not prove ordinary visitors are free of injection warnings.
+These toolbar settings do not change authentication protection or release approval.
 
 ### Failure/recovery regression checks
 

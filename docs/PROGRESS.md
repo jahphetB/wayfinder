@@ -1,5 +1,30 @@
 # Progress Log
 
+## October 23: pre-merge map-space and control refinement
+
+- Back/Next share equal columns, padding and minimum heights. One walkthrough
+  section is placed beside the desktop map and after the mobile map; Start stays
+  immediately after Preview. No duplicate hidden controls or session state.
+- Location/mode actions, snapshot feedback, recovery actions and notes now use
+  normal layout space outside a dedicated canvas viewport. Building shortcuts
+  expand beneath it; required map attribution remains visible on the map.
+- Desktop shell cap is 1800 px with smaller side padding and a 24-rem planner cap;
+  the map takes the remaining width. Mobile padding and 28-rem canvas minimum stay.
+- Full checks pass with 113 tests / 27 files. New regressions cover shared
+  walkthrough placement and outside-canvas controls. Routing, location triggers,
+  security header values and dependencies are unchanged.
+- Application source `75f7259`: browser geometry confirms equal buttons and no
+  canvas obstruction/overflow at 1920/390/320 widths. Desktop canvas is about
+  1350 px wide; mobile height remains 448 px. Graphics retry preserves Step 2
+  and Next works while the map is failed. Three axe scans report zero automated
+  violations; gradient contrast and physical-device checks remain distinct.
+- Preview toolbar injection is disabled at hosting configuration. An ordinary
+  public response contains no feedback script, and all five browser security
+  headers exactly match the previous candidate. No allowlist exception or
+  console-error suppression was introduced. Production remains unchanged.
+- Architecture, styling, release workflow and security explanation reflect the
+  new structure. Browser/deployment results are recorded in release readiness.
+
 ## October 23: manual campus-guide product definition
 
 The current manual-guide contract supersedes older checkpoint/simulation and

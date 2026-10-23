@@ -61,6 +61,13 @@ feedback, accessibility, performance and recovery; record their purpose.
 
 ## Delivery boundary
 
+The approved pre-merge UI refinement gives Back/Next equal sizing, moves app
+controls/information outside the map canvas, expands usable desktop width and
+places the single walkthrough below the map on mobile. Start remains after
+Preview. Vercel's optional Preview toolbar is disabled at hosting configuration;
+the existing security policy is unchanged. No navigation, data or privacy contract
+is expanded by this layout work.
+
 Feature-branch pushes are allowed. Main/production require explicit release
 approval. A small supported guide rollout needs working essential flows, honest
 privacy/data disclosures, recoverable failures, and representative-device checks;

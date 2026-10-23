@@ -33,10 +33,12 @@ walkthrough and snapshot/error flows also work with the policy enforced.
 Automated accessibility injection uses a separate tool-only CSP-bypass context;
 deployed headers were not weakened to enable that tool.
 
-The optional Vercel preview feedback toolbar is outside the application's
-allowlist. Automated hosted checks suppress its injection with
-`x-vercel-skip-toolbar: 1`; ordinary previews may report its blocked script.
-Do not widen production script policy for optional preview tooling.
+The optional Vercel Preview toolbar is disabled at hosting configuration. A normal
+public preview response contains no injected feedback script, without any
+automation suppression header. All five configured security headers exactly
+match the prior candidate; no policy exception was added. Repeat the normal
+browser check after hosting changes rather than hiding console warnings or
+allowing `vercel.live` in the script policy.
 A new `VITE_MAP_STYLE_URL` or map vendor requires reviewing resource origins,
 attribution, referrer behavior and privacy together.
 

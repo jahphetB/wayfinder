@@ -2,6 +2,18 @@
 
 This file records AI-related skills, tools, and project practices used during delivery. Brands distinguish their origin.
 
+## October 23: pre-merge map layout
+
+- **OpenAI / Playwright:** inspect rendered button dimensions, viewport/control
+  separation, responsive placement, recovery, keyboard behavior and ordinary
+  preview console/network requests. Emulated widths are not physical-device proof.
+- **External / Context7 and Vercel documentation:** resolve optional toolbar
+  injection at hosting configuration, not by weakening the app's CSP. Validate
+  ordinary requests separately from automation-header suppression.
+- **Project-developed / single responsive control tree:** CSS Grid repositions
+  one walkthrough across desktop/mobile; common sizing keeps actions equal.
+  Canvas, toolbar and information have separate layout space and responsibilities.
+
 ## October 23: manual-guide release package
 
 - **Project-developed / enforced-policy verification:** test actual CSP in a
