@@ -1,5 +1,18 @@
 # Progress Log
 
+## October 23: selected-reference redesign
+
+- Original selected board replaces conflicting prior visual instructions: Proposal A
+  landing/editing, layout 4 desktop navigation and layout 3 mobile navigation.
+  The breakpoint is strictly 640 px. UI_REFERENCE_CONTRACT.md records the source.
+- Added a pure transactional workspace model and focused tests. Draft editing and
+  replacement previews retain the existing journey; Cancel restores its exact
+  route/session, and an explicit replacement start begins step one.
+- useCampusGuide composes that model with the existing planner. Geographic data,
+  route calculation, location policy, dependencies and production are unchanged.
+- Foundation tests pass: 120 tests / 28 files. Reference UI implementation follows
+  this independently verified foundation on the same preview branch.
+
 ## October 23: pre-merge map-space and control refinement
 
 - Back/Next share equal columns, padding and minimum heights. One walkthrough

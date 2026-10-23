@@ -1,5 +1,22 @@
 # Current project state
 
+## Active approved redesign
+
+- Before merge, the user authorizes a full reference-faithful redesign on preview.
+  UI_REFERENCE_CONTRACT.md records the latest correction and overrides older visual
+  decisions below (including outside-canvas controls and heading trademark removal).
+- Authoritative source: original Wayfinder-Exact-Selected-References.png in Downloads.
+  Top Proposal A landing; middle Proposal A editing; bottom desktop layout 4/mobile
+  layout 3 navigation. Never use generated replacement boards or copy example data.
+- Strict breakpoint: mobile <640 / desktop >=640. Keep the map instance across
+  layout changes. Build screenshot comparisons for all six states and 639/640.
+- Workflow foundation: guideWorkspace reducer retains the old journey while draft
+  fields/replacement preview change; Cancel restores the same route/session object.
+  Starting replacement is explicit and resets its session. useCampusGuide composes
+  this with the existing synchronous planner, without a new dependency/framework.
+- Current phase: foundation implementation/verification before the reference UI.
+  No production approval. Preview branch and main/recovery references remain below.
+
 ## Product authority and delivery boundary
 
 The October 23 manual-campus-guide definition in [PRODUCT_PLAN.md](PRODUCT_PLAN.md)

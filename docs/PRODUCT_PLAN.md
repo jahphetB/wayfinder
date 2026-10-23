@@ -1,5 +1,12 @@
 # Product definition and release plan
 
+The selected original UI board and [reference contract](UI_REFERENCE_CONTRACT.md)
+supersede earlier conflicting visual/layout instructions. The current redesign
+uses Proposal A landing/editing, desktop navigation layout 4 and mobile layout 3,
+with a strict 640 px breakpoint. Manual-guide/location/privacy requirements below
+remain unchanged. Draft editing must preserve the original journey until an
+explicit replacement start.
+
 This definition supersedes earlier GPS-gated navigation and live-movement
 requirements. Yotes Wayfinder is a minimalist campus guide: accurate route
 illustrations, manual walkthrough controls, and separately requested real-location

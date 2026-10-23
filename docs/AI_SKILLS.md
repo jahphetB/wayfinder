@@ -1,5 +1,16 @@
 # AI Skills Inventory
 
+## Selected-reference redesign
+
+- **OpenAI / Playwright:** state-by-state visual comparison, exact breakpoint and
+  editing/recovery/location regression checks against the real built application.
+- **OpenAI / OpenAI Docs:** task-specific model/effort selection for a coordinated
+  visual and interaction redesign, not an application AI dependency.
+- **External / Context7:** current MapLibre camera padding, attribution and control
+  APIs, checked against installed types before integration changes.
+- **Project-developed / transactional draft:** pure state transitions retain the
+  active journey separately from proposed route changes, without a UI framework.
+
 This file records AI-related skills, tools, and project practices used during delivery. Brands distinguish their origin.
 
 ## October 23: pre-merge map layout

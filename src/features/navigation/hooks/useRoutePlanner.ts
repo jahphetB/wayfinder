@@ -61,11 +61,22 @@ export function useRoutePlanner() {
 		setDestinationQuery(origin?.label ?? '')
 		setRoutePlanState({ status: 'empty' })
 	}
-	function planRoute(): void {
-		setRouteRevision((revision) => revision + 1)
-		setRoutePlanState(
-			determineRoutePlan(collegeOfIdahoWalkingGraph, origin, destination),
+	function planRoute(): RoutePlanState {
+		const result = determineRoutePlan(
+			collegeOfIdahoWalkingGraph,
+			origin,
+			destination,
 		)
+		setRouteRevision((revision) => revision + 1)
+		setRoutePlanState(result)
+		return result
+	}
+	function restoreSelection(start: Location, end: Location): void {
+		setOrigin(start)
+		setDestination(end)
+		setOriginQuery(start.label)
+		setDestinationQuery(end.label)
+		setRoutePlanState({ status: 'empty' })
 	}
 	return {
 		routeRevision,
@@ -82,5 +93,6 @@ export function useRoutePlanner() {
 		selectLocation,
 		swapLocations,
 		planRoute,
+		restoreSelection,
 	}
 }
