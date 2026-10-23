@@ -187,31 +187,31 @@ export function MapView({
 
 	return (
 		<section aria-label="Interactive map" className="map-view">
-			<div className="map-canvas" ref={containerRef} />
-			{mapStatus === 'ready' && (
+			<div className="map-toolbar" id="map-toolbar">
+				<LocationSnapshotControl snapshot={snapshot} />
 				<div
-					className="building-keyboard-access"
 					role="group"
-					aria-label="Building details"
+					aria-label="Map display mode"
+					className="map-mode-toggle"
 				>
-					{campusBuildingDetails.map((building) => (
-						<button
-							key={building.id}
-							type="button"
-							onClick={() => setSelectedBuildingId(building.id)}
-						>
-							{building.label} details
-						</button>
-					))}
+					<button
+						aria-pressed={mode === '2d'}
+						disabled={mapStatus !== 'ready'}
+						onClick={() => onModeChange('2d')}
+						type="button"
+					>
+						2D
+					</button>
+					<button
+						aria-pressed={mode === '3d'}
+						disabled={mapStatus !== 'ready'}
+						onClick={() => onModeChange('3d')}
+						type="button"
+					>
+						3D
+					</button>
 				</div>
-			)}
-			{selectedBuilding && (
-				<BuildingDetailsDialog
-					key={selectedBuilding.id}
-					building={selectedBuilding}
-					onClose={() => setSelectedBuildingId(undefined)}
-				/>
-			)}
+			</div>
 			{mapStatus === 'loading' && (
 				<p className="map-status" role="status">
 					Loading map…
@@ -236,45 +236,54 @@ export function MapView({
 					</button>
 				</div>
 			)}
-			<div
-				role="group"
-				aria-label="Map display mode"
-				className="map-mode-toggle"
-			>
-				<button
-					aria-pressed={mode === '2d'}
-					disabled={mapStatus !== 'ready'}
-					onClick={() => onModeChange('2d')}
-					type="button"
-				>
-					2D
-				</button>
-				<button
-					aria-pressed={mode === '3d'}
-					disabled={mapStatus !== 'ready'}
-					onClick={() => onModeChange('3d')}
-					type="button"
-				>
-					3D
-				</button>
+			<div className="map-viewport" id="map-viewport">
+				<div className="map-canvas" ref={containerRef} />
 			</div>
-			<LocationSnapshotControl snapshot={snapshot} />
-			<p className="map-view-note">
-				{mapStatus === 'error'
-					? 'Fix the connection or graphics error, then try the map again.'
-					: navigationSession?.status === 'completed'
-						? 'Route walkthrough complete; physical arrival is not verified.'
-						: navigationSession?.status === 'navigating'
-							? 'The camera is following the current route leg.'
-							: route
-								? 'Route preview is shown on the map.'
-								: drivingHandoff
-									? 'Dashed purple line: prototype drive to parking approach. Orange: stadium outline; entrance unverified.'
-									: 'Choose a route to show it on the map.'}
-				{mode === '3d' &&
-					mapStatus === 'ready' &&
-					' Library 3D shape: mapped footprint, illustrative height.'}
-			</p>
+			<div className="map-information">
+				<p className="map-view-note">
+					{mapStatus === 'error'
+						? 'Fix the connection or graphics error, then try the map again.'
+						: navigationSession?.status === 'completed'
+							? 'Route walkthrough complete; physical arrival is not verified.'
+							: navigationSession?.status === 'navigating'
+								? 'The camera is following the current route leg.'
+								: route
+									? 'Route preview is shown on the map.'
+									: drivingHandoff
+										? 'Dashed purple line: prototype drive to parking approach. Orange: stadium outline; entrance unverified.'
+										: 'Choose a route to show it on the map.'}
+					{mode === '3d' &&
+						mapStatus === 'ready' &&
+						' Library 3D shape: mapped footprint, illustrative height.'}
+				</p>
+				{mapStatus === 'ready' && (
+					<details className="building-shortcuts">
+						<summary>Building details</summary>
+						<div
+							className="building-shortcut-actions"
+							role="group"
+							aria-label="Building details"
+						>
+							{campusBuildingDetails.map((building) => (
+								<button
+									key={building.id}
+									type="button"
+									onClick={() => setSelectedBuildingId(building.id)}
+								>
+									{building.label} details
+								</button>
+							))}
+						</div>
+					</details>
+				)}
+			</div>
+			{selectedBuilding && (
+				<BuildingDetailsDialog
+					key={selectedBuilding.id}
+					building={selectedBuilding}
+					onClose={() => setSelectedBuildingId(undefined)}
+				/>
+			)}
 		</section>
 	)
 }

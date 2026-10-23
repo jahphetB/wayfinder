@@ -6,8 +6,6 @@ import type {
 } from '@/domain/navigation/types'
 import { useRoutePlanner } from '../hooks/useRoutePlanner'
 import type { RoutePlanState } from '../model/routePlanner'
-import { RouteWalkthrough } from './RouteWalkthrough'
-import { startNavigationSession } from '@/domain/navigation/navigationSession'
 
 interface FieldProps {
 	readonly label: string
@@ -218,13 +216,11 @@ function RouteSummary({
 export function NavigationPanel({
 	planner,
 	navigationSession,
-	onNext,
-	onBack,
+	onStart,
 }: {
 	readonly planner: ReturnType<typeof useRoutePlanner>
 	readonly navigationSession: NavigationSession | undefined
-	readonly onNext: () => void
-	readonly onBack: () => void
+	readonly onStart: () => void
 }) {
 	return (
 		<section className="navigation-panel">
@@ -264,16 +260,19 @@ export function NavigationPanel({
 					Preview route
 				</button>
 			</form>
-			{planner.plannedRoute && (
-				<RouteWalkthrough
-					key={planner.routeRevision}
-					session={
-						navigationSession ?? startNavigationSession(planner.plannedRoute)
-					}
-					onNext={onNext}
-					onBack={onBack}
-				/>
-			)}
+			{planner.plannedRoute &&
+				(!navigationSession ||
+					navigationSession.status === 'awaiting-start') && (
+					<div className="walkthrough-start">
+						<button
+							type="button"
+							className="route-action start-navigation-action"
+							onClick={onStart}
+						>
+							Start navigating
+						</button>
+					</div>
+				)}
 			<RouteSummary
 				destination={planner.destination}
 				origin={planner.origin}

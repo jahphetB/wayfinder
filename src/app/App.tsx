@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react'
 import { NavigationPanel } from '@/features/navigation/components/NavigationPanel'
+import { RouteWalkthrough } from '@/features/navigation/components/RouteWalkthrough'
 import { useRoutePlanner } from '@/features/navigation/hooks/useRoutePlanner'
 import { useLocationSnapshot } from '@/features/navigation/hooks/useLocationSnapshot'
 import { createLocationLookupProvider } from '@/composition/createLocationProvider'
@@ -80,23 +81,31 @@ export function App({
 					<NavigationPanel
 						planner={planner}
 						navigationSession={currentSession}
-						onNext={advanceWalkthrough}
-						onBack={goBack}
+						onStart={advanceWalkthrough}
 					/>
-					<ErrorBoundary fallback={<FailureRecovery scope="map" />}>
-						<Suspense fallback={<MapLoadingFallback />}>
-							<MapView
-								snapshot={snapshot}
-								destination={planner.destination}
-								mode={mapMode}
-								onModeChange={setMapMode}
-								origin={planner.origin}
-								route={planner.plannedRoute}
-								drivingHandoff={planner.drivingHandoff}
-								navigationSession={currentSession}
-							/>
-						</Suspense>
-					</ErrorBoundary>
+					<section className="map-workspace" aria-label="Map workspace">
+						<ErrorBoundary fallback={<FailureRecovery scope="map" />}>
+							<Suspense fallback={<MapLoadingFallback />}>
+								<MapView
+									snapshot={snapshot}
+									destination={planner.destination}
+									mode={mapMode}
+									onModeChange={setMapMode}
+									origin={planner.origin}
+									route={planner.plannedRoute}
+									drivingHandoff={planner.drivingHandoff}
+									navigationSession={currentSession}
+								/>
+							</Suspense>
+						</ErrorBoundary>
+					</section>
+					{currentSession && (
+						<RouteWalkthrough
+							session={currentSession}
+							onNext={advanceWalkthrough}
+							onBack={goBack}
+						/>
+					)}
 				</section>
 			</main>
 			<SiteFooter />

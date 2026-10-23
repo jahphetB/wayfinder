@@ -81,27 +81,23 @@
 .building-dialog-description h3 + p {
 	margin-top: 0;
 }
-.building-keyboard-access {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	overflow: hidden;
-	clip-path: inset(50%);
+.building-shortcuts summary {
+	width: fit-content;
+	min-height: 2.75rem;
+	padding-block: 0.6rem;
+	color: var(--color-brand);
+	cursor: pointer;
+	font-size: var(--font-size-small);
 }
-.building-keyboard-access:focus-within {
-	z-index: 4;
-	inset: auto 1rem 1rem;
+.building-shortcut-actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
-	width: auto;
-	height: auto;
-	padding: 0.5rem;
-	clip-path: none;
 	background: var(--color-panel);
 }
-.building-keyboard-access button {
+.building-shortcut-actions button {
 	min-height: 2.75rem;
+	padding: 0.5rem 0.75rem;
 	color: var(--color-brand);
 	background: var(--color-white);
 	border: 1px solid var(--color-border);

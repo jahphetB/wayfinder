@@ -2,7 +2,7 @@
 :root {
 	--color-snapshot-fill: #b8ed9a;
 	--color-snapshot-outline: #245233;
-	--footer-inline-padding: clamp(0.85rem, 4vw, 4.5rem);
+	--footer-inline-padding: clamp(0.85rem, 2vw, 2rem);
 	/* Brand, surfaces, text, borders, and map UI colors. */
 	--color-text: #281c38;
 	--color-brand: #412d5e;
@@ -79,24 +79,21 @@
 	--font-size-title-mobile: clamp(1.7rem, 7vw, 2.15rem);
 
 	/* Layout dimensions and component padding. */
-	--layout-max-width: 1440px;
-	--layout-padding: 2rem clamp(1.25rem, 4vw, 4.5rem);
+	--layout-max-width: 1800px;
+	--layout-padding: 1.5rem clamp(1rem, 2vw, 2rem);
 	--layout-padding-mobile: 0.85rem;
 	--layout-min-height: 39rem;
 	--panel-min-width: 19rem;
-	--panel-max-width: 26rem;
+	--panel-max-width: 24rem;
 	--panel-padding: clamp(1.5rem, 3vw, 2.5rem);
 	--panel-padding-mobile: 1.2rem;
-	--map-min-height: 28rem;
+	--map-min-height: 32rem;
+	--map-min-height-mobile: 28rem;
+	--walkthrough-controls-max-width: 26rem;
+	--map-toolbar-padding: 0.75rem 1rem;
 	--frame-radius: 0;
 	--button-height: 3.35rem;
 	--button-height-mobile: 3.1rem;
-
-	/* Overlay positions inside the map. */
-	--map-controls-top: 1.25rem;
-	--map-controls-right: 1.25rem;
-	--map-controls-left: 1.25rem;
-	--map-note-bottom: 3.25rem;
 
 	/* Building details popup dimensions. */
 	--color-dialog-backdrop: rgb(24 12 41 / 55%);

@@ -58,6 +58,33 @@ function renderMap(provider: LocationProvider) {
 }
 
 describe('MapView location control', () => {
+	it('keeps location, mode and expandable building controls outside the canvas viewport', async () => {
+		renderMap({ requestCurrentLocation: vi.fn() })
+		const viewport = document.getElementById('map-viewport')!
+		expect(viewport.querySelector('.map-canvas')).not.toBeNull()
+		expect(viewport.querySelector('button')).toBeNull()
+		expect(
+			viewport.contains(
+				screen.getByRole('button', { name: 'Get my location' }),
+			),
+		).toBe(false)
+		expect(
+			viewport.contains(
+				screen.getByRole('group', { name: 'Map display mode' }),
+			),
+		).toBe(false)
+		await userEvent
+			.setup()
+			.click(screen.getByText('Building details', { selector: 'summary' }))
+		const details = screen.getByRole('button', {
+			name: 'Cruzen-Murray Library details',
+		})
+		expect(viewport.contains(details)).toBe(false)
+		await userEvent.setup().click(details)
+		expect(
+			screen.getByRole('dialog', { name: 'Cruzen-Murray Library' }),
+		).toBeVisible()
+	})
 	it('shows a recoverable map error when initialization fails', async () => {
 		const setMode = vi.fn()
 		const setContent = vi.fn()

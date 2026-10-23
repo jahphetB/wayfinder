@@ -9,7 +9,7 @@ export function RouteWalkthrough({
 	readonly onNext: () => void
 	readonly onBack: () => void
 }) {
-	const starting = session.status === 'awaiting-start'
+	if (session.status === 'awaiting-start') return null
 	const complete = session.status === 'completed'
 	const step = session.route.steps[session.currentStepIndex]
 	return (
@@ -18,16 +18,7 @@ export function RouteWalkthrough({
 			aria-label="Route walkthrough"
 			id="route-walkthrough"
 		>
-			{starting && (
-				<button
-					type="button"
-					className="route-action start-navigation-action"
-					onClick={onNext}
-				>
-					Start navigating
-				</button>
-			)}
-			{!starting && !complete && step && (
+			{!complete && step && (
 				<div className="current-instruction">
 					<h3>
 						Step {session.currentStepIndex + 1} of {session.route.steps.length}
@@ -35,36 +26,34 @@ export function RouteWalkthrough({
 					<p>{step.instruction}</p>
 				</div>
 			)}
-			{!starting && (
-				<ul aria-label="Route leg colors" className="route-leg-legend">
-					<li>
-						<span className="legend-swatch completed" />
-						Completed
-					</li>
-					<li>
-						<span className="legend-swatch current" />
-						Current leg
-					</li>
-					<li>
-						<span className="legend-swatch upcoming" />
-						Upcoming
-					</li>
-				</ul>
-			)}
+			<ul aria-label="Route leg colors" className="route-leg-legend">
+				<li>
+					<span className="legend-swatch completed" />
+					Completed
+				</li>
+				<li>
+					<span className="legend-swatch current" />
+					Current leg
+				</li>
+				<li>
+					<span className="legend-swatch upcoming" />
+					Upcoming
+				</li>
+			</ul>
 			<p className="walkthrough-status" role="status" aria-atomic="true">
 				{complete
 					? 'Route walkthrough complete. This does not confirm your physical arrival.'
-					: starting
-						? 'Explore the route at your own pace. Location is optional.'
-						: 'Next advances the illustration and requests a location snapshot. You do not need to walk or wait for location.'}
+					: 'Next advances the illustration and requests a location snapshot. You do not need to walk or wait for location.'}
 			</p>
 			<div className="navigation-actions">
-				{!starting && (
-					<button type="button" className="secondary-action" onClick={onBack}>
-						Back
-					</button>
-				)}
-				{!starting && !complete && (
+				<button
+					type="button"
+					className="secondary-action previous-step-action"
+					onClick={onBack}
+				>
+					Back
+				</button>
+				{!complete && (
 					<button
 						type="button"
 						className="route-action next-step-action"

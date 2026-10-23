@@ -35,6 +35,33 @@ async function selectLibraryAndDining(
 }
 
 describe('App', () => {
+	it('keeps a single walkthrough after the map while Start remains beside the planner', async () => {
+		const user = userEvent.setup()
+		render(
+			<App
+				locationProvider={{
+					requestCurrentLocation: vi.fn(() => new Promise<never>(() => {})),
+				}}
+			/>,
+		)
+		await selectLibraryAndDining(user)
+		await user.click(screen.getByRole('button', { name: 'Preview route' }))
+		const start = screen.getByRole('button', { name: 'Start navigating' })
+		expect(start.closest('.navigation-panel')).not.toBeNull()
+		await user.click(start)
+		const walkthrough = screen.getByRole('region', {
+			name: 'Route walkthrough',
+		})
+		const map = screen.getByRole('region', { name: 'Interactive map' })
+		expect(
+			map.compareDocumentPosition(walkthrough) &
+				Node.DOCUMENT_POSITION_FOLLOWING,
+		).toBeTruthy()
+		expect(walkthrough.closest('.navigation-panel')).toBeNull()
+		expect(walkthrough.closest('.wayfinder-layout')).not.toBeNull()
+		expect(screen.getAllByRole('button', { name: 'Back' })).toHaveLength(1)
+		expect(screen.getAllByRole('button', { name: 'Next' })).toHaveLength(1)
+	})
 	it('advances immediately while location is pending or denied and never calls Back a location trigger', async () => {
 		const user = userEvent.setup()
 		const provider = {

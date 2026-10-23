@@ -1,5 +1,5 @@
 .site-footer {
-	width: min(100%, 1440px);
+	width: min(100%, var(--layout-max-width));
 	margin-inline: auto;
 	padding: 0.75rem var(--footer-inline-padding) 1.25rem;
 	color: var(--color-white);

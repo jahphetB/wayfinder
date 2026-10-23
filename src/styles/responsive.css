@@ -7,7 +7,12 @@
 	}
 	.wayfinder-layout {
 		border-radius: var(--frame-radius);
+		grid-template-areas:
+			'planner'
+			'map'
+			'walkthrough';
 		grid-template-columns: 1fr;
+		grid-template-rows: auto auto auto;
 		min-height: 0;
 	}
 	.navigation-panel {
@@ -44,8 +49,13 @@
 		margin-top: 1rem;
 	}
 	.checkpoint-navigation {
-		margin-top: 1rem;
-		padding-top: 0.75rem;
+		padding: 0.75rem var(--panel-padding-mobile);
+	}
+	.navigation-actions button {
+		min-height: var(--button-height-mobile);
+	}
+	.map-viewport {
+		min-height: var(--map-min-height-mobile);
 	}
 	.map-preview {
 		min-height: 24rem;

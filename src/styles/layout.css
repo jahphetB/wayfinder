@@ -34,9 +34,13 @@
 }
 .wayfinder-layout {
 	display: grid;
+	grid-template-areas:
+		'planner map'
+		'walkthrough map';
 	grid-template-columns:
 		minmax(var(--panel-min-width), var(--panel-max-width))
 		1fr;
+	grid-template-rows: auto 1fr;
 	min-height: var(--layout-min-height);
 	overflow: hidden;
 	border: 1px solid var(--color-frame-border);
@@ -45,10 +49,22 @@
 	box-shadow: 0 22px 60px var(--color-frame-shadow);
 }
 .navigation-panel {
+	grid-area: planner;
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
 	padding: var(--panel-padding);
+	background: var(--color-panel);
+}
+.map-workspace {
+	grid-area: map;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	background: var(--color-panel);
+}
+.route-walkthrough {
+	grid-area: walkthrough;
 	background: var(--color-panel);
 }
 .navigation-panel .eyebrow {
