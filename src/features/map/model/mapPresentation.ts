@@ -15,7 +15,7 @@ export const mapPresentation = {
 		outlineWidthPixels: 1.5,
 	},
 	camera: {
-		pitch2d: 0,
+		pitch2d: 60,
 		pitch3d: 60,
 		initialBearing3d: -20,
 		overviewPitch3d: 40,
@@ -28,7 +28,7 @@ export const mapPresentation = {
 		modeDurationMilliseconds: 1000,
 		locationZoom: 17,
 		locationDurationMilliseconds: 900,
-		navigationZoom: 18,
+		navigationZoom: 18.3,
 		navigationOffsetPixels: 80,
 		easing: (progress: number): number =>
 			progress * progress * (3 - 2 * progress),

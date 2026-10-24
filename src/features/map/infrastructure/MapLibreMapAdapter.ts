@@ -715,30 +715,30 @@ export class MapLibreMapAdapter implements MapAdapter {
 			]
 		const from = step?.coordinates[0],
 			to = step?.coordinates[1]
-		const points = session.route.coordinates
-		const longitudes = points.map((point) => point.longitude),
-			latitudes = points.map((point) => point.latitude)
+
+		const center =
+			session.status === 'completed' ? step?.coordinates.at(-1) : from
+		if (!center) return
 		this.requireMap().stop()
-		this.requireMap().fitBounds(
-			[
-				[Math.min(...longitudes), Math.min(...latitudes)],
-				[Math.max(...longitudes), Math.max(...latitudes)],
-			],
-			{
-				padding: this.content.cameraInsets ?? {
-					top: 48,
-					bottom: 48,
-					left: 48,
-					right: 72,
-				},
-				maxZoom: mapPresentation.camera.navigationZoom,
-				bearing:
-					this.mode === '2d' ? 0 : from && to ? calculateBearing(from, to) : 0,
-				pitch: pitchForMode(this.mode),
-				duration,
-				easing: mapPresentation.camera.easing,
-			},
-		)
+		this.requireMap().easeTo({
+			center: [center.longitude, center.latitude],
+			zoom: mapPresentation.camera.navigationZoom,
+			// Clear persistent preview padding; offset only balances visible controls.
+			padding: { top: 0, bottom: 0, left: 0, right: 0 },
+			offset: this.content.cameraInsets
+				? [
+						(this.content.cameraInsets.left - this.content.cameraInsets.right) /
+							2,
+						(this.content.cameraInsets.top - this.content.cameraInsets.bottom) /
+							2,
+					]
+				: [0, 0],
+			bearing:
+				this.mode === '2d' ? 0 : from && to ? calculateBearing(from, to) : 0,
+			pitch: pitchForMode(this.mode),
+			duration,
+			easing: mapPresentation.camera.easing,
+		})
 	}
 
 	private syncCampusLayer(): void {

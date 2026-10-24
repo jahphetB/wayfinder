@@ -136,7 +136,7 @@ describe('MapLibreMapAdapter', () => {
 				[-116.6807, 43.65065],
 				[-116.66985, 43.65565],
 			],
-			expect.objectContaining({ pitch: 0, duration: 1000 }),
+			expect.objectContaining({ pitch: 60, duration: 1000 }),
 		)
 		resize()
 		expect(fitBounds).toHaveBeenLastCalledWith(
@@ -144,7 +144,7 @@ describe('MapLibreMapAdapter', () => {
 				[-116.6807, 43.65065],
 				[-116.66985, 43.65565],
 			],
-			expect.objectContaining({ pitch: 0, duration: 0 }),
+			expect.objectContaining({ pitch: 60, duration: 0 }),
 		)
 	})
 
@@ -210,7 +210,7 @@ describe('MapLibreMapAdapter', () => {
 			bearing: 0,
 			duration: 1000,
 			easing: mapPresentation.camera.easing,
-			pitch: 0,
+			pitch: 60,
 		})
 		expect(remove).toHaveBeenCalledTimes(1)
 	})
@@ -481,17 +481,15 @@ describe('MapLibreMapAdapter', () => {
 		expect(routeLineLayer?.paint?.['line-color']).toEqual(
 			expect.arrayContaining(['completed', 'current', 'upcoming']),
 		)
-		expect(fitNavigation).toHaveBeenLastCalledWith(
-			expect.any(Array),
-			expect.objectContaining({ maxZoom: 18, pitch: 60, duration: 1300 }),
+		expect(easeTo).toHaveBeenLastCalledWith(
+			expect.objectContaining({ zoom: 18.3, pitch: 60, duration: 1300 }),
 		)
 
 		adapter.setMode('2d')
-		expect(fitNavigation).toHaveBeenLastCalledWith(
-			expect.any(Array),
-			expect.objectContaining({ pitch: 0, duration: 1000 }),
+		expect(easeTo).toHaveBeenLastCalledWith(
+			expect.objectContaining({ pitch: 60, duration: 1000 }),
 		)
-		const cameraCalls = fitNavigation.mock.calls.length
+		const cameraCalls = easeTo.mock.calls.length
 		const routeUpdates = setRouteData.mock.calls.length
 		const pointUpdates = setLocationData.mock.calls.length
 		adapter.setContent({
@@ -510,7 +508,7 @@ describe('MapLibreMapAdapter', () => {
 			{ latitude: 43.6544, longitude: -116.6768 },
 			{ focus: false },
 		)
-		expect(fitNavigation).toHaveBeenCalledTimes(cameraCalls + 1)
+		expect(easeTo).toHaveBeenCalledTimes(cameraCalls + 1)
 		expect(stop).toHaveBeenCalledTimes(cameraCalls + 1)
 		adapter.setContent({
 			origin: undefined,
@@ -518,9 +516,11 @@ describe('MapLibreMapAdapter', () => {
 			route,
 			navigationSession: { ...navigationSession, currentStepIndex: 2 },
 		})
-		expect(fitNavigation).toHaveBeenCalledTimes(cameraCalls + 2)
+		expect(easeTo).toHaveBeenCalledTimes(cameraCalls + 2)
 		expect(stop).toHaveBeenCalledTimes(cameraCalls + 2)
 		const cameraInsets = { top: 130, bottom: 120, left: 24, right: 24 }
+		const turn = route.steps[2]?.coordinates[0]
+		if (!turn) throw new Error('Expected third-step turn fixture')
 		adapter.setContent({
 			origin: undefined,
 			destination: undefined,
@@ -528,9 +528,13 @@ describe('MapLibreMapAdapter', () => {
 			navigationSession: { ...navigationSession, currentStepIndex: 2 },
 			cameraInsets,
 		})
-		expect(fitNavigation).toHaveBeenLastCalledWith(
-			expect.any(Array),
-			expect.objectContaining({ padding: cameraInsets, bearing: 0 }),
+		expect(easeTo).toHaveBeenLastCalledWith(
+			expect.objectContaining({
+				padding: { top: 0, bottom: 0, left: 0, right: 0 },
+				offset: [0, 5],
+				center: [turn.longitude, turn.latitude],
+				bearing: 0,
+			}),
 		)
 		adapter.zoom(1)
 		expect(zoomIn).toHaveBeenCalledTimes(1)
@@ -623,7 +627,7 @@ describe('MapLibreMapAdapter', () => {
 				padding: 32,
 				maxZoom: 17.5,
 				bearing: 0,
-				pitch: 0,
+				pitch: 60,
 				duration: 1500,
 				easing: mapPresentation.camera.easing,
 			},
