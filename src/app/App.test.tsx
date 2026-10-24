@@ -35,6 +35,24 @@ async function selectLibraryAndDining(
 }
 
 describe('App', () => {
+	it('returns dialog focus to the visible menu trigger without acquiring location', async () => {
+		const provider = { requestCurrentLocation: vi.fn() }
+		const user = userEvent.setup()
+		render(<App locationProvider={provider} />)
+		const menu = screen.getByLabelText('Open menu')
+		await user.click(menu)
+		await user.click(
+			screen.getByRole('button', { name: 'Cruzen-Murray Library details' }),
+		)
+		expect(
+			screen.getByRole('dialog', { name: 'Cruzen-Murray Library' }),
+		).toBeVisible()
+		await user.click(
+			screen.getByRole('button', { name: 'Close building details' }),
+		)
+		expect(menu).toHaveFocus()
+		expect(provider.requestCurrentLocation).not.toHaveBeenCalled()
+	})
 	it('has one persistent map, one location control and one Back/Next pair', async () => {
 		const user = userEvent.setup()
 		render(

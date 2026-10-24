@@ -17,7 +17,10 @@ export function GuideHeader({
 }) {
 	const menu = useRef<HTMLDetailsElement>(null)
 	function close() {
-		if (menu.current) menu.current.open = false
+		if (menu.current) {
+			menu.current.open = false
+			menu.current.querySelector('summary')?.focus()
+		}
 	}
 	return (
 		<header className="guide-header">
