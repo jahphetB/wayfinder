@@ -26,13 +26,13 @@
 	font-size: inherit;
 }
 .app-shell[data-view='navigation'] .site-footer {
-	justify-content: center;
-	gap: 20px;
-	font-size: 0.75rem;
+	justify-content: space-between;
+	gap: 8px;
+	font-size: 0.625rem;
 }
 .app-shell[data-view='navigation'] .privacy-action {
-	border-left: 1px solid var(--color-muted);
-	padding-left: 20px;
+	border: 0;
+	padding-left: 0;
 }
 .privacy-dialog {
 	width: min(560px, calc(100% - 32px));

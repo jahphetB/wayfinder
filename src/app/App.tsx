@@ -79,6 +79,9 @@ export function App({
 				onEdit={guide.edit}
 				onPrivacy={() => setPrivacy(true)}
 				onBuilding={setBuildingId}
+				onDestination={(location) =>
+					guide.planner.selectLocation('destination', location)
+				}
 			/>
 			<section className="guide-sidebar" aria-label="Route planning workspace">
 				{journey ? (
@@ -97,7 +100,9 @@ export function App({
 						onCancel={guide.cancel}
 						onStart={start}
 						feedback={
-							editing ? <LocationFeedback snapshot={snapshot} /> : undefined
+							editing ? (
+								<LocationFeedback snapshot={snapshot} mobile={!desktop} />
+							) : undefined
 						}
 					/>
 				)}
@@ -123,7 +128,7 @@ export function App({
 			</section>
 			<section className="guide-location" aria-label="Location snapshot">
 				<LocationSnapshotButton snapshot={snapshot} />
-				{!editing && <LocationFeedback snapshot={snapshot} />}
+				{!editing && <LocationFeedback snapshot={snapshot} mobile={!desktop} />}
 			</section>
 			{journey && (
 				<nav className="navigation-actions" aria-label="Walkthrough controls">

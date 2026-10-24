@@ -209,55 +209,50 @@ export function MapView({
 					<CurrentInstruction journey={journey} />
 				</div>
 			)}
-			{(!journey || desktop) && (
+			<div
+				className={
+					journey ? 'map-controls map-controls--navigation' : 'map-controls'
+				}
+			>
 				<div
-					className={
-						journey ? 'map-controls map-controls--navigation' : 'map-controls'
-					}
+					hidden={Boolean(journey) && !desktop}
+					role="group"
+					aria-label="Map display mode"
+					className="map-mode-toggle"
 				>
-					<div
-						role="group"
-						aria-label="Map display mode"
-						className="map-mode-toggle"
-					>
-						{(['2d', '3d'] as const).map((value) => (
-							<button
-								key={value}
-								aria-pressed={mode === value}
-								disabled={mapStatus !== 'ready'}
-								onClick={() => onModeChange(value)}
-								type="button"
-							>
-								{value.toUpperCase()}
-							</button>
-						))}
-					</div>
-					{journey && (
-						<div
-							role="group"
-							aria-label="Map zoom"
-							className="map-zoom-controls"
+					{(['2d', '3d'] as const).map((value) => (
+						<button
+							key={value}
+							aria-pressed={mode === value}
+							disabled={mapStatus !== 'ready'}
+							onClick={() => onModeChange(value)}
+							type="button"
 						>
-							<button
-								type="button"
-								aria-label="Zoom in"
-								disabled={mapStatus !== 'ready'}
-								onClick={() => adapterRef.current?.zoom(1)}
-							>
-								<GuideIcon name="plus" />
-							</button>
-							<button
-								type="button"
-								aria-label="Zoom out"
-								disabled={mapStatus !== 'ready'}
-								onClick={() => adapterRef.current?.zoom(-1)}
-							>
-								<GuideIcon name="minus" />
-							</button>
-						</div>
-					)}
+							{value.toUpperCase()}
+						</button>
+					))}
 				</div>
-			)}
+				{journey && (
+					<div role="group" aria-label="Map zoom" className="map-zoom-controls">
+						<button
+							type="button"
+							aria-label="Zoom in"
+							disabled={mapStatus !== 'ready'}
+							onClick={() => adapterRef.current?.zoom(1)}
+						>
+							<GuideIcon name="plus" />
+						</button>
+						<button
+							type="button"
+							aria-label="Zoom out"
+							disabled={mapStatus !== 'ready'}
+							onClick={() => adapterRef.current?.zoom(-1)}
+						>
+							<GuideIcon name="minus" />
+						</button>
+					</div>
+				)}
+			</div>
 			{mapStatus === 'loading' && (
 				<p className="map-status" role="status">
 					Loading map…

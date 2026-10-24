@@ -42,6 +42,7 @@
 	.guide-sidebar {
 		padding: 12px 14px 0;
 		overflow: visible;
+		z-index: 6;
 	}
 	.planner-title {
 		font-size: 0.9375rem;
@@ -132,14 +133,44 @@
 		pointer-events: none;
 		z-index: 3;
 	}
+	.app-shell:not([data-view='navigation']) {
+		height: auto;
+		min-height: 100dvh;
+		grid-template-rows: auto clamp(200px, 35dvh, 400px) auto auto auto;
+	}
+	.app-shell:not([data-view='navigation']) .guide-location {
+		position: relative;
+		z-index: 1;
+		align-items: flex-start;
+	}
+	.app-shell .location-action {
+		width: auto;
+		align-self: flex-start;
+		min-height: 32px;
+		padding: 6px 10px;
+		font-size: 0.75rem;
+	}
+	.app-shell[data-view='navigation'] .location-action {
+		min-height: 32px;
+		font-size: 0.75rem;
+		align-self: flex-end;
+	}
+	.app-shell[data-view='navigation'] .snapshot-marker-key {
+		display: none;
+	}
+	.map-controls--navigation .map-zoom-controls button {
+		min-width: 30px;
+		min-height: 30px;
+	}
 	.app-shell[data-view='navigation'] .guide-location > * {
 		pointer-events: auto;
 	}
 	.app-shell[data-view='navigation'] .snapshot-feedback {
 		order: -1;
 		align-self: center;
-		background: #fffffff2;
-		box-shadow: 0 1px 5px #281c3817;
+		background: transparent;
+		box-shadow: none;
+		border: 0;
 		padding: 6px 12px;
 		border-radius: 20px;
 		max-width: 100%;
@@ -147,11 +178,11 @@
 	}
 	.app-shell[data-view='navigation'] .location-action {
 		background: white;
-		min-height: 44px;
+		min-height: 32px;
 		box-shadow: 0 1px 5px #281c3817;
 		border: 0;
 		border-radius: 10px;
-		font-size: 0.875rem;
+		font-size: 0.75rem;
 	}
 	.navigation-actions {
 		padding: 12px 12px 8px;
@@ -175,6 +206,11 @@
 	.map-controls {
 		right: 8px;
 		top: 8px;
+	}
+	.map-controls--navigation {
+		top: auto;
+		bottom: 110px;
+		right: 10px;
 	}
 	.map-mode-toggle {
 		padding: 3px;

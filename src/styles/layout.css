@@ -11,6 +11,8 @@
 	background: var(--color-white);
 }
 .guide-header {
+	background: var(--color-brand);
+	color: white;
 	grid-area: header;
 	padding: 22px var(--guide-panel-padding) 10px;
 	display: flex;
@@ -19,7 +21,7 @@
 	gap: 12px;
 	min-width: 0;
 	position: relative;
-	z-index: 5;
+	z-index: 7;
 }
 .guide-brand {
 	min-width: 0;
@@ -35,10 +37,38 @@
 	font-size: 0.875rem;
 	line-height: 1.4;
 	margin: 2px 0 0;
-	color: var(--color-muted);
+	color: white;
 	overflow-wrap: anywhere;
 }
 .guide-menu {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+}
+.header-building-search {
+	flex: 1;
+	min-width: 100px;
+	max-width: 260px;
+	color: var(--color-text);
+}
+.header-building-search .location-field-label {
+	position: absolute;
+	clip-path: inset(50%);
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+.header-building-search .location-field input {
+	background: white;
+}
+.header-building-search .suggestion-list {
+	min-width: 240px;
+	left: auto;
+	right: 0;
+}
+.guide-header .guide-menu {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -137,7 +167,7 @@
 }
 .app-shell[data-view='navigation'] {
 	grid-template-rows: auto minmax(0, 1fr) auto auto auto;
-	grid-template-areas: 'header map' 'sidebar map' 'location map' 'actions map' 'footer footer';
+	grid-template-areas: 'header map' 'sidebar map' 'location map' 'actions map' 'footer map';
 }
 .app-shell[data-view='navigation'] .guide-header {
 	padding-top: 24px;

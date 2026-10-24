@@ -104,9 +104,11 @@ export function LocationField({
 						onKeyDown={handleKeyDown}
 						role="combobox"
 						placeholder={
-							label === 'Start'
-								? 'Choose a starting point'
-								: 'Choose a destination'
+							label === 'Search buildings'
+								? 'Search buildings…'
+								: label === 'Start'
+									? 'Choose a starting point'
+									: 'Choose a destination'
 						}
 						value={query}
 					/>

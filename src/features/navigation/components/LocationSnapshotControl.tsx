@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { LocationSnapshot } from '../hooks/useLocationSnapshot'
 import { classifyCampusLocation } from '@/data/navigation/classifyCampusLocation'
 import { GuideIcon } from '@/app/components/GuideIcon'
@@ -25,16 +26,24 @@ export function LocationSnapshotButton({
 }
 export function LocationFeedback({
 	snapshot,
+	mobile = false,
 }: {
 	readonly snapshot: LocationSnapshot
+	readonly mobile?: boolean
 }) {
+	const [now, setNow] = useState(Date.now)
+	useEffect(() => {
+		if (!mobile || !snapshot.reading) return
+		const timer = window.setInterval(() => setNow(Date.now()), 1000)
+		return () => window.clearInterval(timer)
+	}, [mobile, snapshot.reading])
 	const reading = snapshot.reading
 	const area = reading ? classifyCampusLocation(reading) : undefined
 	const date = reading ? new Date(reading.capturedAtMilliseconds) : undefined
 	return (
 		<div
 			className="snapshot-feedback"
-			aria-live="polite"
+			aria-live={mobile ? 'off' : 'polite'}
 			aria-atomic="true"
 			id="location-snapshot"
 		>
@@ -43,25 +52,41 @@ export function LocationFeedback({
 					<span aria-hidden="true" className="snapshot-marker-key" />
 					Last checked{' '}
 					<time dateTime={date.toISOString()}>
-						{date.toLocaleTimeString([], {
-							hour: '2-digit',
-							minute: '2-digit',
-							hour12: false,
-						})}
+						{mobile
+							? `${Math.max(0, Math.floor((now - reading.capturedAtMilliseconds) / 1000))}s ago`
+							: date.toLocaleTimeString([], {
+									hour: '2-digit',
+									minute: '2-digit',
+									hour12: false,
+								})}
 					</time>{' '}
-					· ±{Math.ceil(reading.accuracyMeters)} m · Not live
-					{snapshot.retained ? ' · Previous snapshot' : ''}
-					{area === 'outside'
+					· ±{Math.ceil(reading.accuracyMeters)} m{!mobile && ' · Not live'}
+					{!mobile && snapshot.retained ? ' · Previous snapshot' : ''}
+					{!mobile && area === 'outside'
 						? ' · Off campus'
-						: area === 'uncertain'
+						: !mobile && area === 'uncertain'
 							? ' · Campus position uncertain'
 							: ''}
 				</p>
 			)}
 			{snapshot.status === 'loading' ? (
-				<p className="snapshot-message">Checking location… You can continue.</p>
+				<p
+					className={
+						mobile && reading
+							? 'snapshot-message visually-hidden'
+							: 'snapshot-message'
+					}
+				>
+					Checking location… You can continue.
+				</p>
 			) : snapshot.status === 'error' || snapshot.status === 'cancelled' ? (
-				<p className="snapshot-message">
+				<p
+					className={
+						mobile && reading
+							? 'snapshot-message visually-hidden'
+							: 'snapshot-message'
+					}
+				>
 					{snapshot.status === 'cancelled'
 						? 'Location lookup cancelled.'
 						: snapshot.message.includes('denied')

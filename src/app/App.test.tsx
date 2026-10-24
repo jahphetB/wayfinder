@@ -35,6 +35,23 @@ async function selectLibraryAndDining(
 }
 
 describe('App', () => {
+	it('uses header building search to select a draft destination without acquiring location', async () => {
+		const provider = { requestCurrentLocation: vi.fn() }
+		const user = userEvent.setup()
+		render(<App locationProvider={provider} />)
+		await user.type(
+			screen.getByRole('combobox', { name: 'Search buildings' }),
+			'Sterry',
+		)
+		await user.click(screen.getByRole('option', { name: 'Sterry Hall' }))
+		expect(screen.getByRole('combobox', { name: 'Destination' })).toHaveValue(
+			'Sterry Hall',
+		)
+		expect(
+			screen.getByRole('combobox', { name: 'Search buildings' }),
+		).toHaveValue('')
+		expect(provider.requestCurrentLocation).not.toHaveBeenCalled()
+	})
 	it('returns dialog focus to the visible menu trigger without acquiring location', async () => {
 		const provider = { requestCurrentLocation: vi.fn() }
 		const user = userEvent.setup()
