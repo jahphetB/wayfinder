@@ -1,5 +1,19 @@
 # AI Skills Inventory
 
+## October 24: compact controls and turn focus
+
+- **OpenAI / Playwright:** exercise header search, route replacement and control
+  hit-testing; measure footer position and horizontal overflow at mobile and
+  desktop boundary widths. Browser emulation is not physical-device evidence.
+- **External / Context7:** check MapLibre camera padding/offset behavior against
+  installed types. Avoid unsupported newer options and clear persistent padding
+  before close navigation framing.
+- **Project-developed / display-only snapshot age:** isolate elapsed-time rendering
+  from provider requests; test timer cleanup and absence of additional GPS calls.
+- **Project-developed / non-overlapping form regions:** allow content-driven row
+  height and establish explicit suggestion stacking instead of floating a lower
+  action over route editing controls.
+
 ## Selected-reference redesign
 
 - **OpenAI / Playwright:** state-by-state visual comparison, exact breakpoint and

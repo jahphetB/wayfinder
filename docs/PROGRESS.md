@@ -1,5 +1,22 @@
 # Progress Log
 
+## October 24: preview control and turn-camera refinement
+
+- Purple header/white branding and accessible building search update the draft
+  destination without GPS or automatic route start.
+- Tilted 2D, close current-turn focus, compact purple mobile instructions and
+  mobile zoom controls replace the conflicting October 23 visual details only.
+- Mobile form rows grow with replacement previews; suggestions stay above the
+  lower location button. Desktop footer remains in the same sidebar grid region.
+- Mobile snapshot age updates independently of GPS, with transparent feedback
+  and real reported accuracy. Manual progression, optional bounded requests,
+  geographic data, dependencies and security policy are unchanged.
+- Preview-only work; production is not merged or promoted.
+- Verification: 125 tests/30 files and all quality gates pass. Browser widths
+  320/639/640/1440 have no overflow; desktop footer delta is zero. Mobile expanded
+  suggestions and replacement Start are unobstructed. Detailed scope and evidence
+  are in UI_REFERENCE_VERIFICATION.md; the existing large map bundle warning remains.
+
 ## October 23: selected-reference redesign
 
 - Original selected board replaces conflicting prior visual instructions: Proposal A

@@ -1,5 +1,33 @@
 # Selected-reference UI verification
 
+## October 24 refinement verification
+
+The owner's follow-up in UI_REFERENCE_CONTRACT.md supersedes the flat 2D,
+whole-route navigation camera and white-header details described historically
+below. The refined candidate passes 125 tests in 30 files, strict TypeScript,
+lint, formatting and a production build. Vite retains the existing large map
+chunk warning; this change does not claim to resolve its performance limit.
+
+Browser-emulated checks at 320, 639, 640 and 1440 CSS pixels show no horizontal
+overflow. Mobile zoom buttons are visible. Desktop footer position has a measured
+zero-pixel vertical change from preview to navigation at 640 and 1440 pixels.
+Header search sets Sterry as the draft destination without a location request.
+Mobile replacement Preview changes → Start is unobstructed by hit-testing, and
+expanded start suggestions receive pointer input above the location region.
+
+A browser location fixture produces actual-format elapsed feedback (for example,
+13s ago with the injected 6 m accuracy), without hard-coded application examples.
+Feedback background is transparent. Unit tests verify elapsed updates never
+request another location and their interval is cleared on unmount. Adapter tests
+verify the close camera centres the selected turn and clears persistent padding.
+The fixed zoom setting approximates a 20 m scale, not a device-independent promise.
+
+Screenshots are local verification artifacts in output/playwright/: refined-
+navigation-320.png, refined-navigation-639.png, refined-navigation-640.png,
+refined-navigation-1440.png, refined-feedback-mobile.png,
+refined-replacement-mobile.png and refined-search-mobile.png. They are not
+physical-device testing or a renewed accessibility certification.
+
 ## Scope
 
 The original combined board is authoritative: Proposal A landing/editing,

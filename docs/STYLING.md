@@ -37,9 +37,24 @@ messages. `footer.css` owns credit and the native privacy dialog.
 
 ## Feedback and controls
 
+The October 24 refinement uses a purple header with white branding and a building
+combobox instead of the visible hamburger. A combobox combines a text field with
+selectable suggestions. Selecting a header result sets the draft Destination;
+it does not start a route or request location. Search remains keyboard accessible.
+The retained secondary menu is keyboard-revealed; map clicks still open details.
+
+Mobile planning/editing rows grow with content instead of forcing the location
+button over replacement actions. The planner stacking layer sits above the lower
+location region, so open suggestions receive pointer input. Mobile navigation
+uses 32-pixel-high location and 30-pixel zoom controls, plus a narrower purple
+instruction card. Desktop footer credit stays in the same sidebar grid cell.
+Mobile navigation feedback has no opaque background or shadow. A successful
+snapshot shows only elapsed age and reported accuracy; the age timer updates the
+label, not GPS. Screen-reader information retains snapshot/failure context.
+
 Landing puts Get my location below the planner. Editing puts feedback immediately
 after the draft actions, above the lower location button. Desktop navigation
-puts feedback under the location button; mobile navigation places its white pill
+puts feedback under the location button; mobile navigation places transparent feedback
 above that button on the map. Back/Next are equal-width buttons in a solid dock
 below the mobile map. Feedback contains only actual timestamps/accuracy after a
 reading, plus concise failure/retained/off-campus information.
@@ -53,9 +68,9 @@ reveals secondary building links without adding permanent reference chrome.
 ## Map and camera
 
 MapLibre keeps one canvas across planning, editing, navigation and responsive
-changes. Preview fits the actual route. Navigation frames the actual route with
-padding for the measured mobile instruction card and lower location controls.
-Flat 2D stays north-up so raster map labels remain readable. 3D retains deliberate
+changes. Preview fits the actual route. Navigation centres the current turn at zoom
+18.3, balancing measured overlay space with a temporary pixel offset. Both modes
+tilt 60 degrees; 2D stays north-up and 3D retains deliberate
 bearing changes. New camera intent stops the old animation; nonessential
 transitions respect reduced motion. Snapshot refreshes never refocus a selected
 route.

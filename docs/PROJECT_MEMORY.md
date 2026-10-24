@@ -1,5 +1,27 @@
 # Current project state
 
+## October 24 preview refinements
+
+The approved follow-up overrides only conflicting reference visuals: tilted 2D,
+purple/white header with building search, zoom 18.3 turn-centred navigation,
+compact purple mobile instruction card, mobile zoom and location buttons,
+transparent elapsed-age/accuracy feedback, and stationary desktop sidebar credit.
+Header search sets the draft destination. Time display refreshes do not request
+GPS; no tracking, checkpoint gate, reroute or automatic route start is introduced.
+Mobile form rows grow and suggestions stack above the location region, including
+replacement preview/start. Camera clears persistent padding before using a
+temporary overlay-balancing offset. Geographic data and security policy unchanged.
+Preview branch remains feat/step-39-location-refinement; standing commit/push
+approval applies. No main merge or production promotion is authorized.
+
+Local verification: 125 tests/30 files pass, formatting/lint/types/build pass.
+Browser widths 320/639/640/1440 have no overflow; desktop footer delta is zero.
+Header search selects a draft destination; mobile zoom is visible; replacement
+Start and expanded dropdown pass hit-testing. Mobile GPS fixture yields real-format
+elapsed age/accuracy; interval-cleanup/no-extra-request regression passes.
+Current artifact/evidence details are in UI_REFERENCE_VERIFICATION.md. Existing
+map bundle size and physical-device/accessibility review limitations remain.
+
 ## Active approved redesign
 
 - Before merge, the user authorizes a full reference-faithful redesign on preview.

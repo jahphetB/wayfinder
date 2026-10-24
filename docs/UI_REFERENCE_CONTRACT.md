@@ -8,6 +8,16 @@ frame and OS status bar are excluded from application chrome.
 
 ## Layout and visual rules
 
+### October 24 refinements
+
+The owner's subsequent refinements override the board where they conflict:
+purple/white header with building search instead of the visible menu; tilted 2D;
+close turn-centred walkthrough camera; compact mobile location/zoom controls and
+purple instruction card; transparent mobile feedback showing elapsed snapshot age
+and accuracy only; a stationary desktop sidebar footer. Other selected layout and
+manual-guide requirements remain. With no snapshot, concise failure feedback is
+still available rather than showing invented time or accuracy.
+
 - Below 640 CSS px: selected mobile composition; at/above 640: desktop composition.
 - Landing/editing preserve the pictured compact header, integrated fields/swap,
   actions, lower location control and footer. Mobile map precedes the planner.

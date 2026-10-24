@@ -34,9 +34,15 @@ This app does not persist or upload location history.
 
 ## Features and data
 
+Mobile snapshot feedback shows elapsed time and reported accuracy (± metres), not
+distance travelled. Compact controls leave search suggestions and replacement
+route actions unobstructed. Desktop credit stays in the sidebar across views.
+
 - Search 50 curated buildings, courts, parking areas and landmarks.
 - Route distance, estimated walking time, instructions and colored route legs.
-- Flat, north-up 2D and optional 3D views with one rough library model.
+- Tilted, north-up 2D and optional 3D views with one rough library model.
+- Purple header with building search; selecting a result sets the draft destination.
+- Close, turn-centred walkthrough camera and compact mobile zoom/location controls.
 - Library, Sterry Hall and cafeteria details, image slots and scrollable content.
 - A separate illustrative stadium driving handoff, not car turn-by-turn guidance.
 - Accessible search and explicit map-download/graphics/network recovery.

@@ -75,7 +75,10 @@ to move everything outside the map. Board labels/device chrome are not UI.
 `MapView.tsx` retains initialization deadlines, sanitized errors, retry and
 late-callback guards. It forwards selected building IDs to App, so the same
 `BuildingDetailsDialog` opens from map clicks and the secondary keyboard menu.
-`GuideHeader.tsx` owns that menu; `SiteFooter.tsx` supplies compact credit/Privacy.
+`GuideHeader.tsx` owns that keyboard-revealed menu and the visible building search;
+selecting a result updates the planner's draft destination without requesting GPS.
+`SiteFooter.tsx` supplies compact credit/Privacy in the same desktop sidebar cell
+before and after Start.
 Menu actions focus the still-visible summary before opening a dialog, so closing
 it restores a usable trigger rather than a button hidden inside a collapsed menu.
 `PrivacyDialog.tsx` uses a native modal with focus restoration and Escape support,
@@ -84,8 +87,12 @@ retaining the full disclosure without expanding prose into the primary workflow.
 `MapAdapter` remains provider-independent and now includes zoom plus camera
 insets: empty edge space reserved for overlays. MapLibre owns rendering and camera
 work. Mobile instruction height is measured; lower controls have reserved space.
-Route previews and walkthroughs frame real route bounds. Flat 2D stays north-up
-for raster-label readability; 3D can rotate with the current leg. New intent stops
+Route previews frame real route bounds. Walkthroughs centre the current step's
+first coordinate at zoom 18.3; completion centres its endpoint. Both map modes
+tilt 60 degrees; 2D stays north-up and 3D can rotate with the current leg. Navigation
+clears persistent padding and uses a temporary offset to balance overlay space,
+preventing padding from accumulating when returning to a replacement preview.
+New intent stops
 the previous animation; nonessential motion respects reduced-motion preference.
 Snapshot updates never refocus a selected route. The existing 2x pixel-ratio cap
 and unchanged-source suppression remain, without claiming universal smoothness.
@@ -113,10 +120,20 @@ The exact 640-pixel layout contract replaces ADR-049's outside-canvas design.
 No new framework, dependency, paid service or geographic dataset is introduced.
 
 **ADR-051: Frame the route around overlays, not the GPS result.** Insets account
-for the measured mobile card and lower controls. Flat 2D stays north-up, replacing
-the earlier tilted 2D default. Route framing also reruns on map resize, superseding
+for the measured mobile card and lower controls. The October 24 refinement restores
+tilted 2D and changes navigation from whole-route bounds to close current-turn
+focus, without moving the camera to a GPS result. Camera framing reruns on resize, superseding
 ADR-046's no-recenter resize shortcut. Source-update suppression, stopped camera
 intents, nonessential animation and the pixel-ratio cap are retained.
+
+**ADR-052: Compact controls without overlapping planner actions.** Mobile form rows
+grow naturally and suggestions render above the separate location region. Header
+search reuses the existing accessible field instead of introducing a second search
+implementation. Mobile feedback's one-second elapsed-age timer is isolated in the
+feedback component and cleared on unmount; it never invokes a provider or changes
+route progress. The displayed metres are reported GPS accuracy, not distance
+travelled. Failed lookups with no prior reading retain concise failure text rather
+than inventing location measurements. No dependencies or security rules change.
 
 **ADR-045: Manual progress replaces GPS gates.** This supersedes ADR-022, ADR-025,
 ADR-027, ADR-029 and the simulator portion of ADR-041. The domain cannot inspect
