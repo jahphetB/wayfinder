@@ -50,6 +50,11 @@ The selected original interface is documented in
 [styling guide](docs/STYLING.md). Real map data and route metrics remain separate
 from reference artwork; illustrative walkthrough completion never confirms arrival.
 
+The selected interface is available on the
+[review preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/).
+[Verification notes](docs/UI_REFERENCE_VERIFICATION.md) distinguish automated
+checks, browser emulation and remaining device-review limits.
+
 The current geographic dataset is the accepted guide baseline. Some inferred
 connections, access details, court numbering and model height remain unverified;
 it is not an independently surveyed or accessibility-certified map. Check signs

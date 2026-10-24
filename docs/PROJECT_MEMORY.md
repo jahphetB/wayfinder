@@ -8,24 +8,33 @@
 - Authoritative source: original Wayfinder-Exact-Selected-References.png in Downloads.
   Top Proposal A landing; middle Proposal A editing; bottom desktop layout 4/mobile
   layout 3 navigation. Never use generated replacement boards or copy example data.
-- Strict breakpoint: mobile <640 / desktop >=640. Keep the map instance across
-  layout changes. Build screenshot comparisons for all six states and 639/640.
+- Strict breakpoint: mobile <640 / desktop >=640. The map instance is retained
+  across layout changes; six-state screenshots and 639/640 checks are complete.
 - Workflow foundation: guideWorkspace reducer retains the old journey while draft
   fields/replacement preview change; Cancel restores the same route/session object.
   Starting replacement is explicit and resets its session. useCampusGuide composes
   this with the existing synchronous planner, without a new dependency/framework.
 - Current phase: reference UI implemented; browser screenshots and breakpoint/
-  permission/accessibility/recovery checks completed locally. Quality checks passed
-  with 122 tests/29 files before the final measured resize synchronization; that fix
-  and compatible advisory patches are being rechecked. Eight axe scans have zero
+  permission/accessibility/recovery checks completed locally. Full checks pass
+  with 123 tests/29 files including measured resize synchronization and compatible
+  advisory patches. Eight axe scans have zero
   automated violations, with manual contrast/link review still distinguished.
   App composes useCampusGuide plus one snapshot owner; MapView remains mounted.
   Full fixture run: 10 watchers started/cleared, none active. 639.2px edge case fixed
   with width-range CSS. UI_REFERENCE_VERIFICATION.md holds six-state artifacts,
   stress/recovery/performance evidence and honest visual differences.
-  Pushed foundation bf7627e and UI 038c732. Vercel built UI successfully but Quality
-  stopped on newly refreshed undici/zod advisories; compatible development-only
-  lock updates are local, audit now zero. Do not claim final CI green until verified.
+  Pushed foundation bf7627e, UI 038c732, dependency patch 3de9dc4, resize/a11y
+  hardening 7551202 and final menu-focus fix 69b3725. Quality initially stopped
+  on refreshed undici/zod advisories; compatible
+  development-only lock updates resolve them. Audit zero; Quality and Vercel both
+  verified green for 69b3725. Local full browser fixture has no errors/warnings/
+  CSP violations and all 10 watchers cleared. The same full matrix/fixture passes
+  on the published preview in a fresh ordinary browser (no bypass or toolbar
+  suppression headers): no errors/warnings/policy violations, 10/10 watchers
+  cleared and one map retained. Full hosted matrix: 7551202; final 69b3725 has a
+  focused hosted menu/dialog restoration check and matching served assets.
+  Runtime assets: index-BKBrT51a.js and MapView-uWNcT4va.js.
+  No application work remains in this approved redesign; stop for preview review.
   No production approval. Preview branch and main/recovery references remain below.
 
 ## Product authority and delivery boundary

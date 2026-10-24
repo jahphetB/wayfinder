@@ -24,6 +24,10 @@ Earlier GPS checkpoint and G01–G12 launch gates are superseded.
   Announce work on preview and every change of target environment.
 - A merge to `main` or production promotion needs explicit release approval.
   No force pushes, rewritten shared history or bypass of required checks.
+- Visual changes use the original selected source in UI_REFERENCE_CONTRACT.md.
+  Capture all six planner/editing/navigation desktop/mobile comparisons and test
+  both sides of 640px, including fractional widths. Preserve manual progress and
+  snapshot independence; UI_REFERENCE_VERIFICATION.md records this candidate.
 - Record the reviewed source commit and preview URL, plus the known-good production
   deployment/commit before release. A newer commit requires affected checks again.
 - Never commit secrets, `.env.local`, `node_modules` or `dist`.

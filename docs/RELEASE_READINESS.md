@@ -6,18 +6,60 @@ is historical; its former G01–G12 gates are retired.
 
 ## Candidate and deployment record
 
-- Candidate: **0.1.0-rc.1**, revised application source **`75f7259`**.
+- Candidate: **0.1.0-rc.1**, selected-reference application source **`69b3725`**.
 - Preview branch: `feat/step-39-location-refinement`; [pull request #2](https://github.com/jahphetB/wayfinder/pull/2).
 - [Preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/)
   is published; hosted verification is recorded below.
 - [Production](https://wayfinder-umber.vercel.app/) remains
   **`de7e5e81794661dec2f67ad7856e57055a535453`**. It is the prior production
   source/deployment reference, not the new guide candidate.
-- Local candidate assets: `index-c_h3i-oI.js`, `MapView-X0X1_6k8.js`.
+- Local/hosted candidate assets: `index-BKBrT51a.js`, `MapView-uWNcT4va.js`.
   Commit/deployment IDs, not the version label alone, identify reviewed builds.
 - Production merge/promotion is not authorized by publishing this candidate.
 
-## Pre-merge layout and toolbar verification
+## Selected-reference candidate verification
+
+The original board's six selected layouts supersede the historical outside-canvas
+design below. [UI reference verification](UI_REFERENCE_VERIFICATION.md) records
+the current implementation, screenshot artifacts and known differences.
+
+Source `69b3725` passes **123 tests / 29 files**, formatting, lint, strict types,
+production build and a refreshed audit with zero known findings. The earlier
+`038c732` Quality failure was the advisory gate for development-only undici/Zod;
+compatible lock updates resolve it without reducing the audit threshold.
+GitHub Quality and Vercel both report success for `69b3725`.
+
+Local production-build checks retain one map/current step at 320/375/639/640/768/
+1440 px, including a fractional-width boundary fix. Eight axe scans report no
+automated violations; manual contrast/link review remains separate. Graphics retry
+restores the same illustrated step, and Next works during map failure. A complete
+fixture run clears all 10 requested watchers with no page errors, camera warnings
+or ordinary CSP violations. No production location fixture is shipped.
+
+The hosted preview returns HTTP 200 with the expected assets, unchanged CSP and
+no Vercel feedback-script injection. Production is independently HTTP 200 with
+its previous `index-DVYzLa7U.js` asset; main remains `de7e5e8`. No production
+merge or deployment promotion occurred.
+
+A fresh ordinary hosted browser also passes the complete six-width route/edit/
+permission fixture with no page/console errors, camera warnings or CSP violations.
+All 10 requested watchers clear, and the same map survives every view/resize.
+No bypass-CSP context, toolbar-suppression header or authentication session was
+used for that ordinary-visitor verification.
+
+That full hosted matrix was exercised on `7551202`. The final `69b3725` adds
+only menu-to-dialog focus restoration plus its regression test; a focused hosted
+check confirms focus returns to the visible menu trigger and the new assets are
+served. Additional local checks cover landing/editing at 639/640 and keyboard
+search with a reduced 375×420 viewport. The six-state visual arrangement is unchanged.
+
+The six original-versus-implementation comparisons remain local generated
+artifacts, not images embedded as application UI. The live raster/real route
+values differ from the stylized artwork. Physical-device/assistive-technology
+review and constrained-device performance limitations are not hidden by green
+automated checks.
+
+## Historical pre-redesign layout and toolbar verification
 
 The approved UI refinement retains manual/snapshot behavior and the same security
 policy. Full local checks pass with **113 tests / 27 files**, including two new

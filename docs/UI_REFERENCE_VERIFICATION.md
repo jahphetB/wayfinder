@@ -32,7 +32,7 @@ tracking, telemetry or routing service was introduced.
 
 ## Automated and browser checks
 
-The local quality command covers formatting, lint, strict types, **122 tests in
+The local quality command covers formatting, lint, strict types, **123 tests in
 29 files**, and a production build. Focused additions cover draft restoration,
 replacement starts, compound instructions, camera insets/zoom, map-size
 synchronization and snapshot independence.
@@ -118,3 +118,11 @@ This redesign is a preview candidate. A successful preview build does not author
 a merge or production promotion. Exact source/deployment evidence is maintained in
 [release readiness](RELEASE_READINESS.md); production remains a separate reviewed
 release.
+
+Application source 69b3725 passes Quality and Vercel. The hosted ordinary-browser
+matrix/fixture reproduces the local six-width result: one persistent map, 10/10
+requested watchers cleared, no page/console errors, camera warnings or CSP
+violations. The full matrix used source 7551202; the final 69b3725 changes only
+menu/dialog focus restoration and its regression test, with a focused hosted
+check confirming the fix. Its runtime assets are index-BKBrT51a.js and
+MapView-uWNcT4va.js; the visual arrangement is unchanged.

@@ -1,5 +1,22 @@
 # Camera and startup verification
 
+## Selected-reference interface probe
+
+The redesigned interface keeps one canvas through view/breakpoint changes and
+synchronizes MapLibre's internal size only when its container dimensions changed.
+It retains the 2× rendering pixel-ratio cap, nonessential motion and stopped
+previous camera intents. No new runtime dependency or model was introduced.
+
+A local 390×844 Chromium probe requested 3× density and 4× CPU throttling:
+map-ready proxy 4.553 s, maximum startup long task 1,162 ms, and three automated
+Next-click-to-next-frame probes 897/694/629 ms. Actual canvas ratio was 2×, with
+no page exception. Automation overhead is included; these are not field INP,
+controlled regression measurements or physical-phone results.
+
+The map chunk remains approximately 420 kB gzip plus a separate worker.
+Constrained animation is still uneven. The six-state verification and comparison
+scope are in [UI reference verification](UI_REFERENCE_VERIFICATION.md).
+
 ## October 23 guide candidate
 
 These are desktop Chrome diagnostics, not physical school-computer, Android or

@@ -14,6 +14,13 @@
   states to the original board; test both sides of the exact 640-pixel boundary,
   map identity, overlay-aware camera padding and location-independent progression.
   Diagnostic location fixtures exist only in browser automation, not app code.
+- **Project-developed / measured viewport synchronization:** update MapLibre's
+  internal canvas dimensions before a content-driven fit only when the container
+  actually changed; guard reentrant resize callbacks instead of resizing every turn.
+- **Project-developed / advisory-gated delivery:** inspect CI's failing gate,
+  update only affected compatible transitive packages, keep policy/audit thresholds
+  intact, and verify the exact hosted source rather than equating deployment with
+  successful quality checks.
 
 This file records AI-related skills, tools, and project practices used during delivery. Brands distinguish their origin.
 

@@ -76,6 +76,8 @@ to move everything outside the map. Board labels/device chrome are not UI.
 late-callback guards. It forwards selected building IDs to App, so the same
 `BuildingDetailsDialog` opens from map clicks and the secondary keyboard menu.
 `GuideHeader.tsx` owns that menu; `SiteFooter.tsx` supplies compact credit/Privacy.
+Menu actions focus the still-visible summary before opening a dialog, so closing
+it restores a usable trigger rather than a button hidden inside a collapsed menu.
 `PrivacyDialog.tsx` uses a native modal with focus restoration and Escape support,
 retaining the full disclosure without expanding prose into the primary workflow.
 
@@ -145,7 +147,8 @@ current visual requirements.
 
 - [Page-failure recovery and accessible search](#page-failure-recovery-and-accessible-search)
 - [Current manual-guide data flow](#manual-walkthrough-and-snapshot-data-flow)
-- [Camera, browser security and release decisions](#camera-browser-security-and-release-decisions)
+- [Selected layouts, camera and dialogs](#selected-layouts-camera-and-dialogs)
+- [Architectural decisions](#architectural-decisions)
 
 1. [Start here](#start-here)
 2. [What the application does today](#what-the-application-does-today)

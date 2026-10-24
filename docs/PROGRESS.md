@@ -29,6 +29,17 @@
 - Newly refreshed CI advisories identified two development-only transitive packages.
   Compatible updates to undici 7.30.1 and zod 4.6.7 resolve the known findings;
   package.json, dependency choices and security policy are unchanged.
+- Final code source 69b3725 passes 123 tests/29 files and every local quality gate;
+  Quality and Vercel are green. The complete local production-build browser
+  fixture clears 10/10 watchers, preserves one map through 639/640 and reports no
+  errors, camera-fit warnings or CSP violations. Eight axe scans have no automated
+  violations, with human contrast/link review explicitly separate.
+- Full hosted matrix source 7551202 is followed by the focused menu/dialog fix
+  69b3725: closing building details now returns focus to the visible menu trigger,
+  verified locally and on the hosted preview. Both Quality and Vercel are green.
+- UI_REFERENCE_VERIFICATION.md records six-state comparisons, short/landscape/
+  enlarged-text/long-name/recovery checks and honest constrained-performance
+  limits. Production/main remain unchanged; this is a preview-only candidate.
 
 ## October 23: pre-merge map-space and control refinement
 
