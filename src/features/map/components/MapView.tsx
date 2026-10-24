@@ -114,10 +114,7 @@ export function MapView({
 				{
 					center: collegeOfIdahoCampus.center,
 					zoom: collegeOfIdahoCampus.initialZoom,
-					bearing:
-						initialMode.current === '2d'
-							? 0
-							: collegeOfIdahoCampus.initialBearing,
+					bearing: collegeOfIdahoCampus.initialBearing,
 					mode: initialMode.current,
 					maxBounds: collegeOfIdahoCampus.bounds,
 					overviewBounds: collegeOfIdahoCampus.overviewBounds,

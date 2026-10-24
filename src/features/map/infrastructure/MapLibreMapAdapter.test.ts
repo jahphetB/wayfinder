@@ -3,6 +3,7 @@ import { mapPresentation } from '@/features/map/model/mapPresentation'
 import { collegeOfIdahoWalkingGraph } from '@/data/navigation/collegeOfIdahoWalkingGraph'
 import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
 import { stadiumDrivingHandoff } from '@/data/navigation/stadiumDrivingHandoff'
+import { mockLocations } from '@/data/navigation/mockLocations'
 import type { NavigationSession } from '@/domain/navigation/types'
 
 import type { MapLibreMapInstance } from './MapLibreMapAdapter'
@@ -79,6 +80,36 @@ describe('MapLibreMapAdapter', () => {
 			expect.objectContaining({ features: [] }),
 		)
 		expect(addSource).toHaveBeenCalledTimes(1)
+		const destination = mockLocations.find(
+			(location) => location.id === 'sterry-hall',
+		)
+		if (!destination) throw new Error('Expected destination fixture')
+		adapter.setContent({
+			origin: undefined,
+			destination,
+			route: undefined,
+			navigationSession: undefined,
+		})
+		const selectedSource = addSource.mock.calls.find(
+			([id]) => id === 'yote-locations',
+		)?.[1] as
+			| {
+					data: {
+						features: Array<{
+							properties: { kind: string }
+							geometry: { coordinates: number[] }
+						}>
+					}
+			  }
+			| undefined
+		expect(selectedSource?.data.features).toHaveLength(1)
+		expect(selectedSource?.data.features[0]?.properties.kind).toBe(
+			'destination',
+		)
+		expect(selectedSource?.data.features[0]?.geometry.coordinates).toEqual([
+			destination.coordinates.longitude,
+			destination.coordinates.latitude,
+		])
 	})
 
 	it('frames the campus overview and refits it after a mode change or resize', () => {
@@ -127,7 +158,7 @@ describe('MapLibreMapAdapter', () => {
 				[-116.6807, 43.65065],
 				[-116.66985, 43.65565],
 			],
-			expect.objectContaining({ padding: 24, pitch: 40, duration: 0 }),
+			expect.objectContaining({ padding: 24, pitch: 60, duration: 0 }),
 		)
 
 		adapter.setMode('2d')
@@ -136,7 +167,7 @@ describe('MapLibreMapAdapter', () => {
 				[-116.6807, 43.65065],
 				[-116.66985, 43.65565],
 			],
-			expect.objectContaining({ pitch: 60, duration: 1000 }),
+			expect.objectContaining({ pitch: 60, duration: 0 }),
 		)
 		resize()
 		expect(fitBounds).toHaveBeenLastCalledWith(
@@ -206,12 +237,7 @@ describe('MapLibreMapAdapter', () => {
 				],
 			}),
 		)
-		expect(easeTo).toHaveBeenCalledWith({
-			bearing: 0,
-			duration: 1000,
-			easing: mapPresentation.camera.easing,
-			pitch: 60,
-		})
+		expect(easeTo).not.toHaveBeenCalled()
 		expect(remove).toHaveBeenCalledTimes(1)
 	})
 
@@ -485,10 +511,9 @@ describe('MapLibreMapAdapter', () => {
 			expect.objectContaining({ zoom: 18.3, pitch: 60, duration: 1300 }),
 		)
 
+		const cameraCallsBeforeMode = easeTo.mock.calls.length
 		adapter.setMode('2d')
-		expect(easeTo).toHaveBeenLastCalledWith(
-			expect.objectContaining({ pitch: 60, duration: 1000 }),
-		)
+		expect(easeTo).toHaveBeenCalledTimes(cameraCallsBeforeMode)
 		const cameraCalls = easeTo.mock.calls.length
 		const routeUpdates = setRouteData.mock.calls.length
 		const pointUpdates = setLocationData.mock.calls.length
@@ -533,9 +558,11 @@ describe('MapLibreMapAdapter', () => {
 				padding: { top: 0, bottom: 0, left: 0, right: 0 },
 				offset: [0, 5],
 				center: [turn.longitude, turn.latitude],
-				bearing: 0,
 			}),
 		)
+		const turnCamera = easeTo.mock.lastCall?.[0] as
+			{ bearing: number } | undefined
+		expect(turnCamera?.bearing).toBeGreaterThan(0)
 		adapter.zoom(1)
 		expect(zoomIn).toHaveBeenCalledTimes(1)
 		adapter.zoom(-1)

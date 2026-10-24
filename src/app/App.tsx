@@ -46,6 +46,8 @@ export function App({
 	const journey =
 		guide.workspace.view === 'navigation' ? guide.workspace.journey : undefined
 	const proposal = guide.proposal
+	const showDraftLocations =
+		guide.workspace.view === 'planning' || guide.workspace.view === 'editing'
 	const route =
 		proposal?.plan.status === 'route-ready' ? proposal.plan.route : undefined
 	const handoff =
@@ -112,8 +114,14 @@ export function App({
 					<Suspense fallback={<MapLoadingFallback />}>
 						<MapView
 							snapshot={snapshot}
-							origin={proposal?.origin}
-							destination={proposal?.destination}
+							origin={
+								showDraftLocations ? guide.planner.origin : proposal?.origin
+							}
+							destination={
+								showDraftLocations
+									? guide.planner.destination
+									: proposal?.destination
+							}
 							route={route}
 							drivingHandoff={handoff}
 							navigationSession={journey?.session}

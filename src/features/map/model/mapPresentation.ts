@@ -15,10 +15,8 @@ export const mapPresentation = {
 		outlineWidthPixels: 1.5,
 	},
 	camera: {
-		pitch2d: 60,
-		pitch3d: 60,
-		initialBearing3d: -20,
-		overviewPitch3d: 40,
+		pitch: 60,
+		initialBearing: -20,
 		overviewPaddingPixels: 24,
 		overviewMaxZoom: 16,
 		previewPaddingPixels: 32,

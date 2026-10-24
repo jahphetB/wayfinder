@@ -7,13 +7,19 @@ vi.mock('@/features/map/components/MapView', () => ({
 	MapView: ({
 		navigationSession,
 		mode,
+		origin,
+		destination,
 	}: {
 		navigationSession: NavigationSession | undefined
 		mode: '2d' | '3d'
+		origin?: { id: string } | undefined
+		destination?: { id: string } | undefined
 	}) => (
 		<section
 			aria-label="Interactive map"
 			data-map-mode={mode}
+			data-origin={origin?.id}
+			data-destination={destination?.id}
 			data-navigation-step={navigationSession?.currentStepIndex}
 		/>
 	),
@@ -51,6 +57,9 @@ describe('App', () => {
 			screen.getByRole('combobox', { name: 'Search buildings' }),
 		).toHaveValue('')
 		expect(provider.requestCurrentLocation).not.toHaveBeenCalled()
+		expect(
+			screen.getByRole('region', { name: 'Interactive map' }),
+		).toHaveAttribute('data-destination', 'sterry-hall')
 	})
 	it('returns dialog focus to the visible menu trigger without acquiring location', async () => {
 		const provider = { requestCurrentLocation: vi.fn() }
