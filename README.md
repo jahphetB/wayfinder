@@ -36,13 +36,19 @@ This app does not persist or upload location history.
 
 - Search 50 curated buildings, courts, parking areas and landmarks.
 - Route distance, estimated walking time, instructions and colored route legs.
-- Tilted 2D/3D views with one rough library model.
+- Flat, north-up 2D and optional 3D views with one rough library model.
 - Library, Sterry Hall and cafeteria details, image slots and scrollable content.
 - A separate illustrative stadium driving handoff, not car turn-by-turn guidance.
 - Accessible search and explicit map-download/graphics/network recovery.
-- Unobstructed map canvas, outside-map controls and equal-size Back/Next actions
-  beneath the map on mobile, with a wider desktop workspace.
-- Compact developer credit and an expandable location/privacy explanation.
+- Integrated route planner; desktop timeline and mobile map/instruction dock.
+- Safe route drafts: Cancel restores the same walkthrough, even after replacement preview.
+- Exactly two responsive layouts, switching at 640 CSS pixels; one persistent map.
+- Compact developer credit and a keyboard-accessible privacy dialog.
+
+The selected original interface is documented in
+[the reference contract](docs/UI_REFERENCE_CONTRACT.md) and
+[styling guide](docs/STYLING.md). Real map data and route metrics remain separate
+from reference artwork; illustrative walkthrough completion never confirms arrival.
 
 The current geographic dataset is the accepted guide baseline. Some inferred
 connections, access details, court numbering and model height remain unverified;

@@ -2,149 +2,137 @@
 
 ## Current product contract
 
-[Product definition](PRODUCT_PLAN.md) supersedes historical GPS-gated checkpoint
-and live-movement proposals in this handbook. The release target is a manual route
-walkthrough with real-location snapshots on Get my location, Start navigating and
-Next only. GPS never gates progression; completion does not claim arrival. The
-current geographic baseline is accepted with honest provenance. Earlier step
-guides are implementation history, not requirements for a live navigation app.
+[Product definition](PRODUCT_PLAN.md) describes a manual campus route walkthrough
+with optional real-location snapshots. It is not live tracking or GPS-verified
+navigation. The original selected interface is specified in
+[UI_REFERENCE_CONTRACT.md](UI_REFERENCE_CONTRACT.md). Those two documents supersede
+conflicting historical visuals and checkpoint policies below.
 
 ### Manual walkthrough and snapshot data flow
 
-`App.tsx` owns independent pieces of state: the selected route, the illustrated
-walkthrough session and one last-checked real-location snapshot. Start navigating
-and Next update the walkthrough immediately, then request a snapshot. Back changes
-only the walkthrough. A denied, slow, stale or uncertain location cannot stop the
-illustration. `domain/navigation/navigationSession.ts` now accepts no location
-reading at all; it only implements awaiting-start, navigating and completed states.
-This makes independence enforceable in the function interface, not just UI wording.
+`App.tsx` is the composition point: it connects the route workspace, one snapshot
+owner, the persistent map and building/privacy dialogs. Composition means putting
+specialized pieces together without making one component responsible for all their
+internal details. The geographic dataset and routing algorithm are unchanged.
 
-`RouteWalkthrough.tsx` replaces the former GPS-gated checkpoint component/hook.
-App renders one active instruction/control section as a sibling after the map
-workspace. Named CSS Grid regions place it beside the map on desktop and beneath
-the map on mobile. `NavigationPanel.tsx` retains only the Start navigating action
-after Preview route. No hidden duplicate Back/Next buttons or duplicated session
-state are needed. Completed means the
-illustration finished, never that a person physically arrived. Route step geometry
-still uses an internal checkpoint coordinate as a geographic endpoint; this is
-not a location-verification gate. The fake-location provider, its scenario
-controller, one-shot checkpoint provider and obsolete GPS-gating tests were retired.
+`useCampusGuide.ts` connects accessible draft search to
+`model/guideWorkspace.ts`, a pure reducer. A reducer is a function that receives
+the previous state and an action and returns the next state. It does not call GPS,
+edit the map or fetch a service. It holds planning, preview, navigation and editing
+as explicit alternatives. A proposed route includes its own revision number;
+a saved journey includes the confirmed proposal and current manual session.
 
-`useLocationSnapshot.ts` is the single owner of acquisition across all three
-allowed buttons. `createLocationProvider.ts` constructs the bounded real browser
-provider, not an environment-selected simulation. The hook aborts older acquisition
-before a newer action, invalidates callbacks when the route changes and checks
-reading freshness before replacing the previous snapshot. The provider owns
-watcher/timer cleanup. This separation keeps browser integration out of domain
-progression. There is no watcher running between requested lookups and no trail.
+Editing is transactional: draft values are a separate working copy, like editing
+a document without replacing the saved version. Edit pre-fills that copy. Invalid
+input cannot erase the saved journey. Preview changes displays a replacement
+without starting it. Cancel restores the same saved route and session even after
+that preview; explicitly starting the replacement creates step one. This boundary
+prevents a field keystroke from resetting a person's walkthrough.
 
-`LocationSnapshotControl.tsx` presents the independent button, cancellation,
-absolute Last checked time, approximate accuracy and retained-snapshot messages.
-The provider supplies real readings even while the user stays at a desk. The
-light-green outlined point is separate from orange route endpoints and colored
-illustrated legs. `MapView.tsx` passes an explicit camera-focus option to
-`MapAdapter.showUserLocation`; walkthrough-triggered refreshes update the point
-without taking over the route camera. Off-campus snapshots receive an explanation
-rather than moving the bounded campus view outside its area.
+`useRoutePlanner.ts` still owns searches and synchronous route calculation through
+`routePlanner.ts`. Synchronous means the result is returned during the action,
+not from a later network callback. The workspace's revision also scopes location
+requests: results from a superseded proposal are invalidated, while changing from
+its preview to its walkthrough does not accidentally cancel its own Start lookup.
 
-`SiteFooter.tsx` supplies the requested trademark/developer credit and a native
-expandable privacy disclosure. Native details/summary elements provide keyboard
-behavior without a modal or extra library. `footer.css` places this content in
-normal document flow after the map, never above controls or attribution.
-`theme.css` exposes snapshot and footer colors/dimensions. All source indentation
-uses tabs, enforced by Prettier in a separate formatting-only commit.
+`NavigationPanel.tsx` renders the integrated form and preview. `LocationField.tsx`
+keeps the accessible combobox/listbox behavior. `RouteHeading.tsx` presents actual
+names, distance, duration and step count. `RouteWalkthrough.tsx` renders the desktop
+numbered timeline and All steps disclosure. `CurrentInstruction.tsx` presents the
+mobile instruction card. Shared `stepPresentation.ts` preserves combined
+maneuvers instead of hiding a second turn behind a generic distance label.
+App renders one Back/Next pair and one location action.
 
-Focused tests cover manual completion without successful location, Back's lack
-of acquisition, request replacement, cancelled/route-stale callbacks, stale
-reading rejection, retained snapshots, provider cleanup and map recovery. Real
-browser checks supplement jsdom, which does not implement every native keyboard
-default. The current OSM baseline/provenance and routing preferences are unchanged.
+`domain/navigation/navigationSession.ts` accepts no location reading. Start and
+Next advance immediately and request optional snapshots independently. Back,
+Preview, Edit, Cancel, resizing and time passing request none. Completed means
+the illustration finished, never that physical arrival was confirmed. Internal
+route checkpoints are geographic endpoints, not GPS gates.
 
-### Camera, browser security and release decisions
+`useLocationSnapshot.ts` owns replacement, cancellation, freshness and the last
+reading. `RefinedBrowserLocationProvider` owns its short watcher/timer lifecycle.
+There is no watcher running between requested lookups, no location history upload
+and no production fake provider. A failure retains and identifies an older reading.
+`LocationSnapshotControl.tsx` exports the button and concise feedback separately
+so the selected layout can position one feedback instance correctly.
 
-**ADR-049: Give controls their own space rather than covering map geometry.**
-`MapView.tsx` separates `.map-toolbar`, `.map-viewport` and `.map-information`.
-Location and mode actions, snapshot feedback, retry/status messages, notes and
-expandable building shortcuts stay outside the canvas. Map attribution remains
-visible in its required map position. The canvas retains a meaningful minimum
-height even when feedback or instructions expand. `theme.css` labels the desktop
-width/padding, desktop/mobile canvas heights, toolbar padding and shared action-bar
-width. These CSS variables are reusable visual settings, not routing parameters.
+### Selected layouts, camera and dialogs
 
-`App.tsx` owns the planner, map workspace and one walkthrough. CSS Grid rearranges
-those same regions at the mobile breakpoint rather than rendering separate desktop
-and phone control sets. Back and Next use equal grid columns/common sizing; their
-event handlers are unchanged. This preserves single responsibility: layout decides
-placement, domain functions decide progress, and the provider only supplies a
-requested snapshot. See [styling guide](STYLING.md#unobstructed-map-and-responsive-walkthrough).
+The exact boundary is mobile below 640 CSS pixels, desktop at/above 640.
+`useDesktopLayout.ts` subscribes to the same media query used by
+`responsive.css`. CSS Grid assigns named regions to one control tree, while the
+map stays in the same parent position. Resizing therefore does not recreate the
+map, reset a session or request location. Short screens permit scrolling and rem
+typography supports enlarged text. [STYLING.md](STYLING.md) documents active settings.
 
-Vercel's optional Preview toolbar injection is disabled at hosting configuration.
-Normal public preview responses no longer include its feedback script, and all
-five browser security headers match the prior candidate exactly. No `vercel.live`
-allowlist or new inline-script permission was added. Hosting settings are not
-enforced by this Markdown file: repeat the ordinary-response/browser check after
-reconfiguration, without a toolbar-suppression request header.
+Desktop landing/editing use the integrated left planner and right map. Desktop
+navigation replaces the form with summary, timeline and lower actions; it retains
+the pictured heading trademark. Mobile puts the map before the form, then during
+navigation uses header/edit, current instruction, map, location pill/button and a
+solid Back/Next dock. Original feedback placements replace older instructions
+to move everything outside the map. Board labels/device chrome are not UI.
 
-**ADR-045: Manual progress and explicit snapshots replace GPS gates.** The pure
-session has no location argument, so a slow/denied lookup cannot prevent progress.
-One hook owns the last reading and cancellation across three allowed actions;
-its route scope prevents old results from changing a new route. This supersedes
-ADR-022, ADR-025, ADR-027, ADR-029 and the simulator portion of ADR-041. Browser
-integration remains injected, without a fake production-location provider.
+`MapView.tsx` retains initialization deadlines, sanitized errors, retry and
+late-callback guards. It forwards selected building IDs to App, so the same
+`BuildingDetailsDialog` opens from map clicks and the secondary keyboard menu.
+`GuideHeader.tsx` owns that menu; `SiteFooter.tsx` supplies compact credit/Privacy.
+`PrivacyDialog.tsx` uses a native modal with focus restoration and Escape support,
+retaining the full disclosure without expanding prose into the primary workflow.
 
-**ADR-046: Optimize camera work from evidence, not animation duration alone.**
-`mapPresentation.ts` centralizes smoothstep easing and preview/leg/mode/location
-durations of 1500/1300/1000/900 milliseconds. The adapter explicitly stops the
-previous animation before newer camera intent, skips semantically unchanged
-GeoJSON source updates, avoids active-walkthrough resize recentering, and caps
-canvas pixel ratio at 2. Pixel ratio is the number of rendered pixels per CSS
-layout pixel; the cap limits high-density-screen rendering work. Nonessential
-animations honor reduced-motion preference. Snapshot refresh during a walkthrough
-never issues a competing camera transition. See [profiling evidence](PERFORMANCE.md):
-constrained emulation still drops frames, so no universal smoothness is claimed.
+`MapAdapter` remains provider-independent and now includes zoom plus camera
+insets: empty edge space reserved for overlays. MapLibre owns rendering and camera
+work. Mobile instruction height is measured; lower controls have reserved space.
+Route previews and walkthroughs frame real route bounds. Flat 2D stays north-up
+for raster-label readability; 3D can rotate with the current leg. New intent stops
+the previous animation; nonessential motion respects reduced-motion preference.
+Snapshot updates never refocus a selected route. The existing 2x pixel-ratio cap
+and unchanged-source suppression remain, without claiming universal smoothness.
 
-**ADR-047: One tested browser-policy source for hosting and local preview.**
-`vercel.json` defines Content Security Policy (CSP), framing/MIME/referrer protections
-and permitted browser capabilities. CSP is an allowlist for resources a browser
-may execute/load. Scripts/workers stay same-origin, with no inline/eval scripts.
-Only MapLibre's positioning style attributes need an inline-style exception.
-`vite.config.ts` reuses the same headers for production preview; a fresh browser
-test proves an inserted inline script is blocked while the map works. New map
-providers require reviewing the allowlist, attribution and privacy together.
-The optional Vercel preview toolbar is not a reason to broaden script policy.
+Green completed legs, orange dashed current legs, muted upcoming legs and purple
+dashed previews describe illustration progress. Code-drawn pins do not require
+an external image service. The smaller outlined light-green actual snapshot is
+independent and is never snapped to the route. A metric scale and OpenStreetMap
+credit remain visible. Default mobile navigation moves its copyright link to the
+footer; a custom map style retains its own native attribution.
 
-`browserSecurity.test.ts` protects these constraints. Quality CI adds a fresh
-high/critical advisory audit and a weekly schedule; the schedule only starts
-after that workflow is on main. No telemetry is added. The footer disclosure
-describes tab-memory snapshots and ordinary hosting/map/browser-service requests.
-The current candidate is 0.1.0-rc.1, not an approved production release.
+### Architectural decisions
 
-**ADR-048: Practical guide-release evidence supersedes live-navigation gates.**
-`PRODUCT_PLAN.md`, `RELEASE_READINESS.md` and `RELEASE_WORKFLOW.md` define the
-supported rollout contract. The accepted geographic baseline retains source IDs,
-digest and honest uncertainty; future exports follow the importer/test pipeline.
-Earlier G01–G12 gates and checkpoint policies are historical, not rollout blockers
-for this manual guide. Explicit production approval and a known-good recovery
-target remain mandatory. No paid service/backend/monitoring platform is introduced.
+**ADR-050: Original-reference layouts and transactional editing.** Explicit state
+alternatives separate saved journeys from drafts. Small presentation components
+share real route data; one persistent map and one snapshot owner survive all views.
+The exact 640-pixel layout contract replaces ADR-049's outside-canvas design.
+No new framework, dependency, paid service or geographic dataset is introduced.
 
-Primary references: [MapLibre camera options](https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/AnimationOptions/),
-[map options](https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapOptions/),
-[MDN CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP),
-[Vercel headers](https://vercel.com/docs/project-configuration/vercel-json#headers),
-and [preview toolbar management](https://vercel.com/docs/vercel-toolbar/managing-toolbar).
-Context7 and the installed MapLibre source informed the version-specific choices.
+**ADR-051: Frame the route around overlays, not the GPS result.** Insets account
+for the measured mobile card and lower controls. Flat 2D stays north-up, replacing
+the earlier tilted 2D default. Route framing also reruns on map resize, superseding
+ADR-046's no-recenter resize shortcut. Source-update suppression, stopped camera
+intents, nonessential animation and the pixel-ratio cap are retained.
 
-This is the living handbook for Yotes Wayfinder. It explains what the project
-does, how its pieces fit together, where common changes belong, and how to
-investigate problems. It is written so that a reader does not need a software
-engineering background to understand the overall system.
+**ADR-045: Manual progress replaces GPS gates.** This supersedes ADR-022, ADR-025,
+ADR-027, ADR-029 and the simulator portion of ADR-041. The domain cannot inspect
+GPS because its function interface has no location parameter.
 
-The current folder guide and top-level contract describe today's application.
-Numbered implementation steps and older decision records preserve history where
-explicitly superseded. The handbook is intentionally
-updated as the project grows instead of trying to predict every future feature.
-Whenever an architectural decision changes how multiple parts of the project
-work together, that decision should be recorded here.
+**ADR-047: One tested browser-policy source.** `vercel.json` defines the CSP
+(resource allowlist), framing/MIME/referrer protections and browser capabilities;
+Vite production preview reuses them. Same-origin scripts/workers and the narrow
+MapLibre positioning-style exception remain unchanged. Vercel's optional toolbar
+is disabled at hosting configuration, not permitted by a broader script policy.
+No telemetry, external error reporter or tracking service is added.
+
+**ADR-048: Evidence-based guide releases.** Accepted data retains source IDs,
+digest and uncertainty. Current preview changes require review and explicit
+production approval; historic live-navigation gates do not imply that this manual
+guide promises verified arrival. Preview, main and recovery deployments are
+separate claims documented in RELEASE_READINESS.md.
+
+Primary API sources, checked through Context7 and installed types:
+[MapLibre camera options](https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/EaseToOptions/),
+[ScaleControl](https://maplibre.org/maplibre-gl-js/docs/API/classes/ScaleControl/),
+[attribution options](https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/AttributionControlOptions/),
+and [MDN CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP).
+The folder guide below remains a handbook; historical numbered steps are not
+current visual requirements.
 
 ## Table of contents
 

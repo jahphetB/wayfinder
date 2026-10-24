@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type {
 	Location,
 	MapMode,
@@ -10,10 +10,10 @@ import { collegeOfIdahoCampus } from '@/data/navigation/collegeOfIdahoCampus'
 import { classifyCampusLocation } from '@/data/navigation/classifyCampusLocation'
 import type { MapAdapter } from '@/features/map/contracts/MapAdapter'
 import type { DrivingHandoff } from '@/data/navigation/stadiumDrivingHandoff'
-import { campusBuildingDetails } from '@/data/campus/buildingDetails'
-import { BuildingDetailsDialog } from '@/features/buildings/components/BuildingDetailsDialog'
 import type { LocationSnapshot } from '@/features/navigation/hooks/useLocationSnapshot'
-import { LocationSnapshotControl } from '@/features/navigation/components/LocationSnapshotControl'
+import { CurrentInstruction } from '@/features/navigation/components/CurrentInstruction'
+import type { GuideJourney } from '@/features/navigation/model/guideWorkspace'
+import { GuideIcon } from '@/app/components/GuideIcon'
 import { recoverySettings } from '@/app/recoverySettings'
 
 interface MapViewProps {
@@ -25,6 +25,9 @@ interface MapViewProps {
 	readonly drivingHandoff: DrivingHandoff | undefined
 	readonly onModeChange: (mode: MapMode) => void
 	readonly snapshot: LocationSnapshot
+	readonly journey?: GuideJourney | undefined
+	readonly desktop?: boolean
+	readonly onBuildingSelect?: ((id: string) => void) | undefined
 }
 
 type MapStatus = 'loading' | 'ready' | 'error'
@@ -38,6 +41,9 @@ export function MapView({
 	drivingHandoff,
 	onModeChange,
 	snapshot,
+	journey,
+	desktop = true,
+	onBuildingSelect,
 }: MapViewProps) {
 	const containerRef = useRef<HTMLDivElement>(null)
 	const adapterRef = useRef<MapAdapter | undefined>(undefined)
@@ -46,11 +52,29 @@ export function MapView({
 	const [mapError, setMapError] = useState<string | undefined>()
 	const [mapWarning, setMapWarning] = useState(false)
 	const [retryVersion, setRetryVersion] = useState(0)
-	const [selectedBuildingId, setSelectedBuildingId] = useState<string>()
-	const selectedBuilding = campusBuildingDetails.find(
-		({ id }) => id === selectedBuildingId,
+	const buildingCallback = useRef(onBuildingSelect)
+	useEffect(() => {
+		buildingCallback.current = onBuildingSelect
+	}, [onBuildingSelect])
+	const instructionRef = useRef<HTMLDivElement>(null)
+	const [cardHeight, setCardHeight] = useState(112)
+	useEffect(() => {
+		const card = instructionRef.current
+		if (!card || typeof ResizeObserver === 'undefined') return
+		const observer = new ResizeObserver(() =>
+			setCardHeight(card.getBoundingClientRect().height),
+		)
+		observer.observe(card)
+		return () => observer.disconnect()
+	}, [desktop, journey])
+	const mobileNavigation = Boolean(journey) && !desktop
+	const cameraInsets = useMemo(
+		() =>
+			mobileNavigation
+				? { top: cardHeight + 24, bottom: 120, left: 24, right: 24 }
+				: undefined,
+		[mobileNavigation, cardHeight],
 	)
-
 	useEffect(() => {
 		if (!containerRef.current) return
 
@@ -90,7 +114,10 @@ export function MapView({
 				{
 					center: collegeOfIdahoCampus.center,
 					zoom: collegeOfIdahoCampus.initialZoom,
-					bearing: collegeOfIdahoCampus.initialBearing,
+					bearing:
+						initialMode.current === '2d'
+							? 0
+							: collegeOfIdahoCampus.initialBearing,
 					mode: initialMode.current,
 					maxBounds: collegeOfIdahoCampus.bounds,
 					overviewBounds: collegeOfIdahoCampus.overviewBounds,
@@ -102,7 +129,7 @@ export function MapView({
 						setMapStatus('ready')
 					},
 					onBuildingSelect: (id) => {
-						if (active && !failed) setSelectedBuildingId(id)
+						if (active && !failed) buildingCallback.current?.(id)
 					},
 					onWarning: () => {
 						if (active && !failed) setMapWarning(true)
@@ -130,6 +157,7 @@ export function MapView({
 			route,
 			drivingHandoff,
 			navigationSession,
+			cameraInsets,
 		})
 	}, [
 		origin,
@@ -138,28 +166,13 @@ export function MapView({
 		drivingHandoff,
 		navigationSession,
 		retryVersion,
+		cameraInsets,
 	])
 
-	useEffect(() => {
-		if (
-			(route || drivingHandoff) &&
-			window.matchMedia('(max-width: 760px)').matches
-		) {
-			containerRef.current?.scrollIntoView({
-				behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-					? 'auto'
-					: 'smooth',
-				block: 'start',
-			})
-		}
-	}, [route, drivingHandoff])
 	useEffect(() => {
 		adapterRef.current?.setMode(mode)
 	}, [mode, retryVersion])
 
-	const walkthroughActive = Boolean(
-		navigationSession && navigationSession.status !== 'awaiting-start',
-	)
 	useEffect(() => {
 		const reading = snapshot.reading
 		const coordinates =
@@ -168,14 +181,15 @@ export function MapView({
 				: undefined
 		if (mapStatus === 'ready')
 			adapterRef.current?.showUserLocation(coordinates, {
-				focus: snapshot.trigger === 'locate' && !walkthroughActive,
+				focus: snapshot.trigger === 'locate' && !route && !drivingHandoff,
 			})
 	}, [
 		snapshot.reading,
 		snapshot.trigger,
 		mapStatus,
 		retryVersion,
-		walkthroughActive,
+		route,
+		drivingHandoff,
 	])
 
 	function retryMap(): void {
@@ -187,31 +201,63 @@ export function MapView({
 
 	return (
 		<section aria-label="Interactive map" className="map-view">
-			<div className="map-toolbar" id="map-toolbar">
-				<LocationSnapshotControl snapshot={snapshot} />
-				<div
-					role="group"
-					aria-label="Map display mode"
-					className="map-mode-toggle"
-				>
-					<button
-						aria-pressed={mode === '2d'}
-						disabled={mapStatus !== 'ready'}
-						onClick={() => onModeChange('2d')}
-						type="button"
-					>
-						2D
-					</button>
-					<button
-						aria-pressed={mode === '3d'}
-						disabled={mapStatus !== 'ready'}
-						onClick={() => onModeChange('3d')}
-						type="button"
-					>
-						3D
-					</button>
-				</div>
+			<div className="map-viewport" id="map-viewport">
+				<div className="map-canvas" ref={containerRef} />
 			</div>
+			{journey && !desktop && (
+				<div ref={instructionRef} className="instruction-overlay">
+					<CurrentInstruction journey={journey} />
+				</div>
+			)}
+			{(!journey || desktop) && (
+				<div
+					className={
+						journey ? 'map-controls map-controls--navigation' : 'map-controls'
+					}
+				>
+					<div
+						role="group"
+						aria-label="Map display mode"
+						className="map-mode-toggle"
+					>
+						{(['2d', '3d'] as const).map((value) => (
+							<button
+								key={value}
+								aria-pressed={mode === value}
+								disabled={mapStatus !== 'ready'}
+								onClick={() => onModeChange(value)}
+								type="button"
+							>
+								{value.toUpperCase()}
+							</button>
+						))}
+					</div>
+					{journey && (
+						<div
+							role="group"
+							aria-label="Map zoom"
+							className="map-zoom-controls"
+						>
+							<button
+								type="button"
+								aria-label="Zoom in"
+								disabled={mapStatus !== 'ready'}
+								onClick={() => adapterRef.current?.zoom(1)}
+							>
+								<GuideIcon name="plus" />
+							</button>
+							<button
+								type="button"
+								aria-label="Zoom out"
+								disabled={mapStatus !== 'ready'}
+								onClick={() => adapterRef.current?.zoom(-1)}
+							>
+								<GuideIcon name="minus" />
+							</button>
+						</div>
+					)}
+				</div>
+			)}
 			{mapStatus === 'loading' && (
 				<p className="map-status" role="status">
 					Loading map…
@@ -220,7 +266,7 @@ export function MapView({
 			{mapStatus === 'error' && (
 				<div className="map-status map-status-error" role="alert">
 					<p>Map unavailable: {mapError}</p>
-					<button onClick={retryMap} type="button">
+					<button type="button" onClick={retryMap}>
 						Try map again
 					</button>
 				</div>
@@ -228,61 +274,12 @@ export function MapView({
 			{mapWarning && mapStatus === 'ready' && (
 				<div className="map-imagery-warning" role="status">
 					<p>
-						Some map imagery could not load. Route lines may still be visible,
-						but the background may be incomplete.
+						Some map imagery could not load. The background may be incomplete.
 					</p>
 					<button type="button" onClick={retryMap}>
 						Retry map imagery
 					</button>
 				</div>
-			)}
-			<div className="map-viewport" id="map-viewport">
-				<div className="map-canvas" ref={containerRef} />
-			</div>
-			<div className="map-information">
-				<p className="map-view-note">
-					{mapStatus === 'error'
-						? 'Fix the connection or graphics error, then try the map again.'
-						: navigationSession?.status === 'completed'
-							? 'Route walkthrough complete; physical arrival is not verified.'
-							: navigationSession?.status === 'navigating'
-								? 'The camera is following the current route leg.'
-								: route
-									? 'Route preview is shown on the map.'
-									: drivingHandoff
-										? 'Dashed purple line: prototype drive to parking approach. Orange: stadium outline; entrance unverified.'
-										: 'Choose a route to show it on the map.'}
-					{mode === '3d' &&
-						mapStatus === 'ready' &&
-						' Library 3D shape: mapped footprint, illustrative height.'}
-				</p>
-				{mapStatus === 'ready' && (
-					<details className="building-shortcuts">
-						<summary>Building details</summary>
-						<div
-							className="building-shortcut-actions"
-							role="group"
-							aria-label="Building details"
-						>
-							{campusBuildingDetails.map((building) => (
-								<button
-									key={building.id}
-									type="button"
-									onClick={() => setSelectedBuildingId(building.id)}
-								>
-									{building.label} details
-								</button>
-							))}
-						</div>
-					</details>
-				)}
-			</div>
-			{selectedBuilding && (
-				<BuildingDetailsDialog
-					key={selectedBuilding.id}
-					building={selectedBuilding}
-					onClose={() => setSelectedBuildingId(undefined)}
-				/>
 			)}
 		</section>
 	)

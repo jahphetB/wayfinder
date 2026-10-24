@@ -14,7 +14,10 @@
   fields/replacement preview change; Cancel restores the same route/session object.
   Starting replacement is explicit and resets its session. useCampusGuide composes
   this with the existing synchronous planner, without a new dependency/framework.
-- Current phase: foundation implementation/verification before the reference UI.
+- Current phase: reference UI implemented; browser screenshots and breakpoint/
+  permission/accessibility/recovery checks in progress. Local application quality
+  checks passed once with 119 tests; latest camera/text changes are being rechecked.
+  App composes useCampusGuide plus one snapshot owner; MapView remains mounted.
   No production approval. Preview branch and main/recovery references remain below.
 
 ## Product authority and delivery boundary

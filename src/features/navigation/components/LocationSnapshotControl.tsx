@@ -1,78 +1,96 @@
 import type { LocationSnapshot } from '../hooks/useLocationSnapshot'
 import { classifyCampusLocation } from '@/data/navigation/classifyCampusLocation'
+import { GuideIcon } from '@/app/components/GuideIcon'
 
-export function LocationSnapshotControl({
+export function LocationSnapshotButton({
+	snapshot,
+}: {
+	readonly snapshot: LocationSnapshot
+}) {
+	return (
+		<button
+			className="location-action secondary-action"
+			id="get-my-location"
+			type="button"
+			onClick={() =>
+				snapshot.isLocating
+					? snapshot.cancel()
+					: void snapshot.request('locate')
+			}
+		>
+			<GuideIcon name="locate" />
+			{snapshot.isLocating ? 'Cancel location lookup' : 'Get my location'}
+		</button>
+	)
+}
+export function LocationFeedback({
 	snapshot,
 }: {
 	readonly snapshot: LocationSnapshot
 }) {
 	const reading = snapshot.reading
 	const area = reading ? classifyCampusLocation(reading) : undefined
+	const date = reading ? new Date(reading.capturedAtMilliseconds) : undefined
 	return (
-		<section
-			className="map-location-control location-snapshot-control"
-			aria-label="Location snapshot"
+		<div
+			className="snapshot-feedback"
+			aria-live="polite"
+			aria-atomic="true"
 			id="location-snapshot"
 		>
-			<button
-				id="get-my-location"
-				type="button"
-				disabled={snapshot.isLocating}
-				onClick={() => void snapshot.request('locate')}
-			>
-				{snapshot.isLocating ? 'Checking location…' : 'Get my location'}
-			</button>
-			{snapshot.isLocating && (
-				<button
-					className="cancel-location-action"
-					type="button"
-					onClick={snapshot.cancel}
-				>
-					Cancel location lookup
-				</button>
+			{reading && date && (
+				<p className="snapshot-last-checked">
+					<span aria-hidden="true" className="snapshot-marker-key" />
+					Last checked{' '}
+					<time dateTime={date.toISOString()}>
+						{date.toLocaleTimeString([], {
+							hour: '2-digit',
+							minute: '2-digit',
+							hour12: false,
+						})}
+					</time>{' '}
+					· ±{Math.ceil(reading.accuracyMeters)} m · Not live
+					{snapshot.retained ? ' · Previous snapshot' : ''}
+					{area === 'outside'
+						? ' · Off campus'
+						: area === 'uncertain'
+							? ' · Campus position uncertain'
+							: ''}
+				</p>
 			)}
-			<div
-				className="snapshot-feedback"
-				aria-live="polite"
-				aria-atomic="true"
-				tabIndex={reading || snapshot.message ? 0 : undefined}
-			>
-				{reading && (
-					<p className="snapshot-last-checked">
-						<span aria-hidden="true" className="snapshot-marker-key" />
-						Last checked:{' '}
-						<time
-							dateTime={new Date(reading.capturedAtMilliseconds).toISOString()}
-						>
-							{new Date(reading.capturedAtMilliseconds).toLocaleString()}
-						</time>
-						. Approximate accuracy: {Math.ceil(reading.accuracyMeters)} m.
-					</p>
-				)}
-				{snapshot.message && (
-					<p className="snapshot-message">{snapshot.message}</p>
-				)}
-				{snapshot.retained && (
-					<p className="snapshot-retained">
-						Previous snapshot retained; it has not been refreshed.
-					</p>
-				)}
-				{reading && area === 'outside' && (
-					<p>
-						You appear off campus. The map remains focused on campus; this
-						snapshot is outside the displayed area.
-					</p>
-				)}
-				{reading && area === 'uncertain' && (
-					<p>
-						Your approximate position overlaps the mapped area edge, or accuracy
-						is too limited to determine whether you are on campus.
-					</p>
-				)}
-				{reading && area === 'inside' && (
-					<p>Approximate campus snapshot, not live movement.</p>
-				)}
-			</div>
+			{snapshot.status === 'loading' ? (
+				<p className="snapshot-message">Checking location… You can continue.</p>
+			) : snapshot.status === 'error' || snapshot.status === 'cancelled' ? (
+				<p className="snapshot-message">
+					{snapshot.status === 'cancelled'
+						? 'Location lookup cancelled.'
+						: snapshot.message.includes('denied')
+							? 'Location denied. Directions still work.'
+							: 'Location unavailable. Directions still work.'}
+					<span className="visually-hidden">{snapshot.message}</span>
+				</p>
+			) : null}
+			{reading && snapshot.status === 'ready' && (
+				<span className="visually-hidden">
+					{snapshot.message}
+					{area === 'outside'
+						? ' You appear off campus. The map remains focused on campus.'
+						: ''}
+				</span>
+			)}
+		</div>
+	)
+}
+// Standalone composition for integration consumers; the guide places these two controls separately.
+export function LocationSnapshotControl({
+	snapshot,
+}: {
+	readonly snapshot: LocationSnapshot
+}) {
+	return (
+		<section aria-label="Location snapshot">
+			<LocationSnapshotButton snapshot={snapshot} />
+			<LocationFeedback snapshot={snapshot} />
 		</section>
 	)
 }

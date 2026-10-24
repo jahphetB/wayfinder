@@ -10,6 +10,10 @@
   APIs, checked against installed types before integration changes.
 - **Project-developed / transactional draft:** pure state transitions retain the
   active journey separately from proposed route changes, without a UI framework.
+- **Project-developed / reference-state verification:** compare six real rendered
+  states to the original board; test both sides of the exact 640-pixel boundary,
+  map identity, overlay-aware camera padding and location-independent progression.
+  Diagnostic location fixtures exist only in browser automation, not app code.
 
 This file records AI-related skills, tools, and project practices used during delivery. Brands distinguish their origin.
 

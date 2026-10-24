@@ -12,18 +12,19 @@ flowchart TB
 	subgraph Browser["Browser tab: ephemeral state only"]
 		Entry["index.html → main.tsx"]
 		Recovery["ErrorBoundary / FailureRecovery<br/>page and deferred-map containment"]
-		App["App.tsx<br/>composes planner, manual session and snapshots"]
+		App["App.tsx<br/>composes saved journey, draft and one snapshot owner"]
+		Workspace["useCampusGuide / guideWorkspace reducer<br/>planning → preview → navigation ↔ editing<br/>Cancel restores saved journey"]
 		Panel["NavigationPanel / LocationSearch<br/>accessible search, route summary"]
 		Planner["useRoutePlanner → routePlanner<br/>search, walking route or stadium handoff"]
-		Walkthrough["RouteWalkthrough<br/>one active instruction + Back/Next<br/>beside desktop map / below mobile map"]
+		Walkthrough["RouteWalkthrough / CurrentInstruction<br/>desktop timeline / mobile instruction card<br/>one Back/Next dock"]
 		Session["navigationSession.ts<br/>pure manual state transitions"]
 		Snapshot["useLocationSnapshot<br/>single request owner, cancel and late-result guard"]
 		SnapshotUI["LocationSnapshotControl<br/>Last checked, uncertainty, retained snapshot"]
 		ProviderContract["LocationProvider<br/>one bounded result, cancellation and progress"]
 		Provider["RefinedBrowserLocationProvider<br/>best recent reading, deadline and cleanup"]
 		Policy["locationLookupPolicy / locationRefinement<br/>tunable limits and pure reading selection"]
-		Footer["SiteFooter<br/>Wayfinder™ credit and privacy disclosure"]
-		MapView["MapView<br/>outside-canvas toolbar and information<br/>separate canvas viewport; recoverable status"]
+		Footer["GuideHeader / SiteFooter / PrivacyDialog<br/>compact chrome, keyboard menu and native privacy modal"]
+		MapView["MapView<br/>persistent canvas, measured mobile overlay<br/>reference mode/zoom controls and recovery"]
 		MapContract["MapAdapter<br/>provider-independent display contract"]
 		Composition["createMapAdapter / createLocationProvider<br/>concrete dependencies chosen here"]
 		Adapter["MapLibreMapAdapter<br/>route layers, one snapshot, camera intents"]
@@ -48,6 +49,8 @@ flowchart TB
 		Host["Vercel static hosting<br/>ordinary web requests"]
 	end
 	User --> Entry --> Recovery --> App
+	App --> Workspace --> Planner
+	Workspace --> Session
 	App --> Panel
 	Panel --> Planner --> Graph
 	Planner --> Route

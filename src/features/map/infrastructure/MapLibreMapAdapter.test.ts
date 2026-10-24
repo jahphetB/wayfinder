@@ -21,6 +21,9 @@ describe('MapLibreMapAdapter', () => {
 		const setData = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			zoomIn: vi.fn(),
+			zoomOut: vi.fn(),
+			addImage: vi.fn(),
 			easeTo,
 			on,
 			addSource,
@@ -84,6 +87,9 @@ describe('MapLibreMapAdapter', () => {
 			style: 'https://example.test/style.json',
 			createMap: vi.fn(() => ({
 				stop: vi.fn(),
+				zoomIn: vi.fn(),
+				zoomOut: vi.fn(),
+				addImage: vi.fn(),
 				easeTo: vi.fn(),
 				on,
 				addSource: vi.fn(),
@@ -128,7 +134,7 @@ describe('MapLibreMapAdapter', () => {
 				[-116.6807, 43.65065],
 				[-116.66985, 43.65565],
 			],
-			expect.objectContaining({ pitch: 30, duration: 1000 }),
+			expect.objectContaining({ pitch: 0, duration: 1000 }),
 		)
 		resize()
 		expect(fitBounds).toHaveBeenLastCalledWith(
@@ -136,7 +142,7 @@ describe('MapLibreMapAdapter', () => {
 				[-116.6807, 43.65065],
 				[-116.66985, 43.65565],
 			],
-			expect.objectContaining({ pitch: 30, duration: 0 }),
+			expect.objectContaining({ pitch: 0, duration: 0 }),
 		)
 	})
 
@@ -146,6 +152,9 @@ describe('MapLibreMapAdapter', () => {
 		const remove = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			zoomIn: vi.fn(),
+			zoomOut: vi.fn(),
+			addImage: vi.fn(),
 			easeTo,
 			on,
 			addSource: vi.fn(),
@@ -198,7 +207,7 @@ describe('MapLibreMapAdapter', () => {
 			bearing: 0,
 			duration: 1000,
 			easing: mapPresentation.camera.easing,
-			pitch: 30,
+			pitch: 0,
 		})
 		expect(remove).toHaveBeenCalledTimes(1)
 	})
@@ -218,6 +227,9 @@ describe('MapLibreMapAdapter', () => {
 		const on = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			zoomIn: vi.fn(),
+			zoomOut: vi.fn(),
+			addImage: vi.fn(),
 			easeTo: vi.fn(),
 			on,
 			addSource: vi.fn(),
@@ -278,6 +290,9 @@ describe('MapLibreMapAdapter', () => {
 			style: 'https://example.test/style.json',
 			createMap: () => ({
 				stop: vi.fn(),
+				zoomIn: vi.fn(),
+				zoomOut: vi.fn(),
+				addImage: vi.fn(),
 				easeTo: vi.fn(),
 				on,
 				addSource: vi.fn(() => {
@@ -331,6 +346,9 @@ describe('MapLibreMapAdapter', () => {
 		}
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			zoomIn: vi.fn(),
+			zoomOut: vi.fn(),
+			addImage: vi.fn(),
 			easeTo: vi.fn(),
 			on,
 			addSource: vi.fn(),
@@ -370,10 +388,14 @@ describe('MapLibreMapAdapter', () => {
 		const stop = vi.fn()
 		const easeTo = vi.fn()
 		const addLayer = vi.fn()
+		const fitNavigation = vi.fn()
 		const setRouteData = vi.fn()
 		const setLocationData = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop,
+			zoomIn: vi.fn(),
+			zoomOut: vi.fn(),
+			addImage: vi.fn(),
 			easeTo,
 			on,
 			addSource: vi.fn(),
@@ -384,7 +406,7 @@ describe('MapLibreMapAdapter', () => {
 			),
 			addLayer,
 			getLayer: vi.fn(),
-			fitBounds: vi.fn(),
+			fitBounds: fitNavigation,
 			off: vi.fn(),
 			queryRenderedFeatures: vi.fn(() => []),
 			remove: vi.fn(),
@@ -443,24 +465,17 @@ describe('MapLibreMapAdapter', () => {
 		expect(routeLineLayer?.paint?.['line-color']).toEqual(
 			expect.arrayContaining(['completed', 'current', 'upcoming']),
 		)
-		expect(easeTo).toHaveBeenLastCalledWith(
-			expect.objectContaining({
-				center: [
-					route.steps[1]!.coordinates[0]!.longitude,
-					route.steps[1]!.coordinates[0]!.latitude,
-				],
-				zoom: 18,
-				pitch: 60,
-				offset: [0, 80],
-				duration: 1300,
-			}),
+		expect(fitNavigation).toHaveBeenLastCalledWith(
+			expect.any(Array),
+			expect.objectContaining({ maxZoom: 18, pitch: 60, duration: 1300 }),
 		)
 
 		adapter.setMode('2d')
-		expect(easeTo).toHaveBeenLastCalledWith(
-			expect.objectContaining({ pitch: 30, duration: 1000 }),
+		expect(fitNavigation).toHaveBeenLastCalledWith(
+			expect.any(Array),
+			expect.objectContaining({ pitch: 0, duration: 1000 }),
 		)
-		const cameraCalls = easeTo.mock.calls.length
+		const cameraCalls = fitNavigation.mock.calls.length
 		const routeUpdates = setRouteData.mock.calls.length
 		const pointUpdates = setLocationData.mock.calls.length
 		adapter.setContent({
@@ -479,16 +494,16 @@ describe('MapLibreMapAdapter', () => {
 			{ latitude: 43.6544, longitude: -116.6768 },
 			{ focus: false },
 		)
-		expect(easeTo).toHaveBeenCalledTimes(cameraCalls)
-		expect(stop).toHaveBeenCalledTimes(cameraCalls)
+		expect(fitNavigation).toHaveBeenCalledTimes(cameraCalls + 1)
+		expect(stop).toHaveBeenCalledTimes(cameraCalls + 1)
 		adapter.setContent({
 			origin: undefined,
 			destination: undefined,
 			route,
 			navigationSession: { ...navigationSession, currentStepIndex: 2 },
 		})
-		expect(easeTo).toHaveBeenCalledTimes(cameraCalls + 1)
-		expect(stop).toHaveBeenCalledTimes(cameraCalls + 1)
+		expect(fitNavigation).toHaveBeenCalledTimes(cameraCalls + 2)
+		expect(stop).toHaveBeenCalledTimes(cameraCalls + 2)
 	})
 
 	it('fits a preview again when the map canvas is resized', () => {
@@ -496,6 +511,9 @@ describe('MapLibreMapAdapter', () => {
 		const fitBounds = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			zoomIn: vi.fn(),
+			zoomOut: vi.fn(),
+			addImage: vi.fn(),
 			easeTo: vi.fn(),
 			on,
 			addSource: vi.fn(),
@@ -555,7 +573,7 @@ describe('MapLibreMapAdapter', () => {
 				padding: 32,
 				maxZoom: 17.5,
 				bearing: 0,
-				pitch: 30,
+				pitch: 0,
 				duration: 1500,
 				easing: mapPresentation.camera.easing,
 			},
@@ -569,6 +587,9 @@ describe('MapLibreMapAdapter', () => {
 		const fitBounds = vi.fn()
 		const createMap = vi.fn((): MapLibreMapInstance => ({
 			stop: vi.fn(),
+			zoomIn: vi.fn(),
+			zoomOut: vi.fn(),
+			addImage: vi.fn(),
 			easeTo: vi.fn(),
 			on,
 			addSource,

@@ -71,3 +71,5 @@ export function useCampusGuide() {
 	}
 	return { workspace, proposal, planner, edit, cancel, dispatch }
 }
+
+export type ReturnTypeOfCampusGuide = ReturnType<typeof useCampusGuide>

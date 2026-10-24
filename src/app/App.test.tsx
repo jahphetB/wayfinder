@@ -35,7 +35,7 @@ async function selectLibraryAndDining(
 }
 
 describe('App', () => {
-	it('keeps a single walkthrough after the map while Start remains beside the planner', async () => {
+	it('has one persistent map, one location control and one Back/Next pair', async () => {
 		const user = userEvent.setup()
 		render(
 			<App
@@ -46,21 +46,14 @@ describe('App', () => {
 		)
 		await selectLibraryAndDining(user)
 		await user.click(screen.getByRole('button', { name: 'Preview route' }))
-		const start = screen.getByRole('button', { name: 'Start navigating' })
-		expect(start.closest('.navigation-panel')).not.toBeNull()
-		await user.click(start)
-		const walkthrough = screen.getByRole('region', {
-			name: 'Route walkthrough',
-		})
 		const map = screen.getByRole('region', { name: 'Interactive map' })
-		expect(
-			map.compareDocumentPosition(walkthrough) &
-				Node.DOCUMENT_POSITION_FOLLOWING,
-		).toBeTruthy()
-		expect(walkthrough.closest('.navigation-panel')).toBeNull()
-		expect(walkthrough.closest('.wayfinder-layout')).not.toBeNull()
+		await user.click(screen.getByRole('button', { name: 'Start navigating' }))
+		expect(screen.getByRole('region', { name: 'Interactive map' })).toBe(map)
 		expect(screen.getAllByRole('button', { name: 'Back' })).toHaveLength(1)
 		expect(screen.getAllByRole('button', { name: 'Next' })).toHaveLength(1)
+		expect(
+			screen.getAllByRole('button', { name: 'Cancel location lookup' }),
+		).toHaveLength(1)
 	})
 	it('advances immediately while location is pending or denied and never calls Back a location trigger', async () => {
 		const user = userEvent.setup()
@@ -82,7 +75,7 @@ describe('App', () => {
 		expect(provider.requestCurrentLocation).toHaveBeenCalledTimes(2)
 		while (screen.queryByRole('button', { name: 'Next' }))
 			await user.click(screen.getByRole('button', { name: 'Next' }))
-		expect(screen.getByText(/Route walkthrough complete/)).toHaveTextContent(
+		expect(screen.getByRole('status')).toHaveTextContent(
 			'does not confirm your physical arrival',
 		)
 	}, 15_000)
@@ -127,46 +120,66 @@ describe('App', () => {
 		await user.keyboard('{ArrowDown}{Enter}')
 		expect(input).toHaveValue('NoSuchCampusPlace')
 	})
-	it('mounts navigation only after preview and resets it when editing the route', async () => {
+
+	it('retains the exact journey through invalid editing, replacement preview and Cancel', async () => {
 		const user = userEvent.setup()
-		const requestCurrentLocation = vi.fn().mockResolvedValue({
-			coordinates: { latitude: 43.6544341, longitude: -116.6768005 },
-			accuracyMeters: 1,
-			capturedAtMilliseconds: Date.now(),
-		})
-		render(<App locationProvider={{ requestCurrentLocation }} />)
+		render(
+			<App
+				locationProvider={{
+					requestCurrentLocation: vi
+						.fn()
+						.mockRejectedValue(new Error('denied')),
+				}}
+			/>,
+		)
 		await selectLibraryAndDining(user)
-		expect(
-			screen.queryByRole('button', { name: 'Start navigating' }),
-		).not.toBeInTheDocument()
 		await user.click(screen.getByRole('button', { name: 'Preview route' }))
-		expect(requestCurrentLocation).not.toHaveBeenCalled()
 		await user.click(screen.getByRole('button', { name: 'Start navigating' }))
-		expect(screen.getByText(/Step 1 of \d+/)).toBeInTheDocument()
+		await user.click(screen.getByRole('button', { name: 'Next' }))
+		const map = screen.getByRole('region', { name: 'Interactive map' })
+		expect(map).toHaveAttribute('data-navigation-step', '1')
+		await user.click(screen.getByRole('button', { name: 'Edit route' }))
+		await user.clear(screen.getByRole('combobox', { name: 'Destination' }))
+		await user.click(screen.getByRole('button', { name: 'Preview changes' }))
+		expect(screen.getByRole('alert')).toBeVisible()
+		await user.type(
+			screen.getByRole('combobox', { name: 'Destination' }),
+			'Sterry',
+		)
+		await user.click(screen.getByRole('option', { name: 'Sterry Hall' }))
+		await user.click(screen.getByRole('button', { name: 'Preview changes' }))
+		await user.click(screen.getByRole('button', { name: 'Cancel' }))
+		expect(screen.getByRole('region', { name: 'Interactive map' })).toBe(map)
+		expect(map).toHaveAttribute('data-navigation-step', '1')
 		expect(
-			screen.getByRole('region', { name: 'Interactive map' }),
-		).toHaveAttribute('data-navigation-step', '0')
-		await user.click(screen.getByRole('button', { name: 'Preview route' }))
+			screen.getByRole('region', { name: 'Walking route' }),
+		).toHaveTextContent('Simplot Dining Hall')
+		await user.click(screen.getByRole('button', { name: 'Edit route' }))
+		await user.clear(screen.getByRole('combobox', { name: 'Destination' }))
+		await user.type(
+			screen.getByRole('combobox', { name: 'Destination' }),
+			'Sterry',
+		)
+		await user.click(screen.getByRole('option', { name: 'Sterry Hall' }))
+		await user.click(screen.getByRole('button', { name: 'Preview changes' }))
+		await user.click(screen.getByRole('button', { name: 'Start navigating' }))
+		expect(map).toHaveAttribute('data-navigation-step', '0')
 		expect(
-			screen.getByRole('button', { name: 'Start navigating' }),
-		).toBeInTheDocument()
-		await user.clear(screen.getByRole('combobox', { name: 'Start' }))
-		expect(
-			screen.queryByRole('region', { name: 'Route walkthrough' }),
-		).not.toBeInTheDocument()
-	})
+			screen.getByRole('region', { name: 'Walking route' }),
+		).toHaveTextContent('Sterry Hall')
+	}, 15000)
 	it('renders the route-planning workspace', () => {
 		render(<App />)
 
 		expect(
-			screen.getByRole('heading', { name: 'Find your way on campus' }),
+			screen.getByRole('heading', { name: 'Plan your route' }),
 		).toBeInTheDocument()
 		expect(
 			screen.getByRole('region', { name: 'Interactive map' }),
 		).toBeInTheDocument()
 		expect(
 			screen.getByRole('region', { name: 'Interactive map' }),
-		).toHaveAttribute('data-map-mode', '3d')
+		).toHaveAttribute('data-map-mode', '2d')
 		expect(screen.getByRole('combobox', { name: 'Start' })).toHaveValue('')
 		expect(screen.getByRole('combobox', { name: 'Destination' })).toHaveValue(
 			'',

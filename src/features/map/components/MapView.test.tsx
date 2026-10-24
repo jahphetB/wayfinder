@@ -10,6 +10,7 @@ import type {
 import type { LocationProvider } from '@/features/navigation/contracts/LocationProvider'
 import { LocationProviderError } from '@/features/navigation/contracts/LocationProviderError'
 import { MapView } from './MapView'
+import { LocationSnapshotControl } from '@/features/navigation/components/LocationSnapshotControl'
 import { useLocationSnapshot } from '@/features/navigation/hooks/useLocationSnapshot'
 
 vi.mock('@/composition/createMapAdapter', () => ({ createMapAdapter: vi.fn() }))
@@ -20,7 +21,7 @@ const campusReading = {
 	capturedAtMilliseconds: Date.now(),
 }
 
-function renderMap(provider: LocationProvider) {
+function renderMap(provider: LocationProvider, onBuildingSelect = vi.fn()) {
 	const showUserLocation = vi.fn()
 	vi.mocked(createMapAdapter).mockReturnValue({
 		initialize: vi.fn(
@@ -33,6 +34,7 @@ function renderMap(provider: LocationProvider) {
 			},
 		),
 		setMode: vi.fn(),
+		zoom: vi.fn(),
 		setContent: vi.fn(),
 		showUserLocation,
 		destroy: vi.fn(),
@@ -41,16 +43,20 @@ function renderMap(provider: LocationProvider) {
 	function MapHarness() {
 		const snapshot = useLocationSnapshot(provider, 'map-test')
 		return (
-			<MapView
-				origin={undefined}
-				destination={undefined}
-				route={undefined}
-				navigationSession={undefined}
-				drivingHandoff={undefined}
-				mode="3d"
-				onModeChange={vi.fn()}
-				snapshot={snapshot}
-			/>
+			<>
+				<LocationSnapshotControl snapshot={snapshot} />
+				<MapView
+					onBuildingSelect={onBuildingSelect}
+					origin={undefined}
+					destination={undefined}
+					route={undefined}
+					navigationSession={undefined}
+					drivingHandoff={undefined}
+					mode="3d"
+					onModeChange={vi.fn()}
+					snapshot={snapshot}
+				/>
+			</>
 		)
 	}
 	render(<MapHarness />)
@@ -58,32 +64,25 @@ function renderMap(provider: LocationProvider) {
 }
 
 describe('MapView location control', () => {
-	it('keeps location, mode and expandable building controls outside the canvas viewport', async () => {
-		renderMap({ requestCurrentLocation: vi.fn() })
-		const viewport = document.getElementById('map-viewport')!
-		expect(viewport.querySelector('.map-canvas')).not.toBeNull()
-		expect(viewport.querySelector('button')).toBeNull()
+	it('keeps the map instance while presentation props change and renders reference mode controls', () => {
+		const onBuildingSelect = vi.fn()
+		renderMap({ requestCurrentLocation: vi.fn() }, onBuildingSelect)
 		expect(
-			viewport.contains(
-				screen.getByRole('button', { name: 'Get my location' }),
-			),
-		).toBe(false)
+			screen.getByRole('group', { name: 'Map display mode' }),
+		).toBeInTheDocument()
 		expect(
-			viewport.contains(
-				screen.getByRole('group', { name: 'Map display mode' }),
-			),
-		).toBe(false)
-		await userEvent
-			.setup()
-			.click(screen.getByText('Building details', { selector: 'summary' }))
-		const details = screen.getByRole('button', {
-			name: 'Cruzen-Murray Library details',
-		})
-		expect(viewport.contains(details)).toBe(false)
-		await userEvent.setup().click(details)
-		expect(
-			screen.getByRole('dialog', { name: 'Cruzen-Murray Library' }),
-		).toBeVisible()
+			document.getElementById('map-viewport')?.querySelector('.map-canvas'),
+		).not.toBeNull()
+		const adapter = vi.mocked(createMapAdapter).mock.results.at(-1)
+			?.value as MapAdapter
+		act(() =>
+			vi
+				.mocked(adapter)
+				.initialize.mock.calls[0]?.[2]?.onBuildingSelect?.(
+					'simplot-dining-hall',
+				),
+		)
+		expect(onBuildingSelect).toHaveBeenCalledWith('simplot-dining-hall')
 	})
 	it('shows a recoverable map error when initialization fails', async () => {
 		const setMode = vi.fn()
@@ -94,6 +93,7 @@ describe('MapView location control', () => {
 				throw new Error('WebGL is unavailable')
 			}),
 			setMode,
+			zoom: vi.fn(),
 			setContent,
 			showUserLocation: vi.fn(),
 			destroy,
@@ -143,14 +143,14 @@ describe('MapView location control', () => {
 		await user.click(screen.getByRole('button', { name: 'Get my location' }))
 		const lookup = requestCurrentLocation.mock.calls[0]![0]
 		act(() => lookup.onProgress?.({ accuracyMeters: 45, readingCount: 1 }))
-		expect(screen.getByText(/Improving snapshot/)).toHaveTextContent(
-			'about 45 m',
-		)
+		expect(
+			screen.getByText(/Checking location… You can continue/),
+		).toBeVisible()
 		await user.click(
 			screen.getByRole('button', { name: 'Cancel location lookup' }),
 		)
 		expect(lookup.signal?.aborted).toBe(true)
-		expect(screen.getByText(/lookup cancelled/)).toHaveTextContent('cancelled')
+		expect(screen.getByText('Location lookup cancelled.')).toBeVisible()
 		await act(async () => {
 			complete?.(campusReading)
 			await Promise.resolve()
@@ -173,23 +173,6 @@ describe('MapView location control', () => {
 		cleanup()
 		expect(signal?.aborted).toBe(true)
 	})
-	it('opens building details from the adapter without requesting location', async () => {
-		const requestCurrentLocation = vi.fn()
-		renderMap({ requestCurrentLocation })
-		const adapter = vi.mocked(createMapAdapter).mock.results.at(-1)
-			?.value as MapAdapter
-		const callbacks = vi.mocked(adapter).initialize.mock.calls[0]?.[2]
-		act(() => callbacks?.onBuildingSelect?.('simplot-dining-hall'))
-		expect(
-			screen.getByRole('dialog', { name: 'Simplot Dining Hall (Cafeteria)' }),
-		).toBeInTheDocument()
-		expect(screen.getByText(/entrance near Blatchley Hall/)).toBeInTheDocument()
-		await userEvent
-			.setup()
-			.click(screen.getByRole('button', { name: 'Close building details' }))
-		expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-		expect(requestCurrentLocation).not.toHaveBeenCalled()
-	})
 	it('requests real location only on click and focuses an on-campus reading', async () => {
 		const requestCurrentLocation = vi.fn().mockResolvedValue(campusReading)
 		const showUserLocation = renderMap({ requestCurrentLocation })
@@ -208,9 +191,7 @@ describe('MapView location control', () => {
 				{ focus: true },
 			),
 		)
-		expect(
-			screen.getByText('Approximate campus snapshot, not live movement.'),
-		).toBeInTheDocument()
+		expect(screen.getByText(/Last checked/)).toBeInTheDocument()
 	})
 
 	it('warns when clearly off campus without moving the map', async () => {
@@ -225,7 +206,7 @@ describe('MapView location control', () => {
 			.click(screen.getByRole('button', { name: 'Get my location' }))
 
 		expect(await screen.findByText(/appear off campus/)).toBeInTheDocument()
-		expect(showUserLocation).toHaveBeenCalledWith(undefined, { focus: false })
+		expect(showUserLocation).toHaveBeenCalledWith(undefined, { focus: true })
 		expect(showUserLocation).not.toHaveBeenCalledWith(expect.any(Object))
 	})
 

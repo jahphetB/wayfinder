@@ -15,7 +15,7 @@ export const mapPresentation = {
 		outlineWidthPixels: 1.5,
 	},
 	camera: {
-		pitch2d: 30,
+		pitch2d: 0,
 		pitch3d: 60,
 		initialBearing3d: -20,
 		overviewPitch3d: 40,
@@ -34,10 +34,10 @@ export const mapPresentation = {
 			progress * progress * (3 - 2 * progress),
 	},
 	routeColors: {
-		completed: '#7b8881',
-		current: '#087a45',
-		upcoming: '#d9872f',
-		preview: '#155f3a',
+		completed: '#155f3a',
+		current: '#f28528',
+		upcoming: '#6e567f',
+		preview: '#593777',
 		handoff: '#593777',
 	},
 } as const

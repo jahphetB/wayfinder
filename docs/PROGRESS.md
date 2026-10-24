@@ -13,6 +13,17 @@
 - Foundation tests pass: 120 tests / 28 files. Reference UI implementation follows
   this independently verified foundation on the same preview branch.
 
+- Implemented the original integrated planner/editing references, desktop timeline
+  and mobile instruction-card/map dock. Cancel retains the exact prior journey
+  through invalid drafts and replacement preview. Only explicitly starting the
+  replacement resets progress.
+- One persistent map uses provider-neutral zoom and camera insets. Route framing
+  reserves mobile overlay space; flat 2D keeps labels north-up. Pins are drawn from
+  code, preview/current legs are dashed, and required attribution remains visible.
+  Security headers, dependencies, dataset and snapshot policy are unchanged.
+- Added a compact privacy dialog and accessible secondary building menu. Styling
+  settings and public setup documentation reflect the selected original interface.
+
 ## October 23: pre-merge map-space and control refinement
 
 - Back/Next share equal columns, padding and minimum heights. One walkthrough

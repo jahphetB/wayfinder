@@ -1,5 +1,6 @@
 import {
 	Map as MapLibreMap,
+	ScaleControl,
 	setWorkerUrl,
 	type CustomLayerInterface,
 	type EaseToOptions,
@@ -21,6 +22,9 @@ import type {
 
 export interface MapLibreMapInstance {
 	stop(): unknown
+	zoomIn(options?: EaseToOptions): unknown
+	zoomOut(options?: EaseToOptions): unknown
+	addImage(id: string, image: ImageData): unknown
 	easeTo(options: EaseToOptions): unknown
 	on(event: 'load', listener: () => void): unknown
 	on(event: 'resize', listener: () => void): unknown
@@ -59,8 +63,18 @@ export interface MapLibreMapAdapterOptions {
 
 setWorkerUrl(workerUrl)
 
-const defaultMapFactory: MapLibreMapFactory = (options) =>
-	new MapLibreMap(options)
+const defaultMapFactory: MapLibreMapFactory = (options) => {
+	const map = new MapLibreMap({
+		...options,
+		attributionControl: { compact: false, customAttribution: [] },
+		maplibreLogo: false,
+	})
+	map.addControl(
+		new ScaleControl({ maxWidth: 100, unit: 'metric' }),
+		'bottom-right',
+	)
+	return map
+}
 
 export class MapLibreMapAdapter implements MapAdapter {
 	private map: MapLibreMapInstance | undefined
@@ -165,8 +179,10 @@ export class MapLibreMapAdapter implements MapAdapter {
 				if (
 					this.content.navigationSession &&
 					this.content.navigationSession.status !== 'awaiting-start'
-				)
+				) {
+					this.focusNavigationSession(this.content.navigationSession, 0)
 					return
+				}
 				if (!this.content.route && !this.content.drivingHandoff) {
 					this.fitOverview(0)
 					return
@@ -206,13 +222,25 @@ export class MapLibreMapAdapter implements MapAdapter {
 		}
 	}
 
+	zoom(direction: 1 | -1): void {
+		if (!this.isReady) return
+		const map = this.requireMap()
+		map.stop()
+		const options = {
+			duration: mapPresentation.camera.modeDurationMilliseconds,
+		}
+		if (direction === 1) map.zoomIn(options)
+		else map.zoomOut(options)
+	}
 	setContent(content: MapContent): void {
 		if (
 			this.content.origin === content.origin &&
 			this.content.destination === content.destination &&
 			this.content.route === content.route &&
 			this.content.drivingHandoff === content.drivingHandoff &&
-			this.content.navigationSession === content.navigationSession
+			this.content.navigationSession === content.navigationSession &&
+			JSON.stringify(this.content.cameraInsets) ===
+				JSON.stringify(content.cameraInsets)
 		)
 			return
 		this.content = content
@@ -369,7 +397,9 @@ export class MapLibreMapAdapter implements MapAdapter {
 			!previous ||
 			previous.origin !== this.content.origin ||
 			previous.destination !== this.content.destination ||
-			previous.drivingHandoff !== this.content.drivingHandoff
+			previous.drivingHandoff !== this.content.drivingHandoff ||
+			previous.navigationSession?.status !==
+				this.content.navigationSession?.status
 		const handoffChanged =
 			!previous || previous.drivingHandoff !== this.content.drivingHandoff
 		const routeData = {
@@ -418,7 +448,15 @@ export class MapLibreMapAdapter implements MapAdapter {
 					{ coordinates: handoffCoordinates.at(-1), kind: 'handoff' },
 					{ coordinates: this.content.destination?.coordinates, kind: 'venue' },
 				]
-			: locations.map(({ coordinates }) => ({ coordinates, kind: 'walking' }))
+			: locations.map(({ coordinates }, index) => ({
+					coordinates,
+					kind:
+						index === 0
+							? this.content.navigationSession
+								? 'origin'
+								: 'preview-origin'
+							: 'destination',
+				}))
 		const locationData = {
 			type: 'FeatureCollection',
 			features: markers.flatMap((marker) =>
@@ -426,7 +464,14 @@ export class MapLibreMapAdapter implements MapAdapter {
 					? [
 							{
 								type: 'Feature',
-								properties: { kind: marker.kind },
+								properties: {
+									kind: marker.kind,
+									pin:
+										marker.kind === 'preview-origin' ||
+										this.content.navigationSession
+											? 'yote-orange-pin'
+											: 'yote-purple-pin',
+								},
 								geometry: {
 									type: 'Point',
 									coordinates: [
@@ -480,6 +525,11 @@ export class MapLibreMapAdapter implements MapAdapter {
 			map.addLayer({
 				id: 'yote-route-line',
 				type: 'line',
+				filter: [
+					'in',
+					['get', 'state'],
+					['literal', ['completed', 'upcoming']],
+				],
 				source: 'yote-route',
 				layout: { 'line-cap': 'round', 'line-join': 'round' },
 				paint: {
@@ -514,24 +564,55 @@ export class MapLibreMapAdapter implements MapAdapter {
 					],
 				},
 			})
+
+		if (!map.getLayer('yote-route-dashed'))
+			map.addLayer({
+				id: 'yote-route-dashed',
+				type: 'line',
+				source: 'yote-route',
+				filter: ['in', ['get', 'state'], ['literal', ['preview', 'current']]],
+				layout: { 'line-cap': 'round', 'line-join': 'round' },
+				paint: {
+					'line-color': [
+						'match',
+						['get', 'state'],
+						'current',
+						mapPresentation.routeColors.current,
+						mapPresentation.routeColors.preview,
+					],
+					'line-width': 5,
+					'line-dasharray': [1.4, 1],
+				},
+			})
 		if (!map.getLayer('yote-location-points'))
 			map.addLayer({
 				id: 'yote-location-points',
 				type: 'circle',
 				source: 'yote-locations',
 				paint: {
-					'circle-radius': 8,
-					'circle-color': [
-						'match',
-						['get', 'kind'],
-						'handoff',
-						'#412d5e',
-						'#ef694c',
-					],
+					'circle-radius': ['match', ['get', 'kind'], 'origin', 9, 0],
+					'circle-color': '#16934c',
 					'circle-stroke-color': '#fff',
 					'circle-stroke-width': 3,
 				},
 			})
+
+		if (!map.getLayer('yote-destination-pin')) {
+			map.addImage('yote-orange-pin', createPinImage('#f28528'))
+			map.addImage('yote-purple-pin', createPinImage('#593777'))
+			map.addLayer({
+				id: 'yote-destination-pin',
+				type: 'symbol',
+				source: 'yote-locations',
+				filter: ['!=', ['get', 'kind'], 'origin'],
+				layout: {
+					'icon-image': ['get', 'pin'],
+					'icon-size': 0.5,
+					'icon-anchor': 'bottom',
+					'icon-allow-overlap': true,
+				},
+			})
+		}
 		this.renderedContent = this.content
 		const session = this.content.navigationSession
 		const cameraProgress =
@@ -539,7 +620,7 @@ export class MapLibreMapAdapter implements MapAdapter {
 				? `${session.status}:${session.currentStepIndex}`
 				: 'preview:-1'
 		const cameraStateKey = this.content.route
-			? `${this.content.route.id}:${cameraProgress}`
+			? `${this.content.route.id}:${cameraProgress}:${JSON.stringify(this.content.cameraInsets)}`
 			: handoffCoordinates
 				? 'stadium-driving-handoff'
 				: undefined
@@ -564,7 +645,12 @@ export class MapLibreMapAdapter implements MapAdapter {
 					[Math.min(...longitudes), Math.min(...latitudes)],
 					[Math.max(...longitudes), Math.max(...latitudes)],
 				],
-				previewCameraOptions(this.mode),
+				{
+					...previewCameraOptions(this.mode),
+					...(this.content.cameraInsets
+						? { padding: this.content.cameraInsets }
+						: {}),
+				},
 			)
 		} else if (handoffCoordinates) {
 			const longitudes = handoffCoordinates.map((point) => point.longitude)
@@ -584,37 +670,36 @@ export class MapLibreMapAdapter implements MapAdapter {
 		session: NonNullable<MapContent['navigationSession']>,
 		duration: number,
 	): void {
-		const route = session.route
 		const step =
-			session.status === 'completed'
-				? route.steps.at(-1)
-				: route.steps[session.currentStepIndex]
-		if (!step) return
-
-		const from =
-			session.status === 'completed'
-				? step.coordinates.at(-2)
-				: step.coordinates[0]
-		const to =
-			session.status === 'completed'
-				? step.coordinates.at(-1)
-				: step.coordinates[1]
-		const center =
-			session.status === 'completed'
-				? step.coordinates.at(-1)
-				: step.coordinates[0]
-		if (!from || !to || !center) return
-
+			session.route.steps[
+				Math.min(session.currentStepIndex, session.route.steps.length - 1)
+			]
+		const from = step?.coordinates[0],
+			to = step?.coordinates[1]
+		const points = session.route.coordinates
+		const longitudes = points.map((point) => point.longitude),
+			latitudes = points.map((point) => point.latitude)
 		this.requireMap().stop()
-		this.requireMap().easeTo({
-			center: [center.longitude, center.latitude],
-			zoom: mapPresentation.camera.navigationZoom,
-			bearing: calculateBearing(from, to),
-			pitch: pitchForMode(this.mode),
-			offset: [0, mapPresentation.camera.navigationOffsetPixels],
-			duration,
-			easing: mapPresentation.camera.easing,
-		})
+		this.requireMap().fitBounds(
+			[
+				[Math.min(...longitudes), Math.min(...latitudes)],
+				[Math.max(...longitudes), Math.max(...latitudes)],
+			],
+			{
+				padding: this.content.cameraInsets ?? {
+					top: 48,
+					bottom: 48,
+					left: 48,
+					right: 72,
+				},
+				maxZoom: mapPresentation.camera.navigationZoom,
+				bearing:
+					this.mode === '2d' ? 0 : from && to ? calculateBearing(from, to) : 0,
+				pitch: pitchForMode(this.mode),
+				duration,
+				easing: mapPresentation.camera.easing,
+			},
+		)
 	}
 
 	private syncCampusLayer(): void {
@@ -715,4 +800,33 @@ function isGeoJsonSource(
 	value: unknown,
 ): value is { setData(data: object): void } {
 	return typeof value === 'object' && value !== null && 'setData' in value
+}
+
+function createPinImage(color: string): ImageData {
+	const canvas = document.createElement('canvas')
+	canvas.width = 64
+	canvas.height = 88
+	const context = canvas.getContext('2d')
+	if (!context)
+		return {
+			width: 64,
+			height: 88,
+			data: new Uint8ClampedArray(64 * 88 * 4),
+			colorSpace: 'srgb',
+		}
+	context.beginPath()
+	context.moveTo(32, 83)
+	context.bezierCurveTo(27, 69, 8, 49, 8, 30)
+	context.arc(32, 30, 24, Math.PI, 0)
+	context.bezierCurveTo(56, 49, 37, 69, 32, 83)
+	context.fillStyle = color
+	context.fill()
+	context.strokeStyle = '#fff'
+	context.lineWidth = 5
+	context.stroke()
+	context.beginPath()
+	context.arc(32, 30, 9, 0, Math.PI * 2)
+	context.fillStyle = '#fff'
+	context.fill()
+	return context.getImageData(0, 0, 64, 88)
 }

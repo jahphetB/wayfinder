@@ -34,6 +34,7 @@ export interface MapAdapter {
 		callbacks?: MapAdapterCallbacks,
 	): void
 	setMode(mode: MapMode): void
+	zoom(direction: 1 | -1): void
 	setContent(content: MapContent): void
 	showUserLocation(
 		coordinates: Coordinates | undefined,
@@ -43,6 +44,14 @@ export interface MapAdapter {
 }
 
 export interface MapContent {
+	readonly cameraInsets?:
+		| {
+				readonly top: number
+				readonly bottom: number
+				readonly left: number
+				readonly right: number
+		  }
+		| undefined
 	readonly origin: Location | undefined
 	readonly destination: Location | undefined
 	readonly route: Route | undefined

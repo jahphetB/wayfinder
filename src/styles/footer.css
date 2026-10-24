@@ -1,38 +1,71 @@
 .site-footer {
-	width: min(100%, var(--layout-max-width));
-	margin-inline: auto;
-	padding: 0.75rem var(--footer-inline-padding) 1.25rem;
-	color: var(--color-white);
-	font-size: var(--font-size-small);
+	grid-area: footer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 12px var(--guide-panel-padding);
+	color: var(--color-muted);
+	font-size: 0.625rem;
+	line-height: 1.5;
+	min-width: 0;
 }
 .site-credit {
 	margin: 0;
-	text-align: center;
 }
-.site-footer a {
+.site-credit a {
 	color: inherit;
-	text-decoration: underline;
-	text-underline-offset: 0.15em;
+	text-decoration: none;
 }
-.privacy-disclosure {
-	max-width: 48rem;
-	margin: 0.75rem auto 0;
+.privacy-action {
+	min-height: 24px;
+	border: 0;
+	padding: 4px 0;
+	background: transparent;
+	color: inherit;
+	font-size: inherit;
 }
-.privacy-disclosure summary {
-	width: fit-content;
-	margin-inline: auto;
-	padding: 0.5rem;
-	cursor: pointer;
+.app-shell[data-view='navigation'] .site-footer {
+	justify-content: center;
+	gap: 20px;
+	font-size: 0.75rem;
+}
+.app-shell[data-view='navigation'] .privacy-action {
+	border-left: 1px solid var(--color-muted);
+	padding-left: 20px;
+}
+.privacy-dialog {
+	width: min(560px, calc(100% - 32px));
+	max-height: 85dvh;
+	border: 1px solid var(--color-border);
+	border-radius: 12px;
+	padding: 20px;
+	color: var(--color-text);
+	background: white;
+	overflow: auto;
+}
+.privacy-dialog::backdrop {
+	background: var(--color-dialog-backdrop);
+}
+.privacy-dialog header {
+	display: flex;
+	gap: 16px;
+	justify-content: space-between;
+	align-items: center;
+}
+.privacy-dialog h2 {
+	font-size: 1.25rem;
+	margin: 0;
+}
+.privacy-dialog header button {
+	border: 1px solid var(--color-border);
+	background: white;
+	border-radius: 6px;
+	min-width: 40px;
+	min-height: 40px;
+	font-size: 1.5rem;
 }
 .privacy-content {
-	padding: 0.75rem 1rem;
-	color: var(--color-text);
-	background: var(--color-panel);
-	line-height: 1.6;
-}
-.privacy-content p:first-child {
-	margin-top: 0;
-}
-.privacy-content p:last-child {
-	margin-bottom: 0;
+	font-size: 0.875rem;
+	line-height: 1.65;
 }
