@@ -26,7 +26,12 @@ export function RouteWalkthrough({
 					? 'Route walkthrough complete. This does not confirm your physical arrival.'
 					: `Step ${session.currentStepIndex + 1} of ${session.route.steps.length}. Next advances the illustration; location is optional.`}
 			</p>
-			<ol className="route-timeline" ref={list} aria-label="Route steps">
+			<ol
+				className="route-timeline"
+				ref={list}
+				aria-label="Route steps"
+				tabIndex={0}
+			>
 				{session.route.steps.map((step, index) => {
 					const text = presentStep(step, proposal.origin)
 					const complete =
@@ -62,7 +67,7 @@ export function RouteWalkthrough({
 					All steps
 					<GuideIcon name="down" />
 				</summary>
-				<ol>
+				<ol tabIndex={0} aria-label="All route instructions">
 					{session.route.steps.map((step) => (
 						<li key={step.id}>{step.instruction}</li>
 					))}

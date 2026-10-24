@@ -88,6 +88,13 @@ the previous animation; nonessential motion respects reduced-motion preference.
 Snapshot updates never refocus a selected route. The existing 2x pixel-ratio cap
 and unchanged-source suppression remain, without claiming universal smoothness.
 
+Cancelling a replacement preview can enlarge the mobile canvas before MapLibre's
+own resize observer runs. The adapter compares actual container dimensions with
+its last synchronized size before content-driven camera work. It resizes only
+when those dimensions changed, and suppresses reentrant camera work during that
+synchronization. This prevents fitting navigation insets against the old, smaller
+editing viewport without resizing the GPU canvas on every Next action.
+
 Green completed legs, orange dashed current legs, muted upcoming legs and purple
 dashed previews describe illustration progress. Code-drawn pins do not require
 an external image service. The smaller outlined light-green actual snapshot is

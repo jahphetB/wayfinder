@@ -12,6 +12,9 @@ import { LocationProviderError } from '@/features/navigation/contracts/LocationP
 import { MapView } from './MapView'
 import { LocationSnapshotControl } from '@/features/navigation/components/LocationSnapshotControl'
 import { useLocationSnapshot } from '@/features/navigation/hooks/useLocationSnapshot'
+import type { Route } from '@/domain/navigation/types'
+import { findWalkingRoute } from '@/domain/navigation/walkingRoutes'
+import { collegeOfIdahoWalkingGraph } from '@/data/navigation/collegeOfIdahoWalkingGraph'
 
 vi.mock('@/composition/createMapAdapter', () => ({ createMapAdapter: vi.fn() }))
 
@@ -21,7 +24,11 @@ const campusReading = {
 	capturedAtMilliseconds: Date.now(),
 }
 
-function renderMap(provider: LocationProvider, onBuildingSelect = vi.fn()) {
+function renderMap(
+	provider: LocationProvider,
+	onBuildingSelect = vi.fn(),
+	route?: Route,
+) {
 	const showUserLocation = vi.fn()
 	vi.mocked(createMapAdapter).mockReturnValue({
 		initialize: vi.fn(
@@ -49,7 +56,7 @@ function renderMap(provider: LocationProvider, onBuildingSelect = vi.fn()) {
 					onBuildingSelect={onBuildingSelect}
 					origin={undefined}
 					destination={undefined}
-					route={undefined}
+					route={route}
 					navigationSession={undefined}
 					drivingHandoff={undefined}
 					mode="3d"
@@ -64,6 +71,26 @@ function renderMap(provider: LocationProvider, onBuildingSelect = vi.fn()) {
 }
 
 describe('MapView location control', () => {
+	it('never lets an independent location result refocus a selected route', async () => {
+		const route = findWalkingRoute(
+			collegeOfIdahoWalkingGraph,
+			'cruzen-murray-library',
+			'sterry-hall',
+		)!
+		const show = renderMap(
+			{ requestCurrentLocation: vi.fn().mockResolvedValue(campusReading) },
+			vi.fn(),
+			route,
+		)
+		await userEvent
+			.setup()
+			.click(screen.getByRole('button', { name: 'Get my location' }))
+		await waitFor(() =>
+			expect(show).toHaveBeenLastCalledWith(campusReading.coordinates, {
+				focus: false,
+			}),
+		)
+	})
 	it('keeps the map instance while presentation props change and renders reference mode controls', () => {
 		const onBuildingSelect = vi.fn()
 		renderMap({ requestCurrentLocation: vi.fn() }, onBuildingSelect)

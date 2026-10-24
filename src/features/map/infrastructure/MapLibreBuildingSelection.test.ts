@@ -20,6 +20,7 @@ describe('building selection boundary', () => {
 			queryRenderedFeatures,
 			addSource,
 			stop: vi.fn(),
+			resize: vi.fn(),
 			zoomIn: vi.fn(),
 			zoomOut: vi.fn(),
 			addImage: vi.fn(),

@@ -166,7 +166,7 @@
 	.app-shell[data-view='navigation'] .site-footer {
 		justify-content: flex-end;
 		gap: 8px;
-		padding: 6px 12px 10px;
+		padding: 6px 12px calc(10px + env(safe-area-inset-bottom));
 		font-size: 0.5625rem;
 	}
 	.app-shell[data-view='navigation'] .privacy-action {

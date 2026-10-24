@@ -21,6 +21,7 @@ describe('MapLibreMapAdapter', () => {
 		const setData = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			resize: vi.fn(),
 			zoomIn: vi.fn(),
 			zoomOut: vi.fn(),
 			addImage: vi.fn(),
@@ -87,6 +88,7 @@ describe('MapLibreMapAdapter', () => {
 			style: 'https://example.test/style.json',
 			createMap: vi.fn(() => ({
 				stop: vi.fn(),
+				resize: vi.fn(),
 				zoomIn: vi.fn(),
 				zoomOut: vi.fn(),
 				addImage: vi.fn(),
@@ -152,6 +154,7 @@ describe('MapLibreMapAdapter', () => {
 		const remove = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			resize: vi.fn(),
 			zoomIn: vi.fn(),
 			zoomOut: vi.fn(),
 			addImage: vi.fn(),
@@ -227,6 +230,7 @@ describe('MapLibreMapAdapter', () => {
 		const on = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			resize: vi.fn(),
 			zoomIn: vi.fn(),
 			zoomOut: vi.fn(),
 			addImage: vi.fn(),
@@ -290,6 +294,7 @@ describe('MapLibreMapAdapter', () => {
 			style: 'https://example.test/style.json',
 			createMap: () => ({
 				stop: vi.fn(),
+				resize: vi.fn(),
 				zoomIn: vi.fn(),
 				zoomOut: vi.fn(),
 				addImage: vi.fn(),
@@ -346,6 +351,7 @@ describe('MapLibreMapAdapter', () => {
 		}
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			resize: vi.fn(),
 			zoomIn: vi.fn(),
 			zoomOut: vi.fn(),
 			addImage: vi.fn(),
@@ -389,12 +395,22 @@ describe('MapLibreMapAdapter', () => {
 		const easeTo = vi.fn()
 		const addLayer = vi.fn()
 		const fitNavigation = vi.fn()
+		const synchronizeSize = vi.fn()
+		let viewportHeight = 600
+		const container = document.createElement('div')
+		Object.defineProperties(container, {
+			clientWidth: { get: () => 400 },
+			clientHeight: { get: () => viewportHeight },
+		})
+		const zoomIn = vi.fn(),
+			zoomOut = vi.fn()
 		const setRouteData = vi.fn()
 		const setLocationData = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop,
-			zoomIn: vi.fn(),
-			zoomOut: vi.fn(),
+			resize: synchronizeSize,
+			zoomIn,
+			zoomOut,
 			addImage: vi.fn(),
 			easeTo,
 			on,
@@ -427,7 +443,7 @@ describe('MapLibreMapAdapter', () => {
 			currentStepIndex: 1,
 		} satisfies NavigationSession
 
-		adapter.initialize(document.createElement('div'), {
+		adapter.initialize(container, {
 			center: { latitude: 43.6526, longitude: -116.676 },
 			zoom: 17,
 			mode: '3d',
@@ -504,6 +520,39 @@ describe('MapLibreMapAdapter', () => {
 		})
 		expect(fitNavigation).toHaveBeenCalledTimes(cameraCalls + 2)
 		expect(stop).toHaveBeenCalledTimes(cameraCalls + 2)
+		const cameraInsets = { top: 130, bottom: 120, left: 24, right: 24 }
+		adapter.setContent({
+			origin: undefined,
+			destination: undefined,
+			route,
+			navigationSession: { ...navigationSession, currentStepIndex: 2 },
+			cameraInsets,
+		})
+		expect(fitNavigation).toHaveBeenLastCalledWith(
+			expect.any(Array),
+			expect.objectContaining({ padding: cameraInsets, bearing: 0 }),
+		)
+		adapter.zoom(1)
+		expect(zoomIn).toHaveBeenCalledTimes(1)
+		adapter.zoom(-1)
+		expect(zoomOut).toHaveBeenCalledTimes(1)
+		viewportHeight = 300
+		adapter.setContent({
+			origin: undefined,
+			destination: undefined,
+			route,
+			navigationSession: { ...navigationSession, currentStepIndex: 2 },
+			cameraInsets,
+		})
+		expect(synchronizeSize).toHaveBeenCalledTimes(1)
+		adapter.setContent({
+			origin: undefined,
+			destination: undefined,
+			route,
+			navigationSession: { ...navigationSession, currentStepIndex: 2 },
+			cameraInsets,
+		})
+		expect(synchronizeSize).toHaveBeenCalledTimes(1)
 	})
 
 	it('fits a preview again when the map canvas is resized', () => {
@@ -511,6 +560,7 @@ describe('MapLibreMapAdapter', () => {
 		const fitBounds = vi.fn()
 		const mapInstance: MapLibreMapInstance = {
 			stop: vi.fn(),
+			resize: vi.fn(),
 			zoomIn: vi.fn(),
 			zoomOut: vi.fn(),
 			addImage: vi.fn(),
@@ -587,6 +637,7 @@ describe('MapLibreMapAdapter', () => {
 		const fitBounds = vi.fn()
 		const createMap = vi.fn((): MapLibreMapInstance => ({
 			stop: vi.fn(),
+			resize: vi.fn(),
 			zoomIn: vi.fn(),
 			zoomOut: vi.fn(),
 			addImage: vi.fn(),

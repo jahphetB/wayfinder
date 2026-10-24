@@ -114,7 +114,7 @@ export function NavigationPanel({
 			)}
 			{feedback}
 			{workspace.view === 'preview' && (
-				<div className="route-preview" aria-label="Route preview">
+				<section className="route-preview" aria-label="Route preview">
 					{workspace.proposal.plan.status === 'route-ready' ? (
 						<>
 							<RouteHeading proposal={workspace.proposal} summary />
@@ -137,7 +137,7 @@ export function NavigationPanel({
 							</ol>
 						</section>
 					)}
-				</div>
+				</section>
 			)}
 		</section>
 	)

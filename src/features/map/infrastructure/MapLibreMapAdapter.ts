@@ -22,6 +22,7 @@ import type {
 
 export interface MapLibreMapInstance {
 	stop(): unknown
+	resize(): unknown
 	zoomIn(options?: EaseToOptions): unknown
 	zoomOut(options?: EaseToOptions): unknown
 	addImage(id: string, image: ImageData): unknown
@@ -93,6 +94,9 @@ export class MapLibreMapAdapter implements MapAdapter {
 
 	private cameraStateKey: string | undefined
 	private renderedContent: MapContent | undefined
+	private container: HTMLElement | undefined
+	private viewportSize = { width: 0, height: 0 }
+	private synchronizingSize = false
 
 	private overviewBounds: MapBounds | undefined
 	private buildingClickListener: ((event: MapMouseEvent) => void) | undefined
@@ -113,6 +117,11 @@ export class MapLibreMapAdapter implements MapAdapter {
 		}
 
 		this.mode = initialView.mode
+		this.container = container
+		this.viewportSize = {
+			width: container.clientWidth,
+			height: container.clientHeight,
+		}
 		this.overviewBounds = initialView.overviewBounds
 		const maxBounds = initialView.maxBounds
 			? { maxBounds: mapLibreBounds(initialView.maxBounds) }
@@ -175,6 +184,8 @@ export class MapLibreMapAdapter implements MapAdapter {
 		})
 		map.on('resize', () =>
 			safely(() => {
+				this.recordViewportSize()
+				if (this.synchronizingSize) return
 				if (!this.isReady) return
 				if (
 					this.content.navigationSession &&
@@ -244,7 +255,10 @@ export class MapLibreMapAdapter implements MapAdapter {
 		)
 			return
 		this.content = content
-		if (this.isReady) this.syncContent()
+		if (this.isReady) {
+			this.synchronizeViewportSize()
+			this.syncContent()
+		}
 	}
 
 	showUserLocation(
@@ -315,6 +329,7 @@ export class MapLibreMapAdapter implements MapAdapter {
 		this.overviewBounds = undefined
 		this.cameraStateKey = undefined
 		this.renderedContent = undefined
+		this.container = undefined
 		map?.stop()
 		map?.remove()
 	}
@@ -383,6 +398,29 @@ export class MapLibreMapAdapter implements MapAdapter {
 		map.on('click', this.buildingClickListener)
 	}
 
+	private recordViewportSize(): void {
+		if (this.container)
+			this.viewportSize = {
+				width: this.container.clientWidth,
+				height: this.container.clientHeight,
+			}
+	}
+	private synchronizeViewportSize(): void {
+		const container = this.container
+		if (
+			!container ||
+			(this.viewportSize.width === container.clientWidth &&
+				this.viewportSize.height === container.clientHeight)
+		)
+			return
+		this.synchronizingSize = true
+		try {
+			this.requireMap().resize()
+			this.recordViewportSize()
+		} finally {
+			this.synchronizingSize = false
+		}
+	}
 	private syncContent(): void {
 		const map = this.requireMap()
 		const previous = this.renderedContent
@@ -588,6 +626,7 @@ export class MapLibreMapAdapter implements MapAdapter {
 			map.addLayer({
 				id: 'yote-location-points',
 				type: 'circle',
+				filter: ['==', ['get', 'kind'], 'origin'],
 				source: 'yote-locations',
 				paint: {
 					'circle-radius': ['match', ['get', 'kind'], 'origin', 9, 0],

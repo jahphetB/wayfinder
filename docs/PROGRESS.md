@@ -23,6 +23,12 @@
   Security headers, dependencies, dataset and snapshot policy are unchanged.
 - Added a compact privacy dialog and accessible secondary building menu. Styling
   settings and public setup documentation reflect the selected original interface.
+- Regression/browser hardening adds keyboard-focusable scrolling instructions,
+  semantic route-preview regions, compound-turn presentation tests and selected-route
+  snapshot camera isolation. Exact width-range CSS also covers fractional widths.
+- Newly refreshed CI advisories identified two development-only transitive packages.
+  Compatible updates to undici 7.30.1 and zod 4.6.7 resolve the known findings;
+  package.json, dependency choices and security policy are unchanged.
 
 ## October 23: pre-merge map-space and control refinement
 

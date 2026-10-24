@@ -15,9 +15,17 @@
   Starting replacement is explicit and resets its session. useCampusGuide composes
   this with the existing synchronous planner, without a new dependency/framework.
 - Current phase: reference UI implemented; browser screenshots and breakpoint/
-  permission/accessibility/recovery checks in progress. Local application quality
-  checks passed once with 119 tests; latest camera/text changes are being rechecked.
+  permission/accessibility/recovery checks completed locally. Quality checks passed
+  with 122 tests/29 files before the final measured resize synchronization; that fix
+  and compatible advisory patches are being rechecked. Eight axe scans have zero
+  automated violations, with manual contrast/link review still distinguished.
   App composes useCampusGuide plus one snapshot owner; MapView remains mounted.
+  Full fixture run: 10 watchers started/cleared, none active. 639.2px edge case fixed
+  with width-range CSS. UI_REFERENCE_VERIFICATION.md holds six-state artifacts,
+  stress/recovery/performance evidence and honest visual differences.
+  Pushed foundation bf7627e and UI 038c732. Vercel built UI successfully but Quality
+  stopped on newly refreshed undici/zod advisories; compatible development-only
+  lock updates are local, audit now zero. Do not claim final CI green until verified.
   No production approval. Preview branch and main/recovery references remain below.
 
 ## Product authority and delivery boundary
