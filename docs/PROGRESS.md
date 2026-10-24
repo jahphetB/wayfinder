@@ -1,5 +1,16 @@
 # Progress Log
 
+## October 24: shared camera and immediate selection markers
+
+- Restored current-leg rotation in 2D as well as 3D while retaining turn centring.
+  One pitch/bearing configuration serves both modes; mode selection only changes
+  library-model visibility and leaves camera position/orientation unchanged.
+- Draft Start/Destination selections now reach the map before Preview. Header
+  search shows its destination pin and selected-place framing immediately.
+- Destination-only selections retain the correct marker role. Preview and safe
+  edit/Cancel behavior remain; location policy and security are unchanged.
+- This revision targets preview only, not production.
+
 ## October 24: preview control and turn-camera refinement
 
 - Purple header/white branding and accessible building search update the draft

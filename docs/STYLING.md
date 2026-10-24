@@ -41,6 +41,8 @@ The October 24 refinement uses a purple header with white branding and a buildin
 combobox instead of the visible hamburger. A combobox combines a text field with
 selectable suggestions. Selecting a header result sets the draft Destination;
 it does not start a route or request location. Search remains keyboard accessible.
+Selected draft endpoints render immediately, before Preview. With no route, the
+map frames those selections so a header search result can be found visually.
 The retained secondary menu is keyboard-revealed; map clicks still open details.
 
 Mobile planning/editing rows grow with content instead of forcing the location
@@ -70,8 +72,9 @@ reveals secondary building links without adding permanent reference chrome.
 MapLibre keeps one canvas across planning, editing, navigation and responsive
 changes. Preview fits the actual route. Navigation centres the current turn at zoom
 18.3, balancing measured overlay space with a temporary pixel offset. Both modes
-tilt 60 degrees; 2D stays north-up and 3D retains deliberate
-bearing changes. New camera intent stops the old animation; nonessential
+tilt 60 degrees and rotate with the current route leg. Switching modes changes
+only library-model visibility; it never reframes or rotates the camera.
+New camera intent stops the old animation; nonessential
 transitions respect reduced motion. Snapshot refreshes never refocus a selected
 route.
 

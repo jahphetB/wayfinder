@@ -1,5 +1,24 @@
 # Current project state
 
+## Latest correction: shared camera and draft markers
+
+Both map modes now share pitch 60 and identical camera behavior. Start/Next/Back
+centre the current turn and orient along its outgoing leg, including in 2D.
+setMode only toggles library-layer visibility, never camera framing/rotation.
+App passes draft endpoints during planning/editing, confirmed proposal endpoints
+during preview/navigation. Selected endpoints render immediately, including a
+destination chosen through header search. Destination-only marker role is fixed;
+without a route, selection coordinates frame the view. Preview remains explicit.
+Manual progression/GPS independence, safe Cancel and security remain unchanged.
+Work remains on feat/step-39-location-refinement; push allowed, main merge and
+production promotion require approval. This section supersedes older north-up
+2D or mode-specific camera descriptions below.
+
+Verification: 125 tests/30 files and all quality gates pass. Local browser
+screenshots confirm header and pre-preview endpoint pins, plus identical 2D/3D
+navigation framing with only the library model toggled. Evidence and filenames
+are in UI_REFERENCE_VERIFICATION.md. Existing bundle-size/device-review limits remain.
+
 ## October 24 preview refinements
 
 The approved follow-up overrides only conflicting reference visuals: tilted 2D,

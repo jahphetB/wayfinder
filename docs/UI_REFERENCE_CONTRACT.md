@@ -18,6 +18,11 @@ and accuracy only; a stationary desktop sidebar footer. Other selected layout an
 manual-guide requirements remain. With no snapshot, concise failure feedback is
 still available rather than showing invented time or accuracy.
 
+The subsequent camera/marker correction gives both modes identical camera
+behavior, including leg-following rotation and turn centring. Mode switching only
+shows/hides the rough library model. Draft Start/Destination and header search
+selections display pins immediately; Preview remains an explicit separate action.
+
 - Below 640 CSS px: selected mobile composition; at/above 640: desktop composition.
 - Landing/editing preserve the pictured compact header, integrated fields/swap,
   actions, lower location control and footer. Mobile map precedes the planner.

@@ -2,6 +2,17 @@
 
 ## October 24 refinement verification
 
+### Shared-camera and immediate-marker correction
+
+The follow-up correction removes the remaining north-up lock in 2D. Both modes
+use the same pitch and route-leg orientation; mode switches make no camera call.
+Browser screenshots selected-header-building.png and
+selected-endpoints-before-preview.png show the header result and both draft pins
+before Preview. rotating-centred-2d.png and rotating-centred-3d.png show identical
+map framing/orientation, with only the library model toggled. Regression assertions
+cover destination-only marker role, draft selection reaching MapView, nonzero
+current-leg bearing and zero camera calls on mode changes.
+
 The owner's follow-up in UI_REFERENCE_CONTRACT.md supersedes the flat 2D,
 whole-route navigation camera and white-header details described historically
 below. The refined candidate passes 125 tests in 30 files, strict TypeScript,

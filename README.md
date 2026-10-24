@@ -40,8 +40,9 @@ route actions unobstructed. Desktop credit stays in the sidebar across views.
 
 - Search 50 curated buildings, courts, parking areas and landmarks.
 - Route distance, estimated walking time, instructions and colored route legs.
-- Tilted, north-up 2D and optional 3D views with one rough library model.
-- Purple header with building search; selecting a result sets the draft destination.
+- Identically tilted 2D/3D cameras that rotate with the walkthrough; 3D shows the rough library model.
+- Purple header with building search; selecting a result marks the draft destination on the map.
+- Start and Destination selections show pins before route preview.
 - Close, turn-centred walkthrough camera and compact mobile zoom/location controls.
 - Library, Sterry Hall and cafeteria details, image slots and scrollable content.
 - A separate illustrative stadium driving handoff, not car turn-by-turn guidance.

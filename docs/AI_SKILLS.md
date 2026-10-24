@@ -1,5 +1,15 @@
 # AI Skills Inventory
 
+## October 24: shared camera and selection feedback
+
+- **OpenAI / Playwright:** inspect real draft/header-selection pins and compare
+  navigation screenshots across mode changes, without adding application fixtures.
+- **Project-developed / role-preserving markers:** assign origin/destination roles
+  before excluding missing coordinates; keep draft visualization independent of
+  explicit route preview and manual progress.
+- **Project-developed / orthogonal map mode:** separate library-layer visibility
+  from camera intent so switching rendering mode cannot erase rotation or centring.
+
 ## October 24: compact controls and turn focus
 
 - **OpenAI / Playwright:** exercise header search, route replacement and control

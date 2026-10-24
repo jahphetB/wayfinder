@@ -89,7 +89,8 @@ insets: empty edge space reserved for overlays. MapLibre owns rendering and came
 work. Mobile instruction height is measured; lower controls have reserved space.
 Route previews frame real route bounds. Walkthroughs centre the current step's
 first coordinate at zoom 18.3; completion centres its endpoint. Both map modes
-tilt 60 degrees; 2D stays north-up and 3D can rotate with the current leg. Navigation
+tilt 60 degrees and both rotate with the current leg. Switching modes changes
+only the library layer's visibility, preserving even a manually adjusted camera. Navigation
 clears persistent padding and uses a temporary offset to balance overlay space,
 preventing padding from accumulating when returning to a replacement preview.
 New intent stops
@@ -134,6 +135,16 @@ feedback component and cleared on unmount; it never invokes a provider or change
 route progress. The displayed metres are reported GPS accuracy, not distance
 travelled. Failed lookups with no prior reading retain concise failure text rather
 than inventing location measurements. No dependencies or security rules change.
+
+**ADR-053: Shared camera and immediate draft markers.** Both map modes share one
+pitch and initial-bearing configuration. Mode selection changes only the library
+model layer; route progression still centres and rotates toward the active leg.
+App supplies draft endpoints during planning/editing and confirmed endpoints in
+preview/navigation. MapLibre assigns marker roles before dropping absent points,
+so a destination selected first is never mistaken for an origin. Without a route,
+selected endpoint coordinates frame the camera, making header search useful
+immediately. Route previews still require Preview; no GPS request or automatic
+walkthrough start is added. Cancel restores the saved journey and its endpoints.
 
 **ADR-045: Manual progress replaces GPS gates.** This supersedes ADR-022, ADR-025,
 ADR-027, ADR-029 and the simulator portion of ADR-041. The domain cannot inspect
