@@ -55,17 +55,17 @@ record a photographer credit where required. For example:
 
 ```typescript
 photos: [
-  {
-    label: 'Exterior',
-    src: '/images/buildings/library-exterior.webp',
-    alt: 'Cruzen-Murray Library exterior viewed from the walkway',
-    credit: 'Photo credit with permission',
-  },
-  {
-    label: 'Entrance',
-    src: '/images/buildings/library-entrance.webp',
-    alt: 'Main entrance of Cruzen-Murray Library',
-  },
+	{
+		label: 'Exterior',
+		src: '/images/buildings/library-exterior.webp',
+		alt: 'Cruzen-Murray Library exterior viewed from the walkway',
+		credit: 'Photo credit with permission',
+	},
+	{
+		label: 'Entrance',
+		src: '/images/buildings/library-entrance.webp',
+		alt: 'Main entrance of Cruzen-Murray Library',
+	},
 ]
 ```
 

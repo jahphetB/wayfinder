@@ -1,5 +1,253 @@
 # Progress Log
 
+## October 24: shared camera and immediate selection markers
+
+- Restored current-leg rotation in 2D as well as 3D while retaining turn centring.
+  One pitch/bearing configuration serves both modes; mode selection only changes
+  library-model visibility and leaves camera position/orientation unchanged.
+- Draft Start/Destination selections now reach the map before Preview. Header
+  search shows its destination pin and selected-place framing immediately.
+- Destination-only selections retain the correct marker role. Preview and safe
+  edit/Cancel behavior remain; location policy and security are unchanged.
+- This revision targets preview only, not production.
+
+## October 24: preview control and turn-camera refinement
+
+- Purple header/white branding and accessible building search update the draft
+  destination without GPS or automatic route start.
+- Tilted 2D, close current-turn focus, compact purple mobile instructions and
+  mobile zoom controls replace the conflicting October 23 visual details only.
+- Mobile form rows grow with replacement previews; suggestions stay above the
+  lower location button. Desktop footer remains in the same sidebar grid region.
+- Mobile snapshot age updates independently of GPS, with transparent feedback
+  and real reported accuracy. Manual progression, optional bounded requests,
+  geographic data, dependencies and security policy are unchanged.
+- Preview-only work; production is not merged or promoted.
+- Verification: 125 tests/30 files and all quality gates pass. Browser widths
+  320/639/640/1440 have no overflow; desktop footer delta is zero. Mobile expanded
+  suggestions and replacement Start are unobstructed. Detailed scope and evidence
+  are in UI_REFERENCE_VERIFICATION.md; the existing large map bundle warning remains.
+
+## October 23: selected-reference redesign
+
+- Original selected board replaces conflicting prior visual instructions: Proposal A
+  landing/editing, layout 4 desktop navigation and layout 3 mobile navigation.
+  The breakpoint is strictly 640 px. UI_REFERENCE_CONTRACT.md records the source.
+- Added a pure transactional workspace model and focused tests. Draft editing and
+  replacement previews retain the existing journey; Cancel restores its exact
+  route/session, and an explicit replacement start begins step one.
+- useCampusGuide composes that model with the existing planner. Geographic data,
+  route calculation, location policy, dependencies and production are unchanged.
+- Foundation tests pass: 120 tests / 28 files. Reference UI implementation follows
+  this independently verified foundation on the same preview branch.
+
+- Implemented the original integrated planner/editing references, desktop timeline
+  and mobile instruction-card/map dock. Cancel retains the exact prior journey
+  through invalid drafts and replacement preview. Only explicitly starting the
+  replacement resets progress.
+- One persistent map uses provider-neutral zoom and camera insets. Route framing
+  reserves mobile overlay space; flat 2D keeps labels north-up. Pins are drawn from
+  code, preview/current legs are dashed, and required attribution remains visible.
+  Security headers, dependencies, dataset and snapshot policy are unchanged.
+- Added a compact privacy dialog and accessible secondary building menu. Styling
+  settings and public setup documentation reflect the selected original interface.
+- Regression/browser hardening adds keyboard-focusable scrolling instructions,
+  semantic route-preview regions, compound-turn presentation tests and selected-route
+  snapshot camera isolation. Exact width-range CSS also covers fractional widths.
+- Newly refreshed CI advisories identified two development-only transitive packages.
+  Compatible updates to undici 7.30.1 and zod 4.6.7 resolve the known findings;
+  package.json, dependency choices and security policy are unchanged.
+- Final code source 69b3725 passes 123 tests/29 files and every local quality gate;
+  Quality and Vercel are green. The complete local production-build browser
+  fixture clears 10/10 watchers, preserves one map through 639/640 and reports no
+  errors, camera-fit warnings or CSP violations. Eight axe scans have no automated
+  violations, with human contrast/link review explicitly separate.
+- Full hosted matrix source 7551202 is followed by the focused menu/dialog fix
+  69b3725: closing building details now returns focus to the visible menu trigger,
+  verified locally and on the hosted preview. Both Quality and Vercel are green.
+- UI_REFERENCE_VERIFICATION.md records six-state comparisons, short/landscape/
+  enlarged-text/long-name/recovery checks and honest constrained-performance
+  limits. Production/main remain unchanged; this is a preview-only candidate.
+
+## October 23: pre-merge map-space and control refinement
+
+- Back/Next share equal columns, padding and minimum heights. One walkthrough
+  section is placed beside the desktop map and after the mobile map; Start stays
+  immediately after Preview. No duplicate hidden controls or session state.
+- Location/mode actions, snapshot feedback, recovery actions and notes now use
+  normal layout space outside a dedicated canvas viewport. Building shortcuts
+  expand beneath it; required map attribution remains visible on the map.
+- Desktop shell cap is 1800 px with smaller side padding and a 24-rem planner cap;
+  the map takes the remaining width. Mobile padding and 28-rem canvas minimum stay.
+- Full checks pass with 113 tests / 27 files. New regressions cover shared
+  walkthrough placement and outside-canvas controls. Routing, location triggers,
+  security header values and dependencies are unchanged.
+- Application source `75f7259`: browser geometry confirms equal buttons and no
+  canvas obstruction/overflow at 1920/390/320 widths. Desktop canvas is about
+  1350 px wide; mobile height remains 448 px. Graphics retry preserves Step 2
+  and Next works while the map is failed. Three axe scans report zero automated
+  violations; gradient contrast and physical-device checks remain distinct.
+- Preview toolbar injection is disabled at hosting configuration. An ordinary
+  public response contains no feedback script, and all five browser security
+  headers exactly match the previous candidate. No allowlist exception or
+  console-error suppression was introduced. Production remains unchanged.
+- Architecture, styling, release workflow and security explanation reflect the
+  new structure. Browser/deployment results are recorded in release readiness.
+- Hosted `2f9c97f` passes Quality/Vercel. Ordinary browser requests, without toolbar
+  suppression or CSP bypass, show no feedback-script requests, console/page errors
+  or policy violations. Search, route/manual controls, modes, dialog, retained
+  snapshot feedback and four-watch cleanup pass. Main remains `de7e5e8`.
+
+## October 23: manual campus-guide product definition
+
+The current manual-guide contract supersedes older checkpoint/simulation and
+G01–G12 launch proposals in this historical log. Those older entries are retained
+as implementation history, not current requirements.
+
+- Adopted `PRODUCT_PLAN.md`: manual walkthrough progression and independent,
+  button-requested real-location snapshots, with no GPS gate or movement-following
+  feature. The current geographic baseline is accepted with honest provenance.
+- Replaced superseded launch gates with practical guide-release acceptance;
+  retained the previous review in `history/RELEASE_READINESS_PRE_GUIDE.md`.
+- Approved routine implementation/verification steps proceed on preview. No paid
+  service, telemetry, new major dependency or production promotion is authorized.
+
+### Manual walkthrough and snapshot implementation
+
+- Replaced GPS-gated progress and fake expected-location readings with pure manual
+  walkthrough transitions. Start navigating and Next request real snapshots but
+  advance independently. Back never requests location. Completion is not arrival.
+- Shared scoped acquisition cancels the preceding lookup before replacement,
+  aborts on route change/unmount and rejects late/stale results. UI retains and
+  labels an older snapshot when a refresh fails. No trail or persistence added.
+- Added Last checked time, light-green outlined point, independent Get my location,
+  compact Wayfinder™ developer footer and expandable privacy disclosure.
+- Tab indentation was saved separately after the original 127-test baseline passed.
+  The revised suite has 109 tests; obsolete GPS-gating/simulation tests were replaced
+  with manual-progress and snapshot tests. Full checks/build pass; refreshed audit
+  reports zero advisories. Browser verification confirms no on-load acquisition,
+  immediate manual progress, truthful completion and complete watcher cleanup.
+
+### Camera compatibility and targeted performance
+
+- Profiled before optimizing. Added explicit camera cancellation, centralized
+  deliberate durations/easing, unchanged-source suppression and a tunable 2×
+  pixel-ratio cap. Active walkthrough resizing and snapshot refresh do not take
+  over the camera. Header wrapping avoids clipped guide text on narrow screens.
+- Full checks/build pass with 109 tests. Adapter regressions verify latest camera
+  intent, unchanged payloads and independent snapshot updates.
+- Revised 4× CPU probe: 4.772 s map-ready proxy, largest startup task 746 ms and
+  largest sampled rapid-transition frame interval 483 ms. Constrained animation
+  remains uneven; differing layout/cache preclude a claimed speedup. Full details
+  and limitations are in `PERFORMANCE.md`. Physical school/phone checks remain.
+
+### Release candidate, security and browser verification
+
+- Named candidate `0.1.0-rc.1`; final application/security source `191819e`.
+  Full quality checks pass with 111 tests / 27 files and the production build.
+  The fresh full dependency audit reports zero known advisories.
+- Enforced a narrow shared CSP/header configuration in Vercel and local production
+  preview. Fresh non-bypass browser checks show normal map operation and blocked
+  inline script injection. Added CI advisory audit and weekly schedule; recurring
+  execution begins only when the workflow reaches main.
+- Browser fixtures: 10 watches started/cleared, zero active after route edit;
+  successful two-fix refinement, retained older reading on denial, pending-location
+  manual completion, Back without acquisition and no load requests. No page errors
+  on the normal flow. These are not physical GPS measurements.
+- Rechecked failed map module/reload, context-loss retry with route preserved,
+  tile 503 warnings/usable controls and unsupported-WebGL2 feedback. At 320/390
+  widths there is no horizontal overflow; privacy toggle works by keyboard.
+- Automated accessibility scans show zero violations in six guide/search/dialog/
+  privacy states. Manual-review findings prompted a semantic map-control group;
+  conservative contrast calculations and remaining human checks are documented.
+- 3× density emulation honors the 2× rendering cap; reduced-motion preference and
+  20 repeated mode changes/manual controls work. Physical school/phone smoothness
+  is still unverified, and constrained frames remain uneven.
+- Updated the current diagram, handbook, release/recovery guide, source-data
+  documents, skills and state reference. Old state/security assessments are
+  archived with explicit superseded labels. Production `de7e5e8` remains unchanged.
+  Candidate acceptance/evidence: [release readiness](RELEASE_READINESS.md).
+- Hosted source `da42919` passes Quality/Vercel and serves expected candidate
+  assets/headers publicly. Hosted browser checks confirm search, manual controls,
+  snapshots, modes, dialog and footer with zero page/CSP errors. Production still
+  serves its old build; recovery deployment and protected-main checks are recorded.
+
+## October 22: page-failure recovery and search accessibility
+
+- Added page-level and deferred-map React error boundaries with readable,
+  explicitly triggered reload recovery. The planner survives a failed map
+  module. Reloading deliberately resets route/navigation state; it never loops.
+- Labeled separate 20-second download and initialization deadlines. Map retry
+  releases the failed instance, replays route/mode, and ignores stale callbacks.
+  Tile failures warn without disabling an otherwise ready map; graphics errors
+  retain the WebGL2 requirement and avoid displaying raw provider URLs.
+- Corrected direct listbox/option relationships, active-descendant targets,
+  input-held keyboard focus, Tab/Escape behavior, result announcements and empty
+  searches without changing the planner layout. Added the OpenStreetMap copyright
+  link and non-color-only attribution styling.
+- Automated checks pass with 127 tests in 27 files and a production build.
+  Browser failure injection verifies abort, stalled downloads/startup, WebGL2
+  failure, tile HTTP 503, explicit reload and route-preserving map retry. axe
+  reports no automated WCAG violations in the checked search and recovery states;
+  manual checks and the other readiness gates remain open.
+- Browser testing also exposed a narrow-screen recovery obstruction from the
+  keyboard-only building panel; shortcuts now appear only while the map is ready,
+  and the error panel uses the available map width.
+- The final graphics-loss test confirms a distinct interruption message rather
+  than implying that an already working browser lacks WebGL2. Keyboard dialog
+  focus and the full 50-place list pass at phone widths; simulated graphics loss
+  recovers with the selected route intact. Application source: `9a86be5`.
+- Preview-only delivery. Production `de7e5e8` is not promoted by this work.
+  Details: [handbook](ARCHITECTURE.md#page-failure-recovery-and-accessible-search)
+  and [readiness evidence](RELEASE_READINESS.md#page-recovery-and-search-accessibility-follow-up).
+
+## October 21: Vercel configuration review and tooling security updates
+
+- Confirmed public production still serves `de7e5e8`; preview `61f759c` passed
+  GitHub Quality and Vercel. Production smoke checks passed map modes, route
+  preview, Start/Next/Back, building dialog/slides and phone-width layout, with
+  no console errors or warnings and no login prompt.
+- Vercel's Node 22/24 display reflects the package's 22.x override of the
+  dashboard's 24.x preference. Other cards are optional platform features or
+  function settings, not evidence of a failed static deployment.
+- A network-refreshed dependency audit superseded the cached zero-finding result:
+  four development-tool findings (two high, two moderate), with none reported by
+  the production-only audit. Updated Vite to 8.3.5, Vitest to 5.0.5, and transitive
+  source-map-js to 1.2.2. The refreshed full audit now reports zero findings.
+- Verification after the updates: formatting, lint, TypeScript, all 117 tests in
+  24 files and production build pass. The existing map-bundle size warning remains.
+- No application behavior, styles, navigation data or Vercel account settings
+  were changed. Page-failure recovery and search accessibility remain outside
+  this maintenance change; production promotion requires separate approval.
+
+## Release readiness assessment before Step 40
+
+- Assessed preview `8132dbc` against WCAG 2.2 AA, Core Web Vitals, applicable
+  frontend security guidance, service capacity and recovery criteria. Production
+  remains `de7e5e8`; no release promotion was performed.
+- Local checks pass: 117 tests / 24 files and production build. Current npm audit
+  reports zero known advisories. GitHub protections and hosted checks were verified.
+- Three mobile Lighthouse runs show LCP 2.13–4.15 s and TBT 688–1,016 ms;
+  a separate controlled map-ready proxy measured 5.99 s. These are desktop lab
+  simulations, not physical-phone or field performance evidence.
+- Browser probes confirmed graceful WebGL2 failure and explicit location-error
+  messages, but an aborted deferred map module blanks the page. axe found search
+  list semantics and attribution-link issues. Real-device, privacy/diagnostic,
+  route-review, service-budget and recovery gates remain open.
+- `docs/RELEASE_READINESS.md` defines 12 measurable pilot/public gates, evidence
+  procedures and a proposed remediation sequence. The scoped security findings
+  are in `docs/security_best_practices_report.md`. Independent navigation pilot
+  and wider launch are on hold; supervised prototype testing can continue.
+
+## Map startup recovery before Step 40
+
+- Fixed a startup exception reported in a VirtualBox Xubuntu Chrome browser.
+  If map construction fails, the adapter is released and the existing map error
+  and retry control remain visible instead of crashing the React interface.
+- Added a regression test for construction failure. Formatting, lint, TypeScript,
+  117 tests in 24 files, and production build pass. The underlying browser
+  graphics limitation has not been independently diagnosed on that virtual machine.
+
 ## Step 1: Project foundation and quality controls
 
 Status: complete
@@ -731,6 +979,30 @@ Status: implemented and locally verified.
 - Browser code/data remain downloadable; the notice and build settings do not
   revoke existing copies or rights.
 
+## Step 39: Refined user-triggered location lookup
+
+- Released Steps 37, 38, and 38A through approved pull request #1, merged as
+  `de7e5e8`. Hosted Quality and Vercel passed. The public production URL opened
+  without login and served the new bundle; building details and route navigation
+  passed browser checks with no console errors.
+- Added a separate refined lookup provider for Get your location. It collects
+  bounded browser updates, chooses the best recent reported accuracy, supports
+  cancellation/progress, and cleans up its watch, timer, and abort listener.
+- Centralized lookup policy and extracted pure reading selection. Existing
+  checkpoint providers, navigation simulation, route data, and path preferences
+  remain unchanged. See `docs/LOCATION_LOOKUP.md`.
+- Verification: formatting, lint, TypeScript, 116 tests in 24 files, production
+  build, and whitespace checks pass. Browser fixtures checked improvement from
+  80 m to 6 m reported accuracy, cancellation, permission denial, and off-campus
+  classification; all four started watches were cleared, with no startup lookup.
+  Phone viewport had no horizontal overflow. These are simulated readings, not
+  physical GPS measurements. The existing map-bundle size warning remains.
+- Hosted Quality and Vercel passed `efd28ad`. The Step 39 preview opened without
+  login; browser fixtures verified refinement, cancellation, denial, the 12-second
+  single-reading fallback, and unchanged navigation. Four watches started and four
+  were cleared; checkpoint actions started none. The preview console had no errors
+  or warnings. PR #2 awaits production approval; production remains `de7e5e8`.
+
 ## Step 37: Repeatable checks and release workflow
 
 - Added the GitHub Actions Quality workflow, Node.js 22 selection, local
@@ -744,7 +1016,7 @@ Status: implemented and locally verified.
   Vercel provides a ready Preview deployment. GitHub `main` protection requires
   Quality checks and Vercel, up-to-date changes, resolved conversations, and a
   pull request. Force pushes and deletion are disabled; administrators are included.
-  Production has not been merged or promoted.
+  This was initially preview-only; PR #1's later production release is recorded above.
 
 ## Step 38: Editable visual settings
 

@@ -1,6 +1,103 @@
 # AI Skills Inventory
 
+## October 24: shared camera and selection feedback
+
+- **OpenAI / Playwright:** inspect real draft/header-selection pins and compare
+  navigation screenshots across mode changes, without adding application fixtures.
+- **Project-developed / role-preserving markers:** assign origin/destination roles
+  before excluding missing coordinates; keep draft visualization independent of
+  explicit route preview and manual progress.
+- **Project-developed / orthogonal map mode:** separate library-layer visibility
+  from camera intent so switching rendering mode cannot erase rotation or centring.
+
+## October 24: compact controls and turn focus
+
+- **OpenAI / Playwright:** exercise header search, route replacement and control
+  hit-testing; measure footer position and horizontal overflow at mobile and
+  desktop boundary widths. Browser emulation is not physical-device evidence.
+- **External / Context7:** check MapLibre camera padding/offset behavior against
+  installed types. Avoid unsupported newer options and clear persistent padding
+  before close navigation framing.
+- **Project-developed / display-only snapshot age:** isolate elapsed-time rendering
+  from provider requests; test timer cleanup and absence of additional GPS calls.
+- **Project-developed / non-overlapping form regions:** allow content-driven row
+  height and establish explicit suggestion stacking instead of floating a lower
+  action over route editing controls.
+
+## Selected-reference redesign
+
+- **OpenAI / Playwright:** state-by-state visual comparison, exact breakpoint and
+  editing/recovery/location regression checks against the real built application.
+- **OpenAI / OpenAI Docs:** task-specific model/effort selection for a coordinated
+  visual and interaction redesign, not an application AI dependency.
+- **External / Context7:** current MapLibre camera padding, attribution and control
+  APIs, checked against installed types before integration changes.
+- **Project-developed / transactional draft:** pure state transitions retain the
+  active journey separately from proposed route changes, without a UI framework.
+- **Project-developed / reference-state verification:** compare six real rendered
+  states to the original board; test both sides of the exact 640-pixel boundary,
+  map identity, overlay-aware camera padding and location-independent progression.
+  Diagnostic location fixtures exist only in browser automation, not app code.
+- **Project-developed / measured viewport synchronization:** update MapLibre's
+  internal canvas dimensions before a content-driven fit only when the container
+  actually changed; guard reentrant resize callbacks instead of resizing every turn.
+- **Project-developed / advisory-gated delivery:** inspect CI's failing gate,
+  update only affected compatible transitive packages, keep policy/audit thresholds
+  intact, and verify the exact hosted source rather than equating deployment with
+  successful quality checks.
+
 This file records AI-related skills, tools, and project practices used during delivery. Brands distinguish their origin.
+
+## October 23: pre-merge map layout
+
+- **OpenAI / Playwright:** inspect rendered button dimensions, viewport/control
+  separation, responsive placement, recovery, keyboard behavior and ordinary
+  preview console/network requests. Emulated widths are not physical-device proof.
+- **External / Context7 and Vercel documentation:** resolve optional toolbar
+  injection at hosting configuration, not by weakening the app's CSP. Validate
+  ordinary requests separately from automation-header suppression.
+- **Project-developed / single responsive control tree:** CSS Grid repositions
+  one walkthrough across desktop/mobile; common sizing keeps actions equal.
+  Canvas, toolbar and information have separate layout space and responsibilities.
+
+## October 23: manual-guide release package
+
+- **Project-developed / enforced-policy verification:** test actual CSP in a
+  fresh non-bypass context; isolate accessibility-tool injection in its own
+  bypass context. An automation bypass must never be mistaken for a policy pass.
+- **Project-developed / evidence-bounded release:** retain source and deployment
+  IDs, distinguish desktop emulation from physical devices, and preserve useful
+  geographic provenance without imposing a new full-survey launch gate.
+- **OpenAI / OpenAI Docs:** official model-selection guidance supports the
+  task-specific next-step model/effort recommendation. It is contributor tooling,
+  not an AI feature, API call or runtime dependency in the campus guide.
+
+- **OpenAI / Playwright:** baseline and revised startup/camera profiles, snapshot
+  and manual-control journeys, permission/network failures, and accessibility checks.
+- **OpenAI / security-best-practices:** focused browser protections and privacy
+  handling for the existing React frontend; no reporting SDK or backend added.
+- **External / Context7:** current MapLibre camera/reduced-motion/performance and
+  hosting documentation. Installed source confirms version-specific behavior.
+- **Project-developed / independent walkthrough and snapshot:** route illustration
+  never waits for device location. Explicit button-triggered, scoped requests stop
+  on completion/cancellation and cannot update another route.
+
+## October 22: recovery and search accessibility
+
+- **OpenAI / Playwright:** browser failure injection, keyboard flows, phone-width
+  layouts, and automated accessibility diagnostics against the built application.
+  The skill is development guidance, not a shipped runtime dependency.
+- **External / Context7 and primary documentation:** React error boundaries/lazy
+  imports, MapLibre error-event behavior, and the WAI-ARIA combobox pattern inform
+  the implementation. The installed MapLibre source confirms tile-error metadata.
+- **Project-developed / bounded recovery:** contain deferred-map rendering
+  failures separately from the planner, label download/startup deadlines, ignore
+  callbacks from discarded instances, and require deliberate recovery actions.
+- **Project-developed / accessible search contract:** keep focus on the input,
+  identify the actual active option, announce counts, and test Escape/Tab and
+  no-match behavior without adding a UI framework.
+
+This work adds no runtime dependencies, remote telemetry, or location persistence.
 
 ## OpenAI
 
@@ -49,6 +146,42 @@ stale.
 | Microsoft Edge headless mode   | Step 13       | Captured the real WebGL result for visual verification without adding a browser-test dependency to the application.  |
 
 ## Yotes Wayfinder project practices
+
+### October 21 maintenance usage record
+
+- **OPENAI / Playwright skill:** Verified public production controls and
+  phone-width layout in an isolated browser, including console inspection.
+- **EXTERNAL / Context7 and official Vercel/Node documentation:** Distinguished
+  build/runtime preferences, package engine overrides and optional platform cards.
+- **EXTERNAL / npm and GitHub advisories:** Checked fresh registry results,
+  affected versions, production-versus-development scope and fixed releases.
+- **YOTE / Scoped dependency maintenance:** Updated vulnerable build/test tools
+  and their locked dependencies without changing product behavior or bypassing
+  preview/production approval boundaries. Cached audits are not live clearance.
+
+### Release readiness assessment usage record
+
+- **OPENAI / Security best practices skill:** Reviewed React/TypeScript data
+  handling, public response headers and dependencies; recorded scoped findings
+  with evidence, impact and remediation.
+- **OPENAI / Playwright skill:** Exercised hosted mobile flows and injected
+  module, graphics, tile and geolocation failures in isolated browser tabs.
+- **OPENAI / OpenAI Docs skill:** Consulted official reasoning/model-selection
+  guidance for the next work-package recommendation.
+- **EXTERNAL / Lighthouse and axe-core:** Collected mobile lab timings and
+  accessibility findings without adding runtime or project dependencies.
+- **EXTERNAL / Context7, W3C, OWASP, Google SRE and provider documentation:**
+  Checked WebGL2 behavior, accessibility/performance standards, operational
+  targets, tile policies, billing units and recovery eligibility.
+- **YOTE / Evidence-based release gates:** Distinguished prototype demonstration,
+  independent navigation pilot and wider launch; recorded failing and unmeasured
+  gates rather than treating a successful build as release approval.
+
+### Map startup recovery usage record
+
+- **YOTE / Lifecycle failure diagnosis:** Traced the reported exception through
+  map construction and React effects; added a regression test for failed startup
+  and kept the recovery message visible.
 
 ### Step 30 usage record
 
@@ -399,3 +532,12 @@ stale.
 - **YOTE / Content separate from rendering:** Kept building descriptions and image
   metadata independent of the adapter and React popup, with honest missing-photo
   states and no new dependencies.
+
+#### Step 39 usage record
+
+- **EXTERNAL / Browser geolocation documentation:** Checked temporary position
+  subscriptions, watcher cleanup, and the meaning of reported accuracy.
+- **OPENAI / Playwright skill:** Verified the public production merge without
+  authentication and exercised refined lookup on the preview with browser fixtures.
+- **YOTE / Bounded acquisition:** Separated short lookup refinement from checkpoint
+  verification, kept selection pure, and tested cancellation and late-result guards.

@@ -1,5 +1,10 @@
 # OpenStreetMap Export Review — source history through 2026-10-01
 
+The current import is accepted as the October 23 manual-guide release baseline.
+This audit preserves provenance and known ambiguities; it does not independently
+certify entrances, private-drive access or safety. Later corrected exports follow
+the same import/test/preview pipeline without blocking current software delivery.
+
 Sections below preserve earlier batches as history. The [fourth application
 batch](#fourth-application-batch-descriptions-and-broader-destinations-step-25)
 describes the current import. Earlier statements about a Campus Entrance,

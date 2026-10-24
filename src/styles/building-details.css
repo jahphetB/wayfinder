@@ -1,116 +1,112 @@
 .building-dialog {
-  width: min(var(--building-dialog-width), calc(100vw - 2rem));
-  max-height: calc(100dvh - 2rem);
-  padding: 0;
-  overflow: auto;
-  border: 1px solid var(--color-border);
-  border-radius: 1rem;
-  color: var(--color-text);
-  background: var(--color-panel);
-  box-shadow: 0 20px 60px var(--color-frame-shadow);
+	width: min(var(--building-dialog-width), calc(100vw - 2rem));
+	max-height: calc(100dvh - 2rem);
+	padding: 0;
+	overflow: auto;
+	border: 1px solid var(--color-border);
+	border-radius: 1rem;
+	color: var(--color-text);
+	background: var(--color-panel);
+	box-shadow: 0 20px 60px var(--color-frame-shadow);
 }
 .building-dialog::backdrop {
-  background: var(--color-dialog-backdrop);
+	background: var(--color-dialog-backdrop);
 }
 .building-dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1rem;
 }
 .building-dialog h2 {
-  margin: 0;
-  font-size: var(--font-size-section);
+	margin: 0;
+	font-size: var(--font-size-section);
 }
 .building-dialog button {
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.6rem;
-  color: var(--color-brand);
-  background: var(--color-white);
-  font-weight: 800;
+	min-width: 2.75rem;
+	min-height: 2.75rem;
+	border: 1px solid var(--color-border);
+	border-radius: 0.6rem;
+	color: var(--color-brand);
+	background: var(--color-white);
+	font-weight: 800;
 }
 .building-gallery-image {
-  height: var(--building-photo-height);
-  background: var(--color-summary);
+	height: var(--building-photo-height);
+	background: var(--color-summary);
 }
 .building-gallery-image img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 .building-photo-placeholder {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 0.6rem;
-  height: 100%;
-  color: var(--color-summary-muted);
+	display: grid;
+	align-content: center;
+	justify-items: center;
+	gap: 0.6rem;
+	height: 100%;
+	color: var(--color-summary-muted);
 }
 .building-photo-placeholder > span:first-child {
-  font-size: 2.5rem;
+	font-size: 2.5rem;
 }
 .building-gallery-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1rem;
-  font-size: var(--font-size-small);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.65rem 1rem;
+	font-size: var(--font-size-small);
 }
 .building-photo-credit {
-  display: block;
-  padding: 0 1rem 0.5rem;
+	display: block;
+	padding: 0 1rem 0.5rem;
 }
 .building-dialog-description {
-  max-height: var(--building-description-height);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 0 1.25rem 1rem;
-  border-top: 1px solid var(--color-border);
-  font-size: var(--font-size-body);
-  line-height: 1.6;
+	max-height: var(--building-description-height);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: 0 1.25rem 1rem;
+	border-top: 1px solid var(--color-border);
+	font-size: var(--font-size-body);
+	line-height: 1.6;
 }
 .building-dialog-description h3 {
-  font-size: var(--font-size-instruction);
-  margin-bottom: 0.25rem;
+	font-size: var(--font-size-instruction);
+	margin-bottom: 0.25rem;
 }
 .building-dialog-description h3 + p {
-  margin-top: 0;
+	margin-top: 0;
 }
-.building-keyboard-access {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
+.building-shortcuts summary {
+	width: fit-content;
+	min-height: 2.75rem;
+	padding-block: 0.6rem;
+	color: var(--color-brand);
+	cursor: pointer;
+	font-size: var(--font-size-small);
 }
-.building-keyboard-access:focus-within {
-  z-index: 4;
-  inset: auto 1rem 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  width: auto;
-  height: auto;
-  padding: 0.5rem;
-  clip-path: none;
-  background: var(--color-panel);
+.building-shortcut-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	background: var(--color-panel);
 }
-.building-keyboard-access button {
-  min-height: 2.75rem;
-  color: var(--color-brand);
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
+.building-shortcut-actions button {
+	min-height: 2.75rem;
+	padding: 0.5rem 0.75rem;
+	color: var(--color-brand);
+	background: var(--color-white);
+	border: 1px solid var(--color-border);
 }
 @media (max-height: 600px) {
-  .building-gallery-image {
-    height: 7rem;
-  }
-  .building-dialog-description {
-    max-height: 7rem;
-  }
+	.building-gallery-image {
+		height: 7rem;
+	}
+	.building-dialog-description {
+		max-height: 7rem;
+	}
 }

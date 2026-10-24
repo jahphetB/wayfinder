@@ -1,70 +1,96 @@
 # Styling and map presentation
 
-## Change the appearance
+## Selected reference
 
-Start with `src/styles/theme.css`. Its `:root` block lists named CSS variables,
-which are reusable values referenced by the component styles. Change a value,
-save, and inspect the local preview before publishing the feature branch.
+The original combined reference supplied October 23, 2026 defines Proposal A
+landing/editing, layout 4 desktop navigation and layout 3 mobile navigation.
+[UI reference contract](UI_REFERENCE_CONTRACT.md) identifies the authoritative
+screen mapping. Generated replacement boards are not implementation sources.
 
-| Setting                        | Variable or file                                                    |
-| ------------------------------ | ------------------------------------------------------------------- |
-| Main purple and button color   | `--color-brand`                                                     |
-| Page gradient highlight        | `--color-page-glow`                                                 |
-| Navigation background          | `--color-panel`                                                     |
-| Main text and keyboard outline | `--color-text`, `--color-focus`                                     |
-| Font family                    | `--font-family`                                                     |
-| Heading size                   | `--font-size-title`, `--font-size-title-mobile`                     |
-| Main button height             | `--button-height`, `--button-height-mobile`                         |
-| Outer corners                  | `--frame-radius` (`0` keeps square corners)                         |
-| Desktop width and padding      | `--layout-max-width`, `--layout-padding`                            |
-| Phone padding                  | `--layout-padding-mobile`, `--panel-padding-mobile`                 |
-| Navigation panel width         | `--panel-min-width`, `--panel-max-width`                            |
-| Map button positions           | `--map-controls-top`, `--map-controls-left`, `--map-controls-right` |
-| Map note bottom offset         | `--map-note-bottom`                                                 |
+At **640 CSS pixels and above**, the sidebar is beside the map. Below 640, a
+compact header/map/planner becomes a map-focused instruction view during a
+walkthrough. There is no alternate tablet layout. Dimensions are fluid, not a
+scaled screenshot. Typography uses rem so browser text-size settings can enlarge it.
 
-`rem` is relative to the browser's base font size; `px` is a CSS pixel. Keep
-controls readable and reachable when changing either. Changing offsets does not
-change a button's function. Preserve contrast and keyboard focus visibility.
+## Named settings
 
-## File responsibilities and order
+Start with `src/styles/theme.css`. A CSS variable is a named value used by other
+stylesheets. The remaining variables are active settings, not retired design knobs.
 
-`src/main.tsx` imports the styles in this order, after MapLibre's own stylesheet:
+| Setting                        | Variable or file                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------- |
+| Plum text and actions          | `--color-brand`, `--color-text`, `--guide-action-background`                          |
+| Sidebar size and spacing       | `--guide-sidebar-width`, `--guide-panel-padding`                                      |
+| Brand typography               | `--guide-brand-size`, `--font-family`                                                 |
+| Borders, keyboard focus        | `--color-border`, `--color-focus`                                                     |
+| Location point colors          | `--color-snapshot-fill`, `--color-snapshot-outline`                                   |
+| Building dialog dimensions     | `--building-dialog-width`, `--building-photo-height`, `--building-description-height` |
+| Route colors and camera motion | `src/features/map/model/mapPresentation.ts`                                           |
+| Exact responsive boundary      | `src/app/layoutSettings.ts`, `src/styles/responsive.css`                              |
 
-1. `theme.css`: named values; the main editing surface.
-2. `global.css`: browser-wide defaults, font inheritance, and focus rules.
-3. `layout.css`: outer frame, header, panel, and title layout.
-4. `navigation.css`: inputs, suggestions, route summaries, and checkpoint controls.
-5. `map.css`: map canvas, display controls, status, and note overlays.
-6. `building-details.css`: image gallery and scrollable building popup.
-7. `responsive.css`: existing phone-specific adjustments at 760 CSS pixels.
+`layout.css` assigns named Grid regions: header, sidebar, map, location, actions,
+footer. Grid positions one set of controls without creating parallel sessions.
+`navigation.css` owns fields/suggestions, route summary, timeline and location
+feedback. `map.css` owns the canvas, instruction overlay, map modes/zoom and recovery
+messages. `footer.css` owns credit and the native privacy dialog.
+`responsive.css` changes these regions for mobile, short screens and reduced motion.
 
-Keep screen rules in these files, rather than adding inline styling to JSX.
-`responsive.css` owns the layout breakpoint because ordinary CSS custom properties
-cannot be used as media-query conditions. The viewport check in `MapView.tsx`
-must stay consistent if the 760-pixel threshold changes.
+## Feedback and controls
 
-Most layout details remain close to their selectors. Extract a new variable when
-it represents a meaningful setting or repeated design value; do not make every
-one-off number a global setting. No third-party styling framework is required.
+The October 24 refinement uses a purple header with white branding and a building
+combobox instead of the visible hamburger. A combobox combines a text field with
+selectable suggestions. Selecting a header result sets the draft Destination;
+it does not start a route or request location. Search remains keyboard accessible.
+Selected draft endpoints render immediately, before Preview. With no route, the
+map frames those selections so a header search result can be found visually.
+The retained secondary menu is keyboard-revealed; map clicks still open details.
 
-## Settings drawn inside the map
+Mobile planning/editing rows grow with content instead of forcing the location
+button over replacement actions. The planner stacking layer sits above the lower
+location region, so open suggestions receive pointer input. Mobile navigation
+uses 32-pixel-high location and 30-pixel zoom controls, plus a narrower purple
+instruction card. Desktop footer credit stays in the same sidebar grid cell.
+Mobile navigation feedback has no opaque background or shadow. A successful
+snapshot shows only elapsed age and reported accuracy; the age timer updates the
+label, not GPS. Screen-reader information retains snapshot/failure context.
 
-`src/features/map/model/mapPresentation.ts` contains typed camera and route-color
-settings. MapLibre draws those inside its graphics canvas, so ordinary CSS cannot
-recolor them. The file labels angles in degrees, durations in milliseconds, and
-screen offsets in pixels. A larger zoom level shows a closer view.
+Landing puts Get my location below the planner. Editing puts feedback immediately
+after the draft actions, above the lower location button. Desktop navigation
+puts feedback under the location button; mobile navigation places transparent feedback
+above that button on the map. Back/Next are equal-width buttons in a solid dock
+below the mobile map. Feedback contains only actual timestamps/accuracy after a
+reading, plus concise failure/retained/off-campus information.
 
-If route colors change, keep `routeColors` consistent with the corresponding
-`--color-route-completed`, `--color-route-current`, and `--color-route-upcoming`
-variables used by the HTML legend. Campus bounds and initial geographic framing
-remain in `src/data/navigation/collegeOfIdahoCampus.ts`; these are geographic
-settings rather than theme values. Location accuracy rules remain in the
-navigation domain and are not styling settings.
+The desktop navigation heading retains the pictured trademark. Mobile and
+landing/editing headings do not add it. Footer credit retains Wayfinder™.
+Privacy opens a native dialog, preserving the information without expanding
+secondary prose into the primary workflow. Keyboard-only desktop menu access
+reveals secondary building links without adding permanent reference chrome.
 
-## Verify and publish
+## Map and camera
 
-Run `npm run check` and `git diff --check`. Inspect desktop and phone widths,
-including a route preview, dropdown scrolling, 2D/3D switching, and navigation.
-Check that controls do not overlap or cover attribution. Publish the preview
-branch and follow [the release procedure](RELEASE_WORKFLOW.md). Production still
-requires explicit merge approval.
+MapLibre keeps one canvas across planning, editing, navigation and responsive
+changes. Preview fits the actual route. Navigation centres the current turn at zoom
+18.3, balancing measured overlay space with a temporary pixel offset. Both modes
+tilt 60 degrees and rotate with the current route leg. Switching modes changes
+only library-model visibility; it never reframes or rotates the camera.
+New camera intent stops the old animation; nonessential
+transitions respect reduced motion. Snapshot refreshes never refocus a selected
+route.
+
+Purple dashed previews, green completed legs, orange dashed current legs and
+muted upcoming legs are distinct. Route origin/destination markers are separate
+from the small light-green real snapshot. MapLibre draws pins from code-native
+canvas paths; no external image/font service is required.
+
+The default map retains OpenStreetMap attribution and a metric scale. During
+mobile navigation its copyright link is in the footer as pictured; custom map
+styles retain their own native attribution. Do not hide provider attribution
+without the corresponding visible credit.
+
+## Verification
+
+Compare the six selected states at desktop and mobile sizes. Also check 639 and
+640 pixels, short/landscape screens, long destination names, 200% text, keyboard
+search, dialogs, denied location, graphics retry and route edits. Browser-emulated
+checks do not replace physical-device or assistive-technology review.
