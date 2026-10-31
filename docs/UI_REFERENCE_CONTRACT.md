@@ -23,6 +23,11 @@ behavior, including leg-following rotation and turn centring. Mode switching onl
 shows/hides the rough library model. Draft Start/Destination and header search
 selections display pins immediately; Preview remains an explicit separate action.
 
+The October 30 correction separates header inspection from route fields. Its X
+clears the temporary pin and restores campus/route framing without erasing route
+inputs. Hendren joins the three existing clickable buildings; supplied photo slides
+fit proportionally, with no crop or distortion. Other selected layouts are unchanged.
+
 - Below 640 CSS px: selected mobile composition; at/above 640: desktop composition.
 - Landing/editing preserve the pictured compact header, integrated fields/swap,
   actions, lower location control and footer. Mobile map precedes the planner.

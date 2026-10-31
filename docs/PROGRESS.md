@@ -1,5 +1,21 @@
 # Progress Log
 
+## October 30: supplied photos, Hendren details and search reset
+
+- Organized nine original JPEGs in src/assets/buildings and mapped them to library,
+  Sterry, dining hall and Hendren photo slides. Full-photo contain sizing preserves
+  proportions. Embedded library-interior photographer credit is displayed.
+- Hendren's existing OSM footprint is clickable through the existing adapter boundary.
+- Header search is now independent inspection; in-field X clears its pin and
+  restores campus/route framing without deleting route fields. Preview/Start/Cancel
+  clear inspection to preserve the walkthrough camera and editing contract.
+- 128 tests/30 files pass with formatting, lint, strict types and production build.
+  Browser checks decode all nine slides, exercise a real Hendren map click and
+  verify mobile reset/Cancel, no overflow and zero out-of-popup photo requests.
+- Photos are supplied originals, not optimized derivatives. The optional library
+  exterior is 4.24 MB. Embedded credit does not establish publication permission.
+  Production remains separate; no merge or promotion is authorized by preview work.
+
 ## October 24: shared camera and immediate selection markers
 
 - Restored current-leg rotation in 2D as well as 3D while retaining turn centring.

@@ -37,12 +37,18 @@ messages. `footer.css` owns credit and the native privacy dialog.
 
 ## Feedback and controls
 
+Building photos use `object-fit: contain` in `building-details.css`: the whole
+source image fits without stretching/cropping. Empty side space is intentional
+for differently shaped photographs.
+
 The October 24 refinement uses a purple header with white branding and a building
 combobox instead of the visible hamburger. A combobox combines a text field with
-selectable suggestions. Selecting a header result sets the draft Destination;
-it does not start a route or request location. Search remains keyboard accessible.
+selectable suggestions. Selecting a header result highlights that building separately
+from Start/Destination. The in-field X clears the highlight and restores campus or
+route framing; it does not erase a route, start navigation or request location.
+Search remains keyboard accessible and clear restores input focus.
 Selected draft endpoints render immediately, before Preview. With no route, the
-map frames those selections so a header search result can be found visually.
+map frames those selections. A header inspection has its own temporary pin.
 The retained secondary menu is keyboard-revealed; map clicks still open details.
 
 Mobile planning/editing rows grow with content instead of forcing the location

@@ -1,5 +1,31 @@
 # Current project state
 
+## October 30 current preview changes
+
+Nine original JPEGs moved from root Images to src/assets/buildings; buildingDetails
+maps three library and two each Sterry/cafeteria/Hendren slides. object-fit contain
+preserves the full photo; no compression/AI alteration. Library interior EXIF names
+Gabe Border, displayed as credit; licenses otherwise unestablished. Optional library
+exterior 4.24 MB loads only on its slide; study-room first slide is about 13 KB.
+Hendren uses existing closed OSM footprint 492831880 and existing click boundary.
+
+Header search is now INDEPENDENT inspection, superseding previous destination-field
+behavior. App owns selectedLocation; optional MapContent passes it through MapView.
+Adapter draws/focuses an inspection pin; clear/X restores route/endpoints/overview.
+Preview/Start/Cancel discard inspection. No GPS calls, data/routing/security changes.
+App tests preserve an existing route preview on clear; adapter tests verify overview
+restoration; all four galleries support their two/three slide counts.
+
+128 tests/30 files, all quality gates pass. Browser: actual Hendren click, all nine
+photos decoded/contain, desktop/mobile popup screenshots, no overflow; mobile
+inspection clear preserves route and edit Cancel restores Step 2. No out-of-popup
+photo requests in the navigation fixture. Existing map bundle warning remains.
+Branch feat/step-39-location-refinement; preview push allowed, no production release
+approval. Final device/assistive-technology review and photo-publication permission
+are not established by these checks. docs/RELEASE_READINESS.md distinguishes evidence.
+Runtime source is 7d86c4c, following photo/Hendren commit 8f3f4c1. Local built assets
+are index-DV1EAyr8.js and MapView-BCsZHKxq.js. Documentation-only commits may follow.
+
 ## Latest correction: shared camera and draft markers
 
 Both map modes now share pitch 60 and identical camera behavior. Start/Next/Back

@@ -1,81 +1,76 @@
-# Building details
+# Building details and photographs
 
-The preview includes selectable footprints for Cruzen-Murray Library, Sterry
-Hall, and Simplot Dining Hall (Cafeteria). Click or tap one of the purple-outlined
-buildings to open its details. Keyboard users can Tab to the three building-detail
-buttons; those controls become visible when focused.
+## Available buildings
 
-## Popup behavior
+Library, Sterry Hall, Simplot Dining Hall (Cafeteria) and Hendren Hall have
+clickable map footprints and keyboard-accessible detail-menu entries. Their
+footprints come from the retained OSM snapshot; Hendren uses way 492831880.
+Opening a popup does not choose a route, advance a walkthrough or request GPS.
 
-The popup contains an image area with Previous and Next controls, followed by a
-separately scrollable description and detail sections. Close it using the close
-button, Escape, or the backdrop. Focus returns to the previous control when it
-closes. Tab and Shift+Tab wrap between the popup's controls and scrollable content.
-Opening details does not choose a route, advance navigation, or request GPS.
+Simplot Dining Hall and the residence hall share a footprint. Its popup describes
+the cafeteria and the separate mapped entrances. Geographic routing is unchanged.
 
-There are two labeled photo slots for each building. No approved photographs have
-been supplied, so the slots display **Photo not added yet**. They are not pictures
-of actual buildings. A configured image that fails to load also shows the fallback.
-The image controls do not autoplay.
+## Supplied photographs
 
-Simplot Dining Hall and the residence hall share one OSM footprint. Selecting that
-footprint opens cafeteria information. The text explains the separate cafeteria
-entrance near Blatchley Hall; routing to either destination remains unchanged.
-Other buildings have not been enabled for details.
+Nine supplied JPEGs are organized in `src/assets/buildings/`, moved from the
+original root `Images` folder without modifying their contents.
 
-## Files and data flow
+| Building              | Slides                         |
+| --------------------- | ------------------------------ |
+| Cruzen-Murray Library | Study room, exterior, interior |
+| Sterry Hall           | Two supplied views             |
+| Simplot Dining Hall   | Two supplied dining views      |
+| Hendren Hall          | Tower/entrance and second view |
 
-1. `src/data/campus/buildingDetails.ts` contains the three content records and
-   derives their closed footprints from the existing OSM snapshot.
-2. `features/buildings/model/BuildingDetails.ts` defines the content shape, including
-   two or more photo records. `features/map/contracts/MapBuilding.ts` describes
-   only the provider-independent shape needed for map selection.
-3. `createMapAdapter.ts` supplies these footprints to the MapLibre adapter.
-4. `MapLibreMapAdapter.ts` draws a small fill and outline, queries the clicked
-   feature, and sends its recognized ID through `onBuildingSelect`. The click
-   listener is removed on map destruction.
-5. `MapView.tsx` resolves the ID to content and opens `BuildingDetailsDialog.tsx`.
-   `BuildingPhotoCarousel.tsx` owns slide selection and image-loading fallback.
-6. `src/styles/building-details.css` controls the popup. Its width, photo height,
-   description height, and backdrop color are labeled in `theme.css`.
+The filenames retain the supplied spelling, including `cafteria` and
+`hendre-hall-2`. The content records map these to the correctly named destinations.
+The library interior contains the embedded photographer credit Gabe Border,
+which is displayed below that slide. Supplied filenames and embedded credits
+are not proof of a publication license; additional source/license information has
+not been supplied.
 
-The native HTML dialog supplies the browser's modal behavior and focus boundary.
-React renders plain text, not imported HTML from a map property. Unit tests check
-the adapter, slide behavior, failure fallback, dismissal, focus restoration, and
-the selection-to-dialog connection. Browser tests check actual map clicks and
-phone presentation; the test environment's dialog stub cannot prove browser focus
-trapping or physical touchscreen behavior.
+Vite imports each file as a versioned asset URL, not an inline image in application
+JavaScript. The popup requests its displayed slide only, with lazy loading and
+asynchronous decoding. Other slides are not preloaded by this component.
+The library's 13 KB study-room image is first; the 4.24 MB exterior is requested
+only when its slide is selected. Originals are retained, not claimed optimized.
 
-## Add real photographs
+## Proportions, interaction and failure behavior
 
-Use photographs the project may publish. Place optimized assets in
-`public/images/buildings/` and add their root-relative URL to the matching photo
-record. Keep descriptive alternative text for people using screen readers and
-record a photographer credit where required. For example:
+The image region has a configurable height. `object-fit: contain` scales the
+whole photograph into it while preserving its original width-to-height ratio.
+Empty space beside a square or portrait photograph is intentional: the image is
+neither stretched nor cropped to fill the region. Small source images may appear
+soft when enlarged; preserving proportions cannot add missing detail.
 
-```typescript
-photos: [
-	{
-		label: 'Exterior',
-		src: '/images/buildings/library-exterior.webp',
-		alt: 'Cruzen-Murray Library exterior viewed from the walkway',
-		credit: 'Photo credit with permission',
-	},
-	{
-		label: 'Entrance',
-		src: '/images/buildings/library-entrance.webp',
-		alt: 'Main entrance of Cruzen-Murray Library',
-	},
-]
-```
+Previous/Next controls wrap through two or three slides without autoplay.
+Descriptions scroll independently below the images. Escape, the close button or
+backdrop closes the native dialog; focus returns to the previous control.
+Keyboard focus remains inside the open popup. A failed image has a clear fallback
+rather than a broken image icon.
 
-Use actual filenames, views, and credits rather than copying sample descriptions
-that do not match the image. A third record adds a third slide automatically.
-Compress large camera originals before committing them; inspect the result on a
-phone for legibility and loading cost. Route or access details should have a
-verified source before being described as current facts.
+## Key files and connections
 
-Run `npm run check`, inspect the preview at desktop and phone widths, check all
-three popups, and follow [the release workflow](RELEASE_WORKFLOW.md). Adding other
-selectable buildings is a separate scope change; this implementation includes only
-the three approved buildings.
+- `src/data/campus/buildingDetails.ts` imports photo URLs, alternative text,
+  known credit and descriptions, and derives closed footprints from the OSM data.
+  It is the content registry: adding Hendren there also supplies its map selection
+  polygon through the existing composition boundary.
+- `features/buildings/model/BuildingDetails.ts` defines two or more photo records
+  and readable detail sections. The map's smaller `MapBuilding` contract contains
+  only the geometry and identity needed to recognize a click.
+- `createMapAdapter.ts` supplies the registry to `MapLibreMapAdapter.ts`.
+  The adapter reports recognized IDs through MapView to App, which opens the
+  matching `BuildingDetailsDialog`. Unrecognized map features are ignored.
+- `BuildingPhotoCarousel.tsx` owns slide selection, lazy image rendering and
+  per-source failure fallback. It does not calculate routes or acquire location.
+- `src/styles/building-details.css` owns proportional image display and popup
+  layout. Named dimensions live in `theme.css`; they are not buried in components.
+
+## Verification
+
+Automated tests cover all four dialogs, variable slide counts, wrapping, image
+fallback, dismissal/focus behavior and Hendren's recognized selection ID. Browser
+checks exercised an actual Hendren footprint click and decoded every supplied
+image, confirming `object-fit: contain` at desktop/mobile widths. The mobile
+dialog has no horizontal overflow. Emulation does not replace a physical-device
+or assistive-technology review.

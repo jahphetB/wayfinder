@@ -29,7 +29,9 @@ flowchart TB
 		Composition["createMapAdapter / createLocationProvider<br/>concrete dependencies chosen here"]
 		Adapter["MapLibreMapAdapter<br/>route layers, one snapshot, camera intents"]
 		Presentation["mapPresentation.ts / theme.css<br/>camera, rendering, colors and UI settings"]
-		Details["buildingDetails → BuildingDetailsDialog<br/>library, Sterry, cafeteria; photo placeholders"]
+		Details["buildingDetails → BuildingDetailsDialog<br/>library, Sterry, cafeteria, Hendren; photo slides"]
+		Inspection["Header search / clear X<br/>temporary selectedLocation, no route edits"]
+		Photos["src/assets/buildings<br/>nine original JPEGs, selected-slide loading"]
 		Library["libraryPrototypeBuilding →<br/>MapLibreGeoreferencedBuildingLayer"]
 		Renderer["MapLibre + Three.js<br/>shared WebGL2 canvas"]
 	end
@@ -69,6 +71,8 @@ flowchart TB
 	Provider -->|"temporary watcher cleared on finish / cancel / timeout"| GPS
 	Snapshot -->|"replace last reading, never a trail"| SnapshotUI
 	App --> MapView
+	App --> Inspection -->|"selectedLocation or clear; no GPS"| MapView
+	Photos --> Details
 	Snapshot -->|"point + time; never controls session"| MapView
 	MapView --> MapContract
 	Composition -. constructs .-> Adapter

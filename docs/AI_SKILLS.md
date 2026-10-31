@@ -1,5 +1,16 @@
 # AI Skills Inventory
 
+## October 30: campus photos and non-destructive inspection
+
+- **OpenAI / Playwright:** actual map-click selection, all-slide image decoding,
+  proportional-layout checks, mobile popup review, route-preserving clear/Cancel
+  and network checks for out-of-popup photo loading.
+- **Project-developed / independent inspection:** keep a temporary selected place
+  outside route drafts so clearing a search cannot destroy a preview or saved step.
+- **Project-developed / asset provenance:** retain supplied originals/filenames,
+  display embedded photographer credit without claiming a publication license,
+  and distinguish lazy asset delivery from actual image compression.
+
 ## October 24: shared camera and selection feedback
 
 - **OpenAI / Playwright:** inspect real draft/header-selection pins and compare

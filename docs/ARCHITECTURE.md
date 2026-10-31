@@ -76,7 +76,9 @@ to move everything outside the map. Board labels/device chrome are not UI.
 late-callback guards. It forwards selected building IDs to App, so the same
 `BuildingDetailsDialog` opens from map clicks and the secondary keyboard menu.
 `GuideHeader.tsx` owns that keyboard-revealed menu and the visible building search;
-selecting a result updates the planner's draft destination without requesting GPS.
+selecting a result highlights a building independently of the route fields, without
+requesting GPS. Its clear/X action removes the highlight and restores campus or
+route framing. Explicit Preview, Start and edit Cancel clear temporary inspection.
 `SiteFooter.tsx` supplies compact credit/Privacy in the same desktop sidebar cell
 before and after Start.
 Menu actions focus the still-visible summary before opening a dialog, so closing
@@ -145,6 +147,40 @@ so a destination selected first is never mistaken for an origin. Without a route
 selected endpoint coordinates frame the camera, making header search useful
 immediately. Route previews still require Preview; no GPS request or automatic
 walkthrough start is added. Cancel restores the saved journey and its endpoints.
+
+**ADR-054: Independent building inspection and local photo assets.** Header search
+is now a temporary selected-location state in App, not a draft-destination write.
+This supersedes ADR-053's header-to-destination behavior: X can clear inspection
+without deleting a route or a saved editing session. The provider-neutral MapContent
+contract carries optional selectedLocation. The adapter draws its pin and prioritizes
+its camera intent; clearing it restores the existing route/endpoints or overview.
+Preview/Start/Cancel discard this temporary inspection so it cannot hijack the
+walkthrough camera. No location request is triggered by inspection or reset.
+
+The nine supplied JPEGs live in src/assets/buildings, imported by buildingDetails.ts
+as Vite asset URLs. Assets are separate files, not embedded in the JavaScript bundle.
+BuildingPhotoCarousel renders one selected source at a time; contain sizing preserves
+the full image without stretching/cropping. The source originals are unmodified.
+One optional library slide is 4.24 MB, so these assets are not claimed optimized.
+The embedded Gabe Border credit is retained; photo publication licenses are not
+established by the filenames/metadata. BUILDING_DETAILS.md records this provenance.
+Hendren's existing OSM footprint (492831880) uses the same tested click-to-dialog
+boundary as the other three buildings, without altering routing or geography.
+
+### Photo asset folders
+
+`src/assets` contains files delivered by the application rather than instructions
+or map coordinates. Its `buildings` folder holds the nine supplied photographs.
+Their names preserve the supplied labels so each original can be identified.
+Vite copies imported files to versioned production URLs during bundling; bundling
+means preparing the application and its referenced assets for the hosting service.
+
+The photo folder does not decide which building to display. That connection lives
+in `src/data/campus/buildingDetails.ts`, which imports the matching file and pairs
+it with a label, alternative text and any known credit. The carousel reads those
+records, and `building-details.css` controls how the full image fits on screen.
+Changing a photo or caption therefore does not require editing the route algorithm,
+GPS provider or map-click logic. A failed photo still has an explicit fallback.
 
 **ADR-045: Manual progress replaces GPS gates.** This supersedes ADR-022, ADR-025,
 ADR-027, ADR-029 and the simulator portion of ADR-041. The domain cannot inspect

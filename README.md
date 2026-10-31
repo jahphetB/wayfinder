@@ -41,10 +41,10 @@ route actions unobstructed. Desktop credit stays in the sidebar across views.
 - Search 50 curated buildings, courts, parking areas and landmarks.
 - Route distance, estimated walking time, instructions and colored route legs.
 - Identically tilted 2D/3D cameras that rotate with the walkthrough; 3D shows the rough library model.
-- Purple header with building search; selecting a result marks the draft destination on the map.
+- Independent header building search with a map highlight and clear/X reset; route fields are preserved.
 - Start and Destination selections show pins before route preview.
 - Close, turn-centred walkthrough camera and compact mobile zoom/location controls.
-- Library, Sterry Hall and cafeteria details, image slots and scrollable content.
+- Library, Sterry Hall, cafeteria and Hendren Hall popups with nine supplied photos and scrollable details.
 - A separate illustrative stadium driving handoff, not car turn-by-turn guidance.
 - Accessible search and explicit map-download/graphics/network recovery.
 - Integrated route planner; desktop timeline and mobile map/instruction dock.
@@ -66,7 +66,8 @@ The current geographic dataset is the accepted guide baseline. Some inferred
 connections, access details, court numbering and model height remain unverified;
 it is not an independently surveyed or accessibility-certified map. Check signs
 and conditions on site. Geographic and 3D corrections can be imported later using
-the existing data pipeline. Photo slots remain placeholders.
+the existing data pipeline. Supplied photos preserve their proportions; source and
+asset-loading limits are documented in [building details](docs/BUILDING_DETAILS.md).
 
 ## Run and verify
 

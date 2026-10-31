@@ -6,16 +6,38 @@ is historical; its former G01–G12 gates are retired.
 
 ## Candidate and deployment record
 
-- Candidate: **0.1.0-rc.1**, selected-reference application source **`69b3725`**.
+- Candidate: **0.1.0-rc.1**, current application source **`7d86c4c`** (October 30).
 - Preview branch: `feat/step-39-location-refinement`; [pull request #2](https://github.com/jahphetB/wayfinder/pull/2).
 - [Preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/)
   is published; hosted verification is recorded below.
 - [Production](https://wayfinder-umber.vercel.app/) remains
   **`de7e5e81794661dec2f67ad7856e57055a535453`**. It is the prior production
   source/deployment reference, not the new guide candidate.
-- Local/hosted candidate assets: `index-BKBrT51a.js`, `MapView-uWNcT4va.js`.
+- Current local candidate assets: `index-DV1EAyr8.js`, `MapView-BCsZHKxq.js`.
   Commit/deployment IDs, not the version label alone, identify reviewed builds.
 - Production merge/promotion is not authorized by publishing this candidate.
+
+## October 30 photo and search-reset revision
+
+Source 7d86c4c adds the supplied photos/Hendren selection (8f3f4c1) and independent
+header inspection with an in-field clear control. Its local quality checks pass:
+128 tests/30 files, strict types, lint, formatting and production build. This
+revision supersedes header search's former draft-destination write. X preserves
+Start/Destination and any existing route preview; Cancel preserves its saved step.
+
+Desktop/mobile browser checks decode all nine supplied images using contain sizing,
+exercise an actual Hendren footprint click and preserve Step 2 through inspection
+and edit Cancel. No horizontal overflow or page errors occurred, and no photos were
+requested in the out-of-popup navigation fixture. Artifacts are
+hendren-photos-desktop.png, hendren-photos-mobile.png and
+search-clear-preserved-walkthrough-mobile.png in output/playwright.
+
+The original library exterior is 4.24 MB and loads only on its optional slide;
+image compression is not claimed. The interior retains the embedded Gabe Border
+credit, but photo publication licenses have not been established. Physical-device
+and assistive-technology checks below remain separate from browser emulation.
+Hosted checks for older revisions below must not be treated as this revision's
+verification; the final reviewed source and live result belong in the release record.
 
 ## Selected-reference candidate verification
 
