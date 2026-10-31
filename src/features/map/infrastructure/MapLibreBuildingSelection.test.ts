@@ -6,7 +6,7 @@ import {
 } from './MapLibreMapAdapter'
 
 describe('building selection boundary', () => {
-	it('loads only three footprints, selects recognized IDs, and removes its listener', () => {
+	it('loads four footprints, selects recognized IDs, and removes its listener', () => {
 		const on = vi.fn()
 		const off = vi.fn()
 		const queryRenderedFeatures = vi.fn(
@@ -61,7 +61,12 @@ describe('building selection boundary', () => {
 			}
 		}
 		expect(source.data.features.map(({ properties }) => properties.id)).toEqual(
-			['cruzen-murray-library', 'sterry-hall', 'simplot-dining-hall'],
+			[
+				'cruzen-murray-library',
+				'sterry-hall',
+				'simplot-dining-hall',
+				'hendren-hall',
+			],
 		)
 		for (const feature of source.data.features)
 			expect(feature.geometry.coordinates[0]?.[0]).toEqual(
@@ -75,11 +80,16 @@ describe('building selection boundary', () => {
 		])
 		click({ point: { x: 0, y: 0 } })
 		expect(select).toHaveBeenCalledWith('sterry-hall')
+		queryRenderedFeatures.mockReturnValue([
+			{ properties: { id: 'hendren-hall' } },
+		])
+		click({ point: { x: 0, y: 0 } })
+		expect(select).toHaveBeenLastCalledWith('hendren-hall')
 		queryRenderedFeatures.mockReturnValue([{ properties: { id: 'unknown' } }])
 		click({ point: { x: 0, y: 0 } })
 		queryRenderedFeatures.mockReturnValue([])
 		click({ point: { x: 0, y: 0 } })
-		expect(select).toHaveBeenCalledTimes(1)
+		expect(select).toHaveBeenCalledTimes(2)
 		adapter.destroy()
 		expect(off).toHaveBeenCalledWith('click', click)
 		expect(remove).toHaveBeenCalledTimes(1)

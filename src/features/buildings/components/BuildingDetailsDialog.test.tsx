@@ -17,14 +17,23 @@ describe('building details', () => {
 			expect(
 				screen.getByRole('region', { name: `About ${building.label}` }),
 			).toHaveAttribute('tabindex', '0')
-			expect(screen.getByRole('status')).toHaveTextContent('1 of 2')
+			expect(screen.getByRole('status')).toHaveTextContent(
+				`1 of ${building.photos.length}`,
+			)
 			const user = userEvent.setup()
 			await user.click(screen.getByRole('button', { name: 'Next image' }))
-			expect(screen.getByRole('status')).toHaveTextContent('2 of 2')
-			await user.click(screen.getByRole('button', { name: 'Next image' }))
-			expect(screen.getByRole('status')).toHaveTextContent('1 of 2')
+			expect(screen.getByRole('status')).toHaveTextContent(
+				`2 of ${building.photos.length}`,
+			)
+			for (let i = 1; i < building.photos.length; i++)
+				await user.click(screen.getByRole('button', { name: 'Next image' }))
+			expect(screen.getByRole('status')).toHaveTextContent(
+				`1 of ${building.photos.length}`,
+			)
 			await user.click(screen.getByRole('button', { name: 'Previous image' }))
-			expect(screen.getByRole('status')).toHaveTextContent('2 of 2')
+			expect(screen.getByRole('status')).toHaveTextContent(
+				`${building.photos.length} of ${building.photos.length}`,
+			)
 			fireEvent(
 				screen.getByRole('dialog'),
 				new Event('cancel', { bubbles: true, cancelable: true }),

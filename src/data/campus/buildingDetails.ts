@@ -1,6 +1,15 @@
 import snapshot from '@/data/navigation/campusOsmNetwork.json'
 import { createCoordinates } from '@/domain/navigation/factories'
 import type { BuildingDetails } from '@/features/buildings/model/BuildingDetails'
+import libraryRoom from '@/assets/buildings/Cruzen-Murray_Library,_College_of_Idaho-2.jpg'
+import libraryExterior from '@/assets/buildings/Cruzen-Murray_Library,_College_of_Idaho-exterior.jpg'
+import libraryInterior from '@/assets/buildings/Cruzen-Murray_Library,_College_of_Idaho-interior.jpg'
+import sterryOne from '@/assets/buildings/sterry-hall-1.jpg'
+import sterryTwo from '@/assets/buildings/sterry-hall-2.jpg'
+import cafeteriaOne from '@/assets/buildings/cafteria-1.jpg'
+import cafeteriaTwo from '@/assets/buildings/cafteria-2.jpg'
+import hendrenOne from '@/assets/buildings/hendren-hall-1.jpeg'
+import hendrenTwo from '@/assets/buildings/hendre-hall-2.jpg'
 
 function footprint(buildingId: string): BuildingDetails['footprint'] {
 	const building = snapshot.buildings.find(({ id }) => id === buildingId)
@@ -42,8 +51,22 @@ export const campusBuildingDetails: readonly BuildingDetails[] = [
 			},
 		],
 		photos: [
-			{ label: 'Exterior', alt: 'Exterior of Cruzen-Murray Library' },
-			{ label: 'Entrance', alt: 'Main entrance of Cruzen-Murray Library' },
+			{
+				label: 'Study room',
+				alt: 'Study room inside Cruzen-Murray Library',
+				src: libraryRoom,
+			},
+			{
+				label: 'Exterior',
+				alt: 'Exterior of Cruzen-Murray Library',
+				src: libraryExterior,
+			},
+			{
+				label: 'Interior',
+				alt: 'Interior of Cruzen-Murray Library',
+				src: libraryInterior,
+				credit: 'Photographer: Gabe Border (embedded image credit)',
+			},
 		],
 	},
 	{
@@ -63,8 +86,16 @@ export const campusBuildingDetails: readonly BuildingDetails[] = [
 			},
 		],
 		photos: [
-			{ label: 'Exterior', alt: 'Exterior of Sterry Hall' },
-			{ label: 'Entrance', alt: 'Main entrance of Sterry Hall' },
+			{
+				label: 'View 1',
+				alt: 'Sterry Hall, first supplied view',
+				src: sterryOne,
+			},
+			{
+				label: 'View 2',
+				alt: 'Sterry Hall, second supplied view',
+				src: sterryTwo,
+			},
 		],
 	},
 	{
@@ -84,10 +115,40 @@ export const campusBuildingDetails: readonly BuildingDetails[] = [
 			},
 		],
 		photos: [
-			{ label: 'Exterior', alt: 'Exterior of Simplot Dining Hall' },
 			{
-				label: 'Cafeteria entrance',
-				alt: 'Cafeteria entrance near Blatchley Hall',
+				label: 'Dining interior',
+				alt: 'Serving area inside Simplot Dining Hall',
+				src: cafeteriaOne,
+			},
+			{
+				label: 'Dining view',
+				alt: 'Simplot Dining Hall, second supplied view',
+				src: cafeteriaTwo,
+			},
+		],
+	},
+	{
+		id: 'hendren-hall',
+		label: 'Hendren Hall',
+		footprint: footprint('492831880'),
+		description:
+			'Hendren Hall is a mapped campus building and a selectable walking-route destination.',
+		details: [
+			{
+				heading: 'Entrance and access',
+				text: 'Routes use the entrance recorded in the campus dataset. Opening hours, room information and accessibility details have not been added; confirm current access on site.',
+			},
+		],
+		photos: [
+			{
+				label: 'Tower and entrance',
+				alt: 'Hendren Hall tower and entrance',
+				src: hendrenOne,
+			},
+			{
+				label: 'View 2',
+				alt: 'Hendren Hall, second supplied view',
+				src: hendrenTwo,
 			},
 		],
 	},
