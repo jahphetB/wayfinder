@@ -2,9 +2,9 @@ import snapshot from '@/data/navigation/campusOsmNetwork.json'
 import { createCoordinates } from '@/domain/navigation/factories'
 import type { BuildingDetails } from '@/features/buildings/model/BuildingDetails'
 import libraryRoom from '@/assets/buildings/Cruzen-Murray_Library,_College_of_Idaho-2.jpg'
-import libraryExterior from '@/assets/buildings/Cruzen-Murray_Library,_College_of_Idaho-exterior.jpg'
-import libraryInterior from '@/assets/buildings/Cruzen-Murray_Library,_College_of_Idaho-interior.jpg'
-import sterryOne from '@/assets/buildings/sterry-hall-1.jpg'
+import libraryExterior from '@/assets/buildings/optimized/library-exterior.jpg'
+import libraryInterior from '@/assets/buildings/optimized/library-interior.jpg'
+import sterryOne from '@/assets/buildings/optimized/sterry-hall-1.jpg'
 import sterryTwo from '@/assets/buildings/sterry-hall-2.jpg'
 import cafeteriaOne from '@/assets/buildings/cafteria-1.jpg'
 import cafeteriaTwo from '@/assets/buildings/cafteria-2.jpg'
@@ -52,13 +52,13 @@ export const campusBuildingDetails: readonly BuildingDetails[] = [
 		],
 		photos: [
 			{
-				label: 'Study room',
-				alt: 'Study room inside Cruzen-Murray Library',
+				label: 'Exterior',
+				alt: 'Exterior of Cruzen-Murray Library',
 				src: libraryExterior,
 			},
 			{
-				label: 'Exterior',
-				alt: 'Exterior of Cruzen-Murray Library',
+				label: 'Study room',
+				alt: 'Study room inside Cruzen-Murray Library',
 				src: libraryRoom,
 			},
 			{

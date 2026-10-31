@@ -17,7 +17,7 @@ original root `Images` folder without modifying their contents.
 
 | Building              | Slides                         |
 | --------------------- | ------------------------------ |
-| Cruzen-Murray Library | Study room, exterior, interior |
+| Cruzen-Murray Library | Exterior, study room, interior |
 | Sterry Hall           | Two supplied views             |
 | Simplot Dining Hall   | Two supplied dining views      |
 | Hendren Hall          | Tower/entrance and second view |
@@ -32,8 +32,27 @@ not been supplied.
 Vite imports each file as a versioned asset URL, not an inline image in application
 JavaScript. The popup requests its displayed slide only, with lazy loading and
 asynchronous decoding. Other slides are not preloaded by this component.
-The library's 13 KB study-room image is first; the 4.24 MB exterior is requested
-only when its slide is selected. Originals are retained, not claimed optimized.
+The library exterior remains first, as selected in the content records. Web-sized
+derivatives are used for the three largest source files; originals remain intact
+for provenance and future re-encoding but are not included in the production build
+unless imported. The other six already-small supplied files remain unchanged.
+
+| Photo            | Original        | Delivered derivative | Dimensions  |
+| ---------------- | --------------- | -------------------- | ----------- |
+| Library exterior | 4,241,823 bytes | 330,138 bytes        | 1600 × 1200 |
+| Library interior | 406,285 bytes   | 155,321 bytes        | 1200 × 815  |
+| Sterry view 1    | 178,875 bytes   | 156,628 bytes        | 1024 × 662  |
+
+`scripts/optimize_building_photos.ps1` reproduces these JPEGs on Windows using
+System.Drawing, without a new npm/runtime dependency. It corrects EXIF orientation,
+preserves aspect ratio, never upscales, and encodes quality 82 into the fixed
+`src/assets/buildings/optimized` outputs. Re-encoding omits embedded metadata;
+known photographer credit remains explicitly recorded in buildingDetails.ts.
+The script overwrites only its three named derivatives, not source photographs.
+
+```powershell
+./scripts/optimize_building_photos.ps1
+```
 
 ## Proportions, interaction and failure behavior
 
