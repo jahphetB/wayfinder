@@ -26,6 +26,10 @@
 .guide-brand {
 	min-width: 0;
 }
+.guide-home-link {
+	color: inherit;
+	text-decoration: none;
+}
 .guide-brand h1 {
 	font-size: var(--guide-brand-size);
 	line-height: 1.25;

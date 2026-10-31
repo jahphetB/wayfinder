@@ -38,7 +38,15 @@ export function GuideHeader({
 	return (
 		<header className="guide-header">
 			<div className="guide-brand">
-				<h1>Yotes Wayfinder{journey && desktop ? <sup>™</sup> : ''}</h1>
+				<h1>
+					<a
+						className="guide-home-link"
+						href={import.meta.env.BASE_URL}
+						aria-label="Yotes Wayfinder home"
+					>
+						Yotes Wayfinder{journey && desktop ? <sup>™</sup> : ''}
+					</a>
+				</h1>
 				{journey && (
 					<p>
 						{desktop
