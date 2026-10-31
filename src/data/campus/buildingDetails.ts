@@ -54,12 +54,12 @@ export const campusBuildingDetails: readonly BuildingDetails[] = [
 			{
 				label: 'Study room',
 				alt: 'Study room inside Cruzen-Murray Library',
-				src: libraryRoom,
+				src: libraryExterior,
 			},
 			{
 				label: 'Exterior',
 				alt: 'Exterior of Cruzen-Murray Library',
-				src: libraryExterior,
+				src: libraryRoom,
 			},
 			{
 				label: 'Interior',
