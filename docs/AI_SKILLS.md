@@ -1,5 +1,21 @@
 # AI Skills Inventory
 
+## Release 0.1.0 verification
+
+- **OpenAI / Security Best Practices:** scoped supply-chain review, locked install,
+  compatible patched-tooling tests and no weakened security policy. This is not a
+  claim of a full application penetration test.
+- **OpenAI / Playwright:** production-build and hosted-release checks for selected
+  search text, clearing, navigation/edit recovery, galleries and responsive widths.
+- **External / Context7 and npm primary documentation:** review overrides, audit
+  behavior, patched package engines/exports and the parent's unresolved 10.x range.
+- **Project-developed / reproducible photo derivatives:** native JPEG encoding
+  with fixed dimensions/quality, orientation normalization and byte-identical
+  regeneration; preserve originals, photo order and explicit credits.
+- **Project-developed / evidence-linked releases:** distinguish feature source,
+  CI status, preview assets, final main commit and live production behavior. Keep
+  the previous working deployment reference and immutable release identity.
+
 ## October 30: campus photos and non-destructive inspection
 
 - **External / GitHub Advisory Database:** verify the newly reported minimatch

@@ -157,11 +157,12 @@ its camera intent; clearing it restores the existing route/endpoints or overview
 Preview/Start/Cancel discard this temporary inspection so it cannot hijack the
 walkthrough camera. No location request is triggered by inspection or reset.
 
-The nine supplied JPEGs live in src/assets/buildings, imported by buildingDetails.ts
-as Vite asset URLs. Assets are separate files, not embedded in the JavaScript bundle.
+The nine supplied JPEGs live in src/assets/buildings. buildingDetails.ts imports
+web-sized optimized copies for the three largest images and originals for the
+other six, as Vite asset URLs. Assets are separate files, not embedded in JavaScript.
 BuildingPhotoCarousel renders one selected source at a time; contain sizing preserves
 the full image without stretching/cropping. The source originals are unmodified.
-One optional library slide is 4.24 MB, so these assets are not claimed optimized.
+The exterior-first library slide is now 330,138 bytes rather than 4.24 MB.
 The embedded Gabe Border credit is retained; photo publication licenses are not
 established by the filenames/metadata. BUILDING_DETAILS.md records this provenance.
 Hendren's existing OSM footprint (492831880) uses the same tested click-to-dialog
@@ -181,6 +182,22 @@ it with a label, alternative text and any known credit. The carousel reads those
 records, and `building-details.css` controls how the full image fits on screen.
 Changing a photo or caption therefore does not require editing the route algorithm,
 GPS provider or map-click logic. A failed photo still has an explicit fallback.
+
+The `optimized` subfolder contains three generated JPEG derivatives. The fixed
+PowerShell recipe in `scripts/optimize_building_photos.ps1` corrects orientation,
+preserves proportions and never overwrites originals. `BUILDING_DETAILS.md` lists
+exact sizes and generation settings. Known photographer credit lives in the
+content records even though re-encoding omits embedded metadata.
+
+**ADR-055: Selected-name display and patched tooling.** Header text is derived
+from the selected building unless the person is actively editing a query. Ending
+inspection clears the displayed selection without a synchronizing effect or
+changes to route fields. A version-scoped npm override pins vulnerable minimatch
+versions to 11.0.1 until parent tools accept patched versions. The lockfile, named
+API/options regression and full lint/type checks validate the compatibility
+workaround. No runtime mapping dependency or security policy is changed.
+See [npm overrides](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#overrides)
+and [dependency evidence](DEPENDENCY_SECURITY.md).
 
 **ADR-045: Manual progress replaces GPS gates.** This supersedes ADR-022, ADR-025,
 ADR-027, ADR-029 and the simulator portion of ADR-041. The domain cannot inspect

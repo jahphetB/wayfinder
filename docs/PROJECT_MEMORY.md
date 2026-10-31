@@ -1,5 +1,33 @@
 # Current project state
 
+## Release 0.1.0: current authoritative state
+
+User explicitly approved selected header text, minimatch remediation, photo
+compression and then merging preview into production, with at least four focused
+commits. The release is manual/snapshot-only, not live tracking or verified arrival.
+Final reviewed main source is identified by PR #2 and the immutable v0.1.0 release
+tag after successful deployment verification; do not infer served code from version
+alone. Previous working production is de7e5e8 / wayfinder-gd3rcclh7-jahphet.vercel.app.
+This approval covers this release, not future features or unreviewed production work.
+
+Header text derives from selectedLocation unless editing a query; X and ending
+inspection clear the name. Route state stays independent. Source begins with
+user's exterior-first photo-order commit 43ffe68, retained with corrected captions.
+Large photos now import optimized derivatives: exterior 330,138 bytes (1600x1200),
+interior 155,321 (1200x815), Sterry 156,628 (1024x662). Original JPEGs remain intact.
+PowerShell script is reproducible and requires Windows/System.Drawing; no new app
+dependency. Gabe Border credit remains explicit; source licenses are not inferred.
+
+Minimatch 11.0.1 override resolves the reported development advisory. Clean install,
+full lint/type/test/build checks and refreshed audit pass, with zero findings.
+129 tests/31 files include patched-tool API/options compatibility. Release-browser
+checks show selected names, clearing, edit Cancel retaining Step 2, shared camera,
+compressed slide decoding/contain and no overflow at 390/639/640. The large map
+chunk warning and physical-device/assistive-technology limits remain honest.
+Read RELEASE_READINESS.md and PR #2 for exact hosted checks and deployment identity.
+Older unresolved-advisory, uncompressed-photo and preview-only statements below
+are historical and superseded by this approved release record.
+
 ## October 30 current preview changes
 
 Nine original JPEGs moved from root Images to src/assets/buildings; buildingDetails

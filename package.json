@@ -2,7 +2,7 @@
 	"name": "yotewayfinder",
 	"private": true,
 	"license": "UNLICENSED",
-	"version": "0.1.0-rc.1",
+	"version": "0.1.0",
 	"type": "module",
 	"engines": {
 		"node": "22.x"

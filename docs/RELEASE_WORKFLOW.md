@@ -224,8 +224,8 @@ exception required by MapLibre. No paid service or telemetry is implied.
 
 ## Versions and evidence
 
-The prepared candidate is `0.1.0-rc.1`; it is not a production release. A release
-candidate is a named build proposed for review. Keep package and lockfile versions
+The initial manual-guide release is `0.1.0`, promoted from candidate `0.1.0-rc.1`.
+A release candidate is a named build proposed for review. Keep package and lockfile versions
 aligned. A source SHA identifies exact code independently of the version label.
 
 After an approved production release and live verification, an annotated immutable

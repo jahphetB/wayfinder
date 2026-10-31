@@ -31,7 +31,7 @@ flowchart TB
 		Presentation["mapPresentation.ts / theme.css<br/>camera, rendering, colors and UI settings"]
 		Details["buildingDetails → BuildingDetailsDialog<br/>library, Sterry, cafeteria, Hendren; photo slides"]
 		Inspection["Header search / clear X<br/>temporary selectedLocation, no route edits"]
-		Photos["src/assets/buildings<br/>nine original JPEGs, selected-slide loading"]
+		Photos["src/assets/buildings + optimized<br/>originals retained; web-sized selected slides"]
 		Library["libraryPrototypeBuilding →<br/>MapLibreGeoreferencedBuildingLayer"]
 		Renderer["MapLibre + Three.js<br/>shared WebGL2 canvas"]
 	end

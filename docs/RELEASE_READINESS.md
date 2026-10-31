@@ -6,18 +6,42 @@ is historical; its former G01–G12 gates are retired.
 
 ## Candidate and deployment record
 
-- Candidate: **0.1.0-rc.1**, current application source **`7d86c4c`** (October 30).
+- Release: **0.1.0**, source identity: [v0.1.0](https://github.com/jahphetB/wayfinder/tree/v0.1.0).
+- Reviewed feature changes: e46cf70 (selected name), ad9a6d5 (patched tooling),
+  8cd5eaa (compressed photos), followed by the release version/evidence commit.
 - Preview branch: `feat/step-39-location-refinement`; [pull request #2](https://github.com/jahphetB/wayfinder/pull/2).
 - [Preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/)
   is published; hosted verification is recorded below.
-- [Production](https://wayfinder-umber.vercel.app/) remains
-  **`de7e5e81794661dec2f67ad7856e57055a535453`**. It is the prior production
-  source/deployment reference, not the new guide candidate.
-- Current local candidate assets: `index-DV1EAyr8.js`, `MapView-BCsZHKxq.js`.
+- [Production](https://wayfinder-umber.vercel.app/) follows reviewed `main`.
+  Previous working production: **`de7e5e81794661dec2f67ad7856e57055a535453`**,
+  [recovery deployment](https://wayfinder-gd3rcclh7-jahphet.vercel.app/).
+- Current local release assets: `index-CGCwloud.js`, `MapView-CJtPujEU.js`.
   Commit/deployment IDs, not the version label alone, identify reviewed builds.
-- Production merge/promotion is not authorized by publishing this candidate.
+- The owner explicitly approved this scoped production merge. Final source SHA,
+  hosted statuses and live verification are recorded in PR #2 and the immutable
+  release tag after verification; later releases require their own approval.
 
-## October 30 photo and search-reset revision
+## Release 0.1.0 verification
+
+Local gates pass: 129 tests/31 files, formatting, lint, strict types and production
+build. The clean patched dependency tree resolves only minimatch 11.0.1; refreshed
+full npm audit reports zero known vulnerabilities. DEPENDENCY_SECURITY.md records
+the narrow compatibility workaround, actual-tooling tests and primary sources.
+
+Production-build browser checks under the existing CSP verify selected-name display,
+X clearing without route-field changes, preview/Start/Next, Edit/Cancel restoring
+Step 2, camera modes and compressed library slides. No page/console errors or
+horizontal overflow occur at 390/639/640 widths. Photo dimensions are 1600x1200
+and 1200x815 with contain sizing, corrected exterior-first labels and retained credit.
+Generated files are byte-identical across two runs. The large map chunk warning
+remains; no universal device-performance or accessibility certification is claimed.
+
+Pre-release production is independently HTTP 200, serves index-DVYzLa7U.js, and
+GitHub records the successful recovery deployment above. No hosted rollback
+rehearsal is claimed. The existing physical-device/photo-source review limits
+are not erased by green checks or by the scoped release authorization.
+
+## Historical October 30 photo and search-reset revision
 
 ### Refreshed dependency finding
 

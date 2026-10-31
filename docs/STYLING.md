@@ -47,6 +47,8 @@ selectable suggestions. Selecting a header result highlights that building separ
 from Start/Destination. The in-field X clears the highlight and restores campus or
 route framing; it does not erase a route, start navigation or request location.
 Search remains keyboard accessible and clear restores input focus.
+The selected building's name remains in the field. Clearing inspection, including
+when Preview/Start/Cancel ends it, removes that name rather than leaving stale text.
 Selected draft endpoints render immediately, before Preview. With no route, the
 map frames those selections. A header inspection has its own temporary pin.
 The retained secondary menu is keyboard-revealed; map clicks still open details.

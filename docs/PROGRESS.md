@@ -1,5 +1,23 @@
 # Progress Log
 
+## Release 0.1.0: selected search name, dependency fix and web-sized photos
+
+- Header search displays the selected building name and clears it with inspection,
+  while preserving independent route fields and safe edit/Cancel behavior.
+- Patched minimatch 11.0.1 via a version-scoped override. Clean locked install,
+  actual lint/type checks and a named API/options regression pass; refreshed full
+  audit reports zero vulnerabilities. No forced downgrade or weaker policy.
+- Three reproducibly generated JPEG derivatives preserve original source files.
+  Exterior-first library ordering is retained, with corrected matching captions.
+  Library exterior: 4,241,823 → 330,138 bytes; interior: 406,285 → 155,321 bytes;
+  Sterry view 1: 178,875 → 156,628 bytes. Full images fit without stretching/cropping.
+- Local production-build checks pass: 129 tests/31 files, all quality gates,
+  selected-name/clear, safe manual navigation/editing, camera modes and decoded
+  compressed slides. 390/639/640 widths have no horizontal overflow or page errors.
+- The release uses reviewed PR #2 and the standard preview-to-main workflow.
+  The prior working production source/deployment is retained in RELEASE_READINESS.md;
+  final merge/deployment results are recorded with the pull request and release tag.
+
 ## October 30: supplied photos, Hendren details and search reset
 
 - Refreshed advisory check: 12 moderate affected development-tool packages through

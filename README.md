@@ -8,10 +8,10 @@ network; no routing backend, account or database is required.
 [Product definition](docs/PRODUCT_PLAN.md) ·
 [Architecture handbook](docs/ARCHITECTURE.md) · [Progress](docs/PROGRESS.md)
 
-The manual-guide release candidate is available in
-[preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/).
-The public production site retains the previous version until release review is
-complete. [Candidate evidence](docs/RELEASE_READINESS.md) distinguishes the builds.
+Release **0.1.0** is the manual campus guide. Production follows reviewed `main`;
+the [feature preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/)
+may contain newer work. [Release evidence](docs/RELEASE_READINESS.md) records
+verification, limitations and the previous working deployment.
 
 ## Using the guide
 
@@ -42,6 +42,7 @@ route actions unobstructed. Desktop credit stays in the sidebar across views.
 - Route distance, estimated walking time, instructions and colored route legs.
 - Identically tilted 2D/3D cameras that rotate with the walkthrough; 3D shows the rough library model.
 - Independent header building search with a map highlight and clear/X reset; route fields are preserved.
+- Header search retains the selected building name until it is cleared or inspection ends.
 - Start and Destination selections show pins before route preview.
 - Close, turn-centred walkthrough camera and compact mobile zoom/location controls.
 - Library, Sterry Hall, cafeteria and Hendren Hall popups with nine supplied photos and scrollable details.
@@ -68,6 +69,10 @@ it is not an independently surveyed or accessibility-certified map. Check signs
 and conditions on site. Geographic and 3D corrections can be imported later using
 the existing data pipeline. Supplied photos preserve their proportions; source and
 asset-loading limits are documented in [building details](docs/BUILDING_DETAILS.md).
+
+Three large photos use web-sized copies while original files remain intact.
+The library exterior is approximately 330 KB instead of 4.24 MB. The documented
+development-tool advisory is resolved; see [dependency security](docs/DEPENDENCY_SECURITY.md).
 
 ## Run and verify
 
