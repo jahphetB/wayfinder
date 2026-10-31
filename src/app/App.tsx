@@ -20,6 +20,7 @@ import { GuideHeader } from './components/GuideHeader'
 import { PrivacyDialog } from './components/PrivacyDialog'
 import { GuideIcon } from './components/GuideIcon'
 import { useDesktopLayout } from './hooks/useDesktopLayout'
+import type { Location } from '@/domain/navigation/types'
 
 const MapView = lazy(async () => {
 	const module = await import('@/features/map/components/MapView')
@@ -40,6 +41,7 @@ export function App({
 	const [mode, setMode] = useState<'2d' | '3d'>('2d')
 	const [privacy, setPrivacy] = useState(false)
 	const [buildingId, setBuildingId] = useState<string>()
+	const [selectedLocation, setSelectedLocation] = useState<Location>()
 	const building = campusBuildingDetails.find(
 		(value) => value.id === buildingId,
 	)
@@ -61,6 +63,7 @@ export function App({
 	function start() {
 		if (guide.workspace.view !== 'preview' || !route) return
 		guide.dispatch({ type: 'start' })
+		setSelectedLocation(undefined)
 		void snapshot.request('walkthrough')
 	}
 	function next() {
@@ -81,9 +84,8 @@ export function App({
 				onEdit={guide.edit}
 				onPrivacy={() => setPrivacy(true)}
 				onBuilding={setBuildingId}
-				onDestination={(location) =>
-					guide.planner.selectLocation('destination', location)
-				}
+				selectedLocation={selectedLocation}
+				onSelectLocation={setSelectedLocation}
 			/>
 			<section className="guide-sidebar" aria-label="Route planning workspace">
 				{journey ? (
@@ -97,9 +99,18 @@ export function App({
 					</>
 				) : (
 					<NavigationPanel
-						planner={guide.planner}
+						planner={{
+							...guide.planner,
+							planRoute: () => {
+								setSelectedLocation(undefined)
+								guide.planner.planRoute()
+							},
+						}}
 						workspace={guide.workspace}
-						onCancel={guide.cancel}
+						onCancel={() => {
+							setSelectedLocation(undefined)
+							guide.cancel()
+						}}
 						onStart={start}
 						feedback={
 							editing ? (
@@ -113,6 +124,7 @@ export function App({
 				<ErrorBoundary fallback={<FailureRecovery scope="map" />}>
 					<Suspense fallback={<MapLoadingFallback />}>
 						<MapView
+							selectedLocation={selectedLocation}
 							snapshot={snapshot}
 							origin={
 								showDraftLocations ? guide.planner.origin : proposal?.origin

@@ -9,17 +9,20 @@ vi.mock('@/features/map/components/MapView', () => ({
 		mode,
 		origin,
 		destination,
+		selectedLocation,
 	}: {
 		navigationSession: NavigationSession | undefined
 		mode: '2d' | '3d'
 		origin?: { id: string } | undefined
 		destination?: { id: string } | undefined
+		selectedLocation?: { id: string } | undefined
 	}) => (
 		<section
 			aria-label="Interactive map"
 			data-map-mode={mode}
 			data-origin={origin?.id}
 			data-destination={destination?.id}
+			data-selected-location={selectedLocation?.id}
 			data-navigation-step={navigationSession?.currentStepIndex}
 		/>
 	),
@@ -41,7 +44,32 @@ async function selectLibraryAndDining(
 }
 
 describe('App', () => {
-	it('uses header building search to select a draft destination without acquiring location', async () => {
+	it('preserves an existing preview when a header building highlight is cleared', async () => {
+		const user = userEvent.setup()
+		const provider = { requestCurrentLocation: vi.fn() }
+		render(<App locationProvider={provider} />)
+		await selectLibraryAndDining(user)
+		await user.click(screen.getByRole('button', { name: 'Preview route' }))
+		await user.type(
+			screen.getByRole('combobox', { name: 'Search buildings' }),
+			'Hendren',
+		)
+		await user.click(screen.getByRole('option', { name: 'Hendren Hall' }))
+		await user.click(
+			screen.getByRole('button', { name: 'Clear building search' }),
+		)
+		expect(screen.getByRole('combobox', { name: 'Destination' })).toHaveValue(
+			'Simplot Dining Hall (Cafeteria)',
+		)
+		expect(
+			screen.getByRole('button', { name: 'Start navigating' }),
+		).toBeVisible()
+		expect(
+			screen.getByRole('region', { name: 'Interactive map' }),
+		).not.toHaveAttribute('data-selected-location')
+		expect(provider.requestCurrentLocation).not.toHaveBeenCalled()
+	})
+	it('highlights and clears a header search without changing route fields or acquiring location', async () => {
 		const provider = { requestCurrentLocation: vi.fn() }
 		const user = userEvent.setup()
 		render(<App locationProvider={provider} />)
@@ -51,7 +79,7 @@ describe('App', () => {
 		)
 		await user.click(screen.getByRole('option', { name: 'Sterry Hall' }))
 		expect(screen.getByRole('combobox', { name: 'Destination' })).toHaveValue(
-			'Sterry Hall',
+			'',
 		)
 		expect(
 			screen.getByRole('combobox', { name: 'Search buildings' }),
@@ -59,7 +87,17 @@ describe('App', () => {
 		expect(provider.requestCurrentLocation).not.toHaveBeenCalled()
 		expect(
 			screen.getByRole('region', { name: 'Interactive map' }),
-		).toHaveAttribute('data-destination', 'sterry-hall')
+		).toHaveAttribute('data-selected-location', 'sterry-hall')
+		await user.click(
+			screen.getByRole('button', { name: 'Clear building search' }),
+		)
+		expect(
+			screen.getByRole('region', { name: 'Interactive map' }),
+		).not.toHaveAttribute('data-selected-location')
+		expect(
+			screen.getByRole('combobox', { name: 'Search buildings' }),
+		).toHaveFocus()
+		expect(provider.requestCurrentLocation).not.toHaveBeenCalled()
 	})
 	it('returns dialog focus to the visible menu trigger without acquiring location', async () => {
 		const provider = { requestCurrentLocation: vi.fn() }

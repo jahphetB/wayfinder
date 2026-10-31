@@ -17,6 +17,7 @@ import { GuideIcon } from '@/app/components/GuideIcon'
 import { recoverySettings } from '@/app/recoverySettings'
 
 interface MapViewProps {
+	readonly selectedLocation?: Location | undefined
 	readonly origin: Location | undefined
 	readonly destination: Location | undefined
 	readonly route: Route | undefined
@@ -33,6 +34,7 @@ interface MapViewProps {
 type MapStatus = 'loading' | 'ready' | 'error'
 
 export function MapView({
+	selectedLocation,
 	origin,
 	destination,
 	route,
@@ -149,6 +151,7 @@ export function MapView({
 
 	useEffect(() => {
 		adapterRef.current?.setContent({
+			selectedLocation,
 			origin,
 			destination,
 			route,
@@ -157,6 +160,7 @@ export function MapView({
 			cameraInsets,
 		})
 	}, [
+		selectedLocation,
 		origin,
 		destination,
 		route,
@@ -178,10 +182,15 @@ export function MapView({
 				: undefined
 		if (mapStatus === 'ready')
 			adapterRef.current?.showUserLocation(coordinates, {
-				focus: snapshot.trigger === 'locate' && !route && !drivingHandoff,
+				focus:
+					snapshot.trigger === 'locate' &&
+					!route &&
+					!drivingHandoff &&
+					!selectedLocation,
 			})
 	}, [
 		snapshot.reading,
+		selectedLocation,
 		snapshot.trigger,
 		mapStatus,
 		retryVersion,

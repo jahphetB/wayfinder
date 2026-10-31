@@ -48,6 +48,7 @@
 	clip-path: inset(50%);
 }
 .header-building-search {
+	position: relative;
 	flex: 1;
 	min-width: 100px;
 	max-width: 260px;
@@ -62,6 +63,21 @@
 }
 .header-building-search .location-field input {
 	background: white;
+	padding-right: 38px;
+}
+.header-search-clear {
+	position: absolute;
+	right: 4px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 32px;
+	height: 32px;
+	border: 0;
+	border-radius: 4px;
+	background: var(--color-white);
+	color: var(--color-brand);
+	font-size: 1.25rem;
+	z-index: 1;
 }
 .header-building-search .suggestion-list {
 	min-width: 240px;

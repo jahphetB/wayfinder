@@ -10,6 +10,71 @@ import type { MapLibreMapInstance } from './MapLibreMapAdapter'
 import { MapLibreMapAdapter } from './MapLibreMapAdapter'
 
 describe('MapLibreMapAdapter', () => {
+	it('removes a header highlight and restores the campus overview', () => {
+		const on = vi.fn(),
+			fitBounds = vi.fn()
+		const instance: MapLibreMapInstance = {
+			on,
+			fitBounds,
+			stop: vi.fn(),
+			resize: vi.fn(),
+			zoomIn: vi.fn(),
+			zoomOut: vi.fn(),
+			addImage: vi.fn(),
+			easeTo: vi.fn(),
+			addSource: vi.fn(),
+			getSource: vi.fn(),
+			addLayer: vi.fn(),
+			getLayer: vi.fn(),
+			off: vi.fn(),
+			queryRenderedFeatures: vi.fn(() => []),
+			remove: vi.fn(),
+		}
+		const adapter = new MapLibreMapAdapter({
+			style: 'https://example.test/style.json',
+			createMap: () => instance,
+		})
+		adapter.initialize(document.createElement('div'), {
+			center: { latitude: 43.654, longitude: -116.676 },
+			zoom: 16,
+			mode: '2d',
+			overviewBounds: {
+				southwest: { latitude: 43.65, longitude: -116.68 },
+				northeast: { latitude: 43.66, longitude: -116.67 },
+			},
+		})
+		const load = on.mock.calls.find(
+			([event]) => event === 'load',
+		)?.[1] as () => void
+		load()
+		const selectedLocation = mockLocations.find(
+			(location) => location.id === 'hendren-hall',
+		)
+		if (!selectedLocation) throw new Error('Expected Hendren fixture')
+		const content = {
+			origin: undefined,
+			destination: undefined,
+			route: undefined,
+			navigationSession: undefined,
+		}
+		adapter.setContent({ ...content, selectedLocation })
+		const point = selectedLocation.coordinates
+		expect(fitBounds).toHaveBeenLastCalledWith(
+			[
+				[point.longitude, point.latitude],
+				[point.longitude, point.latitude],
+			],
+			expect.objectContaining({ maxZoom: 17.5 }),
+		)
+		adapter.setContent(content)
+		expect(fitBounds).toHaveBeenLastCalledWith(
+			[
+				[-116.68, 43.65],
+				[-116.67, 43.66],
+			],
+			expect.objectContaining({ padding: 24 }),
+		)
+	})
 	it('shows a separate user dot and gently focuses it without changing route content', () => {
 		const on = vi.fn()
 		let userLocationSourceExists = false

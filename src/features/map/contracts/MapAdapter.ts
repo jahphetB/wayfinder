@@ -44,6 +44,7 @@ export interface MapAdapter {
 }
 
 export interface MapContent {
+	readonly selectedLocation?: Location | undefined
 	readonly cameraInsets?:
 		| {
 				readonly top: number

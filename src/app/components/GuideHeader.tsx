@@ -11,20 +11,23 @@ export function GuideHeader({
 	onEdit,
 	onPrivacy,
 	onBuilding,
-	onDestination,
+	selectedLocation,
+	onSelectLocation,
 }: {
 	readonly journey: GuideJourney | undefined
 	readonly desktop: boolean
 	readonly onEdit: () => void
 	readonly onPrivacy: () => void
 	readonly onBuilding: (id: string) => void
-	readonly onDestination: (location: Location) => void
+	readonly selectedLocation: Location | undefined
+	readonly onSelectLocation: (location: Location | undefined) => void
 }) {
 	const [query, setQuery] = useState('')
 	const matches = mockLocationSearchResults.filter((result) =>
 		result.location.label.toLowerCase().includes(query.toLowerCase()),
 	)
 	const menu = useRef<HTMLDetailsElement>(null)
+	const search = useRef<HTMLDivElement>(null)
 	function close() {
 		if (menu.current) {
 			menu.current.open = false
@@ -53,7 +56,7 @@ export function GuideHeader({
 				</button>
 			) : !journey ? (
 				<>
-					<div className="header-building-search">
+					<div className="header-building-search" ref={search}>
 						<LocationField
 							label="Search buildings"
 							query={query}
@@ -61,9 +64,23 @@ export function GuideHeader({
 							onChange={setQuery}
 							onSelect={(location) => {
 								setQuery('')
-								onDestination(location)
+								onSelectLocation(location)
 							}}
 						/>
+						{(selectedLocation || query) && (
+							<button
+								className="header-search-clear"
+								type="button"
+								aria-label="Clear building search"
+								onClick={() => {
+									setQuery('')
+									onSelectLocation(undefined)
+									search.current?.querySelector('input')?.focus()
+								}}
+							>
+								×
+							</button>
+						)}
 					</div>
 					<details
 						className="guide-menu"

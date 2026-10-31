@@ -161,6 +161,7 @@ export class MapLibreMapAdapter implements MapAdapter {
 				this.initializeBuildingSelection(callbacks)
 				if (
 					!this.content.route &&
+					!this.content.selectedLocation &&
 					!this.content.drivingHandoff &&
 					!this.content.origin &&
 					!this.content.destination
@@ -189,6 +190,11 @@ export class MapLibreMapAdapter implements MapAdapter {
 				this.recordViewportSize()
 				if (this.synchronizingSize) return
 				if (!this.isReady) return
+				if (this.content.selectedLocation) {
+					this.cameraStateKey = undefined
+					this.syncContent()
+					return
+				}
 				if (
 					this.content.navigationSession &&
 					this.content.navigationSession.status !== 'awaiting-start'
@@ -232,6 +238,7 @@ export class MapLibreMapAdapter implements MapAdapter {
 	setContent(content: MapContent): void {
 		if (
 			this.content.origin === content.origin &&
+			this.content.selectedLocation === content.selectedLocation &&
 			this.content.destination === content.destination &&
 			this.content.route === content.route &&
 			this.content.drivingHandoff === content.drivingHandoff &&
@@ -419,6 +426,7 @@ export class MapLibreMapAdapter implements MapAdapter {
 				this.content.navigationSession?.currentStepIndex
 		const locationsChanged =
 			!previous ||
+			previous.selectedLocation !== this.content.selectedLocation ||
 			previous.origin !== this.content.origin ||
 			previous.destination !== this.content.destination ||
 			previous.drivingHandoff !== this.content.drivingHandoff ||
@@ -484,7 +492,13 @@ export class MapLibreMapAdapter implements MapAdapter {
 				]
 		const locationData = {
 			type: 'FeatureCollection',
-			features: markers.flatMap((marker) =>
+			features: [
+				...markers,
+				{
+					coordinates: this.content.selectedLocation?.coordinates,
+					kind: 'selected',
+				},
+			].flatMap((marker) =>
 				marker.coordinates
 					? [
 							{
@@ -645,17 +659,32 @@ export class MapLibreMapAdapter implements MapAdapter {
 			session && session.status !== 'awaiting-start'
 				? `${session.status}:${session.currentStepIndex}`
 				: 'preview:-1'
-		const cameraStateKey = this.content.route
-			? `${this.content.route.id}:${cameraProgress}:${JSON.stringify(this.content.cameraInsets)}`
-			: handoffCoordinates
-				? 'stadium-driving-handoff'
-				: locations.length
-					? JSON.stringify(locations.map((location) => location.coordinates))
-					: undefined
+		const cameraStateKey = this.content.selectedLocation
+			? `selected:${this.content.selectedLocation.id}`
+			: this.content.route
+				? `${this.content.route.id}:${cameraProgress}:${JSON.stringify(this.content.cameraInsets)}`
+				: handoffCoordinates
+					? 'stadium-driving-handoff'
+					: locations.length
+						? JSON.stringify(locations.map((location) => location.coordinates))
+						: undefined
 		if (cameraStateKey === this.cameraStateKey) return
 		this.cameraStateKey = cameraStateKey
 
-		if (session?.status === 'navigating' || session?.status === 'completed') {
+		if (this.content.selectedLocation) {
+			const point = this.content.selectedLocation.coordinates
+			map.stop()
+			map.fitBounds(
+				[
+					[point.longitude, point.latitude],
+					[point.longitude, point.latitude],
+				],
+				previewCameraOptions(),
+			)
+		} else if (
+			session?.status === 'navigating' ||
+			session?.status === 'completed'
+		) {
 			this.focusNavigationSession(
 				session,
 				mapPresentation.camera.navigationDurationMilliseconds,
@@ -706,6 +735,8 @@ export class MapLibreMapAdapter implements MapAdapter {
 				],
 				previewCameraOptions(),
 			)
+		} else if (previous?.selectedLocation) {
+			this.fitOverview(mapPresentation.camera.previewDurationMilliseconds)
 		}
 	}
 
