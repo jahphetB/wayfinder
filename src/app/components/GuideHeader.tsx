@@ -22,7 +22,8 @@ export function GuideHeader({
 	readonly selectedLocation: Location | undefined
 	readonly onSelectLocation: (location: Location | undefined) => void
 }) {
-	const [query, setQuery] = useState('')
+	const [draftQuery, setQuery] = useState<string>()
+	const query = draftQuery ?? selectedLocation?.label ?? ''
 	const matches = mockLocationSearchResults.filter((result) =>
 		result.location.label.toLowerCase().includes(query.toLowerCase()),
 	)
@@ -63,7 +64,7 @@ export function GuideHeader({
 							suggestions={matches}
 							onChange={setQuery}
 							onSelect={(location) => {
-								setQuery('')
+								setQuery(undefined)
 								onSelectLocation(location)
 							}}
 						/>
@@ -73,7 +74,7 @@ export function GuideHeader({
 								type="button"
 								aria-label="Clear building search"
 								onClick={() => {
-									setQuery('')
+									setQuery(undefined)
 									onSelectLocation(undefined)
 									search.current?.querySelector('input')?.focus()
 								}}

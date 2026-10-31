@@ -83,7 +83,7 @@ describe('App', () => {
 		)
 		expect(
 			screen.getByRole('combobox', { name: 'Search buildings' }),
-		).toHaveValue('')
+		).toHaveValue('Sterry Hall')
 		expect(provider.requestCurrentLocation).not.toHaveBeenCalled()
 		expect(
 			screen.getByRole('region', { name: 'Interactive map' }),
@@ -94,6 +94,9 @@ describe('App', () => {
 		expect(
 			screen.getByRole('region', { name: 'Interactive map' }),
 		).not.toHaveAttribute('data-selected-location')
+		expect(
+			screen.getByRole('combobox', { name: 'Search buildings' }),
+		).toHaveValue('')
 		expect(
 			screen.getByRole('combobox', { name: 'Search buildings' }),
 		).toHaveFocus()
