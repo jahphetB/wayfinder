@@ -5,6 +5,10 @@
 Scope: make the brand heading return to a fresh landing page, then report on
 college adoption without implementing additional features. Production release is
 explicitly approved for this change. Feature branch: `fix/brand-home-link`.
+Release review: PR #3. Runtime commit 8341187; documented candidate dbbbeeb;
+preview https://wayfinder-7h8k3io6q-jahphet.vercel.app/. Local checks pass with
+130 tests/31 files and zero refreshed audit findings. Final hosted/release evidence
+belongs to PR #3; 0.1.0 remains the package label, not an exact source identifier.
 The previous working main is a19b0809e4b6b635219d5ee10afeda878ab48152;
 its immutable deployment is https://wayfinder-q5zmst6gx-jahphet.vercel.app/.
 

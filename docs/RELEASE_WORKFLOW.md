@@ -36,8 +36,10 @@ Earlier GPS checkpoint and G01–G12 launch gates are superseded.
   status and branch rules separately; green deployment is not browser verification.
 
 The public production URL is https://wayfinder-umber.vercel.app/.
-The current feature preview is
-https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/.
+The home-link review preview is
+https://wayfinder-7h8k3io6q-jahphet.vercel.app/ ([PR #3](https://github.com/jahphetB/wayfinder/pull/3)).
+This immutable preview identifies the reviewed runtime; later documentation-only
+commits and final hosted statuses are recorded in the pull request.
 Preview is a separate website, not a release to existing production visitors.
 
 ## 1. Isolate the change

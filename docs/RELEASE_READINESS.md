@@ -6,6 +6,24 @@ is historical; its former G01–G12 gates are retired.
 
 ## Candidate and deployment record
 
+### October 31 home-link patch
+
+The scoped home-link change is reviewed in [PR #3](https://github.com/jahphetB/wayfinder/pull/3).
+Runtime source is `8341187`; initial documented candidate is `dbbbeeb` at
+[its immutable preview](https://wayfinder-7h8k3io6q-jahphet.vercel.app/).
+Local checks pass: 130 tests/31 files, formatting, lint, strict types and production
+build; refreshed npm audit reports zero findings. Browser checks cover fresh home
+navigation from preview, active walkthrough, unsaved edits and building inspection
+at 1365px and 390px. Package version remains 0.1.0; commit IDs distinguish this patch.
+
+Known-good production before this patch: `a19b0809e4b6b635219d5ee10afeda878ab48152`,
+[immutable deployment](https://wayfinder-q5zmst6gx-jahphet.vercel.app/).
+The owner explicitly approved production for this patch. Required hosted checks,
+final merge source, deployed identity and live browser results are recorded in
+PR #3; the preview URL alone does not prove a production release.
+
+### Original 0.1.0 release
+
 - Release: **0.1.0**, source identity: [v0.1.0](https://github.com/jahphetB/wayfinder/tree/v0.1.0).
 - Reviewed feature changes: e46cf70 (selected name), ad9a6d5 (patched tooling),
   8cd5eaa (compressed photos), followed by the release version/evidence commit.
