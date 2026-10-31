@@ -19,7 +19,7 @@ general security certification or a promise about future advisories.
   during pattern preprocessing. The app does not accept user glob patterns and
   minimatch is absent from the production dependency tree; this was tooling
   exposure, not a demonstrated browser exploit.
-- **Resolution:** The version-scoped `overrides` entry in `package.json:9` replaces
+- **Resolution:** The version-scoped `overrides` entry in `package.json:10` replaces
   affected minimatch versions with exact 11.0.1. `package-lock.json` records its
   integrity and resolved dependencies. No force-fix, toolchain downgrade, script
   policy change or audit-threshold reduction was used.
