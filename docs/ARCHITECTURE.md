@@ -8,6 +8,23 @@ navigation. The original selected interface is specified in
 [UI_REFERENCE_CONTRACT.md](UI_REFERENCE_CONTRACT.md). Those two documents supersede
 conflicting historical visuals and checkpoint policies below.
 
+### Home navigation and intentional reset
+
+The brand heading in `src/app/components/GuideHeader.tsx` is a native home link.
+A native link is the browser's built-in navigation control: it works with a mouse,
+keyboard and normal open-in-new-tab behavior. Its destination uses Vite's
+`import.meta.env.BASE_URL`, the configured public root of this deployment
+([Vite built-in constants](https://vite.dev/guide/env-and-mode.html#built-in-constants)).
+`src/styles/layout.css` preserves the heading's color and typography; the existing
+global keyboard-focus outline remains visible.
+
+Home intentionally loads a new document, like reopening the app. The route,
+unsaved draft, selected building and optional snapshot are held in memory, not
+persisted, so their initial values return automatically. This is different from
+Edit/Cancel, which retains the current document and saved walkthrough. No duplicate
+reset logic or new routing dependency is needed. `src/app/App.test.tsx` verifies
+the link remains available in each workspace; browser checks verify the real reset.
+
 ### Manual walkthrough and snapshot data flow
 
 `App.tsx` is the composition point: it connects the route workspace, one snapshot

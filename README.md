@@ -9,11 +9,14 @@ network; no routing backend, account or database is required.
 [Architecture handbook](docs/ARCHITECTURE.md) · [Progress](docs/PROGRESS.md)
 
 Release **0.1.0** is the manual campus guide. Production follows reviewed `main`;
-the [feature preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/)
+the [reviewed home-link preview](https://wayfinder-7h8k3io6q-jahphet.vercel.app/)
 may contain newer work. [Release evidence](docs/RELEASE_READINESS.md) records
 verification, limitations and the previous working deployment.
 
 ## Using the guide
+
+Click **Yotes Wayfinder** in the header to return to a fresh landing page. This
+clears the current route, unsaved edits, building selection and location snapshot.
 
 1. Select Start and Destination, then **Preview route**.
 2. **Start navigating** begins the illustrated walkthrough and requests an
@@ -59,7 +62,7 @@ The selected original interface is documented in
 from reference artwork; illustrative walkthrough completion never confirms arrival.
 
 The selected interface is available on the
-[review preview](https://wayfinder-git-feat-step-39-location-refinement-jahphet.vercel.app/).
+[review preview](https://wayfinder-7h8k3io6q-jahphet.vercel.app/).
 [Verification notes](docs/UI_REFERENCE_VERIFICATION.md) distinguish automated
 checks, browser emulation and remaining device-review limits.
 

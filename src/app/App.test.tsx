@@ -44,6 +44,25 @@ async function selectLibraryAndDining(
 }
 
 describe('App', () => {
+	it('offers a native home link on landing, preview, navigation and editing', async () => {
+		const user = userEvent.setup()
+		const provider = {
+			requestCurrentLocation: vi.fn(() => new Promise<never>(() => {})),
+		}
+		render(<App locationProvider={provider} />)
+		const expectHome = () =>
+			expect(
+				screen.getByRole('link', { name: 'Yotes Wayfinder home' }),
+			).toHaveAttribute('href', import.meta.env.BASE_URL)
+		expectHome()
+		await selectLibraryAndDining(user)
+		await user.click(screen.getByRole('button', { name: 'Preview route' }))
+		expectHome()
+		await user.click(screen.getByRole('button', { name: 'Start navigating' }))
+		expectHome()
+		await user.click(screen.getByRole('button', { name: 'Edit route' }))
+		expectHome()
+	})
 	it('preserves an existing preview when a header building highlight is cleared', async () => {
 		const user = userEvent.setup()
 		const provider = { requestCurrentLocation: vi.fn() }
