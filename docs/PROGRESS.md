@@ -1,5 +1,15 @@
 # Progress Log
 
+## October 31: header home link
+
+- The brand heading is a keyboard-accessible home link in every workspace view.
+  It performs a fresh page navigation, clearing transient route, draft, inspection
+  and snapshot state without adding a router or changing normal edit/Cancel behavior.
+- Existing heading appearance and focus treatment are preserved. The link uses
+  Vite's configured public base path rather than a hard-coded deployment hostname.
+- App coverage checks the link through landing, route preview, navigation and edit.
+  Hosted release evidence is recorded in the corresponding pull request.
+
 ## Release 0.1.0: selected search name, dependency fix and web-sized photos
 
 - Header search displays the selected building name and clears it with inspection,

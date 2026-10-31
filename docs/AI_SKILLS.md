@@ -1,5 +1,14 @@
 # AI Skills Inventory
 
+## October 31: home navigation
+
+- **OpenAI / Playwright:** verify actual document navigation and fresh landing
+  state on desktop and mobile, separately from the component's link semantics.
+- **External / Context7 and Vite documentation:** confirm `import.meta.env.BASE_URL`
+  follows the configured public deployment path.
+- **Project-developed / explicit reset boundary:** use native home navigation for
+  an intentional full reset; preserve the existing stateful map during route edits.
+
 ## Release 0.1.0 verification
 
 - **OpenAI / Security Best Practices:** scoped supply-chain review, locked install,

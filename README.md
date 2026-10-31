@@ -15,6 +15,9 @@ verification, limitations and the previous working deployment.
 
 ## Using the guide
 
+Click **Yotes Wayfinder** in the header to return to a fresh landing page. This
+clears the current route, unsaved edits, building selection and location snapshot.
+
 1. Select Start and Destination, then **Preview route**.
 2. **Start navigating** begins the illustrated walkthrough and requests an
    approximate real-location snapshot.

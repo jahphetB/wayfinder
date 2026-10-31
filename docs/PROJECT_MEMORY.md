@@ -1,5 +1,21 @@
 # Current project state
 
+## October 31: approved home-link release
+
+Scope: make the brand heading return to a fresh landing page, then report on
+college adoption without implementing additional features. Production release is
+explicitly approved for this change. Feature branch: `fix/brand-home-link`.
+The previous working main is a19b0809e4b6b635219d5ee10afeda878ab48152;
+its immutable deployment is https://wayfinder-q5zmst6gx-jahphet.vercel.app/.
+
+GuideHeader uses a native anchor to Vite BASE_URL. A new document intentionally
+clears all transient App/hook state; no reset reducer, router or GPS behavior is
+introduced. layout.css preserves inherited branding and existing global focus.
+App.test covers the home link across all workspace views. Release/preview checks
+and actual deployed source must be recorded in the new pull request, not inferred
+from the unchanged 0.1.0 package label. Existing photo-rights, field/accessibility,
+map-service capacity and real-device evidence limitations remain applicable.
+
 ## Release 0.1.0: current authoritative state
 
 User explicitly approved selected header text, minimatch remediation, photo
