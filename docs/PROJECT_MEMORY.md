@@ -26,6 +26,11 @@ are not established by these checks. docs/RELEASE_READINESS.md distinguishes evi
 Runtime source is 7d86c4c, following photo/Hendren commit 8f3f4c1. Local built assets
 are index-DV1EAyr8.js and MapView-BCsZHKxq.js. Documentation-only commits may follow.
 
+Fresh October 30 npm audit: 12 MODERATE affected dev-tool packages from minimatch
+10.2.6 / GHSA-g3hv-75wg-m249; no high/critical findings. Patched release is 11.0.1.
+No dependency changes or force fix authorized/applied in this photo/search scope.
+Record this as unresolved pre-merge dependency review, not an audit-zero claim.
+
 ## Latest correction: shared camera and draft markers
 
 Both map modes now share pitch 60 and identical camera behavior. Start/Next/Back

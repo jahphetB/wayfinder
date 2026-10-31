@@ -2,6 +2,10 @@
 
 ## October 30: campus photos and non-destructive inspection
 
+- **External / GitHub Advisory Database:** verify the newly reported minimatch
+  advisory against the installed dependency chain; distinguish moderate development
+  exposure from an all-clear audit, without applying a breaking force fix.
+
 - **OpenAI / Playwright:** actual map-click selection, all-slide image decoding,
   proportional-layout checks, mobile popup review, route-preserving clear/Cancel
   and network checks for out-of-popup photo loading.

@@ -19,6 +19,17 @@ is historical; its former G01–G12 gates are retired.
 
 ## October 30 photo and search-reset revision
 
+### Refreshed dependency finding
+
+The October 30 network-refreshed npm audit reports 12 moderate affected packages
+through one minimatch advisory, with no high/critical findings. The resolved
+minimatch 10.2.6 is pulled by ESLint and TypeScript-ESLint development tools.
+[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)
+describes pattern-amplification denial of service and lists 11.0.1 as patched.
+The development dependency finding remains unresolved in this revision; the
+high/critical CI threshold passing does not mean the full audit has zero findings.
+No forced downgrade, dependency override or reduced security threshold was applied.
+
 Source 7d86c4c adds the supplied photos/Hendren selection (8f3f4c1) and independent
 header inspection with an in-field clear control. Its local quality checks pass:
 128 tests/30 files, strict types, lint, formatting and production build. This

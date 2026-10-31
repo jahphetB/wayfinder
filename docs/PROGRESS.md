@@ -2,6 +2,10 @@
 
 ## October 30: supplied photos, Hendren details and search reset
 
+- Refreshed advisory check: 12 moderate affected development-tool packages through
+  minimatch 10.2.6; no high/critical findings. RELEASE_READINESS.md records the
+  unresolved advisory; no forced dependency change or policy relaxation was made.
+
 - Organized nine original JPEGs in src/assets/buildings and mapped them to library,
   Sterry, dining hall and Hendren photo slides. Full-photo contain sizing preserves
   proportions. Embedded library-interior photographer credit is displayed.
