@@ -1,10 +1,14 @@
-import type { Coordinates, LocationReading } from '@/domain/navigation/types'
+import type { LocationReading } from '@/domain/navigation/types'
 
 export interface LocationRequest {
-  readonly expectedCoordinates: Coordinates
+	/** A single button-triggered bounded snapshot request. */
+	readonly signal?: AbortSignal
+	readonly onProgress?: (progress: {
+		readonly accuracyMeters: number
+		readonly readingCount: number
+	}) => void
 }
 
 export interface LocationProvider {
-  readonly mode?: 'browser' | 'prototype-simulation'
-  requestCurrentLocation(request: LocationRequest): Promise<LocationReading>
+	requestCurrentLocation(request: LocationRequest): Promise<LocationReading>
 }

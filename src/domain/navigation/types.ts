@@ -1,102 +1,70 @@
 export type MapMode = '2d' | '3d'
 
 export interface Coordinates {
-  readonly latitude: number
-  readonly longitude: number
+	readonly latitude: number
+	readonly longitude: number
 }
 
 export interface Location {
-  readonly id: string
-  readonly label: string
-  readonly coordinates: Coordinates
+	readonly id: string
+	readonly label: string
+	readonly coordinates: Coordinates
 }
 
 export interface LocationSearchResult {
-  readonly location: Location
-  readonly matchedText: string
+	readonly location: Location
+	readonly matchedText: string
 }
 
 export interface Route {
-  readonly id: string
-  readonly originLocationId: string
-  readonly destinationLocationId: string
-  readonly coordinates: readonly Coordinates[]
-  readonly steps: readonly RouteStep[]
-  readonly distanceMeters: number
-  readonly estimatedDurationMinutes: number
+	readonly id: string
+	readonly originLocationId: string
+	readonly destinationLocationId: string
+	readonly coordinates: readonly Coordinates[]
+	readonly steps: readonly RouteStep[]
+	readonly distanceMeters: number
+	readonly estimatedDurationMinutes: number
 }
 
 export type RouteManeuver =
-  'depart' | 'continue' | 'turn-left' | 'turn-right' | 'turn-around'
+	'depart' | 'continue' | 'turn-left' | 'turn-right' | 'turn-around'
 
 export type RouteCheckpointKind = 'turn' | 'destination'
 
 export interface RouteCheckpoint {
-  readonly id: string
-  readonly kind: RouteCheckpointKind
-  readonly coordinates: Coordinates
+	readonly id: string
+	readonly kind: RouteCheckpointKind
+	readonly coordinates: Coordinates
 }
 
 export interface RouteStep {
-  readonly id: string
-  readonly edgeId: string
-  readonly maneuver: RouteManeuver
-  readonly instruction: string
-  readonly coordinates: readonly Coordinates[]
-  readonly distanceMeters: number
-  readonly checkpoint: RouteCheckpoint
+	readonly id: string
+	readonly edgeId: string
+	readonly maneuver: RouteManeuver
+	readonly instruction: string
+	readonly coordinates: readonly Coordinates[]
+	readonly distanceMeters: number
+	readonly checkpoint: RouteCheckpoint
 }
 
 export interface LocationReading {
-  readonly coordinates: Coordinates
-  readonly accuracyMeters: number
-  readonly capturedAtMilliseconds: number
-}
-
-export interface CheckpointVerificationPolicy {
-  readonly confirmationRadiusMeters: number
-  readonly maximumReadingAgeMilliseconds: number
-}
-
-interface CheckpointVerificationBase {
-  readonly checkpointId: string
-  readonly distanceMeters: number
-  readonly accuracyMeters: number
-}
-
-export type CheckpointVerification =
-  | (CheckpointVerificationBase & { readonly status: 'confirmed' })
-  | (CheckpointVerificationBase & {
-      readonly status: 'uncertain'
-      readonly reason:
-        'stale-reading' | 'future-reading' | 'accuracy-overlaps-checkpoint'
-    })
-  | (CheckpointVerificationBase & {
-      readonly status: 'mismatched'
-      readonly reason: 'outside-checkpoint'
-    })
-
-export type NavigationCheckpointKind = RouteCheckpointKind | 'origin'
-
-export interface NavigationCheckpoint {
-  readonly id: string
-  readonly kind: NavigationCheckpointKind
-  readonly coordinates: Coordinates
+	readonly coordinates: Coordinates
+	readonly accuracyMeters: number
+	readonly capturedAtMilliseconds: number
 }
 
 export type NavigationSessionStatus =
-  'awaiting-start' | 'navigating' | 'arrived'
+	'awaiting-start' | 'navigating' | 'completed'
 
 export interface NavigationSession {
-  readonly route: Route
-  readonly status: NavigationSessionStatus
-  readonly currentStepIndex: number
-  readonly lastVerification?: CheckpointVerification
+	readonly route: Route
+	readonly status: NavigationSessionStatus
+	readonly currentStepIndex: number
 }
 
 export interface WalkingGraphNode {
-  readonly id: string
-  readonly coordinates: Coordinates
+	readonly id: string
+	readonly coordinates: Coordinates
 }
 
 export type WalkingEdgeDirection = 'bidirectional' | 'forward-only'
@@ -108,38 +76,38 @@ export type WalkingEdgeAccessibility = 'unverified' | 'step-free' | 'stairs'
 export type WalkingPathKind = 'main' | 'formal' | 'informal' | 'connector'
 
 export interface WalkingGraphEdge {
-  readonly id: string
-  readonly fromNodeId: string
-  readonly toNodeId: string
-  readonly distanceMeters: number
-  readonly geometry: readonly Coordinates[]
-  readonly direction: WalkingEdgeDirection
-  readonly availability: WalkingEdgeAvailability
-  readonly accessibility: WalkingEdgeAccessibility
-  readonly pathKind?: WalkingPathKind
+	readonly id: string
+	readonly fromNodeId: string
+	readonly toNodeId: string
+	readonly distanceMeters: number
+	readonly geometry: readonly Coordinates[]
+	readonly direction: WalkingEdgeDirection
+	readonly availability: WalkingEdgeAvailability
+	readonly accessibility: WalkingEdgeAccessibility
+	readonly pathKind?: WalkingPathKind
 }
 
 export interface WalkingGraph {
-  readonly nodes: readonly WalkingGraphNode[]
-  readonly edges: readonly WalkingGraphEdge[]
+	readonly nodes: readonly WalkingGraphNode[]
+	readonly edges: readonly WalkingGraphEdge[]
 }
 
 export type RouteDataVerificationStatus = 'illustrative' | 'verified'
 
 export interface WalkingGraphProvenance {
-  readonly sourceDescription: string
-  readonly verificationStatus: RouteDataVerificationStatus
-  readonly reviewedOn: string
-  readonly verifiedBy?: string
+	readonly sourceDescription: string
+	readonly verificationStatus: RouteDataVerificationStatus
+	readonly reviewedOn: string
+	readonly verifiedBy?: string
 }
 
 export interface WalkingGraphRelease {
-  readonly graph: WalkingGraph
-  readonly provenance: WalkingGraphProvenance
+	readonly graph: WalkingGraph
+	readonly provenance: WalkingGraphProvenance
 }
 
 export interface WalkingPath {
-  readonly nodeIds: readonly string[]
-  readonly edgeIds: readonly string[]
-  readonly distanceMeters: number
+	readonly nodeIds: readonly string[]
+	readonly edgeIds: readonly string[]
+	readonly distanceMeters: number
 }

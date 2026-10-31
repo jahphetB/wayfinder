@@ -1,264 +1,144 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
-import type {
-  Location,
-  LocationSearchResult,
-  NavigationSession,
-} from '@/domain/navigation/types'
-import { useRoutePlanner } from '../hooks/useRoutePlanner'
-import type { RoutePlanState } from '../model/routePlanner'
-import type { LocationProvider } from '../contracts/LocationProvider'
-import { CheckpointNavigation } from './CheckpointNavigation'
+import type { ReturnTypeOfCampusGuide } from '../hooks/useCampusGuide'
+import type { GuideWorkspace } from '../model/guideWorkspace'
+import { LocationField } from './LocationField'
+import { RouteHeading } from './RouteHeading'
+import { GuideIcon } from '@/app/components/GuideIcon'
+import type { ReactNode } from 'react'
 
-interface FieldProps {
-  readonly label: string
-  readonly query: string
-  readonly suggestions: readonly LocationSearchResult[]
-  readonly onChange: (value: string) => void
-  readonly onSelect: (location: Location) => void
-}
-function LocationField({
-  label,
-  query,
-  suggestions,
-  onChange,
-  onSelect,
-}: FieldProps) {
-  const [open, setOpen] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(-1)
-  const listboxId = useId()
-  const listboxRef = useRef<HTMLUListElement>(null)
-
-  useEffect(() => {
-    if (!open || activeIndex < 0) return
-    listboxRef.current?.children
-      .item(activeIndex)
-      ?.scrollIntoView?.({ block: 'nearest' })
-  }, [activeIndex, open])
-
-  function selectSuggestion(location: Location): void {
-    onSelect(location)
-    setOpen(false)
-    setActiveIndex(-1)
-  }
-
-  function moveActiveSuggestion(direction: 1 | -1): void {
-    if (suggestions.length === 0) return
-
-    setOpen(true)
-    setActiveIndex((currentIndex) => {
-      const nextIndex = currentIndex + direction
-      if (nextIndex < 0) return suggestions.length - 1
-      return nextIndex % suggestions.length
-    })
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      moveActiveSuggestion(1)
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault()
-      moveActiveSuggestion(-1)
-    } else if (event.key === 'Enter' && open && activeIndex >= 0) {
-      const suggestion = suggestions[activeIndex]
-      if (!suggestion) return
-      event.preventDefault()
-      selectSuggestion(suggestion.location)
-    } else if (event.key === 'Escape') {
-      setOpen(false)
-      setActiveIndex(-1)
-    }
-  }
-
-  return (
-    <div className="location-field">
-      <label>
-        {label}
-        <input
-          aria-label={label}
-          aria-activedescendant={
-            open && activeIndex >= 0
-              ? `${listboxId}-option-${activeIndex}`
-              : undefined
-          }
-          aria-autocomplete="list"
-          aria-controls={open ? listboxId : undefined}
-          aria-expanded={open}
-          onBlur={() => {
-            setOpen(false)
-            setActiveIndex(-1)
-          }}
-          onChange={(event) => {
-            onChange(event.target.value)
-            setOpen(true)
-            setActiveIndex(-1)
-          }}
-          onFocus={() => {
-            setOpen(true)
-            setActiveIndex(-1)
-          }}
-          onKeyDown={handleKeyDown}
-          role="combobox"
-          value={query}
-        />
-      </label>
-      {open && (
-        <ul
-          aria-label={`${label} suggestions`}
-          className="suggestions"
-          id={listboxId}
-          ref={listboxRef}
-          role="listbox"
-        >
-          {suggestions.map(({ location }, index) => (
-            <li id={`${listboxId}-option-${index}`} key={location.id}>
-              <button
-                aria-selected={activeIndex === index}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => selectSuggestion(location)}
-                role="option"
-                type="button"
-              >
-                {location.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  )
-}
-function RouteSummary({
-  planState,
-  origin,
-  destination,
-}: {
-  planState: RoutePlanState
-  origin: Location | undefined
-  destination: Location | undefined
-}) {
-  if (planState.status === 'invalid-location')
-    return (
-      <p className="route-summary-error" role="alert">
-        Choose a suggestion for both locations before previewing a route.
-      </p>
-    )
-
-  if (planState.status === 'route-unavailable')
-    return (
-      <p className="route-summary-error" role="alert">
-        A walking route is not available for this location pair yet.
-      </p>
-    )
-
-  if (planState.status === 'empty' || !origin || !destination)
-    return (
-      <p className="route-summary-empty">
-        {destination?.id === 'simplot-stadium'
-          ? 'Select a start, then preview the prototype stadium drive from a mapped campus exit.'
-          : 'Select locations, then preview a walking route.'}
-      </p>
-    )
-
-  if (planState.status === 'driving-handoff') {
-    return (
-      <section aria-live="polite" className="route-summary driving-handoff">
-        <p>Prototype driving handoff</p>
-        <strong>{destination.label}</strong>
-        <span>
-          This preview starts at {planState.handoff.exitLabel}, not at your
-          selected start. It does not provide a verified driving route from your
-          location.
-        </span>
-        <ol>
-          {planState.handoff.instructions.map((instruction) => (
-            <li key={instruction}>{instruction}</li>
-          ))}
-        </ol>
-        <span>
-          Check road signs, access, and parking on site. Car navigation and GPS
-          checkpoints are not available for this preview.
-        </span>
-        <span>{planState.handoff.accessNotice}</span>
-      </section>
-    )
-  }
-
-  const { route } = planState
-
-  return (
-    <section aria-live="polite" className="route-summary">
-      <p>Walking route</p>
-      <strong>
-        {origin.label} to {destination.label}
-      </strong>
-      <div>
-        <b>{route.estimatedDurationMinutes} min</b>
-        <span>{(route.distanceMeters / 1000).toFixed(1)} km</span>
-      </div>
-    </section>
-  )
-}
 export function NavigationPanel({
-  planner,
-  locationProvider,
-  onNavigationSessionChange,
+	planner,
+	workspace,
+	onCancel,
+	onStart,
+	feedback,
 }: {
-  readonly planner: ReturnType<typeof useRoutePlanner>
-  readonly locationProvider: LocationProvider
-  readonly onNavigationSessionChange: (session: NavigationSession) => void
+	readonly planner: ReturnTypeOfCampusGuide['planner']
+	readonly workspace: GuideWorkspace
+	readonly onCancel: () => void
+	readonly onStart: () => void
+	readonly feedback?: ReactNode
 }) {
-  return (
-    <section className="navigation-panel">
-      <p className="eyebrow">Route planner</p>
-      <h1>Find your way on campus</h1>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          planner.planRoute()
-        }}
-      >
-        <LocationField
-          label="Start"
-          onChange={(value) => planner.changeQuery('origin', value)}
-          onSelect={(location) => planner.selectLocation('origin', location)}
-          query={planner.originQuery}
-          suggestions={planner.originSuggestions}
-        />
-        <button
-          aria-label="Swap start and destination"
-          className="swap-locations"
-          onClick={planner.swapLocations}
-          type="button"
-        >
-          ↕
-        </button>
-        <LocationField
-          label="Destination"
-          onChange={(value) => planner.changeQuery('destination', value)}
-          onSelect={(location) =>
-            planner.selectLocation('destination', location)
-          }
-          query={planner.destinationQuery}
-          suggestions={planner.destinationSuggestions}
-        />
-        <button className="route-action" type="submit">
-          Preview route
-        </button>
-      </form>
-      {planner.plannedRoute && (
-        <CheckpointNavigation
-          key={planner.routeRevision}
-          route={planner.plannedRoute}
-          provider={locationProvider}
-          onSessionChange={onNavigationSessionChange}
-        />
-      )}
-      <RouteSummary
-        destination={planner.destination}
-        origin={planner.origin}
-        planState={planner.routePlanState}
-      />
-    </section>
-  )
+	const editing =
+		workspace.view === 'editing' ||
+		(workspace.view === 'preview' && Boolean(workspace.previous))
+	const previous =
+		workspace.view === 'editing'
+			? workspace.journey
+			: workspace.view === 'preview'
+				? workspace.previous
+				: undefined
+	const error =
+		planner.routePlanState.status === 'invalid-location'
+			? 'Choose a suggestion for both locations before previewing a route.'
+			: planner.routePlanState.status === 'route-unavailable'
+				? 'A walking route is not available for this location pair yet.'
+				: undefined
+	return (
+		<section
+			className="navigation-panel"
+			aria-label={editing ? 'Edit route' : 'Plan your route'}
+			id="route-planner"
+		>
+			{editing && previous ? (
+				<>
+					<p className="walkthrough-paused">
+						<GuideIcon name="pause" />
+						Walkthrough paused ·{' '}
+						{previous.session.status === 'completed'
+							? 'Complete'
+							: `Step ${previous.session.currentStepIndex + 1} of ${previous.session.route.steps.length}`}
+					</p>
+					<RouteHeading proposal={previous.proposal} />
+				</>
+			) : (
+				<h2 className="planner-title">Plan your route</h2>
+			)}
+			<form
+				className="route-form"
+				onSubmit={(event) => {
+					event.preventDefault()
+					planner.planRoute()
+				}}
+			>
+				<div className="route-fields">
+					<LocationField
+						label="Start"
+						query={planner.originQuery}
+						suggestions={planner.originSuggestions}
+						onChange={(value) => planner.changeQuery('origin', value)}
+						onSelect={(location) => planner.selectLocation('origin', location)}
+					/>
+					<button
+						className="swap-locations"
+						type="button"
+						aria-label="Swap start and destination"
+						onClick={() => planner.swapLocations()}
+					>
+						<GuideIcon name="swap" />
+					</button>
+					<LocationField
+						label="Destination"
+						query={planner.destinationQuery}
+						suggestions={planner.destinationSuggestions}
+						onChange={(value) => planner.changeQuery('destination', value)}
+						onSelect={(location) =>
+							planner.selectLocation('destination', location)
+						}
+					/>
+				</div>
+				<div
+					className={
+						editing
+							? 'planner-actions planner-actions--editing'
+							: 'planner-actions'
+					}
+				>
+					{editing && (
+						<button
+							className="secondary-action"
+							type="button"
+							onClick={onCancel}
+						>
+							Cancel
+						</button>
+					)}
+					<button className="route-action" type="submit">
+						{editing ? 'Preview changes' : 'Preview route'}
+					</button>
+				</div>
+			</form>
+			{error && (
+				<p className="planner-error" role="alert">
+					{error}
+				</p>
+			)}
+			{feedback}
+			{workspace.view === 'preview' && (
+				<section className="route-preview" aria-label="Route preview">
+					{workspace.proposal.plan.status === 'route-ready' ? (
+						<>
+							<RouteHeading proposal={workspace.proposal} summary />
+							<button
+								className="route-action start-navigation-action"
+								type="button"
+								onClick={onStart}
+							>
+								Start navigating
+							</button>
+						</>
+					) : (
+						<section className="driving-handoff">
+							<h2>Prototype driving handoff</h2>
+							<p>{workspace.proposal.plan.handoff.accessNotice}</p>
+							<ol>
+								{workspace.proposal.plan.handoff.instructions.map((text) => (
+									<li key={text}>{text}</li>
+								))}
+							</ol>
+						</section>
+					)}
+				</section>
+			)}
+		</section>
+	)
 }

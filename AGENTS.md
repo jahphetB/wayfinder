@@ -4,6 +4,9 @@
 
 - Complete the user-approved scope, including grouped steps when explicitly approved,
   then stop before the next unapproved step.
+- `docs/PRODUCT_PLAN.md` is the authoritative product definition. The approved
+  guide release package may proceed through routine steps without repeated approval.
+  Reports for this package are brief; production approval remains mandatory.
 - After every step, explain completed work, verification, key files and their connections, and technical terms when first introduced.
 - Recommend concise or detailed reporting and ask for the user's preference for the next step.
 - Use two clearly labeled report parts: the completed-step report, then a brief
@@ -51,6 +54,9 @@
   `theme.css` and map-camera/route colors in `mapPresentation.ts`. Preserve the
   current layout unless a visual change is part of the approved scope.
 - Avoid speculative abstractions and duplicate logic.
+- Use tabs for indentation in new/changed source. Manual route walkthroughs never
+  depend on GPS; only Get my location, Start navigating and Next request snapshots.
+  No movement tracking, automatic rerouting, GPS-selected origin or arrival claim.
 
 ## Current technical documentation
 

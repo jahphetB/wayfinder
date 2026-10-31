@@ -7,31 +7,32 @@ import { libraryPrototypeBuilding } from '@/data/scene/libraryPrototypeBuilding'
 import { campusBuildingDetails } from '@/data/campus/buildingDetails'
 
 const defaultMapStyle = {
-  version: 8,
-  sources: {
-    openStreetMap: {
-      type: 'raster',
-      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-      tileSize: 256,
-      minzoom: 0,
-      maxzoom: 19,
-      attribution: '© OpenStreetMap contributors',
-    },
-  },
-  layers: [
-    {
-      id: 'open-street-map',
-      type: 'raster',
-      source: 'openStreetMap',
-    },
-  ],
+	version: 8,
+	sources: {
+		openStreetMap: {
+			type: 'raster',
+			tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+			tileSize: 256,
+			minzoom: 0,
+			maxzoom: 19,
+			attribution:
+				'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>',
+		},
+	},
+	layers: [
+		{
+			id: 'open-street-map',
+			type: 'raster',
+			source: 'openStreetMap',
+		},
+	],
 } satisfies StyleSpecification
 
 export const createMapAdapter: MapAdapterFactory = () =>
-  new MapLibreMapAdapter({
-    style: import.meta.env.VITE_MAP_STYLE_URL ?? defaultMapStyle,
-    buildings: campusBuildingDetails,
-    campusLayer: new MapLibreGeoreferencedBuildingLayer(
-      libraryPrototypeBuilding,
-    ),
-  })
+	new MapLibreMapAdapter({
+		style: import.meta.env.VITE_MAP_STYLE_URL ?? defaultMapStyle,
+		buildings: campusBuildingDetails,
+		campusLayer: new MapLibreGeoreferencedBuildingLayer(
+			libraryPrototypeBuilding,
+		),
+	})
